@@ -39,13 +39,15 @@
  */
 #include "sdk_application_config.h"
 #ifdef NRF_SDK14_SPI
+#include <stdint.h>
+
 #include "spi.h"
-#include "board.h"
+#include "boards.h"
 
 #include "nrf_drv_spi.h"
 #include "app_util_platform.h"
 #include "nrf_gpio.h"
-#include "nrf_error.h"
+#include "ruuvi_error.h"
 #include "yield.h"
 
 #include "nrf_log.h"
@@ -70,9 +72,10 @@ static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
 
 /**
  * @brief initialize SPI driver with default settings
- * @return 0 on success, NRF error code on error
+ * @return 0 on success, Ruuvi error code on error
  */
-ret_code_t spi_init(void){
+ruuvi_status_t spi_init(void)
+{
   //Return error if SPI is already init
   if(spi_init_done) { return NRF_ERROR_INVALID_STATE; }
 
@@ -99,22 +102,23 @@ ret_code_t spi_init(void){
   nrf_gpio_pin_set(SPIM0_SS_ACCELERATION_PIN);
 
   if(NRF_SUCCESS == err_code) { spi_init_done = true; }
-  return err_code;
+  return PLATFORM_TO_RUUVI_ERROR(&err_code);
 }
 
 /**
  * @brief uninitialize SPI driver with default settings
- * @return 0 on success, NRF error code on error
+ * @return 0 on success, Ruuvi error code on error
  */
-ret_code_t spi_uninit(void){
+ruuvi_status_t spi_uninit(void)
+{
   //Return error if SPI is already init
   if(!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
 
   ret_code_t err_code = NRF_SUCCESS;        
-  nrf_drv_spi_uninit (spi); 
+  nrf_drv_spi_uninit (&spi); 
 
   if(NRF_SUCCESS == err_code) { spi_init_done = false; }
-  return err_code;
+  return PLATFORM_TO_RUUVI_ERROR(&err_code);
 }
 
 /**
@@ -149,7 +153,7 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   nrf_gpio_pin_set(dev_id);
 
   APP_ERROR_CHECK(err_code);
-  return err_code;
+  return (NRF_SUCCESS == err_code) ? 0 : -1;
 }
 
 /**
@@ -183,7 +187,7 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
   nrf_gpio_pin_set(dev_id);
 
   APP_ERROR_CHECK(err_code);
-  return err_code;
+  return (NRF_SUCCESS == err_code) ? 0 : -1;
 }
 
 /**
@@ -219,7 +223,7 @@ int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
   nrf_gpio_pin_set(ss);
 
   APP_ERROR_CHECK(err_code);
-  return err_code;
+  return (NRF_SUCCESS == err_code) ? 0 : -1;
 }
 
 /**
@@ -255,7 +259,7 @@ int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
   nrf_gpio_pin_set(ss);
 
   APP_ERROR_CHECK(err_code);
-  return err_code;
+  return (NRF_SUCCESS == err_code) ? 0 : -1;
 }
 
 

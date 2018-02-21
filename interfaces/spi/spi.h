@@ -5,17 +5,18 @@
 
 #ifndef SPI_H
 #define SPI_H
+#include "ruuvi_error.h"
 /**
  * @brief initialize SPI driver with default settings
  * @return 0 on success, NRF error code on error
  */
-ret_code_t spi_init(void);
+ruuvi_status_t spi_init(void);
 
 /**
  * @brief uninitialize SPI driver with default settings
  * @return 0 on success, NRF error code on error
  */
-ret_code_t spi_uninit(void);
+ruuvi_status_t spi_uninit(void);
 
 /**
  * @brief platform SPI write command for Bosch drivers

@@ -1,11 +1,11 @@
 #ifndef YIELD_H
 #define YIELD_H
-#include "nrf_error.h"
+#include "ruuvi_error.h"
 
-typedef ret_code_t (*yield_fptr_t)(void);
+typedef ruuvi_status_t (*yield_fptr_t)(void);
 
 /** Call function which will release execution / go to sleep **/
-ret_code_t platform_yield(void);
+ruuvi_status_t platform_yield(void);
 
 /** Setup yield function **/
 void yield_set(yield_fptr_t yield_ptr);

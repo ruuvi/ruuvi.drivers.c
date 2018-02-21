@@ -2,22 +2,30 @@
 #include "sdk_application_config.h"
 #ifdef NRF_SDK14_YIELD
 #include "yield.h"
-#include "nrf_error.h"
+#include "ruuvi_error.h"
 #include "nrf_delay.h"
 
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL   0
+#else
+#define NULL   ((void *) 0)
+#endif
+#endif
+
 /** __WFE() **/
-static ret_code_t default_yield(void)
+static ruuvi_status_t default_yield(void)
 {
   __WFE();
-  return NRF_SUCCESS;
+  return RUUVI_SUCCESS;
 }
 
 static yield_fptr_t yield = default_yield;
 
 /** Call function which will release execution / go to sleep **/
-ret_code_t platform_yield(void)
+ruuvi_status_t platform_yield(void)
 {
-  if(NULL == yield) { return NRF_ERROR_NULL; }
+  if(NULL == yield) { return RUUVI_ERROR_NULL; }
   return yield();
 }
 
