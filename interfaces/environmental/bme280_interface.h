@@ -10,7 +10,7 @@ ruuvi_status_t bme280_interface_samplerate_get(ruuvi_sensor_samplerate_t* sample
 ruuvi_status_t bme280_interface_resolution_set(ruuvi_sensor_resolution_t* resolution);
 ruuvi_status_t bme280_interface_resolution_get(ruuvi_sensor_resolution_t* resolution);
 ruuvi_status_t bme280_interface_scale_set(ruuvi_sensor_scale_t* scale);
-ruuvi_status_t bme280_interface_scale_set(ruuvi_sensor_scale_t* scale);
+ruuvi_status_t bme280_interface_scale_get(ruuvi_sensor_scale_t* scale);
 ruuvi_status_t bme280_interface_dsp_set(ruuvi_sensor_dsp_function_t* dsp, uint8_t* parameter);
 ruuvi_status_t bme280_interface_dsp_get(ruuvi_sensor_dsp_function_t* dsp, uint8_t* parameter);
 ruuvi_status_t bme280_interface_mode_set(ruuvi_sensor_mode_t*);
