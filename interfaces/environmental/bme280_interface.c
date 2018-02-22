@@ -303,7 +303,7 @@ ruuvi_status_t bme280_interface_data_get(void* data)
   ruuvi_environmental_data_t* p_data = (ruuvi_environmental_data_t*)data;
   struct bme280_data comp_data;
   int8_t rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev);
-  NRF_LOG_INFO(NRF_LOG_FLOAT_MARKER, comp_data.temperature);
+  // NRF_LOG_INFO(NRF_LOG_FLOAT_MARKER, comp_data.temperature);
   p_data->temperature = (float) comp_data.temperature;
   p_data->humidity    = (float) comp_data.humidity;
   p_data->pressure    = (float) comp_data.pressure;
