@@ -244,7 +244,7 @@ int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
 
   nrf_gpio_pin_clear(ss);
 
-  uint8_t* p_write = malloc(len+1);
+  uint8_t* p_write = calloc(len+1, sizeof(uint8_t));
   //TX address
   // err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
   // while (!spi_xfer_done)
@@ -255,15 +255,17 @@ int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
   // spi_xfer_done = false;
 
   p_write[0] = reg_addr;
+  memcpy(p_write+1, data, len);
 
   err_code |= nrf_drv_spi_transfer(&spi, p_write, len+1, NULL, 0);
   while (!spi_xfer_done)
   {
     err_code |= platform_yield();
   }
-  free(p_write);
+  
   nrf_gpio_pin_set(ss);
-  NRF_LOG_INFO("Wrote to device %d register %x", ss, reg_addr);
+  //NRF_LOG_INFO("Wrote %d bytes to device %d register %x, first %x", len, ss, p_write[0], p_write[1]);
+  free(p_write);
 
   APP_ERROR_CHECK(err_code);
   return (NRF_SUCCESS == err_code) ? 0 : -1;
@@ -321,6 +323,7 @@ int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
   nrf_gpio_pin_clear(ss);
   uint8_t p_write[40] = {0};
   uint8_t p_read[40]  = {0};
+  memset(p_write, 0, sizeof(p_write));
   uint8_t read_cmd = reg_addr | 0x80;
   if(len > 1) { read_cmd |= 0x40; }
   p_write[0] = read_cmd;
@@ -334,7 +337,7 @@ int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
 
   memcpy(data, p_read+1, len);
   nrf_gpio_pin_set(ss);
-  NRF_LOG_INFO("Read from device %d register %x, got %x", ss, reg_addr, data[0]);
+  // if(len>1) NRF_LOG_INFO("Read %d bytes from device %d register %x, last %x", len, ss, p_write[0], data[len-1]);
   return err_code;
 }
 
