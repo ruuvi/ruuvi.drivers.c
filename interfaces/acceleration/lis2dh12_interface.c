@@ -20,6 +20,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+// TODO: Platform log
+#include "nrf_log.h" 
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+
 #ifndef APPLICATION_FLOAT_USE
   #error "LIS2DH12 interface requires floats, define APPLICATION_FLOAT_USE in makefile"
 #endif
@@ -57,7 +62,10 @@ static ruuvi_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new, axi
   for(size_t ii = 0; ii < 3; ii++)
   {
     int16_t diff = new->i16bit[ii] - old->i16bit[ii];
+    //Compensate justification
+    diff >>=6;
     if(0 > diff) { diff = 0 - diff; }
+    NRF_LOG_INFO("Self-test diff: %d", diff);
     if(diff < 17)  { return RUUVI_ERROR_SELFTEST; }
     if(diff > 360) { return RUUVI_ERROR_SELFTEST; } 
   }
@@ -77,9 +85,15 @@ ruuvi_status_t lis2dh12_interface_init(void)
   uint8_t whoamI = 0;
   lis2dh12_device_id_get(dev_ctx, &whoamI);
   if ( whoamI != LIS2DH12_ID ) { return RUUVI_ERROR_NOT_FOUND; }
+  uint8_t enable_axes = 0x07;
+  lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &whoamI, 1);
 
-  // Enable Block Data Update
-  lis2dh12_block_data_update_set(dev_ctx, PROPERTY_ENABLE);
+  // Disable Block Data Update, allow values to update even if old is not read
+  lis2dh12_block_data_update_set(dev_ctx, PROPERTY_DISABLE);
+
+    // Set Output Data Rate
+  dev.samplerate = LIS2DH12_ODR_400Hz;
+  lis2dh12_data_rate_set(dev_ctx, dev.samplerate);
 
   // Set full scale
   dev.scale = LIS2DH12_2g;
@@ -92,9 +106,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
   dev.resolution = LIS2DH12_NM_10bit;
   lis2dh12_operating_mode_set(dev_ctx, dev.resolution);
 
-  // Set Output Data Rate
-  dev.samplerate = LIS2DH12_ODR_400Hz;
-  lis2dh12_data_rate_set(dev_ctx, dev.samplerate);
+
 
   // Run self-test
   // wait for sample to be available
@@ -106,6 +118,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
   memset(data_raw_acceleration_old.u8bit, 0x00, 3*sizeof(int16_t));
   memset(data_raw_acceleration_new.u8bit, 0x00, 3*sizeof(int16_t));
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_old.u8bit);
+  NRF_LOG_INFO("Read acceleration");
 
   // self-test to positive direction
   dev.selftest = LIS2DH12_ST_POSITIVE;
@@ -116,6 +129,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
 
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
+  NRF_LOG_INFO("Read acceleration");
   err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
 
   // self-test to negative direction
