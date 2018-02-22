@@ -16,19 +16,22 @@
 #include "environmental.h"
 #include "bme280_interface.h"
 
-// Bosch driver
+// Bosch driver. 
 #include "bme280.h"
 #include "bme280_defs.h"
 #include "bme280_selftest.h"
+#ifndef BME280_FLOAT_ENABLE
+  #error "Please #define BME280_FLOAT_ENABLE in makefile CFLAGS"
+#endif
 
 // Platform functions
 #include "spi.h"
 #include "yield.h"
 
 //TODO: debug output for platform
-// #include "nrf_log.h"
-// #include "nrf_log_ctrl.h"
-// #include "nrf_log_default_backends.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 
 /** State variables **/
 static struct bme280_dev dev = {0};
@@ -64,6 +67,10 @@ ruuvi_status_t bme280_interface_init(void)
   // NRF_LOG_INFO("BME self-test status: %X", err_code);
   err_code |= BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
   // NRF_LOG_INFO("BME reset status: %X", err_code);
+  // Setup Oversampling 1 to enable sensor
+  ruuvi_sensor_dsp_function_t dsp = RUUVI_SENSOR_DSP_OS;
+  uint8_t dsp_parameter = 1;
+  err_code |= bme280_interface_dsp_set(&dsp, &dsp_parameter);
   
   //TODO: APP_ERROR_CHECK function
   return err_code;
@@ -130,16 +137,22 @@ ruuvi_status_t bme280_interface_dsp_set(ruuvi_sensor_dsp_function_t* dsp, uint8_
 {
   // Validate configuration
   if(   1  != *parameter
-     || 2  != *parameter
-     || 4  != *parameter
-     || 8  != *parameter
-     || 16 != *parameter)
-  { return RUUVI_ERROR_NOT_SUPPORTED; }
+     && 2  != *parameter
+     && 4  != *parameter
+     && 8  != *parameter
+     && 16 != *parameter)
+  { 
+    NRF_LOG_INFO("Invalid DSP param");
+    return RUUVI_ERROR_NOT_SUPPORTED; 
+  }
 
-  // Error if DSP is not last, or if dsp is something else than IIR or OS
+  // Error if DSP is not last, and if dsp is something else than IIR or OS
   if(   RUUVI_SENSOR_DSP_LAST != *dsp
-     || ( (~(RUUVI_SENSOR_DSP_IIR | RUUVI_SENSOR_DSP_OS)) & (*dsp) ) )
-  { return RUUVI_ERROR_NOT_SUPPORTED; }
+     && ( (~(RUUVI_SENSOR_DSP_IIR | RUUVI_SENSOR_DSP_OS)) & (*dsp) ) )
+  { 
+    NRF_LOG_INFO("Invalid DSP function");
+    return RUUVI_ERROR_NOT_SUPPORTED; 
+  }
 
   // Clear setup
   uint8_t settings_sel = 0;
@@ -290,6 +303,7 @@ ruuvi_status_t bme280_interface_data_get(void* data)
   ruuvi_environmental_data_t* p_data = (ruuvi_environmental_data_t*)data;
   struct bme280_data comp_data;
   int8_t rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev);
+  NRF_LOG_INFO(NRF_LOG_FLOAT_MARKER, comp_data.temperature);
   p_data->temperature = (float) comp_data.temperature;
   p_data->humidity    = (float) comp_data.humidity;
   p_data->pressure    = (float) comp_data.pressure;

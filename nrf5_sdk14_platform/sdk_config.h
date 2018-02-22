@@ -293,7 +293,7 @@
  
 
 #ifndef SPI0_USE_EASY_DMA
-#define SPI0_USE_EASY_DMA 1
+#define SPI0_USE_EASY_DMA 0
 #endif
 
 // </e>
@@ -337,7 +337,7 @@
 // <i> https://infocenter.nordicsemi.com/
 
 #ifndef SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED
-#define SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED 0
+#define SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED 1
 #endif
 
 

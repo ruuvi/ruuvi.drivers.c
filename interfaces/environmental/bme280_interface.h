@@ -2,10 +2,6 @@
 #define BME280_INTERFACE_H
 #include "ruuvi_error.h"
 #include "ruuvi_sensor.h"
-#ifdef APPLICATION_FLOAT_USE
-  #define BME280_FLOAT_ENABLE
-#endif
-
 
 ruuvi_status_t bme280_interface_init(void);
 ruuvi_status_t bme280_interface_uninit(void);

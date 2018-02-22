@@ -51,9 +51,10 @@
 #include "ruuvi_error.h"
 #include "yield.h"
 
-// #include "nrf_log.h" TODO: Platform log
-// #include "nrf_log_ctrl.h"
-// #include "nrf_log_default_backends.h"
+// TODO: Platform log
+#include "nrf_log.h" 
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 
 #define SPI_INSTANCE  BOARD_SPI_INSTANCE /**< SPI instance index. */
 
@@ -152,7 +153,7 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
   while (!spi_xfer_done)
   {
-    err_code |= platform_yield();
+    //err_code |= platform_yield();
   }
 
   //Write data
@@ -186,23 +187,35 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
   int8_t err_code = NRF_SUCCESS;
 
   nrf_gpio_pin_clear(dev_id);
-  uint8_t* p_write = calloc(len+1, sizeof(uint8_t));
-  uint8_t* p_read  = calloc(len+1, sizeof(uint8_t));
-  p_write[0] = reg_addr;
-  //TX address
-  /*err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
+  // Use this code if EASY DMA is in use
+  // uint8_t p_write[40] = {0};
+  // uint8_t p_read[40]  = {0};
+  // p_write[0] = reg_addr;
+  // //TX address
+  // err_code |= nrf_drv_spi_transfer(&spi, p_write, len+1, p_read, len+1);
+  // while (!spi_xfer_done)
+  // {
+  //   err_code |= platform_yield();NRF_LOG_INFO("Yield");
+  // }
+
+  // memcpy(data, p_read+1, len);
+
+  // Use this code if EASY DMA is disabled to avoid extra byte being clocked out on 1-register reads
+  // http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.nrf52832.Rev2.errata/dita/errata/nRF52832/Rev2/latest/anomaly_832_58.html?cp=2_1_1_0_1_8
+  #if SPI0_USE_EASY_DMA 
+    #error "setup_workaround_for_ftpan_58, see comment above this line."
+  #endif
+  err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
   while (!spi_xfer_done)
   {
     err_code |= platform_yield();
   }
-  //Read data
-  spi_xfer_done = false;*/
-  err_code |= nrf_drv_spi_transfer(&spi, p_write, len+1, p_read, len+1);
+  spi_xfer_done = false;
+  err_code |= nrf_drv_spi_transfer(&spi, NULL, 0, data, len);
   while (!spi_xfer_done)
   {
     err_code |= platform_yield();
   }
-  memcpy(data, p_read+1, len);
   nrf_gpio_pin_set(dev_id);
 
 
