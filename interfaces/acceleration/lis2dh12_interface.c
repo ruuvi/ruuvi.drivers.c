@@ -86,7 +86,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
   lis2dh12_device_id_get(dev_ctx, &whoamI);
   if ( whoamI != LIS2DH12_ID ) { return RUUVI_ERROR_NOT_FOUND; }
   uint8_t enable_axes = 0x07;
-  lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &whoamI, 1);
+  lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
 
   // Disable Block Data Update, allow values to update even if old is not read
   lis2dh12_block_data_update_set(dev_ctx, PROPERTY_DISABLE);
