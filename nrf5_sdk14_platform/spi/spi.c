@@ -277,68 +277,13 @@ int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
 int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
                               uint16_t len)
 {
-  //   //Return error if not init or if busy
-  // if(!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
-  // if(!spi_xfer_done) { return NRF_ERROR_BUSY; }
-
-  // //Lock driver
-  // spi_xfer_done = false;
-
-  // int8_t err_code = NRF_SUCCESS;
-  // uint8_t ss = *(uint8_t*)dev_id;
-
-  // nrf_gpio_pin_clear(ss);
-  // //TX address
-  // err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
-  // while (!spi_xfer_done)
-  // {
-  //   err_code |= platform_yield();
-  // }
-  // //Read data
-  // spi_xfer_done = false;
-  // err_code |= nrf_drv_spi_transfer(&spi, NULL, 0, data, len);
-  // while (!spi_xfer_done)
-  // {
-  //   err_code |= platform_yield();
-  // }
-  // nrf_gpio_pin_set(ss);
-  // NRF_LOG_INFO("Read from device %d register %x", ss, reg_addr);
-
-  // APP_ERROR_CHECK(err_code);
-  // return (NRF_SUCCESS == err_code) ? 0 : -1;
-
-  // uint8_t ss = *(uint8_t*)dev_id;
-  // // bit 0: READ bit. The value is 1.
-  // // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
-  // // multiple reads.
-  // uint8_t read_cmd = reg_addr | 0x80;
-  // //if(len > 1) { 
-  // read_cmd |= 0x40; //}
-  // return spi_bosch_platform_read(ss, read_cmd, data, len);
-
-  // Use this code if EASY DMA is in use
-  ruuvi_status_t err_code = RUUVI_SUCCESS;
   uint8_t ss = *(uint8_t*)dev_id;
-
-  nrf_gpio_pin_clear(ss);
-  uint8_t p_write[40] = {0};
-  uint8_t p_read[40]  = {0};
-  memset(p_write, 0, sizeof(p_write));
+  // bit 0: READ bit. The value is 1.
+  // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
+  // multiple reads.
   uint8_t read_cmd = reg_addr | 0x80;
   if(len > 1) { read_cmd |= 0x40; }
-  p_write[0] = read_cmd;
-  //TX address
-  spi_xfer_done = false;
-  err_code |= nrf_drv_spi_transfer(&spi, p_write, len+1, p_read, len+1);
-  while (!spi_xfer_done)
-  {
-    err_code |= platform_yield();
-  }
-
-  memcpy(data, p_read+1, len);
-  nrf_gpio_pin_set(ss);
-  // if(len>1) NRF_LOG_INFO("Read %d bytes from device %d register %x, last %x", len, ss, p_write[0], data[len-1]);
-  return err_code;
+  return spi_bosch_platform_read(ss, read_cmd, data, len);
 }
 
 
