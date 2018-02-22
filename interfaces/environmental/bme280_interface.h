@@ -1,3 +1,7 @@
+/**
+ *  Implement ruuvi sensor abstraction functions for BME280.
+ */
+
 #ifndef BME280_INTERFACE_H
 #define BME280_INTERFACE_H
 #include "ruuvi_error.h"

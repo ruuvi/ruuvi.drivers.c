@@ -3,6 +3,7 @@
  * Requires Bosch BME280_driver, available under BSD-3 on GitHub.
  * Requires "application_config.h", will only get compiled if BME280_ENVIRONMENTAL is defined
  * Requires "boards.h" for slave select pin
+ * Requires BME280_FLOAT_ENABLE defined in makefile. 
  */
 
 #include "application_config.h" //TODO: write default header on driver repository
