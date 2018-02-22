@@ -228,6 +228,8 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
 
 /**
  * @brief platform SPI read command for STM drivers
+ * Bosch driver causes minor delay between address and register writing which
+ * break lis2dh12. Therefore here's a separate function for stm drivers
  */
 int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
                               uint16_t len)
@@ -244,16 +246,7 @@ int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
 
   nrf_gpio_pin_clear(ss);
 
-  uint8_t* p_write = calloc(len+1, sizeof(uint8_t));
-  //TX address
-  // err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
-  // while (!spi_xfer_done)
-  // {
-  //   err_code |= platform_yield();
-  // }
-  // //Write data
-  // spi_xfer_done = false;
-
+  uint8_t p_write[10] = {0};
   p_write[0] = reg_addr;
   memcpy(p_write+1, data, len);
 
@@ -264,10 +257,7 @@ int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
   }
   
   nrf_gpio_pin_set(ss);
-  //NRF_LOG_INFO("Wrote %d bytes to device %d register %x, first %x", len, ss, p_write[0], p_write[1]);
-  free(p_write);
-
-  APP_ERROR_CHECK(err_code);
+  
   return (NRF_SUCCESS == err_code) ? 0 : -1;
 }
 
