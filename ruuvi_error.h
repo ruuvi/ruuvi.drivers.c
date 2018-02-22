@@ -23,6 +23,7 @@
 #define RUUVI_ERROR_BUSY            (1<<14) ///< Busy
 #define RUUVI_ERROR_RESOURCES       (1<<15) ///< Not enough resources for operation
 #define RUUVI_ERROR_NOT_IMPLEMENTED (1<<16) ///< Not implememnted yet
+#define RUUVI_ERROR_SELFTEST        (1<<17) ///< Self-test fail
 
 typedef int32_t ruuvi_status_t;
 
