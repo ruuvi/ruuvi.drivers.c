@@ -1,6 +1,7 @@
 #ifndef RUUVI_ERROR_H
 #define RUUVI_ERROR_H
 
+#include <float.h>
 #include <stdint.h>
 
 #define RUUVI_FLOAT_INVALID FLT_MAX

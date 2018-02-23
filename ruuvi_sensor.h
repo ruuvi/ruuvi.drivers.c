@@ -44,11 +44,12 @@
 
 
 typedef enum {
-  RUUVI_SENSOR_SAMPLERATE_STOP      = 0,   //Stop sampling
-  RUUVI_SENSOR_SAMPLERATE_SINGLE    = 251, //Take a single sample
-  RUUVI_SENSOR_SAMPLERATE_MIN       = 252, //Minimum
-  RUUVI_SENSOR_SAMPLERATE_MAX       = 253, //Maximum
-  RUUVI_SENSOR_SAMPLERATE_NO_CHANGE = 255
+  RUUVI_SENSOR_SAMPLERATE_STOP          = 0,   //Stop sampling
+  RUUVI_SENSOR_SAMPLERATE_SINGLE        = 251, //Take a single sample
+  RUUVI_SENSOR_SAMPLERATE_MIN           = 252, //Minimum
+  RUUVI_SENSOR_SAMPLERATE_MAX           = 253, //Maximum
+  RUUVI_SENSOR_SAMPLERATE_NOT_SUPPORTED = 254, //Something else
+  RUUVI_SENSOR_SAMPLERATE_NO_CHANGE     = 255
 }ruuvi_sensor_samplerate_t;
 
 /** 
