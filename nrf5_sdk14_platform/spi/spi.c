@@ -115,7 +115,7 @@ ruuvi_status_t spi_init(void)
 
   if(NRF_SUCCESS == err_code) { spi_init_done = true; }
   // NRF_LOG_INFO("SPI INIT completed.");
-  return PLATFORM_TO_RUUVI_ERROR(&err_code);
+  return platform_to_ruuvi_error(&err_code);
 }
 
 /**
@@ -131,7 +131,7 @@ ruuvi_status_t spi_uninit(void)
   nrf_drv_spi_uninit (&spi); 
 
   if(NRF_SUCCESS == err_code) { spi_init_done = false; }
-  return PLATFORM_TO_RUUVI_ERROR(&err_code);
+  return platform_to_ruuvi_error(&err_code);
 }
 
 /**

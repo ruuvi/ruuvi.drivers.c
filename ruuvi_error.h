@@ -29,6 +29,6 @@
 typedef int32_t ruuvi_status_t;
 
 /** Convert error code from platform to Ruuvi error code. **/
-ruuvi_status_t PLATFORM_TO_RUUVI_ERROR(void* error);
+ruuvi_status_t platform_to_ruuvi_error(void* error);
 
 #endif

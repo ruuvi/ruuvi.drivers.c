@@ -7,7 +7,7 @@
 #include "ruuvi_error.h"
 #include "sdk_errors.h"
 
-ruuvi_status_t PLATFORM_TO_RUUVI_ERROR(void* error)
+ruuvi_status_t platform_to_ruuvi_error(void* error)
 {
   ret_code_t err_code = *(ret_code_t*)error;
   if(NRF_SUCCESS == err_code)              { return RUUVI_SUCCESS; }
