@@ -18,7 +18,7 @@
 // Setup constant records
 ruuvi_status_t nfc_text_record_set(const uint8_t* text, size_t length);
 ruuvi_status_t nfc_uri_record_set(const uint8_t* uri, size_t length);
-// ruuvi_status_t nfc_app_record_set(const uint8_t scheme, const chat* uri, size_t length);
+ruuvi_status_t nfc_app_record_set(const uint8_t* app, size_t length);
 
 
 // Functions for implementing communication api

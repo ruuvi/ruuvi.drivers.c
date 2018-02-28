@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "ruuvi_error.h"
+
 typedef struct //XXX Packed?
 {
   size_t   payload_length;
