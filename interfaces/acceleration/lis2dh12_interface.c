@@ -21,10 +21,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Platform log
-#include "nrf_log.h" 
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
+#define PLATFORM_LOG_MODULE_NAME lis2dh12_iface
+#if LIS2DH12_INTERFACE_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       LIS2DH12_INTERFACE_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  LIS2DH12_INTERFACE_INFO_COLOR
+#else // ANT_BPWR_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       0
+#endif // ANT_BPWR_LOG_ENABLED
+#include "platform_log.h"
+PLATFORM_LOG_MODULE_REGISTER();
 
 #ifndef APPLICATION_FLOAT_USE
   #error "LIS2DH12 interface requires floats, define APPLICATION_FLOAT_USE in makefile"
@@ -69,7 +74,7 @@ static ruuvi_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new, axi
     //Compensate justification
     diff >>=6;
     if(0 > diff) { diff = 0 - diff; }
-    NRF_LOG_INFO("Self-test diff: %d", diff);
+    PLATFORM_LOG_INFO("Self-test diff: %d", diff);
     if(diff < 17)  { return RUUVI_ERROR_SELFTEST; }
     if(diff > 360) { return RUUVI_ERROR_SELFTEST; } 
   }
@@ -123,7 +128,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
   memset(data_raw_acceleration_old.u8bit, 0x00, 3*sizeof(int16_t));
   memset(data_raw_acceleration_new.u8bit, 0x00, 3*sizeof(int16_t));
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_old.u8bit);
-  NRF_LOG_INFO("Read acceleration");
+  PLATFORM_LOG_INFO("Read acceleration");
 
   // self-test to positive direction
   dev.selftest = LIS2DH12_ST_POSITIVE;
@@ -134,7 +139,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
 
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
-  NRF_LOG_INFO("Read acceleration");
+  PLATFORM_LOG_INFO("Read acceleration");
   err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
 
   // self-test to negative direction

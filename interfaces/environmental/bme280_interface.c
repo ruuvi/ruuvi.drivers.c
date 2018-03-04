@@ -29,10 +29,15 @@
 #include "spi.h"
 #include "yield.h"
 
-//TODO: debug output for platform
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
+#define PLATFORM_LOG_MODULE_NAME bme280_iface
+#if BME280_INTERFACE_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       BME280_INTERFACE_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  BME280_INTERFACE_INFO_COLOR
+#else // ANT_BPWR_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       0
+#endif // ANT_BPWR_LOG_ENABLED
+#include "platform_log.h"
+PLATFORM_LOG_MODULE_REGISTER();
 
 /** State variables **/
 static struct bme280_dev dev = {0};
@@ -143,7 +148,7 @@ ruuvi_status_t bme280_interface_dsp_set(ruuvi_sensor_dsp_function_t* dsp, uint8_
      && 8  != *parameter
      && 16 != *parameter)
   { 
-    NRF_LOG_INFO("Invalid DSP param");
+    PLATFORM_LOG_INFO("Invalid DSP param");
     return RUUVI_ERROR_NOT_SUPPORTED; 
   }
 
@@ -151,7 +156,7 @@ ruuvi_status_t bme280_interface_dsp_set(ruuvi_sensor_dsp_function_t* dsp, uint8_
   if(   RUUVI_SENSOR_DSP_LAST != *dsp
      && ( (~(RUUVI_SENSOR_DSP_IIR | RUUVI_SENSOR_DSP_OS)) & (*dsp) ) )
   { 
-    NRF_LOG_INFO("Invalid DSP function");
+    PLATFORM_LOG_INFO("Invalid DSP function");
     return RUUVI_ERROR_NOT_SUPPORTED; 
   }
 

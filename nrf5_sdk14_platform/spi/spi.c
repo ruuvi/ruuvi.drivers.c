@@ -51,10 +51,15 @@
 #include "ruuvi_error.h"
 #include "yield.h"
 
-// TODO: Platform log
-#include "nrf_log.h" 
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
+#define PLATFORM_LOG_MODULE_NAME spi_platform
+#if SPI_PLATFORM_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       SPI_PLATFORM_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  SPI_PLATFORM_INFO_COLOR
+#else // ANT_BPWR_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       0
+#endif // ANT_BPWR_LOG_ENABLED
+#include "platform_log.h"
+PLATFORM_LOG_MODULE_REGISTER();
 
 #define SPI_INSTANCE  BOARD_SPI_INSTANCE /**< SPI instance index. */
 #if (BOARD_SPI_FREQUENCY == RUUVI_SPI_FREQ_0M25)

@@ -14,22 +14,27 @@
 #include "nfc_launchapp_rec.h"
 #include "nfc_ndef_msg_parser.h"
 
-#define NRF_LOG_MODULE_NAME nfc_tag
-#if NFC_NDEF_MSG_PARSER_LOG_ENABLED
-#define NRF_LOG_LEVEL       NFC_NDEF_MSG_PARSER_LOG_LEVEL
-#define NRF_LOG_INFO_COLOR  NFC_NDEF_MSG_PARSER_INFO_COLOR
-#else // NFC_NDEF_MSG_PARSER_LOG_ENABLED
-#define NRF_LOG_LEVEL       0
-#endif // NFC_NDEF_MSG_PARSER_LOG_ENABLED
-#include "nrf_log.h"
-NRF_LOG_MODULE_REGISTER();
+#define PLATFORM_LOG_MODULE_NAME nfc_tag
+#if NFC_TAG_INTERFACE_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       NFC_TAG_INTERFACE_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  NFC_TAG_INTERFACE_INFO_COLOR
+#else // ANT_BPWR_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       0
+#endif // ANT_BPWR_LOG_ENABLED
+#include "platform_log.h"
+PLATFORM_LOG_MODULE_REGISTER();
+
+#ifndef NFC_MAX_NUMBER_OF_RECORDS
+#define NFC_MAX_NUMBER_OF_RECORDS 4
+#endif
 
 static struct
 {
   uint8_t connected;
   uint8_t initialized;
-  uint8_t updated;
-  uint8_t  nfc_ndef_msg[NDEF_FILE_SIZE];
+  uint8_t rx_updated;
+  uint8_t tx_updated;
+  uint8_t nfc_ndef_msg[NDEF_FILE_SIZE];
   size_t  nfc_ndef_msg_len;
 } nrf5_sdk14_nfc_state;
 
@@ -64,7 +69,7 @@ static void nfc_callback(void * context,
     if (dataLength > 0)
     {
       nrf5_sdk14_nfc_state.nfc_ndef_msg_len = dataLength;
-      nrf5_sdk14_nfc_state.updated = true;
+      nrf5_sdk14_nfc_state.rx_updated = true;
     }
     break;
 
@@ -73,17 +78,25 @@ static void nfc_callback(void * context,
   }
 }
 
-NFC_NDEF_MSG_DEF(nfc_ndef_msg, 4); // max 4 records
+NFC_NDEF_MSG_DEF(nfc_ndef_msg, NFC_MAX_NUMBER_OF_RECORDS); // max NFC_MAX_NUMBER_OF_RECORDS records
 
-// Setup constant records
+// Setup constant records XXX move these to state?
 static uint8_t nfc_text_buf[NFC_TEXT_BUF_SIZE];
 static size_t nfc_text_length = 0;
 static uint8_t nfc_uri_buf[NFC_URI_BUF_SIZE];
 static size_t nfc_uri_length = 0;
 static uint8_t nfc_app_buf[NFC_APP_BUF_SIZE];
 static size_t nfc_app_length = 0;
-static uint8_t nfc_data_buf[NFC_DATA_BUF_SIZE];
-static size_t nfc_data_length = 0;
+static uint8_t nfc_tx_buf[NFC_DATA_BUF_SIZE];
+static size_t nfc_tx_length = 0;
+static uint8_t nfc_rx_buf[NFC_DATA_BUF_SIZE];
+static size_t nfc_rx_length = 0;
+static uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC(NFC_MAX_NUMBER_OF_RECORDS)];
+static size_t msg_index = 0; // Store index of our record
+
+
+
+//Setup Ruuvi Message buffer
 
 ruuvi_status_t nfc_text_record_set(const uint8_t* text, size_t length)
 {
@@ -116,17 +129,31 @@ ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* message)
 {
   if (NULL == message) { return RUUVI_ERROR_NULL; }
   if (message->payload_length >= NFC_DATA_BUF_SIZE) { return RUUVI_ERROR_DATA_SIZE; }
-  if (nfc_data_length) { return RUUVI_ERROR_RESOURCES; } // No more space on FIFO
-  nfc_data_length = message->payload_length;
-  memcpy(nfc_data_buf, message->payload, nfc_data_length);
+  if (nfc_tx_length) { return RUUVI_ERROR_RESOURCES; } // No more space on FIFO
+  nfc_tx_length = message->payload_length;
+  memcpy(nfc_tx_buf, message->payload, nfc_tx_length);
   return RUUVI_SUCCESS;
 }
 
 ruuvi_status_t nfc_process_asynchronous()
 {
+  // State check
   if (!nrf5_sdk14_nfc_state.initialized) { return RUUVI_ERROR_INVALID_STATE; }
-  if (nrf5_sdk14_nfc_state.updated) { nfc_message_get(NULL); }
-  if( nrf5_sdk14_nfc_state.connected) { return RUUVI_ERROR_INVALID_STATE; }
+  if ( nrf5_sdk14_nfc_state.connected)   { return RUUVI_ERROR_INVALID_STATE; }
+
+  // Return success if there is nothing to do
+  if (!(nrf5_sdk14_nfc_state.rx_updated || nrf5_sdk14_nfc_state.tx_updated)) { return RUUVI_SUCCESS; }
+
+  //Copy RX data to buffer before NFC buffer is overwritten with new data
+  if (nrf5_sdk14_nfc_state.rx_updated)
+  {
+    // Return error if RX buffer is not parsed yet
+    if (nfc_rx_length) { return RUUVI_ERROR_RESOURCES; }
+    memcpy(nfc_rx_buf, nrf5_sdk14_nfc_state.nfc_ndef_msg, nrf5_sdk14_nfc_state.nfc_ndef_msg_len);
+  }
+
+  //Update TX data only if program has written something, i.e. allow tag to be writeable.
+
   /* Create NFC NDEF text record description in English */
   uint8_t lang_code[] = {'d', 't'}; //DATA
   NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_text_rec,
@@ -172,8 +199,6 @@ ruuvi_status_t nfc_process_asynchronous()
   err_code |= nfc_ndef_msg_encode(&NFC_NDEF_MSG(nfc_ndef_msg),
                                   nrf5_sdk14_nfc_state.nfc_ndef_msg,
                                   &msg_len);
-  // NRF_LOG_HEXDUMP_INFO(nrf5_sdk14_nfc_state.nfc_ndef_msg, msg_len);
-  // nfc_message_get(NULL);
 
   return err_code;
 }
@@ -218,35 +243,60 @@ ruuvi_status_t nfc_process_synchronous(void)
   return RUUVI_ERROR_NOT_SUPPORTED;
 }
 
+/* Read and parse RX buffer into records. Parse records into Ruuvi Communication messages.
+ * RX buffer is flushed on error.
+ *
+ * param msg Ruuvi Communication message, received record payload is copied into message payload field.
+ *
+ * Return RUUVI_SUCCESS if payload was parsed into msg
+ * Return RUUVI_ERROR_DATA_SIZE if received message could not fit into message paylosd
+ */
 ruuvi_status_t nfc_message_get(ruuvi_communication_message_t* msg)
 {
-  uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC(10)];
-  uint32_t desc_buf_len = sizeof(desc_buf);
-  uint32_t data_lenu32 = sizeof(nrf5_sdk14_nfc_state.nfc_ndef_msg);
-  ret_code_t err_code = ndef_msg_parser(desc_buf,
-                  &desc_buf_len,
-                  &(nrf5_sdk14_nfc_state.nfc_ndef_msg[2]), //Skip NFCT4T length bytes
-                  &data_lenu32);
+  if (NULL == msg) { return RUUVI_ERROR_NULL; }
+  ruuvi_status_t err_code = RUUVI_SUCCESS;
 
+  // If we're at index 0, parse message into records
+  if (!msg_index)
+  {
+    uint32_t desc_buf_len = sizeof(desc_buf);
+    uint32_t data_lenu32 = sizeof(nfc_rx_buf);
+    err_code = ndef_msg_parser(desc_buf,
+                               &desc_buf_len,
+                               &(nfc_rx_buf[2]), //Skip NFCT4T length bytes
+                               &data_lenu32);
+    // XXX debug depending on NRF_LOG
+    ndef_msg_printout((nfc_ndef_msg_desc_t*) desc_buf);
+  }
 
-  /**
-   * @brief Function for printing the parsed contents of an NDEF message.
-   *
-   * @param[in] p_msg_desc Pointer to the descriptor of the message that should be printed.
-   */
-  ndef_msg_printout((nfc_ndef_msg_desc_t*) desc_buf);
-  NRF_LOG_INFO("parse: %d", err_code);
+  //As long as there is a new message, parse the payload into Ruuvi Message.
+  if (msg_index++ < ((nfc_ndef_msg_desc_t*)desc_buf)->record_count)
+  {
 
-  nrf5_sdk14_nfc_state.updated = false;
+    nfc_ndef_record_desc_t* const p_rec_desc = ((nfc_ndef_msg_desc_t*)desc_buf)->pp_record[msg_index];
+    nfc_ndef_bin_payload_desc_t* p_bin_pay_desc = p_rec_desc->p_payload_descriptor;
+    // Data length check
+    if (p_bin_pay_desc->payload_length > msg->payload_length) { err_code = RUUVI_ERROR_DATA_SIZE; }
+    else {
+      memcpy(msg->payload, (uint8_t*)p_bin_pay_desc->p_payload, p_bin_pay_desc->payload_length);
+      msg->payload_length = p_bin_pay_desc->payload_length;
+    }
+  }
+  else { err_code = RUUVI_ERROR_NOT_FOUND; }
+  // If no more records could be parsed, reset buffer and message counter
+  if (RUUVI_SUCCESS != err_code)
+  {
+    memset(nfc_rx_buf, 0, sizeof(nfc_rx_buf));
+    msg_index = 0;
+    nrf5_sdk14_nfc_state.rx_updated = false;
+  }
 
-  return RUUVI_SUCCESS;
+  return err_code;
 }
 
 // ruuvi_status_t nfc_on_connect(void);
 // ruuvi_status_t nfc_on_diconnect(void);
 // ruuvi_status_t nfc_is_connected(void);
-//
-// ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg);
-//
+ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg);
 
 #endif
