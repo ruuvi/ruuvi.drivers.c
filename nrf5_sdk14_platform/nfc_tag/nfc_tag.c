@@ -155,6 +155,7 @@ ruuvi_status_t nfc_process_asynchronous()
   PLATFORM_LOG_DEBUG("State ok, checking if there is something to be processed");
   if (!(nrf5_sdk14_nfc_state.rx_updated || nrf5_sdk14_nfc_state.tx_updated)) { return RUUVI_SUCCESS; }
   PLATFORM_LOG_DEBUG("Start processing");
+  ruuvi_status_t err_code = RUUVI_SUCCESS;
 
   //Copy RX data to buffer before NFC buffer is overwritten with new data
   if (nrf5_sdk14_nfc_state.rx_updated)
@@ -168,8 +169,9 @@ ruuvi_status_t nfc_process_asynchronous()
     memcpy(nfc_rx_buf, &(nrf5_sdk14_nfc_state.nfc_ndef_msg[2]), nrf5_sdk14_nfc_state.nfc_ndef_msg_len);
   }
 
-  //Update TX data only if program has written something, i.e. allow tag to be writeable.
-
+  //Update TX data only if program has written something, i.e. allow tag to be writeable by client.
+  if(nrf5_sdk14_nfc_state.tx_updated)
+  {
   /* Create NFC NDEF text record description in English */
   uint8_t lang_code[] = {'d', 't'}; //DATA
   NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_text_rec,
@@ -189,7 +191,14 @@ ruuvi_status_t nfc_process_asynchronous()
       nfc_app_buf,
       nfc_app_length);
 
-  ruuvi_status_t err_code = RUUVI_SUCCESS;
+  NFC_NDEF_RECORD_BIN_DATA_DEF(nfc_bin_rec,                                             \
+                                     TNF_MEDIA_TYPE,                                    \
+                                     NULL, 0,                                           \
+                                     NULL,                                              \
+                                     0,                                                 \
+                                     nfc_tx_buf,                                        \
+                                     nfc_tx_length);
+
 
   //Clear our record
   nfc_ndef_msg_clear(&NFC_NDEF_MSG(nfc_ndef_msg));
@@ -209,6 +218,10 @@ ruuvi_status_t nfc_process_asynchronous()
     err_code |= nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_ndef_msg),
                                         &NFC_NDEF_ANDROID_LAUNCHAPP_RECORD_DESC(nfc_app_rec));
   }
+  if (nfc_tx_length) {
+    err_code |= nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_ndef_msg),
+                                        &NFC_NDEF_RECORD_BIN_DATA(nfc_bin_rec));
+  }
 
   // Encode data to NFC buffer. NFC will transmit the buffer, i.e. data is updated immediately.
   uint32_t msg_len = sizeof(nrf5_sdk14_nfc_state.nfc_ndef_msg);
@@ -219,6 +232,7 @@ ruuvi_status_t nfc_process_asynchronous()
   // TX Data processed, set update status to false
   // RX data must wait unitl application has parsed data out of RX buffer
   nrf5_sdk14_nfc_state.tx_updated = false;
+  }
 
   return err_code;
 }
