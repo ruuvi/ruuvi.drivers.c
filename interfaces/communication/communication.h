@@ -28,20 +28,22 @@
 
 typedef struct //XXX Packed?
 {
-  size_t   payload_length;
+  size_t   payload_length; // as input: maximum length of data. as output: length of data written to payload
   uint8_t  repeat; //XXX UINT32_t flags?
   uint8_t* payload;
 }ruuvi_communication_message_t;
 
+// Generic init, uninit
 typedef ruuvi_status_t(*ruuvi_communication_fp)(void);
+//Get / put messages from queue
 typedef ruuvi_status_t(*ruuvi_communication_xfer_fp)(ruuvi_communication_message_t*);
+//Callbacks after operation. 
+typedef ruuvi_status_t(*ruuvi_communication_cb_fp)(void* data, size_t length);
 
 typedef struct 
 {
   ruuvi_communication_fp init;
   ruuvi_communication_fp uninit;
-  ruuvi_communication_fp on_connect;
-  ruuvi_communication_fp on_disconnect;
   ruuvi_communication_fp is_connected;
   // Return RUUVI_SUCCESS if data was placed on HW buffer. 
   // call tx_complete once tx is complete.
@@ -49,13 +51,13 @@ typedef struct
   // return RUUVI_SUCCESS when data has been sent and acknowledged if applicable.
   // return RUUVI_ERROR_INVALID_STATE if connection is not established.
   ruuvi_communication_fp process_synchronous;
-  // Called after successful asynch tx
-  ruuvi_communication_fp tx_complete;
 
   //Clear TX queue
   ruuvi_communication_fp flush_tx;
+
   //Clear RX queue
   ruuvi_communication_fp flush_rx;
+
   // return RUUVI SUCCESS on successful queuing, err_code on fail. 
   // Can success even if there is not connection, check transmitting message with process() function
   ruuvi_communication_xfer_fp message_put;
