@@ -136,17 +136,6 @@ ruuvi_status_t nfc_app_record_set(const uint8_t* app, size_t length)
   return RUUVI_SUCCESS;
 }
 
-ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* message)
-{
-  if (NULL == message) { return RUUVI_ERROR_NULL; }
-  if (message->payload_length >= NFC_DATA_BUF_SIZE) { return RUUVI_ERROR_DATA_SIZE; }
-  if (nfc_tx_length) { return RUUVI_ERROR_RESOURCES; } // No more space on FIFO
-  nfc_tx_length = message->payload_length;
-  memcpy(nfc_tx_buf, message->payload, nfc_tx_length);
-  nrf5_sdk14_nfc_state.tx_updated = true;
-  return RUUVI_SUCCESS;
-}
-
 /**
  *  Attempt to move data into NFC tx buffer. 
  *  First reads incoming data from the NFC buffer into RX buffer
@@ -375,12 +364,18 @@ bool nfc_is_connected(void)
  */
 ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg)
 {
-  if(NULL == msg) { return RUUVI_ERROR_NULL: }
-  if(msg->playload_length > nfc_tx_length) { return RUUVI_ERROR_DATA_SIZE; }
+  if(NULL == msg) { return RUUVI_ERROR_NULL; }
+  if(msg->payload_length > nfc_tx_length) { return RUUVI_ERROR_DATA_SIZE; }
   // If message should be repeated, disable NFC message configuration by NFC writes. And vice versa
   nrf5_sdk14_nfc_state.configurable = !(msg->repeat);
-  memcpy(nfc_tx_buf, msg->payload, msg->playload_length);
+  memcpy(nfc_tx_buf, msg->payload, msg->payload_length);
   return RUUVI_SUCCESS;
 }
+
+  //Clear TX queue
+  //ruuvi_communication_fp flush_tx;
+
+  //Clear RX queue
+  //ruuvi_communication_fp flush_rx;
 
 #endif
