@@ -30,10 +30,11 @@ PLATFORM_LOG_MODULE_REGISTER();
 
 static struct
 {
-  volatile uint8_t connected;
+  volatile uint8_t connected;    //NFC field is active
   uint8_t initialized;
-  volatile uint8_t rx_updated;
-  volatile uint8_t tx_updated;
+  volatile uint8_t rx_updated;   // New data received
+  volatile uint8_t tx_updated;   // New data should be written to buffer
+  volatile uint8_t configurable; // Allow NFC to write configuration
   uint8_t nfc_ndef_msg[NDEF_FILE_SIZE];
   volatile size_t  nfc_ndef_msg_len;
 } nrf5_sdk14_nfc_state;
@@ -73,6 +74,8 @@ static void nfc_callback(void * context,
       PLATFORM_LOG_INFO("Got new message with %d bytes", dataLength);
       nrf5_sdk14_nfc_state.nfc_ndef_msg_len = dataLength;
       nrf5_sdk14_nfc_state.rx_updated = true;
+      // If tag is not configurable by NFC, set flag to overwrite received data.
+      if(!nrf5_sdk14_nfc_state.configurable) { nrf5_sdk14_nfc_state.tx_updated = true;}
       //Do not call data received function in interrupt context.
       // Check updated flag in main context and call callback if appropriate.
     }
@@ -144,6 +147,15 @@ ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* message)
   return RUUVI_SUCCESS;
 }
 
+/**
+ *  Attempt to move data into NFC tx buffer. 
+ *  First reads incoming data from the NFC buffer into RX buffer
+ *  Then updates TX buffer if applicable. 
+ *  Return error if new data has been received but not handled yet.
+ *  Return error if NFC is not initialized or if NFC is currently connected
+ *  Return error if buffers cannot accommodate data.
+ *  Return success if buffers were successfully handled.
+ */
 ruuvi_status_t nfc_process_asynchronous()
 {
   // State check
@@ -256,10 +268,13 @@ ruuvi_status_t nfc_init(void)
   //APP_ERROR_CHECK(err_code);
 
   nrf5_sdk14_nfc_state.initialized = true;
+  // Allow configuration by default
+  nrf5_sdk14_nfc_state.configurable = true;
 
   return platform_to_ruuvi_error(&err_code);
 }
 
+// Stop NFC emulation
 ruuvi_status_t nfc_uninit(void)
 {
   if (!nrf5_sdk14_nfc_state.initialized) { return RUUVI_ERROR_INVALID_STATE; }
@@ -350,6 +365,22 @@ bool nfc_is_connected(void)
   return nrf5_sdk14_nfc_state.connected;
 }
 
-//ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg);
+
+/**
+ *  Put a message to TX buffer. 
+ *  Overwrites previously written data message.
+ *  Call process_asynchronous() to encode message into NFC.
+ *  Return error if message is null or too long
+ *  Return success if payload was copied to buffer.
+ */
+ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg)
+{
+  if(NULL == msg) { return RUUVI_ERROR_NULL: }
+  if(msg->playload_length > nfc_tx_length) { return RUUVI_ERROR_DATA_SIZE; }
+  // If message should be repeated, disable NFC message configuration by NFC writes. And vice versa
+  nrf5_sdk14_nfc_state.configurable = !(msg->repeat);
+  memcpy(nfc_tx_buf, msg->payload, msg->playload_length);
+  return RUUVI_SUCCESS;
+}
 
 #endif

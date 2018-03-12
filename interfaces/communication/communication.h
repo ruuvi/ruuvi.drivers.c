@@ -37,8 +37,8 @@ typedef struct //XXX Packed?
 typedef ruuvi_status_t(*ruuvi_communication_fp)(void);
 //Get / put messages from queue
 typedef ruuvi_status_t(*ruuvi_communication_xfer_fp)(ruuvi_communication_message_t*);
-//Callbacks after operation. 
-typedef ruuvi_status_t(*ruuvi_communication_cb_fp)(void* data, size_t length);
+// Callbacks after operation - TODO
+// typedef ruuvi_status_t(*ruuvi_communication_cb_fp)(void* data, size_t length);
 
 typedef struct 
 {
