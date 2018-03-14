@@ -302,6 +302,8 @@ ruuvi_status_t nfc_message_get(ruuvi_communication_message_t* msg)
   if(!nrf5_sdk14_nfc_state.rx_updated) { return RUUVI_ERROR_NOT_FOUND; }
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   PLATFORM_LOG_INFO("Getting message %d", msg_index);
+  //Cast buffer into description type
+  nfc_ndef_msg_desc_t* p_description = (void*)desc_buf;
 
   // If we're at index 0, parse message into records
   if (!msg_index)
@@ -317,15 +319,15 @@ ruuvi_status_t nfc_message_get(ruuvi_communication_message_t* msg)
     // and NFC_NDEF_RECORD_PARSER_LOG
     // Also, printing out data leads to occasional NFC driver crash, race condition?
     //PLATFORM_LOG_HEXDUMP_INFO(nfc_rx_buf, data_lenu32);
-    PLATFORM_LOG_INFO("Found %d messages", ((nfc_ndef_msg_desc_t*)desc_buf)->record_count);
+    PLATFORM_LOG_INFO("Found %d messages", p_description->record_count);
     //ndef_msg_printout((nfc_ndef_msg_desc_t*) desc_buf);
   }
 
   //As long as there is a new message, parse the payload into Ruuvi Message.
-  if (msg_index < ((nfc_ndef_msg_desc_t*)desc_buf)->record_count)
+  if (msg_index < p_description->record_count)
   {
     PLATFORM_LOG_INFO("Parsing message %d", msg_index);
-    nfc_ndef_record_desc_t* const p_rec_desc = ((nfc_ndef_msg_desc_t*)desc_buf)->pp_record[msg_index];
+    nfc_ndef_record_desc_t* const p_rec_desc = p_description->pp_record[msg_index];
     nfc_ndef_bin_payload_desc_t* p_bin_pay_desc = p_rec_desc->p_payload_descriptor;
     // Data length check
     if (p_bin_pay_desc->payload_length > msg->payload_length) { err_code = RUUVI_ERROR_DATA_SIZE; }
@@ -338,7 +340,7 @@ ruuvi_status_t nfc_message_get(ruuvi_communication_message_t* msg)
   else { err_code = RUUVI_ERROR_NOT_FOUND; }
 
   // If no more records could/can be parsed, reset buffer and message counter
-  if (RUUVI_SUCCESS != err_code || msg_index == ((nfc_ndef_msg_desc_t*)desc_buf)->record_count)
+  if (RUUVI_SUCCESS != err_code || msg_index == p_description->record_count)
   {
     memset(nfc_rx_buf, 0, sizeof(nfc_rx_buf));
     msg_index = 0;
