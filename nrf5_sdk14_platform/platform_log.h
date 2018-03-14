@@ -22,7 +22,6 @@
 #define PLATFORM_LOG_H
 
 #include "application_config.h"
-#ifdef NRF_LOG_ENABLED
 #if NRF_LOG_ENABLED
 
 #define NRF_LOG_MODULE_NAME PLATFORM_LOG_MODULE_NAME
@@ -68,6 +67,5 @@
 #define _CONST const
 #define PLATFORM_LOG_MODULE_REGISTER() NRF_LOG_MODULE_REGISTER()
 
-#endif // LOG is defined
 #endif // LOG is enabled
-#endif //PLATFORM_LOG_HJ
+#endif //PLATFORM_LOG_H
