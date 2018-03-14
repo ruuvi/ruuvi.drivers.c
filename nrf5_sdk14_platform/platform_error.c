@@ -7,6 +7,11 @@
 #include "ruuvi_error.h"
 #include "sdk_errors.h"
 
+// NRF_ERROR_RESOURCES is not defined in nosd version of nrf_error.h
+#ifndef NRF_ERROR_RESOURCES
+ #define NRF_ERROR_RESOURCES (NRF_ERROR_BASE_NUM + 19)
+#endif 
+
 ruuvi_status_t platform_to_ruuvi_error(void* error)
 {
   ret_code_t err_code = *(ret_code_t*)error;
