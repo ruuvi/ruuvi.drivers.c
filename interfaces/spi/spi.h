@@ -31,10 +31,10 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
 /**
  * @brief platform SPI read command for STM drivers
  */
-int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);
+int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);
 
 /**
  * @brief platform SPI read command for STM drivers
  */
-int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);
+int32_t spi_lis2dh12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);
 #endif

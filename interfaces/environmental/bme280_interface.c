@@ -7,7 +7,7 @@
  */
 
 #include "application_config.h" //TODO: write default header on driver repository
-#ifdef BME280_ENVIRONMENTAL
+#if BME280_ENVIRONMENTAL
 // Board definitions
 #include "boards.h"
 

@@ -7,7 +7,7 @@
  */
 
 #include "application_config.h" //TODO: write default header on driver repository
-#ifdef LIS2DH12_ACCELERATION
+#if LIS2DH12_ACCELERATION
 #include "boards.h"
 #include "acceleration.h"
 #include "ruuvi_error.h"
@@ -86,8 +86,8 @@ ruuvi_status_t lis2dh12_interface_init(void)
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   // Initialize mems driver interface
   lis2dh12_ctx_t* dev_ctx = &(dev.ctx);
-  dev_ctx->write_reg = spi_stm_platform_write;
-  dev_ctx->read_reg = spi_stm_platform_read;
+  dev_ctx->write_reg = spi_lis2dh12_platform_write;
+  dev_ctx->read_reg = spi_lis2dh12_platform_read;
   dev_ctx->handle = &lis2dh12_ss_pin;  
   dev.mode = RUUVI_SENSOR_MODE_SLEEP;
 
