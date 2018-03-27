@@ -62,7 +62,7 @@ typedef struct {
 static lis2dw12 dev;
 
 // Check that self-test values differ enough
-static ruuvi_status_t lis2dw12_verify_selftest_difference(axis3bit16_t* new, axis3bit16_t* old)
+static ruuvi_status_t lis2dw12_verify_selftest_difference(axis3bit16_t* new, axis3bit16_t* old, bool negative)
 {
   if(LIS2DW12_2g != dev.scale || LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4 != dev.mode) { return RUUVI_ERROR_INVALID_STATE; }
 
@@ -70,11 +70,12 @@ static ruuvi_status_t lis2dw12_verify_selftest_difference(axis3bit16_t* new, axi
   for(size_t ii = 0; ii < 3; ii++)
   {
     float diff = LIS2DW12_FROM_FS_2g_TO_mg((new->i16bit[ii] - old->i16bit[ii]));
-    
-    if(0 > diff) { diff = 0 - diff; }
-    PLATFORM_LOG_INFO("Self-test diff: %d", diff);
-    if(diff < 70)   { return RUUVI_ERROR_SELFTEST; }
-    if(diff > 1500) { return RUUVI_ERROR_SELFTEST; } 
+
+    if(negative) { diff = 0 - diff; }
+
+    PLATFORM_LOG_INFO("Self-test diff: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(diff));
+    if(diff < 70.0)   { return RUUVI_ERROR_SELFTEST; }
+    if(diff > 1500.0) { return RUUVI_ERROR_SELFTEST; } 
   }
   return RUUVI_SUCCESS;
 }
@@ -146,7 +147,7 @@ ruuvi_status_t lis2dw12_interface_init(ruuvi_sensor_t* acceleration_sensor)
   // Check self-test result
   lis2dw12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
   PLATFORM_LOG_DEBUG("Read acceleration");
-  err_code |= lis2dw12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
+  err_code |= lis2dw12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old, false);
 
   // self-test to negative direction
   dev.selftest = LIS2DW12_XL_ST_NEGATIVE;
@@ -157,7 +158,7 @@ ruuvi_status_t lis2dw12_interface_init(ruuvi_sensor_t* acceleration_sensor)
 
   // Check self-test result
   lis2dw12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
-  err_code |= lis2dw12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
+  err_code |= lis2dw12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old, true);
   
   // turn self-test off, keep error code in case we "lose" sensor after self-test
   dev.selftest = LIS2DW12_XL_ST_DISABLE;
