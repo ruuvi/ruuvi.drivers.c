@@ -4,6 +4,9 @@
 
 typedef ruuvi_status_t (*yield_fptr_t)(void);
 
+/** Initializes yield, for example inits CPU usage timers **/
+ruuvi_status_t platform_yield_init(void);
+
 /** Call function which will release execution / go to sleep **/
 ruuvi_status_t platform_yield(void);
 
