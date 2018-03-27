@@ -96,6 +96,7 @@ ruuvi_status_t spi_init(void)
   //Return error if SPI is already init
   if(spi_init_done) { return NRF_ERROR_INVALID_STATE; }
 
+  //TODO Configure in board settings
   ret_code_t err_code = NRF_SUCCESS;
   nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
   spi_config.ss_pin       = NRF_DRV_SPI_PIN_NOT_USED;
@@ -108,7 +109,7 @@ ruuvi_status_t spi_init(void)
   spi_config.mode         = NRF_DRV_SPI_MODE_0;                      
   spi_config.bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;         
   err_code = nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL);
-  APP_ERROR_CHECK(err_code);
+  // APP_ERROR_CHECK(err_code);
 
   /* Init chipselect for Environmental */
   nrf_gpio_cfg_output(SPIM0_SS_ENVIRONMENTAL_PIN);
@@ -147,7 +148,7 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   //Return error if not init or if busy
   if(!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
   if(!spi_xfer_done) { return NRF_ERROR_BUSY; }
-  // NRF_LOG_INFO("Start Bosch transfer.");
+  PLATFORM_LOG_INFO("Start Bosch transfer.");
 
   //Lock driver
   spi_xfer_done = false;
@@ -157,6 +158,7 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   nrf_gpio_pin_clear(dev_id);
   //TX address
   err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
+  if (RUUVI_SUCCESS != err_code) { return err_code; }
   while (!spi_xfer_done)
   {
     //err_code |= platform_yield();
@@ -165,14 +167,14 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   //Write data
   spi_xfer_done = false;
   err_code |= nrf_drv_spi_transfer(&spi, data, len, NULL, 0);
+  if (RUUVI_SUCCESS != err_code) { return err_code; }
   while (!spi_xfer_done)
   {
     err_code |= platform_yield();
   }
   nrf_gpio_pin_set(dev_id);
 
-  APP_ERROR_CHECK(err_code);
-  // NRF_LOG_INFO("Bosch transfer completed. %x %x", spi_init_done, spi_xfer_done);
+  PLATFORM_LOG_INFO("Bosch transfer completed. %x %x", spi_init_done, spi_xfer_done);
   return (NRF_SUCCESS == err_code) ? 0 : -1;
 }
 
@@ -185,7 +187,7 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
   // NRF_LOG_INFO("Enter Bosch read. %x %x", spi_init_done, spi_xfer_done);
   if(!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
   if(!spi_xfer_done) { return NRF_ERROR_BUSY; }
-  // NRF_LOG_INFO("Start Bosch read.");
+  PLATFORM_LOG_INFO("Start Bosch read.");
 
   //Lock driver
   spi_xfer_done = false;
@@ -212,23 +214,21 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
     #error "setup_workaround_for_ftpan_58, see comment above this line."
   #endif
   err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
+  if (RUUVI_SUCCESS != err_code) { return err_code; }
   while (!spi_xfer_done)
   {
     err_code |= platform_yield();
   }
   spi_xfer_done = false;
   err_code |= nrf_drv_spi_transfer(&spi, NULL, 0, data, len);
+  if (RUUVI_SUCCESS != err_code) { return err_code; }
   while (!spi_xfer_done)
   {
     err_code |= platform_yield();
   }
   nrf_gpio_pin_set(dev_id);
-
-
-  // NRF_LOG_INFO("Bosch read completed.");
- 
-  APP_ERROR_CHECK(err_code);
-  return (NRF_SUCCESS == err_code) ? 0 : -1;
+  PLATFORM_LOG_INFO("Bosch read completed.");
+  return platform_to_ruuvi_error(&err_code);
 }
 
 /**
@@ -263,7 +263,7 @@ int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *dat
   
   nrf_gpio_pin_set(ss);
   
-  return (NRF_SUCCESS == err_code) ? 0 : -1;
+  return platform_to_ruuvi_error(&err_code);
 }
 
 /**
