@@ -106,7 +106,9 @@ typedef enum {
 
 // Declare function pointers common to all sensors
 // Init and uninit, take no parameters
-typedef ruuvi_status_t(*ruuvi_sensor_init_fp)(void);
+//Forward declare struct
+typedef struct ruuvi_sensor_t ruuvi_sensor_t;          // forward declaration *and* typedef
+typedef ruuvi_status_t(*ruuvi_sensor_init_fp)(ruuvi_sensor_t*);
 // Setters, getters, sent to sensor on set, copied to pointer on get
 typedef ruuvi_status_t(*ruuvi_sensor_samplerate_fp)(ruuvi_sensor_samplerate_t*);
 typedef ruuvi_status_t(*ruuvi_sensor_resolution_fp)(ruuvi_sensor_resolution_t*);
@@ -119,7 +121,7 @@ typedef ruuvi_status_t(*ruuvi_sensor_interrupt_fp)(uint8_t, float*, ruuvi_sensor
 // Void pointer to sensor-specific struct which gets filled with data
 typedef ruuvi_status_t(*ruuvi_sensor_data_fp)(void*);
 
-typedef struct 
+struct ruuvi_sensor_t
 {
   ruuvi_sensor_init_fp init;
   ruuvi_sensor_init_fp uninit;
@@ -135,7 +137,11 @@ typedef struct
   ruuvi_sensor_mode_fp       mode_get;
   ruuvi_sensor_interrupt_fp  interrupt_set;
   ruuvi_sensor_interrupt_fp  interrupt_get;
+  // Return single, latest measurement, fetched from sensor.
   ruuvi_sensor_data_fp       data_get;
-}ruuvi_sensor_t;
+  // Return sensor buffer. Buffer has count which tells maximum number of elements as input
+  // and returned number of elements as output.
+  ruuvi_sensor_data_fp       buffer_get;
+};
 
 #endif

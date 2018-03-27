@@ -56,7 +56,7 @@ static ruuvi_status_t BME_TO_RUUVI_ERROR(int8_t rslt)
 }
 
 /** Initialize BME280 into low-power mode **/
-ruuvi_status_t bme280_interface_init(void)
+ruuvi_status_t bme280_interface_init(ruuvi_sensor_t* environmental_sensor)
 {
   ruuvi_status_t err_code = RUUVI_SUCCESS;
 
@@ -78,11 +78,28 @@ ruuvi_status_t bme280_interface_init(void)
   uint8_t dsp_parameter = 1;
   err_code |= bme280_interface_dsp_set(&dsp, &dsp_parameter);
   
-  //TODO: APP_ERROR_CHECK function
+  if (RUUVI_SUCCESS == err_code)
+  {
+    environmental_sensor->init           = bme280_interface_init;
+    environmental_sensor->uninit         = bme280_interface_uninit;
+    environmental_sensor->samplerate_set = bme280_interface_samplerate_set;
+    environmental_sensor->samplerate_get = bme280_interface_samplerate_get;
+    environmental_sensor->resolution_set = bme280_interface_resolution_set;
+    environmental_sensor->resolution_get = bme280_interface_resolution_get;
+    environmental_sensor->scale_set      = bme280_interface_scale_set;
+    environmental_sensor->scale_get      = bme280_interface_scale_get;
+    environmental_sensor->dsp_set        = bme280_interface_dsp_set;
+    environmental_sensor->dsp_get        = bme280_interface_dsp_get;
+    environmental_sensor->mode_set       = bme280_interface_mode_set;
+    environmental_sensor->mode_get       = bme280_interface_mode_get;
+    environmental_sensor->interrupt_set  = bme280_interface_interrupt_set;
+    environmental_sensor->interrupt_get  = bme280_interface_interrupt_get;
+    environmental_sensor->data_get       = bme280_interface_data_get;
+  }
   return err_code;
 }
 
-ruuvi_status_t bme280_interface_uninit(void)
+ruuvi_status_t bme280_interface_uninit(ruuvi_sensor_t* sensor)
 {
   return BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
 }

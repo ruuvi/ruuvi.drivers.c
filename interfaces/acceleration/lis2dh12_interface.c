@@ -81,7 +81,7 @@ static ruuvi_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new, axi
   return RUUVI_SUCCESS;
 }
 
-ruuvi_status_t lis2dh12_interface_init(void)
+ruuvi_status_t lis2dh12_interface_init(ruuvi_sensor_t* acceleration_sensor)
 {
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   // Initialize mems driver interface
@@ -160,6 +160,25 @@ ruuvi_status_t lis2dh12_interface_init(void)
   // Turn accelerometer off
   dev.samplerate = LIS2DH12_POWER_DOWN;
   err_code |= lis2dh12_data_rate_set(dev_ctx, dev.samplerate);
+
+  if(RUUVI_SUCCESS == err_code)
+  {
+    acceleration_sensor->init           = lis2dh12_interface_init;
+    acceleration_sensor->uninit         = lis2dh12_interface_uninit;
+    acceleration_sensor->samplerate_set = lis2dh12_interface_samplerate_set;
+    acceleration_sensor->samplerate_get = lis2dh12_interface_samplerate_get;
+    acceleration_sensor->resolution_set = lis2dh12_interface_resolution_set;
+    acceleration_sensor->resolution_get = lis2dh12_interface_resolution_get;
+    acceleration_sensor->scale_set      = lis2dh12_interface_scale_set;
+    acceleration_sensor->scale_get      = lis2dh12_interface_scale_get;
+    acceleration_sensor->dsp_set        = lis2dh12_interface_dsp_set;
+    acceleration_sensor->dsp_get        = lis2dh12_interface_dsp_get;
+    acceleration_sensor->mode_set       = lis2dh12_interface_mode_set;
+    acceleration_sensor->mode_get       = lis2dh12_interface_mode_get;
+    acceleration_sensor->interrupt_set  = lis2dh12_interface_interrupt_set;
+    acceleration_sensor->interrupt_get  = lis2dh12_interface_interrupt_get;
+    acceleration_sensor->data_get       = lis2dh12_interface_data_get;
+ }
   
   return err_code;
 }
@@ -168,7 +187,7 @@ ruuvi_status_t lis2dh12_interface_init(void)
  * Lis2dh12 does not have a proper softreset (boot does not reset all registers)
  * Therefore just stop sampling
  */
-ruuvi_status_t lis2dh12_interface_uninit(void)
+ruuvi_status_t lis2dh12_interface_uninit(ruuvi_sensor_t* sensor)
 {
   dev.samplerate = LIS2DH12_POWER_DOWN;
   //LIS2DH12 function returns SPI write result which is ruuvi_status_t

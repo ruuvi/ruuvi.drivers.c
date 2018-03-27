@@ -7,8 +7,8 @@
 #include "ruuvi_error.h"
 #include "ruuvi_sensor.h"
 
-ruuvi_status_t bme280_interface_init(void);
-ruuvi_status_t bme280_interface_uninit(void);
+ruuvi_status_t bme280_interface_init(ruuvi_sensor_t* environmental_sensor);
+ruuvi_status_t bme280_interface_uninit(ruuvi_sensor_t* environmental_sensor);
 ruuvi_status_t bme280_interface_samplerate_set(ruuvi_sensor_samplerate_t* samplerate);
 ruuvi_status_t bme280_interface_samplerate_get(ruuvi_sensor_samplerate_t* samplerate);
 ruuvi_status_t bme280_interface_resolution_set(ruuvi_sensor_resolution_t* resolution);
