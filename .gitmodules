@@ -7,3 +7,6 @@
 	path = STMems_Standard_C_drivers
 	url = https://github.com/STMicroelectronics/STMems_Standard_C_drivers.git
   ignore = untracked
+[submodule "BMG250-API"]
+	path = BMG250-API
+	url = https://github.com/BoschSensortec/BMG250-API.git
