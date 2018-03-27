@@ -7,9 +7,9 @@
  */
 
 #include "application_config.h" //TODO: write default header on driver repository
-#if BME280_ENVIRONMENTAL
-// Board definitions
 #include "boards.h"
+#if BME280_ENVIRONMENTAL
+
 
 // Ruuvi headers
 #include "ruuvi_error.h"

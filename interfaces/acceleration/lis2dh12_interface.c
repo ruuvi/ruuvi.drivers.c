@@ -7,8 +7,8 @@
  */
 
 #include "application_config.h" //TODO: write default header on driver repository
-#if LIS2DH12_ACCELERATION
 #include "boards.h"
+#if LIS2DH12_ACCELERATION
 #include "acceleration.h"
 #include "ruuvi_error.h"
 #include "ruuvi_sensor.h"
