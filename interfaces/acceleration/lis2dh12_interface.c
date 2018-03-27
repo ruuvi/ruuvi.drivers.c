@@ -95,7 +95,8 @@ ruuvi_status_t lis2dh12_interface_init(ruuvi_sensor_t* acceleration_sensor)
   uint8_t whoamI = 0;
   PLATFORM_LOG_DEBUG("Getting WHOAMI");
   lis2dh12_device_id_get(dev_ctx, &whoamI);
-  if ( whoamI != LIS2DH12_ID ) { return RUUVI_ERROR_NOT_FOUND; }
+  PLATFORM_LOG_DEBUG("Checking WHOAMI");
+  if ( whoamI != LIS2DH12_ID ) { PLATFORM_LOG_ERROR("WHOAMI fail"); return RUUVI_ERROR_NOT_FOUND; }
   PLATFORM_LOG_DEBUG("WHOAMI Ok");
   uint8_t enable_axes = 0x07;
   lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
