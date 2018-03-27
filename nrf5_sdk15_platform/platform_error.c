@@ -7,6 +7,16 @@
 #include "ruuvi_error.h"
 #include "sdk_errors.h"
 
+#define PLATFORM_LOG_MODULE_NAME log_platform
+#if LOG_PLATFORM_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       LOG_PLATFORM_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  LOG_PLATFORM_INFO_COLOR
+#else // ANT_BPWR_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       0
+#endif // ANT_BPWR_LOG_ENABLED
+#include "platform_log.h"
+PLATFORM_LOG_MODULE_REGISTER();
+
 ruuvi_status_t platform_to_ruuvi_error(void* error)
 {
   ret_code_t err_code = *(ret_code_t*)error;
@@ -26,6 +36,7 @@ ruuvi_status_t platform_to_ruuvi_error(void* error)
   if(NRF_ERROR_INVALID_ADDR == err_code)   { return RUUVI_ERROR_INVALID_ADDR; }
   if(NRF_ERROR_BUSY == err_code)           { return RUUVI_ERROR_BUSY; }
   if(NRF_ERROR_RESOURCES == err_code)      { return RUUVI_ERROR_RESOURCES; }
+  PLATFORM_LOG_ERROR("Unknown error code %d", err_code);
   return RUUVI_ERROR_INTERNAL;
 }
 

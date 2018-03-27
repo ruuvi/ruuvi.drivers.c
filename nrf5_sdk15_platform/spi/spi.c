@@ -152,7 +152,7 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
 
   //Lock driver
   spi_xfer_done = false;
-
+  //Use int32t to clear out any extra bytes after 8 bits
   int8_t err_code = NRF_SUCCESS;
 
   nrf_gpio_pin_clear(dev_id);
@@ -174,8 +174,8 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   }
   nrf_gpio_pin_set(dev_id);
 
-  PLATFORM_LOG_INFO("Bosch transfer completed. %x %x", spi_init_done, spi_xfer_done);
-  return (NRF_SUCCESS == err_code) ? 0 : -1;
+  PLATFORM_LOG_DEBUG("Bosch transfer completed. %x %x", spi_init_done, spi_xfer_done);
+  return err_code;
 }
 
 /**
@@ -192,6 +192,7 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
   //Lock driver
   spi_xfer_done = false;
 
+  //Use int32t to clear out any extra bytes after 8 bits
   int8_t err_code = NRF_SUCCESS;
 
   nrf_gpio_pin_clear(dev_id);
@@ -227,14 +228,14 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
     err_code |= platform_yield();
   }
   nrf_gpio_pin_set(dev_id);
-  PLATFORM_LOG_INFO("Bosch read completed.");
-  return platform_to_ruuvi_error(&err_code);
+  PLATFORM_LOG_INFO("SPI Read err_code %d", err_code);
+  return err_code;
 }
 
 /**
  * @brief platform SPI read command for STM drivers
  * Bosch driver causes minor delay between address and register writing which
- * break lis2dh12. Therefore here's a separate function for stm drivers
+ * breaks lis2dh12. Therefore here's a separate function for stm drivers
  */
 int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
                               uint16_t len)
@@ -246,7 +247,7 @@ int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *dat
   //Lock driver
   spi_xfer_done = false;
 
-  int8_t err_code = NRF_SUCCESS;
+  ret_code_t err_code = NRF_SUCCESS;
   uint8_t ss = *(uint8_t*)dev_id;
 
   nrf_gpio_pin_clear(ss);
@@ -262,12 +263,12 @@ int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *dat
   }
   
   nrf_gpio_pin_set(ss);
-  
+  PLATFORM_LOG_INFO("SPI Write err_code %d", err_code);
   return platform_to_ruuvi_error(&err_code);
 }
 
 /**
- * @brief platform SPI read command for STM drivers
+ * @brief platform SPI read command for LIS2DH12 driver
  */
 int32_t spi_lis2dh12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
                               uint16_t len)
@@ -276,9 +277,27 @@ int32_t spi_lis2dh12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data
   // bit 0: READ bit. The value is 1.
   // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
   // multiple reads.
-  uint8_t read_cmd = reg_addr | 0x80;
+  uint8_t read_cmd = reg_addr;
   if(len > 1) { read_cmd |= 0x40; }
   return spi_bosch_platform_read(ss, read_cmd, data, len);
+}
+
+int32_t spi_lis2dw12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
+                              uint16_t len)
+{
+  uint8_t ss = *(uint8_t*)dev_id;
+  // bit 0: READ bit. The value is 1.
+  uint8_t read_cmd = reg_addr | 0x80;
+  return spi_bosch_platform_read(ss, read_cmd, data, len);
+}
+
+/**
+ * @brief platform SPI read command for LIS2DW12 driver
+ */
+int32_t spi_lis2dw12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
+                              uint16_t len)
+{
+  return spi_lis2dh12_platform_write(dev_id, reg_addr, data, len);
 }
 
 
