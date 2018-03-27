@@ -74,7 +74,7 @@ static ruuvi_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new, axi
     //Compensate justification
     diff >>=6;
     if(0 > diff) { diff = 0 - diff; }
-    PLATFORM_LOG_INFO("Self-test diff: %d", diff);
+    PLATFORM_LOG_DEBUG("Self-test diff: %d", diff);
     if(diff < 17)  { return RUUVI_ERROR_SELFTEST; }
     if(diff > 360) { return RUUVI_ERROR_SELFTEST; } 
   }
@@ -93,8 +93,10 @@ ruuvi_status_t lis2dh12_interface_init(ruuvi_sensor_t* acceleration_sensor)
 
   // Check device ID
   uint8_t whoamI = 0;
+  PLATFORM_LOG_DEBUG("Getting WHOAMI");
   lis2dh12_device_id_get(dev_ctx, &whoamI);
   if ( whoamI != LIS2DH12_ID ) { return RUUVI_ERROR_NOT_FOUND; }
+  PLATFORM_LOG_DEBUG("WHOAMI Ok");
   uint8_t enable_axes = 0x07;
   lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
 
@@ -128,7 +130,7 @@ ruuvi_status_t lis2dh12_interface_init(ruuvi_sensor_t* acceleration_sensor)
   memset(data_raw_acceleration_old.u8bit, 0x00, 3*sizeof(int16_t));
   memset(data_raw_acceleration_new.u8bit, 0x00, 3*sizeof(int16_t));
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_old.u8bit);
-  PLATFORM_LOG_INFO("Read acceleration");
+  PLATFORM_LOG_DEBUG("Read acceleration");
 
   // self-test to positive direction
   dev.selftest = LIS2DH12_ST_POSITIVE;
@@ -139,7 +141,7 @@ ruuvi_status_t lis2dh12_interface_init(ruuvi_sensor_t* acceleration_sensor)
 
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
-  PLATFORM_LOG_INFO("Read acceleration");
+  PLATFORM_LOG_DEBUG("Read acceleration");
   err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
 
   // self-test to negative direction
@@ -431,6 +433,7 @@ ruuvi_status_t lis2dh12_interface_interrupt_get(uint8_t number, float* threshold
 ruuvi_status_t lis2dh12_interface_data_get(void* data)
 {
   if(NULL == data) { return RUUVI_ERROR_NULL; }
+  PLATFORM_LOG_DEBUG("Getting data");
 
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   axis3bit16_t raw_acceleration;
@@ -439,6 +442,7 @@ ruuvi_status_t lis2dh12_interface_data_get(void* data)
 
   ruuvi_acceleration_data_t* p_acceleration = (ruuvi_acceleration_data_t*)data;
   float acceleration[3] = {0};
+  PLATFORM_LOG_DEBUG("SPI Read");
 
     // Compensate data with resolution, scale
   for(size_t ii = 0; ii < 3; ii++)
@@ -530,6 +534,7 @@ ruuvi_status_t lis2dh12_interface_data_get(void* data)
   p_acceleration->x_mg = acceleration[0];
   p_acceleration->y_mg = acceleration[1];
   p_acceleration->z_mg = acceleration[2];
+  PLATFORM_LOG_DEBUG("Ready, err_code %d", err_code);
   return err_code;
 }
 
