@@ -368,6 +368,7 @@ ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg)
   if(msg->payload_length > nfc_tx_length) { return RUUVI_ERROR_DATA_SIZE; }
   // If message should be repeated, disable NFC message configuration by NFC writes. And vice versa
   nrf5_sdk14_nfc_state.configurable = !(msg->repeat);
+  nrf5_sdk14_nfc_state.tx_updated = true;
   memcpy(nfc_tx_buf, msg->payload, msg->payload_length);
   return RUUVI_SUCCESS;
 }
