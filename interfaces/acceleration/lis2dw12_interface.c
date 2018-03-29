@@ -219,11 +219,11 @@ ruuvi_status_t lis2dw12_interface_samplerate_set(ruuvi_sensor_samplerate_t* samp
   else if(RUUVI_SENSOR_SAMPLERATE_MAX == *samplerate)    { dev.samplerate = LIS2DW12_XL_ODR_200Hz; }
   else if(RUUVI_SENSOR_SAMPLERATE_SINGLE == *samplerate) { return RUUVI_ERROR_NOT_IMPLEMENTED; }
   else if(1   == *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_1Hz6_LP_ONLY; }
-  else if(12  <= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_12Hz5; }
-  else if(25  <= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_25Hz;  }
-  else if(50  <= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_50Hz;  }
-  else if(100 <= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_100Hz; }
-  else if(200 <= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_200Hz; }
+  else if(12  >= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_12Hz5; }
+  else if(25  >= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_25Hz;  }
+  else if(50  >= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_50Hz;  }
+  else if(100 >= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_100Hz; }
+  else if(200 >= *samplerate)                            { dev.samplerate = LIS2DW12_XL_ODR_200Hz; }
 
   else { return RUUVI_ERROR_NOT_SUPPORTED; }
 
@@ -290,8 +290,8 @@ ruuvi_status_t lis2dw12_interface_resolution_set(ruuvi_sensor_resolution_t* reso
   
   if     (RUUVI_SENSOR_RESOLUTION_MIN == *resolution) { dev.mode = LIS2DW12_CONT_LOW_PWR_12bit;  }
   else if(RUUVI_SENSOR_RESOLUTION_MAX == *resolution) { dev.mode = LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4; }
-  else if(12 <= *resolution ) { dev.mode = LIS2DW12_CONT_LOW_PWR_12bit; }
-  else if(14 <= *resolution ) { dev.mode = LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4; }
+  else if(12 >= *resolution ) { dev.mode = LIS2DW12_CONT_LOW_PWR_12bit; }
+  else if(14 >= *resolution ) { dev.mode = LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4; }
   else { return RUUVI_ERROR_NOT_SUPPORTED; }
 
   return lis2dw12_power_mode_set(&(dev.ctx), dev.mode);
@@ -327,10 +327,10 @@ ruuvi_status_t lis2dw12_interface_scale_set(ruuvi_sensor_scale_t* scale)
 
   if     (RUUVI_SENSOR_SCALE_MIN == *scale)  { dev.scale = LIS2DW12_2g;  }
   else if(RUUVI_SENSOR_SCALE_MAX == *scale)  { dev.scale = LIS2DW12_16g; }
-  else if(2  <= *scale)                      { dev.scale = LIS2DW12_2g;  } 
-  else if(4  <= *scale)                      { dev.scale = LIS2DW12_4g;  } 
-  else if(8  <= *scale)                      { dev.scale = LIS2DW12_8g;  } 
-  else if(16 <= *scale)                      { dev.scale = LIS2DW12_16g; } 
+  else if(2  >= *scale)                      { dev.scale = LIS2DW12_2g;  } 
+  else if(4  >= *scale)                      { dev.scale = LIS2DW12_4g;  } 
+  else if(8  >= *scale)                      { dev.scale = LIS2DW12_8g;  } 
+  else if(16 >= *scale)                      { dev.scale = LIS2DW12_16g; } 
   else                                       { return RUUVI_ERROR_NOT_SUPPORTED; }
 
   return lis2dw12_full_scale_set(&(dev.ctx), dev.scale);
