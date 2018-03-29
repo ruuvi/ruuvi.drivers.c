@@ -62,8 +62,6 @@
  * @def PLATFORM_LOG_MODULE_REGISTER
  * @brief Macro for registering an independent module.
  */
-
-
 #define _CONST const
 #define PLATFORM_LOG_MODULE_REGISTER() NRF_LOG_MODULE_REGISTER()
 
