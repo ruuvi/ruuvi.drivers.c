@@ -8,7 +8,8 @@
 #include "ruuvi_sensor.h"
 
 #define BMG250_125_RAW_TO_DPS(raw) (float)(raw *0.0038f)
-#define BMG250_2000_RAW_TO_DPS(raw) (float)(raw *0.061f)
+#define BMG250_250_RAW_TO_DPS(raw) (float)(raw *0.0076f)
+#define BMG250_2000_RAW_TO_DPS(raw) (float)(raw *0.0610f)
 
 ruuvi_status_t bmg250_interface_init(ruuvi_sensor_t* gyration_sensor);
 ruuvi_status_t bmg250_interface_uninit(ruuvi_sensor_t* gyration_sensor);
