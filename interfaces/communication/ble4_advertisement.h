@@ -13,10 +13,10 @@ typedef enum{
 
 // Functions for setting up advertisement constants
 // Each change takes effect immediately
-ruuvi_status_t set_advertisement_interval(int16_t ms);
-ruuvi_status_t set_advertisement_power(int8_t dbm);
-ruuvi_status_t set_advertisement_type(ble4_advertisement_type_t advertisement_type);
-ruuvi_status_t set_advertisement_manufacturer_id(uint16_t id);
+ruuvi_status_t ble4_advertisement_set_interval(int16_t ms);
+ruuvi_status_t ble4_advertisement_set_power(int8_t dbm);
+ruuvi_status_t ble4_advertisement_set_type(ble4_advertisement_type_t advertisement_type);
+ruuvi_status_t ble4_advertisement_set_manufacturer_id(uint16_t id);
 
 // Functions for implementing communication api
 ruuvi_status_t ble4_advertisement_init(void);

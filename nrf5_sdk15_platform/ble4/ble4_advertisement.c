@@ -74,7 +74,7 @@ static ruuvi_status_t update_settings(void)
 }
 // Functions for setting up advertisement constants
 // Each change takes effect immediately
-ruuvi_status_t set_advertisement_interval(int16_t ms)
+ruuvi_status_t ble4_advertisement_set_interval(int16_t ms)
 {
     if (100 > ms || 10001 < ms) { return RUUVI_ERROR_INVALID_PARAM; }
     m_adv_state.advertisement_interval_ms = ms;
@@ -84,7 +84,7 @@ ruuvi_status_t set_advertisement_interval(int16_t ms)
 
 // TODO: HW-specific TX powers
 // Supported tx_power values: -40dBm, -20dBm, -16dBm, -12dBm, -8dBm, -4dBm, 0dBm and +4dBm.
-ruuvi_status_t set_advertisement_power(int8_t dbm)
+ruuvi_status_t ble4_advertisement_set_power(int8_t dbm)
 {
     int8_t  tx_power = 0;
     ret_code_t err_code = NRF_SUCCESS;
@@ -104,7 +104,7 @@ ruuvi_status_t set_advertisement_power(int8_t dbm)
     return platform_to_ruuvi_error(&err_code);
 }
 
-ruuvi_status_t set_advertisement_type(ble4_advertisement_type_t advertisement_type)
+ruuvi_status_t ble4_advertisement_set_type(ble4_advertisement_type_t advertisement_type)
 {
     ret_code_t err_code = NRF_SUCCESS;
     switch (advertisement_type)
@@ -135,7 +135,7 @@ ruuvi_status_t set_advertisement_type(ble4_advertisement_type_t advertisement_ty
     }
     return platform_to_ruuvi_error(&err_code);;
 }
-ruuvi_status_t set_advertisement_manufacturer_id(uint16_t id)
+ruuvi_status_t ble4_advertisement_set_manufacturer_id(uint16_t id)
 {
     m_adv_state.manufacturer_id = id;
     return RUUVI_SUCCESS;
@@ -196,7 +196,12 @@ ruuvi_status_t ble4_advertisement_process_synchronous(void)
  */
 ruuvi_status_t ble4_advertisement_flush_tx(void)
 {
-    return RUUVI_ERROR_NOT_IMPLEMENTED;
+    ble_advdata_storage_t data;
+    while(!ringbuffer_empty(&advertisement_buffer))
+    {
+        ringbuffer_popqueue(&advertisement_buffer, &data);
+    }
+    return RUUVI_SUCCESS;
 }
 
 /*

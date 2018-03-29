@@ -25,7 +25,7 @@ PLATFORM_LOG_MODULE_REGISTER();
 
 static bool ble_stack_is_init = false;
 
-ruuvi_status_t ble_stack_init(void)
+ruuvi_status_t ble4_stack_init(void)
 {
     ret_code_t err_code = NRF_SUCCESS;
 
@@ -47,7 +47,7 @@ ruuvi_status_t ble_stack_init(void)
     return platform_to_ruuvi_error(&err_code);
 }
 
-ruuvi_status_t set_advertisement_tag_name(uint8_t* name, uint8_t name_length)
+ruuvi_status_t ble4_set_name(uint8_t* name, uint8_t name_length)
 {
     ble_gap_conn_sec_mode_t security;
     security.sm = 1;

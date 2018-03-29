@@ -3,7 +3,7 @@
 
 #include "ruuvi_error.h"
 
-ruuvi_status_t ble_stack_init(void);
-ruuvi_status_t set_advertisement_tag_name(uint8_t* name, uint8_t name_length);
+ruuvi_status_t ble4_stack_init(void);
+ruuvi_status_t ble4_set_name(uint8_t* name, uint8_t name_length);
 
 #endif
