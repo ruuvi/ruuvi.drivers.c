@@ -214,11 +214,11 @@ ruuvi_status_t lis2dh12_interface_samplerate_set(ruuvi_sensor_samplerate_t* samp
   else if(RUUVI_SENSOR_SAMPLERATE_MIN == *samplerate) { dev.samplerate = LIS2DH12_ODR_1Hz;    }
   else if(RUUVI_SENSOR_SAMPLERATE_MAX == *samplerate) { dev.samplerate = LIS2DH12_ODR_400Hz;  }
   else if(1   == *samplerate)                         { dev.samplerate = LIS2DH12_ODR_1Hz;    }
-  else if(10  <= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_10Hz;   }
-  else if(25  <= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_25Hz;   }
-  else if(50  <= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_50Hz;   }
-  else if(100 <= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_100Hz;  }
-  else if(200 <= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_200Hz;  }
+  else if(10  >= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_10Hz;   }
+  else if(25  >= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_25Hz;   }
+  else if(50  >= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_50Hz;   }
+  else if(100 >= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_100Hz;  }
+  else if(200 >= *samplerate)                         { dev.samplerate = LIS2DH12_ODR_200Hz;  }
   else { return RUUVI_ERROR_NOT_SUPPORTED; }
 
   // Write samplerate to lis if we're in continous mode or if sample rate is 0.
@@ -288,9 +288,9 @@ ruuvi_status_t lis2dh12_interface_resolution_set(ruuvi_sensor_resolution_t* reso
   
   if     (RUUVI_SENSOR_RESOLUTION_MIN == *resolution) { dev.resolution = LIS2DH12_LP_8bit;  }
   else if(RUUVI_SENSOR_RESOLUTION_MAX == *resolution) { dev.resolution = LIS2DH12_HR_12bit; }
-  else if(8 <= *resolution )  { dev.resolution = LIS2DH12_LP_8bit; }
-  else if(10 <= *resolution ) { dev.resolution = LIS2DH12_NM_10bit; }
-  else if(12 <= *resolution ) { dev.resolution = LIS2DH12_HR_12bit; }
+  else if(8 >= *resolution )  { dev.resolution = LIS2DH12_LP_8bit; }
+  else if(10 >= *resolution ) { dev.resolution = LIS2DH12_NM_10bit; }
+  else if(12 >= *resolution ) { dev.resolution = LIS2DH12_HR_12bit; }
   else { return RUUVI_ERROR_NOT_SUPPORTED; }
 
   return lis2dh12_operating_mode_set(&(dev.ctx), dev.resolution);
