@@ -9,6 +9,7 @@
 #include "ruuvi_error.h"
 #include "ruuvi_sensor.h"
 #include "lis2mdl_reg.h"
+#include "lis2mdl_interface.h"
 
 static lis2mdl_ctx_t dev_ctx;
 static ruuvi_sensor_mode_t mode;
@@ -16,8 +17,9 @@ static ruuvi_sensor_mode_t mode;
 /*
 *  Initialize mems driver interface.
 */
-ruuvi_status_t lis2mdl_interface_init(ruuvi_sensor_t* acceleration_sensor)
+ruuvi_status_t lis2mdl_interface_init(ruuvi_sensor_t* magnetic_sensor)
 {
+  if(NULL == magnetic_sensor) { return RUUVI_ERROR_NULL; }
   // LIS2DH12 functions return error codes from I2C stach
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   uint8_t whoamI, rst;
@@ -66,6 +68,28 @@ ruuvi_status_t lis2mdl_interface_init(ruuvi_sensor_t* acceleration_sensor)
    */
   err_code |= lis2mdl_operating_mode_set(&dev_ctx, LIS2MDL_POWER_DOWN);
   mode = RUUVI_SENSOR_MODE_SLEEP;
+
+
+  if(RUUVI_SUCCESS == err_code)
+  {
+    magnetic_sensor->init           = lis2dh12_interface_init;
+    magnetic_sensor->uninit         = lis2dh12_interface_uninit;
+    magnetic_sensor->samplerate_set = lis2dh12_interface_samplerate_set;
+    magnetic_sensor->samplerate_get = lis2dh12_interface_samplerate_get;
+    magnetic_sensor->resolution_set = lis2dh12_interface_resolution_set;
+    magnetic_sensor->resolution_get = lis2dh12_interface_resolution_get;
+    magnetic_sensor->scale_set      = lis2dh12_interface_scale_set;
+    magnetic_sensor->scale_get      = lis2dh12_interface_scale_get;
+    magnetic_sensor->dsp_set        = lis2dh12_interface_dsp_set;
+    magnetic_sensor->dsp_get        = lis2dh12_interface_dsp_get;
+    magnetic_sensor->mode_set       = lis2dh12_interface_mode_set;
+    magnetic_sensor->mode_get       = lis2dh12_interface_mode_get;
+    magnetic_sensor->interrupt_set  = lis2dh12_interface_interrupt_set;
+    magnetic_sensor->interrupt_get  = lis2dh12_interface_interrupt_get;
+    magnetic_sensor->data_get       = lis2dh12_interface_data_get;
+ }
+
+  return err_code;
 
 }
 ruuvi_status_t lis2mdl_interface_uninit(ruuvi_sensor_t* acceleration_sensor)
