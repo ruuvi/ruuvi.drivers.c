@@ -85,8 +85,8 @@ ruuvi_status_t lis2dw12_interface_init(ruuvi_sensor_t* acceleration_sensor)
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   // Initialize mems driver interface
   lis2dw12_ctx_t* dev_ctx = &(dev.ctx);
-  dev_ctx->write_reg = spi_lis2dw12_platform_write;
-  dev_ctx->read_reg = spi_lis2dw12_platform_read;
+  dev_ctx->write_reg = spi_stm_platform_write;
+  dev_ctx->read_reg = spi_stm_platform_read;
   dev_ctx->handle = &lis2dw12_ss_pin;
   dev.opmode = RUUVI_SENSOR_MODE_SLEEP;
 

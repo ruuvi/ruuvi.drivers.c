@@ -1,5 +1,5 @@
 /**
- *  Implement ruuvi sensor abstraction functions for BME280.
+ *  Ruuvi sensor abstraction functions for LIS2DH12
  */
 
 #ifndef LIS2DH12_INTERFACE_H

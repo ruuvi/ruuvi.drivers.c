@@ -285,7 +285,7 @@ int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *dat
 }
 
 /**
- * @brief platform SPI read command for LIS2DH12 driver
+ * @brief platform SPI write command for LIS2DH12 driver. requires special handling of multiple byte reads.
  */
 int32_t spi_lis2dh12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
                                    uint16_t len)
@@ -299,7 +299,10 @@ int32_t spi_lis2dh12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data
   return spi_bosch_platform_read(ss, read_cmd, data, len);
 }
 
-int32_t spi_lis2dw12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
+/**
+ * @brief platform SPI read command for STM drivers
+ */
+int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
                                    uint16_t len)
 {
   uint8_t ss = *(uint8_t*)dev_id;
@@ -309,9 +312,9 @@ int32_t spi_lis2dw12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data
 }
 
 /**
- * @brief platform SPI read command for LIS2DW12 driver
+ * @brief platform SPI writes command for STM drivers
  */
-int32_t spi_lis2dw12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
+int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
                                     uint16_t len)
 {
   return spi_lis2dh12_platform_write(dev_id, reg_addr, data, len);
