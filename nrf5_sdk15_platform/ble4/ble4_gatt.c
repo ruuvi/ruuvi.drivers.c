@@ -21,9 +21,9 @@
 #include "nrf_ble_gatt.h"
 
 #define PLATFORM_LOG_MODULE_NAME ble4_gatt
-#if BLE4_GATT_LOG_ENABLED
-#define PLATFORM_LOG_LEVEL       BLE4_GATT_LOG_LEVEL
-#define PLATFORM_LOG_INFO_COLOR  BLE4_GATT_INFO_COLOR
+#if BLE4_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       BLE4_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  BLE4_INFO_COLOR
 #else
 #define PLATFORM_LOG_LEVEL       0
 #endif
@@ -77,6 +77,7 @@ static ret_code_t gap_params_init(void)
  */
 static void conn_params_error_handler(uint32_t nrf_error)
 {
+  PLATFORM_LOG_ERROR("Conn params fail");
   APP_ERROR_HANDLER(nrf_error);
 }
 
@@ -94,7 +95,7 @@ static void conn_params_error_handler(uint32_t nrf_error)
 static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
 {
   uint32_t err_code;
-
+  PLATFORM_LOG_INFO("Conn params event");
   if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
   {
     err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
@@ -247,6 +248,7 @@ static void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const *
  */
 static void nrf_qwr_error_handler(uint32_t nrf_error)
 {
+    PLATFORM_LOG_ERROR("QWR Error");
     APP_ERROR_HANDLER(nrf_error);
 }
 
@@ -266,17 +268,22 @@ ruuvi_status_t ble4_gatt_init(void)
   NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
 
   err_code |= gap_params_init();
+  PLATFORM_LOG_INFO("GAP Init status %X", err_code);
 
   err_code |= nrf_ble_gatt_init(&m_gatt, gatt_evt_handler);
+  PLATFORM_LOG_INFO("GATT Init status %X", err_code);
 
   err_code |= nrf_ble_gatt_att_mtu_periph_set(&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
+  PLATFORM_LOG_INFO("MTU setup status %X", err_code);
 
   // Initialize Queued Write Module.
   qwr_init.error_handler = nrf_qwr_error_handler;
 
   err_code |= nrf_ble_qwr_init(&m_qwr, &qwr_init);
+  PLATFORM_LOG_INFO("QWR Init status %X", err_code);
 
   err_code |= conn_params_init();
+  PLATFORM_LOG_INFO("Conn params Init status %X", err_code);
 
   if (NRF_SUCCESS == err_code)
   {

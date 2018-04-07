@@ -30,17 +30,20 @@ ruuvi_status_t ble4_stack_init(void)
     ret_code_t err_code = NRF_SUCCESS;
 
     err_code = nrf_sdh_enable_request();
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("SDH Enable request error: %X", err_code); }
     // APP_ERROR_CHECK(err_code);
 
     // Configure the BLE stack using the default settings.
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
     err_code |= nrf_sdh_ble_default_cfg_set(BLE_CONN_CFG_TAG_DEFAULT, &ram_start);
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Setting default configuration error: %X", err_code); }
     // APP_ERROR_CHECK(err_code);
     PLATFORM_LOG_INFO("RAM starts at %d", ram_start);
 
     // Enable BLE stack.
     err_code |= nrf_sdh_ble_enable(&ram_start);
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Enabling SDH error: %X", err_code); }
 
     // APP_ERROR_CHECK(err_code);
     if (NRF_SUCCESS == err_code) { ble_stack_is_init = true; }
