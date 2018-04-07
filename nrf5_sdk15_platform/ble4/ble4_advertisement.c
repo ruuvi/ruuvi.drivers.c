@@ -68,7 +68,7 @@ static ble_gap_adv_data_t m_adv_data =
 // Update BLE settings, takes effect immidiately
 static ruuvi_status_t update_settings(void)
 {
-    if(!advertisement_is_init) { return RUUVI_ERROR_INVALID_STATE; }
+    if (!advertisement_is_init) { return RUUVI_ERROR_INVALID_STATE; }
     ret_code_t err_code = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
     return platform_to_ruuvi_error(&err_code);
 }
@@ -150,7 +150,6 @@ ruuvi_status_t ble4_advertisement_init(void)
     if (!advertisement_is_init)
     {
         ringbuffer_init(&advertisement_buffer, MAXIMUM_ADVERTISEMENTS, sizeof(ble_advdata_storage_t), &advertisements);
-
     }
     // Initialize advertising parameters (used when starting advertising).
     memset(&m_adv_params, 0, sizeof(m_adv_params));
@@ -197,7 +196,7 @@ ruuvi_status_t ble4_advertisement_process_synchronous(void)
 ruuvi_status_t ble4_advertisement_flush_tx(void)
 {
     ble_advdata_storage_t data;
-    while(!ringbuffer_empty(&advertisement_buffer))
+    while (!ringbuffer_empty(&advertisement_buffer))
     {
         ringbuffer_popqueue(&advertisement_buffer, &data);
     }
@@ -240,7 +239,7 @@ ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg
     ringbuffer_push(&advertisement_buffer, &data);
 
     //Setup pointers to data
-    size_t index = ringbuffer_get_count(&advertisement_buffer)-1;
+    size_t index = ringbuffer_get_count(&advertisement_buffer) - 1;
     ble_advdata_storage_t* p_data = ringbuffer_peek_at(&advertisement_buffer, index);
     m_adv_data.adv_data.p_data      = p_data->advertisement;
     m_adv_data.adv_data.len         = p_data->adv_len;

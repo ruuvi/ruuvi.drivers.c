@@ -46,7 +46,6 @@ typedef struct
   ruuvi_communication_fp uninit;
   ruuvi_communication_fp is_connected;
   // Return RUUVI_SUCCESS if data was placed on HW buffer. 
-  // call tx_complete once tx is complete.
   ruuvi_communication_fp process_asynchronous;
   // return RUUVI_SUCCESS when data has been sent and acknowledged if applicable.
   // return RUUVI_ERROR_INVALID_STATE if connection is not established.
