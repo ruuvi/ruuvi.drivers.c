@@ -112,13 +112,14 @@ ruuvi_status_t i2c_uninit(void)
  */
 int32_t i2c_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len)
 {
-  if(!i2c_is_init) { return RUUVI_ERROR_INVALID_STATE; }
-  if(NULL == dev_id || NULL == data) { return RUUVI_ERROR_NULL; }
+  if (!i2c_is_init) { return RUUVI_ERROR_INVALID_STATE; }
+  if (NULL == dev_id || NULL == data) { return RUUVI_ERROR_NULL; }
   int32_t err_code = NRF_SUCCESS;
   //Write address, do not stop
   err_code |= nrf_drv_twi_tx(&m_twi, *(uint8_t*)dev_id, &reg_addr, 1, true);
   //Write data, stop
   err_code |= nrf_drv_twi_tx(&m_twi, *(uint8_t*)dev_id, data, len, false);
+  if (NRF_SUCCESS != err_code) { NRF_LOG_ERROR("I2C error: %X", err_code); }
   return platform_to_ruuvi_error(&err_code);
 }
 
@@ -127,14 +128,15 @@ int32_t i2c_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data, ui
  */
 int32_t i2c_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len)
 {
-  if(!i2c_is_init) { return RUUVI_ERROR_INVALID_STATE; }
-  if(NULL == dev_id || NULL == data) { return RUUVI_ERROR_NULL; }
+  if (!i2c_is_init) { return RUUVI_ERROR_INVALID_STATE; }
+  if (NULL == dev_id || NULL == data) { return RUUVI_ERROR_NULL; }
 
   int32_t err_code = NRF_SUCCESS;
   //Write address, do not stop
   err_code |= nrf_drv_twi_tx(&m_twi, *(uint8_t*)dev_id, &reg_addr, 1, true);
   // Read data
   err_code |= nrf_drv_twi_rx(&m_twi, *(uint8_t*)dev_id, data, len);
+  if (NRF_SUCCESS != err_code) { NRF_LOG_ERROR("I2C error: %X", err_code); }
   return platform_to_ruuvi_error(&err_code);
 }
 

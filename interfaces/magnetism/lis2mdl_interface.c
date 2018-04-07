@@ -10,9 +10,23 @@
 #include "ruuvi_sensor.h"
 #include "lis2mdl_reg.h"
 #include "lis2mdl_interface.h"
+#include "i2c.h"
+#include "yield.h"
+#include "magnetism.h"
+
+#define PLATFORM_LOG_MODULE_NAME lis2mdl_iface
+#if LIS2MDL_INTERFACE_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       LIS2MDL_INTERFACE_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  LIS2MDL_INTERFACE_INFO_COLOR
+#else // ANT_BPWR_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       0
+#endif // ANT_BPWR_LOG_ENABLED
+#include "platform_log.h"
+PLATFORM_LOG_MODULE_REGISTER();
 
 static lis2mdl_ctx_t dev_ctx;
 static ruuvi_sensor_mode_t mode;
+static uint8_t handle = LIS2MDL_ADDRESS;
 
 /*
 *  Initialize mems driver interface.
@@ -20,12 +34,13 @@ static ruuvi_sensor_mode_t mode;
 ruuvi_status_t lis2mdl_interface_init(ruuvi_sensor_t* magnetic_sensor)
 {
   if(NULL == magnetic_sensor) { return RUUVI_ERROR_NULL; }
+  PLATFORM_LOG_INFO("Start LIS2MDL init");
   // LIS2DH12 functions return error codes from I2C stach
   ruuvi_status_t err_code = RUUVI_SUCCESS;
   uint8_t whoamI, rst;
-  dev_ctx.write_reg = platform_write;
-  dev_ctx.read_reg = platform_read;
-  dev_ctx.handle = &hi2c1;
+  dev_ctx.write_reg = i2c_stm_platform_write;
+  dev_ctx.read_reg = i2c_stm_platform_read;
+  dev_ctx.handle = &handle;
 
   /*
    *  Check device ID.
@@ -33,7 +48,10 @@ ruuvi_status_t lis2mdl_interface_init(ruuvi_sensor_t* magnetic_sensor)
   whoamI = 0;
   err_code |= lis2mdl_device_id_get(&dev_ctx, &whoamI);
   if ( whoamI != LIS2MDL_ID )
-    while (1); /*manage here device not found */
+  {
+    PLATFORM_LOG_ERROR("LIS2MDL Not found. err_code 0x%d, WHOAMI 0x%X", err_code, whoamI);
+    return RUUVI_ERROR_NOT_FOUND;
+  }
 
   /*
    *  Restore default configuration.
@@ -72,23 +90,24 @@ ruuvi_status_t lis2mdl_interface_init(ruuvi_sensor_t* magnetic_sensor)
 
   if(RUUVI_SUCCESS == err_code)
   {
-    magnetic_sensor->init           = lis2dh12_interface_init;
-    magnetic_sensor->uninit         = lis2dh12_interface_uninit;
-    magnetic_sensor->samplerate_set = lis2dh12_interface_samplerate_set;
-    magnetic_sensor->samplerate_get = lis2dh12_interface_samplerate_get;
-    magnetic_sensor->resolution_set = lis2dh12_interface_resolution_set;
-    magnetic_sensor->resolution_get = lis2dh12_interface_resolution_get;
-    magnetic_sensor->scale_set      = lis2dh12_interface_scale_set;
-    magnetic_sensor->scale_get      = lis2dh12_interface_scale_get;
-    magnetic_sensor->dsp_set        = lis2dh12_interface_dsp_set;
-    magnetic_sensor->dsp_get        = lis2dh12_interface_dsp_get;
-    magnetic_sensor->mode_set       = lis2dh12_interface_mode_set;
-    magnetic_sensor->mode_get       = lis2dh12_interface_mode_get;
-    magnetic_sensor->interrupt_set  = lis2dh12_interface_interrupt_set;
-    magnetic_sensor->interrupt_get  = lis2dh12_interface_interrupt_get;
-    magnetic_sensor->data_get       = lis2dh12_interface_data_get;
+    magnetic_sensor->init           = lis2mdl_interface_init;
+    magnetic_sensor->uninit         = lis2mdl_interface_uninit;
+    magnetic_sensor->samplerate_set = lis2mdl_interface_samplerate_set;
+    magnetic_sensor->samplerate_get = lis2mdl_interface_samplerate_get;
+    magnetic_sensor->resolution_set = lis2mdl_interface_resolution_set;
+    magnetic_sensor->resolution_get = lis2mdl_interface_resolution_get;
+    magnetic_sensor->scale_set      = lis2mdl_interface_scale_set;
+    magnetic_sensor->scale_get      = lis2mdl_interface_scale_get;
+    magnetic_sensor->dsp_set        = lis2mdl_interface_dsp_set;
+    magnetic_sensor->dsp_get        = lis2mdl_interface_dsp_get;
+    magnetic_sensor->mode_set       = lis2mdl_interface_mode_set;
+    magnetic_sensor->mode_get       = lis2mdl_interface_mode_get;
+    magnetic_sensor->interrupt_set  = lis2mdl_interface_interrupt_set;
+    magnetic_sensor->interrupt_get  = lis2mdl_interface_interrupt_get;
+    magnetic_sensor->data_get       = lis2mdl_interface_data_get;
  }
 
+  PLATFORM_LOG_INFO("LIS2MDL Init status 0x%X", err_code);
   return err_code;
 
 }
@@ -97,12 +116,6 @@ ruuvi_status_t lis2mdl_interface_uninit(ruuvi_sensor_t* acceleration_sensor)
   return RUUVI_ERROR_NOT_IMPLEMENTED;
 }
 
-typedef enum {
-  = 0,
-  LIS2MDL_ODR_20Hz   = 1,
-  LIS2MDL_ODR_50Hz   = 2,
-  LIS2MDL_ODR_100Hz  = 3
-} lis2mdl_odr_t;
 ruuvi_status_t lis2mdl_interface_samplerate_set(ruuvi_sensor_samplerate_t* samplerate)
 {
   if (NULL == samplerate) { return RUUVI_ERROR_NULL; }
@@ -203,10 +216,10 @@ ruuvi_status_t lis2mdl_interface_mode_set(ruuvi_sensor_mode_t* p_mode)
     err_code |= lis2mdl_operating_mode_set(&dev_ctx, LIS2MDL_SINGLE_TRIGGER);
     break;
 
-  case RUUVI_SENSOR_MODE_SINGLE_SYNCHRONOUS:
+  case RUUVI_SENSOR_MODE_SINGLE_BLOCKING:
     mode = RUUVI_SENSOR_MODE_SLEEP;
     err_code |= lis2mdl_operating_mode_set(&dev_ctx, LIS2MDL_SINGLE_TRIGGER);
-    plaform_delay_ms(10); //TODO: Verify delay
+    platform_delay_ms(10); //TODO: Verify delay
     break;
 
   case RUUVI_SENSOR_MODE_CONTINOUS:
@@ -240,10 +253,11 @@ ruuvi_status_t lis2mdl_interface_interrupt_get(uint8_t number, float* threshold,
   return RUUVI_ERROR_NOT_IMPLEMENTED;
 }
 
-ruuvi_status_t lis2mdl_interface_data_get(void* data)
+ruuvi_status_t lis2mdl_interface_data_get(void* p_data)
 {
-  if (NULL == data) { return RUUVI_ERROR_NULL; }
+  if (NULL == p_data) { return RUUVI_ERROR_NULL; }
   ruuvi_status_t err_code = RUUVI_SUCCESS;
+  ruuvi_magnetism_data_t* data = (ruuvi_magnetism_data_t*)p_data;
 
   axis3bit16_t data_raw_magnetic;
   memset(data_raw_magnetic.u8bit, 0x00, 3 * sizeof(int16_t));
@@ -254,3 +268,5 @@ ruuvi_status_t lis2mdl_interface_data_get(void* data)
 
   return err_code;
 }
+
+#endif
