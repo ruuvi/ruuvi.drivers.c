@@ -8,10 +8,12 @@
 #include "communication.h"
 #include "ruuvi_error.h"
 #include "ringbuffer.h"
+#include "boards.h" //Device information Service data
 
 #include "app_timer.h"
 #include "ble_conn_params.h"
 #include "ble_nus.h"
+#include "ble_dis.h"
 #include "sdk_errors.h"
 #include "nrf_error.h"
 #include "nrf_sdh.h"
@@ -229,14 +231,14 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 /**@brief Function for handling events from the GATT library. */
 static void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const * p_evt)
 {
-    if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
-    {
-        //m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-        PLATFORM_LOG_ERROR("Changing MTU size is not supported by application");
-    }
-    PLATFORM_LOG_DEBUG("ATT MTU exchange completed. central 0x%x peripheral 0x%x",
-                  p_gatt->att_mtu_desired_central,
-                  p_gatt->att_mtu_desired_periph);
+  if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
+  {
+    //m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
+    PLATFORM_LOG_ERROR("Changing MTU size is not supported by application");
+  }
+  PLATFORM_LOG_DEBUG("ATT MTU exchange completed. central 0x%x peripheral 0x%x",
+                     p_gatt->att_mtu_desired_central,
+                     p_gatt->att_mtu_desired_periph);
 }
 
 /**@brief Function for handling Queued Write Module errors.
@@ -248,8 +250,8 @@ static void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const *
  */
 static void nrf_qwr_error_handler(uint32_t nrf_error)
 {
-    PLATFORM_LOG_ERROR("QWR Error");
-    APP_ERROR_HANDLER(nrf_error);
+  PLATFORM_LOG_ERROR("QWR Error");
+  APP_ERROR_HANDLER(nrf_error);
 }
 
 ruuvi_status_t ble4_gatt_init(void)
@@ -447,7 +449,46 @@ ruuvi_status_t ble4_nus_message_get(ruuvi_communication_message_t* msg)
 // Other GATT services
 ruuvi_status_t ble4_dis_init(void)
 {
-  return RUUVI_ERROR_NOT_IMPLEMENTED;
+
+  ret_code_t err_code = NRF_SUCCESS;
+
+#define SERIAL_LENGTH      9 //64 bits as hex + trailing null
+
+  // Create pseudo-unique name
+  // TODO: Use deviceaddr instead?
+  // TODO: Move into drivers / utils
+  unsigned int mac0 =  NRF_FICR->DEVICEID[0];
+  unsigned int mac1 =  NRF_FICR->DEVICEID[1];
+  char serial[SERIAL_LENGTH];
+  uint8_t index = 0;
+  sprintf(&serial[index], "%x", mac0);
+  index += 4;
+  sprintf(&serial[index], "%x", mac1);
+  index += 4;
+  serial[index++] = 0x00;
+
+  ble_dis_init_t dis_init;
+  memset(&dis_init, 0, sizeof(dis_init));
+  ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, DEVICE_MANUFACTURER);
+  ble_srv_ascii_to_utf8(&dis_init.model_num_str, DEVICE_MODEL);
+  ble_srv_ascii_to_utf8(&dis_init.serial_num_str, serial);
+  ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, DEVICE_HWREV);
+  ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, DEVICE_FWREV);
+  ble_srv_ascii_to_utf8(&dis_init.sw_rev_str, DEVICE_SWREV);
+
+  // Read security level 1, mode 1. OPEN, i.e. anyone can read without encryption.
+  // Write not allowed.
+  dis_init.dis_attr_md.read_perm.sm = 1;
+  dis_init.dis_attr_md.read_perm.lv = 1;
+
+  err_code = ble_dis_init(&dis_init);
+  PLATFORM_LOG_DEBUG("DIS init, status %d\r\n", err_code);
+  if (err_code != NRF_SUCCESS)
+  {
+    PLATFORM_LOG_ERROR("Failed to init DIS\r\n");
+  }
+
+  return platform_to_ruuvi_error(&err_code);
 }
 
 ruuvi_status_t ble4_dfu_init(void)
