@@ -9,6 +9,7 @@
 #include "ruuvi_error.h"
 #include "ringbuffer.h"
 #include "boards.h" //Device information Service data
+#include "timer.h"
 
 #include "app_timer.h"
 #include "ble_conn_params.h"
@@ -258,6 +259,12 @@ ruuvi_status_t ble4_gatt_init(void)
 {
 
   ret_code_t err_code = NRF_SUCCESS;
+  // Connection param modile requires timers
+  if(!platform_timers_is_init()) 
+  {
+    PLATFORM_LOG_WARNING("Initialize timers before GATT, Initializing now");
+    platform_timers_init();
+  }
   nrf_ble_qwr_init_t qwr_init = {0};
 
   if (!gatt_is_init)
