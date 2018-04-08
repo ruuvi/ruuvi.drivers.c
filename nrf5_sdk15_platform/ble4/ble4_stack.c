@@ -61,9 +61,9 @@ ruuvi_status_t ble4_set_name(uint8_t* name, uint8_t name_length, bool include_se
 
     if (include_serial)
     {
-        unsigned int mac1 =  NRF_FICR->DEVICEADDR[1];
+        unsigned int mac0 =  NRF_FICR->DEVICEADDR[0];
         // space + 4 hex chars
-        sprintf(name_serial + name_length, "%04X", mac1 >> 16);
+        sprintf(name_serial + name_length, "%04X", mac0 & 0xFFFF);
         len += 4;
     }
     ret_code_t err_code = sd_ble_gap_device_name_set (&security, (uint8_t*)name_serial, len);
