@@ -30,32 +30,43 @@ ruuvi_status_t ble4_stack_init(void)
     ret_code_t err_code = NRF_SUCCESS;
 
     err_code = nrf_sdh_enable_request();
-    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("SDH Enable request error: %X", err_code); }
+    if (NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("SDH Enable request error: %X", err_code); }
     // APP_ERROR_CHECK(err_code);
 
     // Configure the BLE stack using the default settings.
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
     err_code |= nrf_sdh_ble_default_cfg_set(BLE_CONN_CFG_TAG_DEFAULT, &ram_start);
-    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Setting default configuration error: %X", err_code); }
+    if (NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Setting default configuration error: %X", err_code); }
     // APP_ERROR_CHECK(err_code);
     PLATFORM_LOG_INFO("RAM starts at %d", ram_start);
 
     // Enable BLE stack.
     err_code |= nrf_sdh_ble_enable(&ram_start);
-    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Enabling SDH error: %X", err_code); }
+    if (NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Enabling SDH error: %X", err_code); }
 
     // APP_ERROR_CHECK(err_code);
     if (NRF_SUCCESS == err_code) { ble_stack_is_init = true; }
     return platform_to_ruuvi_error(&err_code);
 }
 
-ruuvi_status_t ble4_set_name(uint8_t* name, uint8_t name_length)
+ruuvi_status_t ble4_set_name(uint8_t* name, uint8_t name_length, bool include_serial)
 {
     ble_gap_conn_sec_mode_t security;
     security.sm = 1;
     security.lv = 1;
-    ret_code_t err_code = sd_ble_gap_device_name_set (&security, name, name_length);
+    uint8_t len = name_length;
+    char name_serial[27] = { 0 };
+    memcpy(name_serial, name, name_length);
+
+    if (include_serial)
+    {
+        unsigned int mac1 =  NRF_FICR->DEVICEADDR[1];
+        // space + 4 hex chars
+        sprintf(name_serial + name_length, "%04X", mac1 >> 16);
+        len += 4;
+    }
+    ret_code_t err_code = sd_ble_gap_device_name_set (&security, (uint8_t*)name_serial, len);
     return platform_to_ruuvi_error(&err_code);
 }
 
