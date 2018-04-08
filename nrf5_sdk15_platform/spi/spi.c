@@ -78,7 +78,6 @@ static volatile bool spi_init_done = false;  /**< Flag used to indicate that SPI
 
 /**
  * @brief SPI user event handler.
- * @param event
  */
 static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
                               void *                    p_context)
@@ -165,6 +164,7 @@ int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data,
   //Return error if not init or if busy
   if (!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
   if (!spi_xfer_done) { return NRF_ERROR_BUSY; }
+  if (NULL == data)   { return NRF_ERROR_NULL; }
   PLATFORM_LOG_DEBUG("Start Bosch transfer.");
 
   //Lock driver
@@ -204,6 +204,8 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
   // NRF_LOG_INFO("Enter Bosch read. %x %x", spi_init_done, spi_xfer_done);
   if (!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
   if (!spi_xfer_done) { return NRF_ERROR_BUSY; }
+  if (NULL == data)   { return NRF_ERROR_NULL; }
+
   PLATFORM_LOG_DEBUG("Start Bosch read.");
 
   //Lock driver
@@ -260,6 +262,7 @@ int32_t spi_lis2dh12_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *dat
   //Return error if not init or if busy
   if (!spi_init_done) { return NRF_ERROR_INVALID_STATE; }
   if (!spi_xfer_done) { return NRF_ERROR_BUSY; }
+  if (NULL == data)   { return NRF_ERROR_NULL; }
 
   //Lock driver
   spi_xfer_done = false;
@@ -303,7 +306,7 @@ int32_t spi_lis2dh12_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data
  * @brief platform SPI read command for STM drivers
  */
 int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
-                                   uint16_t len)
+                              uint16_t len)
 {
   uint8_t ss = *(uint8_t*)dev_id;
   // bit 0: READ bit. The value is 1.
@@ -315,10 +318,76 @@ int32_t spi_stm_platform_read(void* dev_id, uint8_t reg_addr, uint8_t *data,
  * @brief platform SPI writes command for STM drivers
  */
 int32_t spi_stm_platform_write(void* dev_id, uint8_t reg_addr, uint8_t *data,
-                                    uint16_t len)
+                               uint16_t len)
 {
   return spi_lis2dh12_platform_write(dev_id, reg_addr, data, len);
 }
 
+/**
+ * @brief platform SPI write command
+ */
+ruuvi_status_t spi_generic_platform_write_blocking(const uint8_t ss_pin, uint8_t* const data, size_t len)
+{
+  //Return error if not init or if busy
+  if (!spi_init_done) { return RUUVI_ERROR_INVALID_STATE; }
+  if (!spi_xfer_done) { return RUUVI_ERROR_BUSY; }
+  if (NULL == data)   { return RUUVI_ERROR_NULL; }
+
+  //Lock driver
+  spi_xfer_done = false;
+  ret_code_t err_code = NRF_SUCCESS;
+  nrf_gpio_pin_clear(ss_pin);
+
+  err_code |= nrf_drv_spi_transfer(&spi, data, len, NULL, 0);
+  while (!spi_xfer_done)
+  {
+    err_code |= platform_yield();
+  }
+
+  nrf_gpio_pin_set(ss_pin);
+  PLATFORM_LOG_DEBUG("SPI Write err_code %d", err_code);
+  return platform_to_ruuvi_error(&err_code);
+}
+
+
+
+/**
+ * @brief generic platform SPI tx command.
+ *
+ * @param ss_pin Slave select pin of target device
+ * @param tx Pointer to TX data
+ * @param tx_len size of tx data
+ * @param rx Pointer to pointer of rx data. Might be incremented by one byte by this function
+ * @param rx_len length of rx data. As input, number of bytes to read, including increment. As output, size of final data.
+ * @param skip first. If true, rx buffer will be incremented by one and rx_len will be decremented by one. This is useful when reading addressed data from device.
+ */
+ruuvi_status_t spi_generic_platform_xfer_blocking(const uint8_t ss_pin, uint8_t* const tx, const size_t tx_len, uint8_t** rx, size_t* rx_len, bool skip_first)
+{
+  //Return error if not init or if busy
+  if (!spi_init_done) { return RUUVI_ERROR_INVALID_STATE; }
+  if (!spi_xfer_done) { return RUUVI_ERROR_BUSY; }
+  if (NULL == tx || NULL == rx || NULL == *rx || NULL == rx_len)   { return RUUVI_ERROR_NULL; }
+
+  //Lock driver
+  spi_xfer_done = false;
+  ret_code_t err_code = NRF_SUCCESS;
+  nrf_gpio_pin_clear(ss_pin);
+
+  err_code |= nrf_drv_spi_transfer(&spi, tx, tx_len, *rx, *rx_len);
+  while (!spi_xfer_done)
+  {
+    err_code |= platform_yield();
+  }
+
+  if (skip_first)
+  {
+    *rx = *rx + 1;
+    *rx_len = *rx_len - 1;
+  }
+
+  nrf_gpio_pin_set(ss_pin);
+  PLATFORM_LOG_DEBUG("SPI Write err_code %d", err_code);
+  return platform_to_ruuvi_error(&err_code);
+}
 
 #endif
