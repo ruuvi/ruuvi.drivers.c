@@ -19,27 +19,27 @@ ruuvi_status_t platform_gpio_configure(uint8_t pin, ruuvi_gpio_mode_t mode)
 
   switch (mode)
   {
-  case HIGH_Z:
+  case RUUVI_GPIO_MODE_HIGH_Z:
     nrf_gpio_cfg_default(pin);
     break;
 
-  case INPUT_NOPULL:
+  case RUUVI_GPIO_MODE_INPUT_NOPULL:
     nrf_gpio_cfg_input (pin, NRF_GPIO_PIN_NOPULL);
     break;
 
-  case INPUT_PULLUP:
+  case RUUVI_GPIO_MODE_INPUT_PULLUP:
     nrf_gpio_cfg_input (pin, NRF_GPIO_PIN_PULLUP);
     break;
 
-  case INPUT_PULLDOWN:
+  case RUUVI_GPIO_MODE_INPUT_PULLDOWN:
     nrf_gpio_cfg_input (pin, NRF_GPIO_PIN_PULLDOWN);
     break;
 
-  case OUTPUT_STANDARD:
+  case RUUVI_GPIO_MODE_OUTPUT_STANDARD:
     nrf_gpio_cfg_output (pin);
     break;
 
-  case OUTPUT_HIGHDRIVE:
+  case RUUVI_GPIO_MODE_OUTPUT_HIGHDRIVE:
     nrf_gpio_cfg (pin,
                   NRF_GPIO_PIN_DIR_OUTPUT,
                   NRF_GPIO_PIN_INPUT_DISCONNECT,
