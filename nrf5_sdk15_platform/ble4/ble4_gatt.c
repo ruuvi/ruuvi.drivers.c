@@ -13,8 +13,10 @@
 
 #include "app_timer.h"
 #include "ble_conn_params.h"
-#include "ble_nus.h"
+#include "ble_dfu.h"
 #include "ble_dis.h"
+#include "ble_nus.h"
+#include "fds.h"
 #include "sdk_errors.h"
 #include "nrf_error.h"
 #include "nrf_sdh.h"
@@ -22,6 +24,7 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_ble_gatt.h"
+#include "peer_manager.h"
 
 #define PLATFORM_LOG_MODULE_NAME ble4_gatt
 #if BLE4_LOG_ENABLED
@@ -255,6 +258,179 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
   APP_ERROR_HANDLER(nrf_error);
 }
 
+// YOUR_JOB: Update this code if you want to do anything given a DFU event (optional).
+/**@brief Function for handling dfu events from the Buttonless Secure DFU service
+ *
+ * @param[in]   event   Event from the Buttonless Secure DFU service.
+ */
+static void ble_dfu_evt_handler(ble_dfu_buttonless_evt_type_t event)
+{
+    switch (event)
+    {
+        case BLE_DFU_EVT_BOOTLOADER_ENTER_PREPARE:
+            PLATFORM_LOG_INFO("Device is preparing to enter bootloader mode.");
+            // YOUR_JOB: Disconnect all bonded devices that currently are connected.
+            //           This is required to receive a service changed indication
+            //           on bootup after a successful (or aborted) Device Firmware Update.
+            break;
+
+        case BLE_DFU_EVT_BOOTLOADER_ENTER:
+            // YOUR_JOB: Write app-specific unwritten data to FLASH, control finalization of this
+            //           by delaying reset by reporting false in app_shutdown_handler
+            PLATFORM_LOG_INFO("Device will enter bootloader mode.");
+            break;
+
+        case BLE_DFU_EVT_BOOTLOADER_ENTER_FAILED:
+            PLATFORM_LOG_ERROR("Request to enter bootloader mode failed asynchroneously.");
+            // YOUR_JOB: Take corrective measures to resolve the issue
+            //           like calling APP_ERROR_CHECK to reset the device.
+            break;
+
+        case BLE_DFU_EVT_RESPONSE_SEND_ERROR:
+            PLATFORM_LOG_ERROR("Request to send a response to client failed.");
+            // YOUR_JOB: Take corrective measures to resolve the issue
+            //           like calling APP_ERROR_CHECK to reset the device.
+            APP_ERROR_CHECK(false);
+            break;
+
+        default:
+            PLATFORM_LOG_ERROR("Unknown event from ble_dfu_buttonless.");
+            break;
+    }
+}
+
+/**@brief Function for handling Peer Manager events.
+ *
+ * @param[in] p_evt  Peer Manager event.
+ */
+static void pm_evt_handler(pm_evt_t const * p_evt)
+{
+    ret_code_t err_code;
+
+    switch (p_evt->evt_id)
+    {
+        case PM_EVT_BONDED_PEER_CONNECTED:
+        {
+            NRF_LOG_INFO("Connected to a previously bonded device.");
+        } break;
+
+        case PM_EVT_CONN_SEC_SUCCEEDED:
+        {
+            NRF_LOG_INFO("Connection secured: role: %d, conn_handle: 0x%x, procedure: %d.",
+                         ble_conn_state_role(p_evt->conn_handle),
+                         p_evt->conn_handle,
+                         p_evt->params.conn_sec_succeeded.procedure);
+        } break;
+
+        case PM_EVT_CONN_SEC_FAILED:
+        {
+            /* Often, when securing fails, it shouldn't be restarted, for security reasons.
+             * Other times, it can be restarted directly.
+             * Sometimes it can be restarted, but only after changing some Security Parameters.
+             * Sometimes, it cannot be restarted until the link is disconnected and reconnected.
+             * Sometimes it is impossible, to secure the link, or the peer device does not support it.
+             * How to handle this error is highly application dependent. */
+        } break;
+
+        case PM_EVT_CONN_SEC_CONFIG_REQ:
+        {
+            // Reject pairing request from an already bonded peer.
+            pm_conn_sec_config_t conn_sec_config = {.allow_repairing = false};
+            pm_conn_sec_config_reply(p_evt->conn_handle, &conn_sec_config);
+        } break;
+
+        case PM_EVT_STORAGE_FULL:
+        {
+            // Run garbage collection on the flash.
+            err_code = fds_gc();
+            if (err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
+            {
+                // Retry.
+            }
+            else
+            {
+                APP_ERROR_CHECK(err_code);
+            }
+        } break;
+
+        case PM_EVT_PEERS_DELETE_SUCCEEDED:
+        {
+            
+        } break;
+
+        case PM_EVT_PEER_DATA_UPDATE_FAILED:
+        {
+            // Assert.
+            APP_ERROR_CHECK(p_evt->params.peer_data_update_failed.error);
+        } break;
+
+        case PM_EVT_PEER_DELETE_FAILED:
+        {
+            // Assert.
+            APP_ERROR_CHECK(p_evt->params.peer_delete_failed.error);
+        } break;
+
+        case PM_EVT_PEERS_DELETE_FAILED:
+        {
+            // Assert.
+            APP_ERROR_CHECK(p_evt->params.peers_delete_failed_evt.error);
+        } break;
+
+        case PM_EVT_ERROR_UNEXPECTED:
+        {
+            // Assert.
+            APP_ERROR_CHECK(p_evt->params.error_unexpected.error);
+        } break;
+
+        case PM_EVT_CONN_SEC_START:
+        case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:
+        case PM_EVT_PEER_DELETE_SUCCEEDED:
+        case PM_EVT_LOCAL_DB_CACHE_APPLIED:
+        case PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED:
+            // This can happen when the local DB has changed.
+        case PM_EVT_SERVICE_CHANGED_IND_SENT:
+        case PM_EVT_SERVICE_CHANGED_IND_CONFIRMED:
+        default:
+            break;
+    }
+}
+
+
+/**@brief Function for the Peer Manager initialization.
+ */
+static ret_code_t peer_manager_init()
+{
+    ble_gap_sec_params_t sec_param;
+    ret_code_t           err_code = NRF_SUCCESS;
+
+    err_code |= pm_init();
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Peer manager init error:%d", err_code); }
+
+    memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
+
+    // Security parameters to be used for all security procedures.
+    sec_param.bond           = SEC_PARAM_BOND;
+    sec_param.mitm           = SEC_PARAM_MITM;
+    sec_param.lesc           = SEC_PARAM_LESC;
+    sec_param.keypress       = SEC_PARAM_KEYPRESS;
+    sec_param.io_caps        = SEC_PARAM_IO_CAPABILITIES;
+    sec_param.oob            = SEC_PARAM_OOB;
+    sec_param.min_key_size   = SEC_PARAM_MIN_KEY_SIZE;
+    sec_param.max_key_size   = SEC_PARAM_MAX_KEY_SIZE;
+    sec_param.kdist_own.enc  = 1;
+    sec_param.kdist_own.id   = 1;
+    sec_param.kdist_peer.enc = 1;
+    sec_param.kdist_peer.id  = 1;
+
+    err_code = pm_sec_params_set(&sec_param);
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Peer manager sec param init error:%d", err_code); }
+
+    err_code = pm_register(pm_evt_handler);
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Peer manager event handler init error:%d", err_code); }
+
+    return err_code;
+}
+
 ruuvi_status_t ble4_gatt_init(void)
 {
 
@@ -275,6 +451,9 @@ ruuvi_status_t ble4_gatt_init(void)
 
   // Register a handler for BLE events.
   NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
+
+  err_code |= peer_manager_init();
+  PLATFORM_LOG_INFO("Peer manager init status %X", err_code);
 
   err_code |= gap_params_init();
   PLATFORM_LOG_INFO("GAP Init status %X", err_code);
@@ -500,7 +679,22 @@ ruuvi_status_t ble4_dis_init(void)
 
 ruuvi_status_t ble4_dfu_init(void)
 {
-  return RUUVI_ERROR_NOT_IMPLEMENTED;
+
+  ret_code_t err_code = NRF_SUCCESS;
+
+      ble_dfu_buttonless_init_t dfus_init = {0};
+
+
+    // Initialize the async SVCI interface to bootloader.
+    err_code = ble_dfu_buttonless_async_svci_init();
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("BLE DFU SVCI Init error:%d", err_code); }
+
+    dfus_init.evt_handler = ble_dfu_evt_handler;
+
+    err_code = ble_dfu_buttonless_init(&dfus_init);
+    if(NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("BLE DFU Init error:%d", err_code); }
+
+  return platform_to_ruuvi_error(&err_code);
 }
 
 #endif

@@ -14,9 +14,9 @@
 #include "sdk_errors.h"
 
 #define PLATFORM_LOG_MODULE_NAME ble4_stack
-#if BLE4_STACK_LOG_ENABLED
-#define PLATFORM_LOG_LEVEL       BLE4_STACK_LOG_LEVEL
-#define PLATFORM_LOG_INFO_COLOR  BLE4_STACK_INFO_COLOR
+#if BLE4_LOG_ENABLED
+#define PLATFORM_LOG_LEVEL       BLE4_LOG_LEVEL
+#define PLATFORM_LOG_INFO_COLOR  BLE4_INFO_COLOR
 #else
 #define PLATFORM_LOG_LEVEL       0
 #endif
@@ -46,7 +46,13 @@ ruuvi_status_t ble4_stack_init(void)
     if (NRF_SUCCESS != err_code) { PLATFORM_LOG_ERROR("Enabling SDH error: %X", err_code); }
 
     // APP_ERROR_CHECK(err_code);
-    if (NRF_SUCCESS == err_code) { ble_stack_is_init = true; }
+    if (NRF_SUCCESS == err_code)
+    {
+        ble_stack_is_init = true;
+        ble_version_t version;
+        sd_ble_version_get(&version);
+        PLATFORM_LOG_INFO("Enabled SD version 0x%04X", version.subversion_number);
+    }
     return platform_to_ruuvi_error(&err_code);
 }
 
