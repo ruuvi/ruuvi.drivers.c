@@ -621,11 +621,12 @@ ruuvi_status_t ble4_nus_message_put(ruuvi_communication_message_t* msg)
 ruuvi_status_t ble4_nus_message_get(ruuvi_communication_message_t* msg)
 {
   if (NULL == msg || NULL == msg->payload)        { return RUUVI_ERROR_NULL; }
-  if (msg->payload_length > BLE_NUS_MAX_DATA_LEN) { return RUUVI_ERROR_INVALID_LENGTH; }
+  if (msg->payload_length < BLE_NUS_MAX_DATA_LEN) { return RUUVI_ERROR_INVALID_LENGTH; }
   if (ringbuffer_empty(&incoming_buffer))         { return RUUVI_ERROR_NOT_FOUND; }
 
   ble_gattdata_storage_t gatt_msg;
   ringbuffer_popqueue(&incoming_buffer, &gatt_msg);
+  PLATFORM_LOG_INFO("Retrieving message");
   memcpy(msg->payload, gatt_msg.data, gatt_msg.data_len);
   msg->payload_length = gatt_msg.data_len;
 
