@@ -12,6 +12,8 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "ble_advdata.h"
+#include "ble_nus.h"
+#include "ble_types.h"
 #include "sdk_errors.h"
 #include "app_util.h"
 
@@ -40,6 +42,11 @@ typedef struct {
     ble4_advertisement_type_t advertisement_type;
     uint16_t manufacturer_id;
 } ble4_advertisement_state_t;
+
+static ble_uuid_t m_adv_uuids[] =                                          /**< Universally unique service identifier. */
+{
+    {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
+};
 
 #define MAXIMUM_ADVERTISEMENTS 5
 static ble_gap_adv_params_t m_adv_params;                                  /**< Parameters to be passed to the stack when starting advertising. */
@@ -249,6 +256,8 @@ ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg
     err_code |= ble_advdata_encode(&advdata, data.advertisement, &data.adv_len);
     PLATFORM_LOG_INFO("ADV data status: 0x%X", err_code);
     rspdata.name_type = BLE_ADVDATA_FULL_NAME;
+    rspdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
+    rspdata.uuids_complete.p_uuids  = m_adv_uuids;
     err_code |= ble_advdata_encode(&rspdata, data.response, &data.rsp_len);
     PLATFORM_LOG_INFO("RSP data status: 0x%X", err_code);
     // Store data
