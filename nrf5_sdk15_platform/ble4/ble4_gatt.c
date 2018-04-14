@@ -4,7 +4,8 @@
 
 #include "sdk_application_config.h"
 #if NRF5_SDK15_BLE4_GATT
-#include "ble_gatt.h"
+#include "ble4_gatt.h"
+#include "ble4_advertisement.h"
 #include "communication.h"
 #include "ruuvi_error.h"
 #include "ringbuffer.h"
@@ -183,7 +184,9 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     break;
 
   case BLE_GAP_EVT_DISCONNECTED:
-    PLATFORM_LOG_INFO("Disconnected");
+    PLATFORM_LOG_INFO("Disconnected, restart advertisements");
+    //Restart advertising? Add callback to application? Make default callback to restart, allow app to overwrite?
+    ble4_advertisement_restart();
 
     m_conn_handle = BLE_CONN_HANDLE_INVALID;
     break;
@@ -534,6 +537,7 @@ ruuvi_status_t ble4_nus_process_asynchronous(void)
   //While there remains data, and data was queued successfully
   while (NRF_SUCCESS == err_code && ringbuffer_get_count(&outgoing_buffer))
   {
+    PLATFORM_LOG_INFO("Trying to asynchronously send message, %d messages remaining ", ringbuffer_get_count(&outgoing_buffer));
     // Get pointer to data
     p_msg = ringbuffer_peek_at(&outgoing_buffer, 0);
     // Queue DATA to SD
@@ -543,6 +547,7 @@ ruuvi_status_t ble4_nus_process_asynchronous(void)
     {
       // TODO: optimize unnecessary memory copy out?
       ringbuffer_popqueue(&outgoing_buffer, p_msg);
+      PLATFORM_LOG_INFO("Message sent, %d messages remaining", ringbuffer_get_count(&outgoing_buffer));
       // Put message back to queue if it is repeated.
       // It's not a bug to allow saturation of tx channel, this can
       // be used to test throughput.
@@ -551,6 +556,7 @@ ruuvi_status_t ble4_nus_process_asynchronous(void)
         ringbuffer_push(&outgoing_buffer, p_msg);
       }
     }
+    else { PLATFORM_LOG_INFO("Failed to send message, %d", err_code); }
   }
   return RUUVI_SUCCESS;
 }
@@ -568,10 +574,12 @@ ruuvi_status_t ble4_nus_process_synchronous(void)
     // Queue DATA to SD
     uint16_t data_len = p_msg->data_len;
     err_code = ble_nus_data_send(&m_nus, p_msg->data, &data_len, m_conn_handle);
+    PLATFORM_LOG_INFO("Trying to synchronously send message");
     if (NRF_SUCCESS == err_code)
     {
       // TODO: optimize unnecessary memory copy out?
       ringbuffer_popqueue(&outgoing_buffer, p_msg);
+      PLATFORM_LOG_INFO("Message is queued");
       // Put message back to queue if it is repeated.
       // Because this is a synchronous function, return
       // after putting message back to avoid getting stuck in eternal loop

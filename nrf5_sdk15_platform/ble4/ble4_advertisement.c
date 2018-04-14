@@ -207,6 +207,11 @@ ruuvi_status_t ble4_advertisement_process_asynchronous(void)
     return platform_to_ruuvi_error(&err_code);
 }
 
+void ble4_advertisement_restart(void)
+{
+    sd_ble_gap_adv_start(m_adv_handle, BLE_CONN_CFG_TAG_DEFAULT);
+}
+
 // we have to wait for TX windows
 ruuvi_status_t ble4_advertisement_process_synchronous(void)
 {

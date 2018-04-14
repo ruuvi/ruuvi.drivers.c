@@ -26,4 +26,7 @@ ruuvi_status_t ble4_advertisement_process_synchronous(void);
 ruuvi_status_t ble4_advertisement_flush_tx(void);
 ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg);
 
+//XXX Used by nrf5 sdk to restart advertisements after connection.
+void ble4_advertisement_restart(void);
+
 #endif
