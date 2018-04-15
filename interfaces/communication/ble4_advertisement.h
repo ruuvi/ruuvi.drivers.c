@@ -2,6 +2,7 @@
 #define BLE4_ADVERTISEMENT_H
 #include "ruuvi_error.h"
 #include "communication.h"
+#include <stdbool.h>
 
 //Scan response has always tag name
 //Advertisement field supports only manufacturer data
@@ -25,6 +26,9 @@ ruuvi_status_t ble4_advertisement_process_asynchronous(void);
 ruuvi_status_t ble4_advertisement_process_synchronous(void);
 ruuvi_status_t ble4_advertisement_flush_tx(void);
 ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg);
+
+// Configure if Scan response should include NUS. Might truncate name
+ruuvi_status_t ble4_advertisement_scan_response_nus_advertise(bool advertise);
 
 //XXX Used by nrf5 sdk to restart advertisements after connection.
 void ble4_advertisement_restart(void);

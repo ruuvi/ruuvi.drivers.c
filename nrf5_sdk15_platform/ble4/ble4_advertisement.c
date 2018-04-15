@@ -53,6 +53,7 @@ static ble_gap_adv_params_t m_adv_params;                                  /**< 
 static uint8_t              m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET; /**< Advertising handle used to identify an advertising set. */
 static bool                 advertisement_is_init = false;                 /**< Flag for initialization **/
 static bool                 advertising = false;                           /**< Flag for advertising in process **/
+static bool                 scan_response_uuid = false;                    /**< Advertise NUS in scan response **/
 
 static ble4_advertisement_state_t m_adv_state;
 static uint8_t      advertisements[sizeof(ble_advdata_storage_t) * MAXIMUM_ADVERTISEMENTS];
@@ -159,6 +160,12 @@ ruuvi_status_t ble4_advertisement_set_manufacturer_id(uint16_t id)
     return RUUVI_SUCCESS;
 }
 
+ruuvi_status_t ble4_advertisement_scan_response_nus_advertise(bool advertise)
+{
+    scan_response_uuid = advertise;
+    return RUUVI_SUCCESS;
+}
+
 /*
  * Initialize advertisement buffer and default values to params.
  */
@@ -260,9 +267,14 @@ ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg
     // Encode data
     err_code |= ble_advdata_encode(&advdata, data.advertisement, &data.adv_len);
     PLATFORM_LOG_INFO("ADV data status: 0x%X", err_code);
+
+    // Scan response
     rspdata.name_type = BLE_ADVDATA_FULL_NAME;
-    rspdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
-    rspdata.uuids_complete.p_uuids  = m_adv_uuids;
+    if (scan_response_uuid)
+    {
+        rspdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
+        rspdata.uuids_complete.p_uuids  = m_adv_uuids;
+    }
     err_code |= ble_advdata_encode(&rspdata, data.response, &data.rsp_len);
     PLATFORM_LOG_INFO("RSP data status: 0x%X", err_code);
     // Store data
