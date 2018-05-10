@@ -4,6 +4,7 @@
 #include "ble4_advertisement.h"
 #include "ruuvi_error.h"
 #include "ringbuffer.h"
+#include "communication.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -13,9 +14,14 @@
 #include "nrf_sdh_ble.h"
 #include "ble_advdata.h"
 #include "ble_nus.h"
+#include "ble_radio_notification.h"
 #include "ble_types.h"
 #include "sdk_errors.h"
 #include "app_util.h"
+#include "app_util_platform.h"
+
+//XXX
+#include "adc.h"
 
 #define PLATFORM_LOG_MODULE_NAME ble4_adv
 #if BLE4_LOG_ENABLED
@@ -48,12 +54,14 @@ static ble_uuid_t m_adv_uuids[] =                                          /**< 
     {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
 };
 
+// TODO: Define somewhere else. SDK_APPLICATION_CONFIG?
 #define MAXIMUM_ADVERTISEMENTS 5
-static ble_gap_adv_params_t m_adv_params;                                  /**< Parameters to be passed to the stack when starting advertising. */
-static uint8_t              m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET; /**< Advertising handle used to identify an advertising set. */
-static bool                 advertisement_is_init = false;                 /**< Flag for initialization **/
-static bool                 advertising = false;                           /**< Flag for advertising in process **/
-static bool                 scan_response_uuid = false;                    /**< Advertise NUS in scan response **/
+static ble_gap_adv_params_t   m_adv_params;                                  /**< Parameters to be passed to the stack when starting advertising. */
+static uint8_t                m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET; /**< Advertising handle used to identify an advertising set. */
+static bool                   m_advertisement_is_init = false;               /**< Flag for initialization **/
+static bool                   m_advertising = false;                         /**< Flag for advertising in process **/
+static bool                   m_scan_response_uuid = false;                  /**< Advertise NUS in scan response **/
+static ruuvi_communication_fp m_after_tx_cb = NULL;                          /**< Called after data tx **/
 
 static ble4_advertisement_state_t m_adv_state;
 static uint8_t      advertisements[sizeof(ble_advdata_storage_t) * MAXIMUM_ADVERTISEMENTS];
@@ -77,15 +85,15 @@ static ble_gap_adv_data_t m_adv_data =
 // Update BLE settings, takes effect immidiately
 static ruuvi_status_t update_settings(void)
 {
-    if (!advertisement_is_init) { return RUUVI_ERROR_INVALID_STATE; }
+    if (!m_advertisement_is_init) { return RUUVI_ERROR_INVALID_STATE; }
     ret_code_t err_code = NRF_SUCCESS;
     // Stop advertising for setting update
-    if (advertising)
+    if (m_advertising)
     {
         err_code |= sd_ble_gap_adv_stop(m_adv_handle);
     }
     err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
-    if (advertising)
+    if (m_advertising)
     {
         err_code = sd_ble_gap_adv_start(m_adv_handle, BLE_CONN_CFG_TAG_DEFAULT);
     }
@@ -160,39 +168,19 @@ ruuvi_status_t ble4_advertisement_set_manufacturer_id(uint16_t id)
     return RUUVI_SUCCESS;
 }
 
+/**
+ * Should scan response include uuid of NUS? Takes affect after next message_put
+ */
 ruuvi_status_t ble4_advertisement_scan_response_nus_advertise(bool advertise)
 {
-    scan_response_uuid = advertise;
+    m_scan_response_uuid = advertise;
     return RUUVI_SUCCESS;
 }
 
 /*
- * Initialize advertisement buffer and default values to params.
+ * Stop advertising.
  */
-ruuvi_status_t ble4_advertisement_init(void)
-{
-    ruuvi_status_t err_code = RUUVI_SUCCESS;
-    if (!advertisement_is_init)
-    {
-        ringbuffer_init(&advertisement_buffer, MAXIMUM_ADVERTISEMENTS, sizeof(ble_advdata_storage_t), &advertisements);
-    }
-    // Initialize advertising parameters (used when starting advertising).
-    memset(&m_adv_params, 0, sizeof(m_adv_params));
-    m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
-    m_adv_params.duration        = 0;       // Never time out.
-    m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
-    m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
-    m_adv_params.interval        = APP_ADV_INTERVAL;
-
-    advertisement_is_init = true;
-
-    return err_code;
-}
-
-/*
- * stop advertising.
- */
-ruuvi_status_t ble4_advertisement_uninit(void)
+ruuvi_status_t ble4_advertisement_uninit(ruuvi_communication_channel_t* channel)
 {
     return RUUVI_ERROR_NOT_IMPLEMENTED;
 }
@@ -202,33 +190,42 @@ ruuvi_status_t ble4_advertisement_uninit(void)
  * Returns success if advertising was started.
  * If no more data remains in queue last data is repeated.
  */
-ruuvi_status_t ble4_advertisement_process_asynchronous(void)
+static ruuvi_status_t ble4_advertisement_process_asynchronous(void)
 {
-    // Second parameter is a handle identifying advertising set, unused in non-connectable non-scannable advertisements.
     ret_code_t err_code = NRF_SUCCESS;
-    if (!advertising)
+    if (!m_advertising)
     {
+        // Second parameter is a handle identifying advertising set, support only one
         err_code = sd_ble_gap_adv_start(m_adv_handle, BLE_CONN_CFG_TAG_DEFAULT);
-        if (NRF_SUCCESS == err_code) { advertising = true; }
+        if (NRF_SUCCESS == err_code) { m_advertising = true; }
     }
     return platform_to_ruuvi_error(&err_code);
 }
 
+/**
+ *  For internal use only. Called by GATT after connection has been broken.
+ */
 void ble4_advertisement_restart(void)
 {
     sd_ble_gap_adv_start(m_adv_handle, BLE_CONN_CFG_TAG_DEFAULT);
 }
 
 // we have to wait for TX windows
-ruuvi_status_t ble4_advertisement_process_synchronous(void)
+static ruuvi_status_t ble4_advertisement_process_synchronous(void)
 {
     return RUUVI_ERROR_NOT_SUPPORTED;
+}
+
+// Ready to advertise after init
+static ruuvi_status_t ble4_advertisement_is_init(void)
+{
+    return m_advertisement_is_init;
 }
 
 /*
  * Drop TX buffer. Last data will repeat advertising.
  */
-ruuvi_status_t ble4_advertisement_flush_tx(void)
+static ruuvi_status_t ble4_advertisement_flush_tx(void)
 {
     ble_advdata_storage_t data;
     while (!ringbuffer_empty(&advertisement_buffer))
@@ -239,12 +236,12 @@ ruuvi_status_t ble4_advertisement_flush_tx(void)
 }
 
 /*
- * Put data to TX buffer XXX Handle data being emptied from buffer
+ * Put data to TX buffer. TODO: Handle data being emptied from buffer
  */
-ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg)
+static ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg)
 {
     if (NULL == msg) { return RUUVI_ERROR_NULL; }
-    if (!advertisement_is_init) { return RUUVI_ERROR_INVALID_STATE; }
+    if (!m_advertisement_is_init) { return RUUVI_ERROR_INVALID_STATE; }
     if (BLE_GAP_ADV_SET_DATA_SIZE_MAX < msg->payload_length) { return RUUVI_ERROR_INVALID_LENGTH; }
     if (ringbuffer_full(&advertisement_buffer)) { return RUUVI_ERROR_NO_MEM; }
     PLATFORM_LOG_HEXDUMP_DEBUG(msg->payload, msg->payload_length);
@@ -266,17 +263,17 @@ ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg
     advdata.p_manuf_specific_data = &manuf_specific_data;
     // Encode data
     err_code |= ble_advdata_encode(&advdata, data.advertisement, &data.adv_len);
-    PLATFORM_LOG_INFO("ADV data status: 0x%X", err_code);
+    PLATFORM_LOG_DEBUG("ADV data status: 0x%X", err_code);
 
     // Scan response
     rspdata.name_type = BLE_ADVDATA_FULL_NAME;
-    if (scan_response_uuid)
+    if (m_scan_response_uuid)
     {
         rspdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
         rspdata.uuids_complete.p_uuids  = m_adv_uuids;
     }
     err_code |= ble_advdata_encode(&rspdata, data.response, &data.rsp_len);
-    PLATFORM_LOG_INFO("RSP data status: 0x%X", err_code);
+    PLATFORM_LOG_DEBUG("RSP data status: 0x%X", err_code);
     // Store data
     ringbuffer_push(&advertisement_buffer, &data);
 
@@ -294,9 +291,90 @@ ruuvi_status_t ble4_advertisement_message_put(ruuvi_communication_message_t* msg
 
     // Configure advertisement, do not allow parameter update if already advertising.
     ble_gap_adv_params_t* p_adv_params = &m_adv_params;
-    if (advertising) { p_adv_params = NULL; }
+    if (m_advertising) { p_adv_params = NULL; }
     err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, p_adv_params);
-    PLATFORM_LOG_INFO("Configure status: 0x%X", err_code);
+    PLATFORM_LOG_DEBUG("Configure status: 0x%X", err_code);
+
+    return platform_to_ruuvi_error(&err_code);
+}
+
+// Cannot rx anything, return not supported
+static ruuvi_status_t ble4_advertisement_message_get(ruuvi_communication_message_t* msg)
+{
+    return RUUVI_ERROR_NOT_SUPPORTED;
+}
+
+// Cannot RX anything, return success
+static ruuvi_status_t ble4_advertisement_flush_rx(void)
+{
+    return RUUVI_SUCCESS;
+}
+
+static ruuvi_status_t ble4_advertisement_set_after_tx(ruuvi_communication_fp cb)
+{
+    m_after_tx_cb = cb;
+    return RUUVI_SUCCESS;
+}
+
+/**
+ * Gets called right before and after radio activity.
+ */
+static void ble_on_radio_active_evt(bool radio_active)
+{
+    PLATFORM_LOG_DEBUG("Radio event: %d", radio_active);
+    if (!radio_active && NULL != m_after_tx_cb)
+    {
+        m_after_tx_cb();
+    }
+
+    // Print ADC value before radio event
+    if(radio_active)
+    {
+        PLATFORM_LOG_INFO("BATTERY: %d", (uint32_t)adc_get_data(AIN_BATTERY));
+    }
+
+    // Start sampling right after radio event
+    if(!radio_active)
+    {
+       adc_sample_asynchronous(AIN_BATTERY);
+    }
+}
+
+/*
+ * Initialize advertisement buffer and default values to params.
+ */
+ruuvi_status_t ble4_advertisement_init(ruuvi_communication_channel_t* channel)
+{
+    ret_code_t err_code = NRF_SUCCESS;
+    if (!m_advertisement_is_init)
+    {
+        ringbuffer_init(&advertisement_buffer, MAXIMUM_ADVERTISEMENTS, sizeof(ble_advdata_storage_t), &advertisements);
+    }
+    // Initialize advertising parameters (used when starting advertising).
+    memset(&m_adv_params, 0, sizeof(m_adv_params));
+    m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
+    m_adv_params.duration        = 0;       // Never time out.
+    m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+    m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
+    m_adv_params.interval        = APP_ADV_INTERVAL;
+
+    err_code |= ble_radio_notification_init (APP_IRQ_PRIORITY_LOW,
+                NRF_RADIO_NOTIFICATION_DISTANCE_800US ,
+                ble_on_radio_active_evt);
+
+    channel->init   = ble4_advertisement_init;
+    channel->uninit = ble4_advertisement_uninit;
+    // Can advertise after init
+    channel->is_connected         = ble4_advertisement_is_init;
+    channel->process_asynchronous = ble4_advertisement_process_asynchronous;
+    channel->process_synchronous  = ble4_advertisement_process_synchronous;
+    channel->flush_tx             = ble4_advertisement_flush_tx;
+    channel->flush_rx             = ble4_advertisement_flush_rx;
+    channel->message_put          = ble4_advertisement_message_put;
+    channel->message_get          = ble4_advertisement_message_get;
+    channel->set_after_tx         = ble4_advertisement_set_after_tx;
+
+    m_advertisement_is_init = true;
 
     return platform_to_ruuvi_error(&err_code);
 }
