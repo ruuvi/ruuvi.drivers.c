@@ -1,5 +1,5 @@
 #include "sdk_application_config.h"
-#if NRF52_SDK15_ADC
+#if NRF5_SDK15_ADC
 
 #include "adc.h"
 #include "ruuvi_error.h"
