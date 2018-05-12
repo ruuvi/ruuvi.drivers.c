@@ -52,10 +52,13 @@ struct ruuvi_communication_channel_t
   ruuvi_communication_channel_init_fp init;
   ruuvi_communication_channel_init_fp uninit;
 
-  // Return true if communication channel is ready for use
+  // Return RUUVI_SUCCESS if communication channel is ready for use,
+  // Return RUUVI_ERROR_INVALID_STATE if communication channel cannot be used.
+  // Returning more specific error code is allowed if channel cannot be used.
   ruuvi_communication_fp is_connected;
 
-  // Return RUUVI_SUCCESS if data was placed on HW buffer. 
+  // Return RUUVI_SUCCESS if data was placed on HW buffer.
+  // Return error code detailing why data could not be queued if there was an error
   ruuvi_communication_fp process_asynchronous;
 
   // return RUUVI_SUCCESS when data has been sent and acknowledged if applicable.

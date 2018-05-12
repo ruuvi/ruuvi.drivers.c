@@ -24,14 +24,15 @@ ruuvi_status_t nfc_app_record_set(const uint8_t* app, size_t length);
 
 
 // Functions for implementing communication api
-ruuvi_status_t nfc_init(void);
-ruuvi_status_t nfc_uninit(void);
-bool nfc_is_connected(void);
-ruuvi_status_t nfc_process_asynchronous(void);
-ruuvi_status_t nfc_process_synchronous(void);
-ruuvi_status_t nfc_flush_tx(void);
-ruuvi_status_t nfc_flush_rx(void);
-ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg);
-ruuvi_status_t nfc_message_get(ruuvi_communication_message_t* msg);
+ruuvi_status_t nfc_init(ruuvi_communication_channel_t* nfc_comms);
+// These should be called only via NFC comms api
+// ruuvi_status_t nfc_uninit(ruuvi_communication_channel_t* nfc_comms);
+// bool nfc_is_connected(void);
+// ruuvi_status_t nfc_process_asynchronous(void);
+// ruuvi_status_t nfc_process_synchronous(void);
+// ruuvi_status_t nfc_flush_tx(void);
+// ruuvi_status_t nfc_flush_rx(void);
+// ruuvi_status_t nfc_message_put(ruuvi_communication_message_t* msg);
+// ruuvi_status_t nfc_message_get(ruuvi_communication_message_t* msg);
 
 #endif
