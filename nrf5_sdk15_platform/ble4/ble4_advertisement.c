@@ -326,18 +326,6 @@ static void ble_on_radio_active_evt(bool radio_active)
     {
         m_after_tx_cb();
     }
-
-    // Print ADC value before radio event
-    if(radio_active)
-    {
-        PLATFORM_LOG_INFO("BATTERY: %d", (uint32_t)adc_get_data(AIN_BATTERY));
-    }
-
-    // Start sampling right after radio event
-    if(!radio_active)
-    {
-       adc_sample_asynchronous(AIN_BATTERY);
-    }
 }
 
 /*
