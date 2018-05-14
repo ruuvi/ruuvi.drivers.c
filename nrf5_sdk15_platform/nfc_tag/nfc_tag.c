@@ -37,12 +37,33 @@ static struct
   volatile uint8_t configurable; // Allow NFC to write configuration
   uint8_t nfc_ndef_msg[NDEF_FILE_SIZE];
   volatile size_t  nfc_ndef_msg_len;
-  ruuvi_communication_fp after_tx_cb;
+  ruuvi_communication_fp on_tx_cb;
+  ruuvi_communication_fp on_rx_cb;
+  ruuvi_communication_fp on_cn_cb;
+  ruuvi_communication_fp on_dc_cb;
 } nrf5_sdk15_nfc_state;
 
-static ruuvi_status_t nfc_set_after_tx(ruuvi_communication_fp cb)
+static ruuvi_status_t nfc_set_on_tx(ruuvi_communication_fp cb)
 {
-    nrf5_sdk15_nfc_state.after_tx_cb = cb;
+    nrf5_sdk15_nfc_state.on_tx_cb = cb;
+    return RUUVI_SUCCESS;
+}
+
+static ruuvi_status_t nfc_set_on_rx(ruuvi_communication_fp cb)
+{
+    nrf5_sdk15_nfc_state.on_rx_cb = cb;
+    return RUUVI_SUCCESS;
+}
+
+static ruuvi_status_t nfc_set_on_connect(ruuvi_communication_fp cb)
+{
+    nrf5_sdk15_nfc_state.on_cn_cb = cb;
+    return RUUVI_SUCCESS;
+}
+
+static ruuvi_status_t nfc_set_on_disconnect(ruuvi_communication_fp cb)
+{
+    nrf5_sdk15_nfc_state.on_dc_cb = cb;
     return RUUVI_SUCCESS;
 }
 
@@ -61,16 +82,19 @@ static void nfc_callback(void * context,
   {
   case NFC_T4T_EVENT_FIELD_ON:
     nrf5_sdk15_nfc_state.connected = true;
+    if (NULL != nrf5_sdk15_nfc_state.on_cn_cb) { nrf5_sdk15_nfc_state.on_cn_cb(); }
     PLATFORM_LOG_DEBUG("Field detected, do not process data");
     break;
 
   case NFC_T4T_EVENT_FIELD_OFF:
     nrf5_sdk15_nfc_state.connected = false;
-    if (NULL != nrf5_sdk15_nfc_state.after_tx_cb) { nrf5_sdk15_nfc_state.after_tx_cb(); }
+    if (NULL != nrf5_sdk15_nfc_state.on_dc_cb) { nrf5_sdk15_nfc_state.on_dc_cb(); }
     PLATFORM_LOG_DEBUG("Field lost, ok to process data now");
     break;
 
   case NFC_T4T_EVENT_NDEF_READ:
+    PLATFORM_LOG_DEBUG("Data chunk sent");
+    if (NULL != nrf5_sdk15_nfc_state.on_tx_cb) { nrf5_sdk15_nfc_state.on_tx_cb(); }
     break;
 
   // Update process generally sets length of field to 0 and
@@ -83,8 +107,8 @@ static void nfc_callback(void * context,
       nrf5_sdk15_nfc_state.rx_updated = true;
       // If tag is not configurable by NFC, set flag to overwrite received data.
       if (!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true;}
-      // Do not call data received function in interrupt context.
-      // Check updated flag in main context and call callback if appropriate.
+      // Do not process data in interrupt context, you should rather schedule data processing
+      if (NULL != nrf5_sdk15_nfc_state.on_rx_cb) { nrf5_sdk15_nfc_state.on_rx_cb(); }
     }
     break;
 
@@ -400,7 +424,10 @@ ruuvi_status_t nfc_init(ruuvi_communication_channel_t* nfc_comms)
   nfc_comms->flush_rx             = nfc_flush_rx;
   nfc_comms->message_put          = nfc_message_put;
   nfc_comms->message_get          = nfc_message_get;
-  nfc_comms->set_after_tx         = nfc_set_after_tx;
+  nfc_comms->set_on_connect       = nfc_set_on_connect;
+  nfc_comms->set_on_disconnect    = nfc_set_on_disconnect;
+  nfc_comms->set_on_rx            = nfc_set_on_rx;
+  nfc_comms->set_on_tx            = nfc_set_on_tx;
 
   return platform_to_ruuvi_error(&err_code);
 }

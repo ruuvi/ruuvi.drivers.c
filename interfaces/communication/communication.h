@@ -78,8 +78,17 @@ struct ruuvi_communication_channel_t
   // Return RUUVI_ERROR_NOT_FOUND if queue is empty, RUUVI SUCCESS if data could be read
   ruuvi_communication_xfer_fp message_get;
 
+  // Called when connection has been established
+  ruuvi_communication_cb_fp set_on_connect;
+
+  // Called when connection has been lost
+  ruuvi_communication_cb_fp set_on_disconnect;
+
+  // Called after message has been received
+  ruuvi_communication_cb_fp set_on_rx;
+
   // Called after message has been sent
-  ruuvi_communication_cb_fp set_after_tx;
+  ruuvi_communication_cb_fp set_on_tx;
 };
 
 #endif

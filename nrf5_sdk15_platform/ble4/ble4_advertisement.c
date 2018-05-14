@@ -20,9 +20,6 @@
 #include "app_util.h"
 #include "app_util_platform.h"
 
-//XXX
-#include "adc.h"
-
 #define PLATFORM_LOG_MODULE_NAME ble4_adv
 #if BLE4_LOG_ENABLED
 #define PLATFORM_LOG_LEVEL       BLE4_LOG_LEVEL
@@ -310,10 +307,25 @@ static ruuvi_status_t ble4_advertisement_flush_rx(void)
     return RUUVI_SUCCESS;
 }
 
-static ruuvi_status_t ble4_advertisement_set_after_tx(ruuvi_communication_fp cb)
+static ruuvi_status_t ble4_advertisement_set_on_tx(ruuvi_communication_fp cb)
 {
     m_after_tx_cb = cb;
     return RUUVI_SUCCESS;
+}
+
+static ruuvi_status_t ble4_advertisement_set_on_rx(ruuvi_communication_fp cb)
+{
+    return RUUVI_ERROR_NOT_SUPPORTED;
+}
+
+static ruuvi_status_t ble4_advertisement_set_on_connect(ruuvi_communication_fp cb)
+{
+    return RUUVI_ERROR_NOT_SUPPORTED;
+}
+
+static ruuvi_status_t ble4_advertisement_set_on_disconnect(ruuvi_communication_fp cb)
+{
+    return RUUVI_ERROR_NOT_SUPPORTED;
 }
 
 /**
@@ -360,7 +372,10 @@ ruuvi_status_t ble4_advertisement_init(ruuvi_communication_channel_t* channel)
     channel->flush_rx             = ble4_advertisement_flush_rx;
     channel->message_put          = ble4_advertisement_message_put;
     channel->message_get          = ble4_advertisement_message_get;
-    channel->set_after_tx         = ble4_advertisement_set_after_tx;
+    channel->set_on_connect       = ble4_advertisement_set_on_connect;
+    channel->set_on_disconnect    = ble4_advertisement_set_on_disconnect;
+    channel->set_on_rx            = ble4_advertisement_set_on_rx;
+    channel->set_on_tx            = ble4_advertisement_set_on_tx;
 
     m_advertisement_is_init = true;
 

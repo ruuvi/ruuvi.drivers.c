@@ -98,25 +98,45 @@ typedef enum {
  * Interrupts can be latched or pulsed, depends on sensor
  */
 typedef enum {
-  RUUVI_SENSOR_ABOVE   = 0,
-  RUUVI_SENSOR_BELOW   = 1,
-  RUUVI_SENSOR_BETWEEN = 2,
-  RUUVI_SENSOR_OUTSIDE = 3
+  RUUVI_SENSOR_TRIGGER_ABOVE    = 0,
+  RUUVI_SENSOR_TRIGGER_BELOW    = 1,
+  RUUVI_SENSOR_TRIGGER_BETWEEN  = 2,
+  RUUVI_SENSOR_TRIGGER_OUTSIDE  = 3,
+  RUUVI_SENSOR_TRIGGER_DISABLED = 4
 }ruuvi_sensor_trigger_t;
 
+typedef struct {
+  ruuvi_sensor_trigger_t trigger;
+  uint8_t interrupt_number;
+  float threshold;
+  ruuvi_sensor_dsp_function_t dsp;
+}ruuvi_interrupt_t;
+
+typedef struct {
+  uint8_t samplerate;
+  uint8_t resolution;
+  uint8_t scale;
+  ruuvi_sensor_dsp_function_t dsp;
+  uint8_t mode;
+  ruuvi_interrupt_t* interrupt1;
+  ruuvi_interrupt_t* interrupt2;
+}ruuvi_sensor_configuration_t;
+
 // Declare function pointers common to all sensors
-// Init and uninit, take no parameters
 //Forward declare struct
 typedef struct ruuvi_sensor_t ruuvi_sensor_t;          // forward declaration *and* typedef
+// Init and uninit take no parameters
 typedef ruuvi_status_t(*ruuvi_sensor_init_fp)(ruuvi_sensor_t*);
 // Setters, getters, sent to sensor on set, copied to pointer on get
 typedef ruuvi_status_t(*ruuvi_sensor_samplerate_fp)(ruuvi_sensor_samplerate_t*);
 typedef ruuvi_status_t(*ruuvi_sensor_resolution_fp)(ruuvi_sensor_resolution_t*);
 typedef ruuvi_status_t(*ruuvi_sensor_scale_fp)(ruuvi_sensor_scale_t*);
+
+// DSP function and a DSP parameter as input, configured value or error code as output.
 typedef ruuvi_status_t(*ruuvi_sensor_dsp_fp)(ruuvi_sensor_dsp_function_t*, uint8_t*);
 typedef ruuvi_status_t(*ruuvi_sensor_mode_fp)(ruuvi_sensor_mode_t*);
-// Interrupt numbers, threshold, trigger, dsp before interrupt
-typedef ruuvi_status_t(*ruuvi_sensor_interrupt_fp)(uint8_t, float*, ruuvi_sensor_trigger_t*, ruuvi_sensor_dsp_function_t*);
+// Interrupt numbers, threshold, trigger, dsp before interrupt. Returns configured values or error codes as output.
+typedef ruuvi_status_t(*ruuvi_sensor_interrupt_fp)(uint8_t*, float*, ruuvi_sensor_trigger_t*, ruuvi_sensor_dsp_function_t*);
 
 // Void pointer to sensor-specific struct which gets filled with data
 typedef ruuvi_status_t(*ruuvi_sensor_data_fp)(void*);
