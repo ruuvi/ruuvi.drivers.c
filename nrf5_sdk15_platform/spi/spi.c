@@ -110,33 +110,13 @@ ruuvi_status_t spi_init(void)
   err_code = nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL);
   // APP_ERROR_CHECK(err_code);
 
-#if SPIM0_SS_MEMORY_PIN
-  /* Init chipselect for memory */
-  nrf_gpio_cfg_output(SPIM0_SS_MEMORY_PIN);
-  nrf_gpio_pin_set(SPIM0_SS_MEMORY_PIN);
-#endif
+  uint8_t ss_pins[] = SPI_SS_LIST;
+  for (size_t ii = 0; ii < sizeof(ss_pins); ii++)
+  {
+      nrf_gpio_cfg_output(ss_pins[ii]);
+      nrf_gpio_pin_set(ss_pins[ii]);
+  }
 
-#if SPIM0_SS_GYROSCOPE_PIN
-  /* Init chipselect for Gyroscope */
-  PLATFORM_LOG_DEBUG("Enabling gyro CS");
-  nrf_gpio_cfg_output(SPIM0_SS_GYROSCOPE_PIN);
-  nrf_gpio_pin_set(SPIM0_SS_GYROSCOPE_PIN);
-#endif
-
-#if SPIM0_SS_ENVIRONMENTAL_PIN
-  /* Init chipselect for Environmental */
-  nrf_gpio_cfg_output(SPIM0_SS_ENVIRONMENTAL_PIN);
-  nrf_gpio_pin_set(SPIM0_SS_ENVIRONMENTAL_PIN);
-#endif
-
-#if SPIM0_SS_ACCELERATION_PIN
-  /* Init chipselect for Accelerometer */
-  nrf_gpio_cfg_output(SPIM0_SS_ACCELERATION_PIN);
-  nrf_gpio_pin_set(SPIM0_SS_ACCELERATION_PIN);
-#endif
-
-  if (NRF_SUCCESS == err_code) { spi_init_done = true; }
-  // NRF_LOG_INFO("SPI INIT completed.");
   return platform_to_ruuvi_error(&err_code);
 }
 
@@ -216,23 +196,22 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
 
   nrf_gpio_pin_clear(dev_id);
   // Use this code if EASY DMA is in use
-  // uint8_t p_write[40] = {0};
-  // uint8_t p_read[40]  = {0};
-  // p_write[0] = reg_addr;
-  // //TX address
-  // err_code |= nrf_drv_spi_transfer(&spi, p_write, len+1, p_read, len+1);
-  // while (!spi_xfer_done)
-  // {
-  //   err_code |= platform_yield();NRF_LOG_INFO("Yield");
-  // }
+#if SPI0_USE_EASY_DMA
+  uint8_t p_write[40] = {0};
+  uint8_t p_read[40]  = {0};
+  p_write[0] = reg_addr;
+  //TX address
+  err_code |= nrf_drv_spi_transfer(&spi, p_write, len+1, p_read, len+1);
+  while (!spi_xfer_done)
+  {
+    err_code |= platform_yield();NRF_LOG_INFO("Yield");
+  }
 
-  // memcpy(data, p_read+1, len);
+  memcpy(data, p_read+1, len);
 
   // Use this code if EASY DMA is disabled to avoid extra byte being clocked out on 1-register reads
   // http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.nrf52832.Rev2.errata/dita/errata/nRF52832/Rev2/latest/anomaly_832_58.html?cp=2_1_1_0_1_8
-#if SPI0_USE_EASY_DMA
-#error "setup_workaround_for_ftpan_58, see comment above this line."
-#endif
+#else
   err_code |= nrf_drv_spi_transfer(&spi, &reg_addr, 1, NULL, 0);
   if (RUUVI_SUCCESS != err_code) { return err_code; }
   while (!spi_xfer_done)
@@ -245,6 +224,7 @@ int8_t spi_bosch_platform_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, 
   {
     err_code |= platform_yield();
   }
+#endif
   nrf_gpio_pin_set(dev_id);
   PLATFORM_LOG_DEBUG("SPI Read err_code %d", err_code);
   return err_code;

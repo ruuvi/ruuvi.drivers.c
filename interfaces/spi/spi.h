@@ -7,6 +7,8 @@
 #define SPI_H
 #include "ruuvi_error.h"
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 /**
  * @brief initialize SPI driver with default settings
  * @return 0 on success, NRF error code on error
