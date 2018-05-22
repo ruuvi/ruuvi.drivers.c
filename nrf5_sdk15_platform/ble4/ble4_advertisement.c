@@ -340,6 +340,9 @@ static void ble_on_radio_active_evt(bool radio_active)
         // Todo: Schedule pop
         ble_advdata_storage_t remove;
         ringbuffer_popqueue(&advertisement_buffer, &remove);
+        
+        // Put the element back in if it was to be repeated
+        if(remove.repeat) { ringbuffer_push(&advertisement_buffer, &remove); }
         if(NULL != m_after_tx_cb) 
         {
         m_after_tx_cb();
