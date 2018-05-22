@@ -334,9 +334,16 @@ static ruuvi_status_t ble4_advertisement_set_on_disconnect(ruuvi_communication_f
 static void ble_on_radio_active_evt(bool radio_active)
 {
     PLATFORM_LOG_DEBUG("Radio event: %d", radio_active);
-    if (!radio_active && NULL != m_after_tx_cb)
+    if (!radio_active)
     {
+        // Note: this will trigger on GATT event too!
+        // Todo: Schedule pop
+        ble_advdata_storage_t remove;
+        ringbuffer_popqueue(&advertisement_buffer, &remove);
+        if(NULL != m_after_tx_cb) 
+        {
         m_after_tx_cb();
+        }
     }
 }
 
