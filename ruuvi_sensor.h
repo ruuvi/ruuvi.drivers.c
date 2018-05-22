@@ -136,7 +136,7 @@ typedef ruuvi_status_t(*ruuvi_sensor_scale_fp)(ruuvi_sensor_scale_t*);
 typedef ruuvi_status_t(*ruuvi_sensor_dsp_fp)(ruuvi_sensor_dsp_function_t*, uint8_t*);
 typedef ruuvi_status_t(*ruuvi_sensor_mode_fp)(ruuvi_sensor_mode_t*);
 // Interrupt numbers, threshold, trigger, dsp before interrupt. Returns configured values or error codes as output.
-typedef ruuvi_status_t(*ruuvi_sensor_interrupt_fp)(uint8_t*, float*, ruuvi_sensor_trigger_t*, ruuvi_sensor_dsp_function_t*);
+typedef ruuvi_status_t(*ruuvi_sensor_interrupt_fp)(uint8_t, float*, ruuvi_sensor_trigger_t*, ruuvi_sensor_dsp_function_t*);
 
 // Void pointer to sensor-specific struct which gets filled with data
 typedef ruuvi_status_t(*ruuvi_sensor_data_fp)(void*);

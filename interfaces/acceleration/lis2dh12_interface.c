@@ -426,6 +426,7 @@ ruuvi_status_t lis2dh12_interface_interrupt_set(uint8_t number, float* threshold
 {
   return RUUVI_ERROR_NOT_IMPLEMENTED;
 }
+
 ruuvi_status_t lis2dh12_interface_interrupt_get(uint8_t number, float* threshold, ruuvi_sensor_trigger_t* trigger, ruuvi_sensor_dsp_function_t* dsp)
 {
   return RUUVI_ERROR_NOT_IMPLEMENTED;
