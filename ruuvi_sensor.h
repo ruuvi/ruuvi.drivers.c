@@ -112,16 +112,6 @@ typedef struct {
   ruuvi_sensor_dsp_function_t dsp;
 }ruuvi_interrupt_t;
 
-typedef struct {
-  uint8_t samplerate;
-  uint8_t resolution;
-  uint8_t scale;
-  ruuvi_sensor_dsp_function_t dsp;
-  uint8_t mode;
-  ruuvi_interrupt_t* interrupt1;
-  ruuvi_interrupt_t* interrupt2;
-}ruuvi_sensor_configuration_t;
-
 // Declare function pointers common to all sensors
 //Forward declare struct
 typedef struct ruuvi_sensor_t ruuvi_sensor_t;          // forward declaration *and* typedef
