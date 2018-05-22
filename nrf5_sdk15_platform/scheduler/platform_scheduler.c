@@ -2,7 +2,7 @@
 #if NRF5_SDK15_SCHEDULER
 
 #include "ruuvi_error.h"
-#include "scheduler.h"
+#include "interface_scheduler.h"
 #include "sdk_errors.h"
 #include "app_scheduler.h"
 

@@ -1,5 +1,5 @@
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef INTERFACE_SCHEDULER_H
+#define INTERFACE_SCHEDULER_H
 
 /*
  * Execute scheduled tasks in round-robin order. 
