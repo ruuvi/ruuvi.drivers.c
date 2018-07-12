@@ -72,6 +72,12 @@ ruuvi_status_t platform_gpio_toggle(uint8_t pin)
     return RUUVI_SUCCESS;
 }
 
+ruuvi_status_t platform_gpio_write(uint8_t pin, bool state)
+{
+  nrf_gpio_pin_write(pin, state);
+  return RUUVI_SUCCESS;
+}
+
 ruuvi_status_t platform_gpio_read(uint8_t pin, bool* high)
 {
     *high = (bool)nrf_gpio_pin_read (pin);

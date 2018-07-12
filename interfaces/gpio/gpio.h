@@ -19,6 +19,7 @@ ruuvi_status_t platform_gpio_configure(uint8_t pin, ruuvi_gpio_mode_t mode);
 ruuvi_status_t platform_gpio_set(uint8_t pin);
 ruuvi_status_t platform_gpio_clear(uint8_t pin);
 ruuvi_status_t platform_gpio_toggle(uint8_t pin);
+ruuvi_status_t platform_gpio_write(uint8_t pin, bool state);
 ruuvi_status_t platform_gpio_read(uint8_t pin, bool* high);
 
 #endif
