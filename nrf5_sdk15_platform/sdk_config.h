@@ -43,7 +43,7 @@
 #ifndef SDK_CONFIG_H
 #define SDK_CONFIG_H
 
-#include "sdk_application_config.h"
+#include "ruuvi_platform_external_includes.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>\n
 #ifdef USE_APP_CONFIG
