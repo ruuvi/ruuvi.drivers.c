@@ -1,45 +1,43 @@
-#include "sdk_application_config.h"
+#include "ruuvi_platform_external_includes.h"
 
-#if NRF5_SDK15_GPIO
-#include "gpio.h"
-#include "ruuvi_error.h"
+#if NRF5_SDK15_GPIO_ENABLED
+#include "ruuvi_interface_gpio.h"
+#include "ruuvi_driver_error.h"
 #include <stdbool.h>
 
 #include "nrf_gpio.h"
 
-// No impl required.
-ruuvi_status_t platform_gpio_init(void)
+// No implementation required.
+ruuvi_driver_status_t ruuvi_platform_gpio_init(void)
 {
-  return RUUVI_SUCCESS;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_status_t platform_gpio_configure(uint8_t pin, ruuvi_gpio_mode_t mode)
+ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface_gpio_mode_t mode)
 {
-
-
   switch (mode)
   {
-  case RUUVI_GPIO_MODE_HIGH_Z:
+  case RUUVI_INTERFACE_GPIO_MODE_HIGH_Z:
     nrf_gpio_cfg_default(pin);
     break;
 
-  case RUUVI_GPIO_MODE_INPUT_NOPULL:
+  case RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL:
     nrf_gpio_cfg_input (pin, NRF_GPIO_PIN_NOPULL);
     break;
 
-  case RUUVI_GPIO_MODE_INPUT_PULLUP:
+  case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP:
     nrf_gpio_cfg_input (pin, NRF_GPIO_PIN_PULLUP);
     break;
 
-  case RUUVI_GPIO_MODE_INPUT_PULLDOWN:
+  case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN:
     nrf_gpio_cfg_input (pin, NRF_GPIO_PIN_PULLDOWN);
     break;
 
-  case RUUVI_GPIO_MODE_OUTPUT_STANDARD:
+  case RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD:
     nrf_gpio_cfg_output (pin);
     break;
 
-  case RUUVI_GPIO_MODE_OUTPUT_HIGHDRIVE:
+  case RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE:
     nrf_gpio_cfg (pin,
                   NRF_GPIO_PIN_DIR_OUTPUT,
                   NRF_GPIO_PIN_INPUT_DISCONNECT,
@@ -49,39 +47,39 @@ ruuvi_status_t platform_gpio_configure(uint8_t pin, ruuvi_gpio_mode_t mode)
     break;
 
   default:
-    return RUUVI_ERROR_INVALID_PARAM;
+    return RUUVI_DRIVER_ERROR_INVALID_PARAM;
   }
-  return RUUVI_SUCCESS;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_status_t platform_gpio_set(uint8_t pin)
+ruuvi_driver_status_t ruuvi_platform_gpio_set(uint8_t pin)
 {
     nrf_gpio_pin_set(pin);
-    return RUUVI_SUCCESS;
+    return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_status_t platform_gpio_clear(uint8_t pin)
+ruuvi_driver_status_t ruuvi_platform_gpio_clear(uint8_t pin)
 {
     nrf_gpio_pin_clear(pin);
-    return RUUVI_SUCCESS;
+    return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_status_t platform_gpio_toggle(uint8_t pin)
+ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin)
 {
     nrf_gpio_pin_toggle(pin);
-    return RUUVI_SUCCESS;
+    return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_status_t platform_gpio_write(uint8_t pin, bool state)
+ruuvi_driver_status_t ruuvi_platform_gpio_write(uint8_t pin, bool state)
 {
   nrf_gpio_pin_write(pin, state);
-  return RUUVI_SUCCESS;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_status_t platform_gpio_read(uint8_t pin, bool* high)
+ruuvi_driver_status_t ruuvi_platform_gpio_read(uint8_t pin, bool* high)
 {
-    *high = (bool)nrf_gpio_pin_read (pin);
-    return RUUVI_SUCCESS;
+    *high = (bool)nrf_gpio_pin_read(pin);
+    return RUUVI_DRIVER_SUCCESS;
 }
 
 #endif

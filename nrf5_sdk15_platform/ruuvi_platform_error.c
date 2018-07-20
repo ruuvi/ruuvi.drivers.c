@@ -6,7 +6,7 @@
  */
 
 #include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_PLATFORM
+#if NRF5_SDK15_PLATFORM_ENABLED
 #include "ruuvi_driver_error.h"
 #include "sdk_errors.h"
 
@@ -34,7 +34,7 @@ ruuvi_driver_status_t platform_to_ruuvi_error(void* error)
   if(NRF_ERROR_INVALID_ADDR == err_code)   { return RUUVI_DRIVER_ERROR_INVALID_ADDR; }
   if(NRF_ERROR_BUSY == err_code)           { return RUUVI_DRIVER_ERROR_BUSY; }
   if(NRF_ERROR_RESOURCES == err_code)      { return RUUVI_DRIVER_ERROR_RESOURCES; }
-  return RUUVI_ERROR_INTERNAL;
+  return RUUVI_DRIVER_ERROR_INTERNAL;
 }
 
 #endif

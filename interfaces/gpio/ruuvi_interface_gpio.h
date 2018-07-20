@@ -6,12 +6,12 @@
 
 typedef enum 
 {
-  RUUVI_GPIO_MODE_HIGH_Z,
-  RUUVI_GPIO_MODE_INPUT_NOPULL,
-  RUUVI_GPIO_MODE_INPUT_PULLUP,
-  RUUVI_GPIO_MODE_INPUT_PULLDOWN,
-  RUUVI_GPIO_MODE_OUTPUT_STANDARD,
-  RUUVI_GPIO_MODE_OUTPUT_HIGHDRIVE
+  RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,
+  RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL,
+  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP,
+  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN,
+  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD,
+  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE
 }ruuvi_interface_gpio_mode_t;
 
 /**
@@ -30,7 +30,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_init(void);
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_gpio_mode_t mode);
+ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface_gpio_mode_t mode);
 
 /**
  * Set a pin of a port into a high state. 
@@ -39,7 +39,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_gpio_mode
  * Parameter pin:  Pin number
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * Return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_set(uint8_t pin);
 
@@ -50,7 +50,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_set(uint8_t pin);
  * Parameter pin:  Pin number
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * Return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_clear(uint8_t pin);
 
@@ -61,7 +61,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_clear(uint8_t pin);
  * Parameter pin:  Pin number
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * Return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin);
 
@@ -72,7 +72,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin);
  * Parameter pin:  Pin number
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * Return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_write(uint8_t pin, bool state);
 
@@ -84,6 +84,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_write(uint8_t pin, bool state);
  * Parameter high: pointer to a bool which will be set to the state of the pin.
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input.
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_read(uint8_t pin, bool* high);
 
