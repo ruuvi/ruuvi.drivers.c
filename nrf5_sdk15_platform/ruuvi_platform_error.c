@@ -15,7 +15,7 @@
  *
  *
  */
-ruuvi_driver_status_t platform_to_ruuvi_error(void* error)
+ruuvi_driver_status_t ruuvi_platform_to_ruuvi_error(void* error)
 {
   ret_code_t err_code = *(ret_code_t*)error;
   if(NRF_SUCCESS == err_code)              { return RUUVI_DRIVER_SUCCESS; }

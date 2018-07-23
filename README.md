@@ -1,5 +1,6 @@
 # ruuvi.drivers.c
 Ruuvi embedded drivers used across various platforms. Generally you should not use this repository as-is, but rather as a submodule included in your project.
+Repository is under active development, expect breaking changes.
 
 # Structure
 ## Folders
@@ -9,7 +10,8 @@ Interfaces folder provides platform-independent access to the peripherals of the
 
 Implementation is in `*_platform`-folders.
 
-External platform-independent requirements are in `ruuvi_drivers_external_includes.h` -file. Platform specific external requirements are in `ruuvi_platform_external_includes.h` file. 
+External platform-independent requirements are in `ruuvi_drivers_external_includes.h` -file. Platform specific external requirements are in `ruuvi_platform_external_includes.h` file.
+
 ## File and variable naming
 Files should be named `ruuvi_module_name`, for example `ruuvi_interface_spi.h`
 Globally visible functions, variables and definitions should be likewise named `ruuvi_module_file_name`, for example  `ruuvi_platform_yield_init()`
@@ -47,3 +49,7 @@ Platforms have license of the platform providers, for example Nordic semiconduct
 # How to contribute
 All contributions are welcome, from typographical fixes to feedack on design and naming schemes.
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
+
+# Changelog
+## 3.1.1
+ Clear up files not presented in Ruuvi Blog at the time of writing. Add GPIO and yield. 
