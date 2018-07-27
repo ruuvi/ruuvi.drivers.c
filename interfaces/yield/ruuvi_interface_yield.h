@@ -28,13 +28,13 @@ ruuvi_driver_status_t ruuvi_platform_yield(void);
   *
   * Return RUUVI_SUCCESS on success, error code otherwise.
   **/
-ruuvi_driver_status_t platform_delay_ms(uint32_t time);
+ruuvi_driver_status_t ruuvi_platform_delay_ms(uint32_t time);
 
 /** 
   * Delay a given number of microseconds.
   *
   * Return RUUVI_SUCCESS on success, error code otherwise.
   **/
-ruuvi_driver_status_t platform_delay_us(uint32_t time);
+ruuvi_driver_status_t ruuvi_platform_delay_us(uint32_t time);
 
 #endif
