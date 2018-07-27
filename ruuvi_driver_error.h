@@ -1,3 +1,10 @@
+/**
+ * Ruuvi error codes and error check function
+ *
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
+ **/
+
 #ifndef RUUVI_DRIVER_ERROR_H
 #define RUUVI_DRIVER_ERROR_H
 
@@ -25,10 +32,31 @@
 #define RUUVI_DRIVER_ERROR_RESOURCES       (1<<15) ///< Not enough resources for operation
 #define RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED (1<<16) ///< Not implememnted yet
 #define RUUVI_DRIVER_ERROR_SELFTEST        (1<<17) ///< Self-test fail
+#define RUUVI_DRIVER_ERROR_FATAL           (1<<31) ///< Program should always reset after this
 
 typedef int32_t ruuvi_driver_status_t;
 
-/** Convert error code from platform to Ruuvi error code. **/
+/** 
+ * Convert error code from platform to Ruuvi error code. 
+ *
+ * parameter error: Error code from platform
+ * return: Most descriptive ruuvi_driver_status_t code of the platform error. 
+ **/ 
 ruuvi_driver_status_t ruuvi_platform_to_ruuvi_error(void* error);
+
+/** 
+ * Check given error code and compare it to non-fatal errors.
+ * 
+ * If error is considered fatal (or not non-fatal), reset the device
+ * If the error is non-fatal, log an error on the console and return
+ *
+ * parameter error: error code, might have several flags in it. 
+ * parameter non_fatal_mask: Signal that this error is acceptable for program flow and execution may continue.
+ * parameter file: file from which function was called
+ * parameter line: line from which the function was called
+ **/
+void ruuvi_driver_error_check(ruuvi_driver_status_t error, ruuvi_driver_status_t non_fatal_mask, const char* file, int line);
+
+#define RUUVI_DRIVER_ERROR_CHECK(error, mask) ruuvi_driver_error_check(error, mask, __FILE__, __LINE__)
 
 #endif
