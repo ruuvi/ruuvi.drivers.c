@@ -51,5 +51,8 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.2.0
+Adds logging and error code handling
+
 ## 3.1.1
  Clear up files not presented in Ruuvi Blog at the time of writing. Add GPIO and yield. 
