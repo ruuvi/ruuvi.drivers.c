@@ -4,18 +4,11 @@
  *  Logging should implement well-defined overflow behaviour, i.e. block or drop new / drop old
  *  if log buffer gets filled.
  *
- *  While logging could be implemented over Ruuvi Communications Interface, logging should be a separate
- *  flow which can be disabled in production.
- *
  *  Logging requires init and platform_log_level -functions.
  *  log must support levels ERROR, INFO, DEBUG.
  *
  *  Any prefixes, linenumbers etc are implemented at interface level and backend should print out raw data.
  *
- *  Usage:
- *    #define PLATFORM_LOG_LEVEL (NONE, ERROR, WARNING, INFO, DEBUG)   
- *    #include "platform_log.h"
- *    PLATFORM_LOG_MODULE_REGISTER() 
  *
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>

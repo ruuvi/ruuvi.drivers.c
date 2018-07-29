@@ -57,6 +57,7 @@ ruuvi_driver_status_t ruuvi_platform_to_ruuvi_error(void* error);
  **/
 void ruuvi_driver_error_check(ruuvi_driver_status_t error, ruuvi_driver_status_t non_fatal_mask, const char* file, int line);
 
+// Shorthand macro for calling the error check function with current file & line
 #define RUUVI_DRIVER_ERROR_CHECK(error, mask) ruuvi_driver_error_check(error, mask, __FILE__, __LINE__)
 
 #endif

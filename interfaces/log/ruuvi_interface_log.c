@@ -1,5 +1,5 @@
 /**
- * Platform-independent helper function for 
+ * Platform-independent helper functions for logging
  *
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
