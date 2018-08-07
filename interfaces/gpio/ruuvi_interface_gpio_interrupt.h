@@ -29,11 +29,15 @@ typedef struct
 typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_evt_t);
 
 /**
- * Initialize interrupt functionality to GPIO
+ * Initialize interrupt functionality to GPIO. Takes address of interrupt table as a pointer to avoid tying driver into a specific board with a specific number of GPIO
+ * pins and to avoid including boards repository within the driver.
+ *
+ * parameter interrupt_table: Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
+ * parameter max_interrupts: Size of interrupt table. 
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_init();
+ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_init(ruuvi_interface_gpio_interrupt_fp_t* interrupt_table, uint8_t max_interrupts);
 
 /**
  * Enable interrupt on a pin.
