@@ -33,7 +33,7 @@ typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_ev
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_platform_pin_interrupt_init();
+ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_init();
 
 /**
  * Enable interrupt on a pin.
@@ -45,6 +45,9 @@ ruuvi_driver_status_t ruuvi_platform_pin_interrupt_init();
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_enable(uint8_t pin, ruuvi_interface_gpio_slope_t slope, ruuvi_interface_gpio_mode_t mode, ruuvi_interface_gpio_interrupt_fp_t handler);
+ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_enable(uint8_t pin, 
+                                                           ruuvi_interface_gpio_slope_t slope, 
+                                                           ruuvi_interface_gpio_mode_t mode, 
+                                                           ruuvi_interface_gpio_interrupt_fp_t handler);
 
 #endif

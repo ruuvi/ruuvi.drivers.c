@@ -16,9 +16,9 @@
 #include "nrf_drv_gpiote.h"
 
 //Look-up table for event handlers
-static ruuvi_interface_gpio_interrupt_fp_t pin_event_handlers[32] = {0};
+static ruuvi_interface_gpio_interrupt_fp_t pin_event_handlers[RUUVI_BOARD_GPIO_NUMBER + 1] = {0};
 
-ruuvi_driver_status_t ruuvi_platform_pin_interrupt_init()
+ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_init()
 {
   /* Driver initialization
      The GPIOTE driver is a shared resource that can be used by multiple modules in an application.
@@ -38,6 +38,8 @@ ruuvi_driver_status_t ruuvi_platform_pin_interrupt_init()
 
 static void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
+  if(RUUVI_BOARD_GPIO_NUMBER <= pin) { return; }
+
   //Call event handler.
   ruuvi_interface_gpio_evt_t event;
   if (NULL != pin_event_handlers[pin])
@@ -61,9 +63,12 @@ static void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t actio
   }
 }
 
-ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_enable(uint8_t pin, ruuvi_interface_gpio_slope_t slope, ruuvi_interface_gpio_mode_t mode, ruuvi_interface_gpio_interrupt_fp_t handler)
+ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_enable(uint8_t pin, 
+                                                           ruuvi_interface_gpio_slope_t slope, 
+                                                           ruuvi_interface_gpio_mode_t mode, 
+                                                           ruuvi_interface_gpio_interrupt_fp_t handler)
 {
-  // PLATFORM_LOG_INFO("Enabling\r\n");
+  if(RUUVI_BOARD_GPIO_NUMBER <= pin) { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
   ret_code_t err_code = NRF_SUCCESS;
   nrf_gpiote_polarity_t polarity;
   nrf_gpio_pin_pull_t pull;
