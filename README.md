@@ -51,6 +51,9 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.4.0 
+Add interrupts to GPIO
+
 ## 3.2.0
 Adds logging and error code handling
 
