@@ -106,7 +106,7 @@ static ruuvi_driver_status_t ruuvi_to_nrf_spi_freq(const ruuvi_interface_spi_mod
 }
 
 
-ruuvi_driver_status_t ruuvi_platform_spi_init(ruuvi_interface_spi_init_config_t* config)
+ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_config_t* config)
 {
   //Return error if SPI is already init
   if (spi_init_done) { return NRF_ERROR_INVALID_STATE; }
@@ -144,11 +144,11 @@ ruuvi_driver_status_t ruuvi_platform_spi_init(ruuvi_interface_spi_init_config_t*
   return (status | ruuvi_platform_to_ruuvi_error(&err_code));
 }
 
-ruuvi_driver_status_t ruuvi_platform_spi_generic_platform_xfer_blocking(uint8_t* const tx, const size_t tx_len, uint8_t* rx, const size_t rx_len)
+ruuvi_driver_status_t ruuvi_platform_spi_xfer_blocking(const uint8_t* tx, const size_t tx_len, uint8_t* rx, const size_t rx_len)
 {
   //Return error if not init or if given null pointer
   if (!spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
-  if (NULL == tx || NULL == rx ) { return RUUVI_DRIVER_ERROR_NULL; }
+  if ((NULL == tx && 0 != tx_len) || (NULL == rx && 0 != rx_len)) { return RUUVI_DRIVER_ERROR_NULL; }
 
   ret_code_t err_code = NRF_SUCCESS;
   err_code |= nrf_drv_spi_transfer(&spi, tx, tx_len, rx, rx_len);

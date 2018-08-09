@@ -1,7 +1,9 @@
 /**
- *  This file contains interface to SPI platform drivers.
- *. Implementations are decided by compiler flags
- */
+ * Ruuvi spi interface.
+ *
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
+ **/
 
 #ifndef RUUVI_INTERFACE_SPI_H
 #define RUUVI_INTERFACE_SPI_H
@@ -37,12 +39,21 @@ typedef struct{
 /**
  * Initialize SPI driver with default settings
  *
- * parameter config: Configuration of SPI peripheral
+ * parameter config: Configuration of the SPI peripheral. Will setup given slave select pins as outputs.
  * returns error code from the stack, RUUVI_DRIVER_SUCCESS if no error occurred
- */
- ruuvi_driver_status_t ruuvi_platform_spi_init(ruuvi_interface_spi_init_config_t* config);
+ **/
+ ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_config_t* config);
 
 /**
- */
-ruuvi_driver_status_t ruuvi_platform_spi_generic_platform_xfer_blocking(uint8_t* const tx, const size_t tx_len, uint8_t* rx, const size_t rx_len);
+ * Full-duplex SPI. Clocks out MAX(tx_len, rx_len) bytes. It is allowed to send different length transactions, tx will clock out 0xFF if there is
+ * less bytes in TX than RX. Does not use slave select pins. RX will start at the same time as TX, i.e. one byte address + read commands will generally have
+ * {0x00, data} in rx buffer. Function is blocking and will not sleep while transaction is ongoing.
+ *
+ * parameter tx: pointer to data to be sent, can be NULL if tx_len is 0.
+ * parameter tx_len: length of data to be sent
+ * parameter rx: pointer to data to be received, can be NULL if rx_len is 0.
+ * parameter rx_len: length of data to be received
+ *
+ **/
+ruuvi_driver_status_t ruuvi_platform_spi_xfer_blocking(const uint8_t* tx, const size_t tx_len, uint8_t* rx, const size_t rx_len);
 #endif
