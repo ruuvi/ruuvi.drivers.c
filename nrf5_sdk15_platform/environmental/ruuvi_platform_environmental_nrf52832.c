@@ -1,0 +1,23 @@
+/**
+ * Environmental sensor implementation on Nordic SDK15 / nRF52832.
+ *
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
+ */
+
+#include "ruuvi_platform_external_includes.h"
+#if RUUVI_PLATFORM_NRF52832_ENVIRONMENTAL
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor_t* environmental_sensor);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(ruuvi_driver_sensor_t* environmental_sensor);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_set(ruuvi_driver_sensor_samplerate_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_get(ruuvi_driver_sensor_samplerate_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_set(ruuvi_driver_sensor_resolution_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_get(ruuvi_driver_sensor_resolution_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_set(ruuvi_driver_sensor_scale_t* scale);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_get(ruuvi_driver_sensor_scale_t* scale);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_dsp_set(ruuvi_driver_sensor_dsp_function_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_dsp_get(ruuvi_driver_sensor_dsp_function_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_set(ruuvi_driver_sensor_mode_t*);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_get(ruuvi_driver_sensor_mode_t*);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(void* data);
+#endif
