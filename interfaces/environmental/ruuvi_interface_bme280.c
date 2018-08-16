@@ -16,6 +16,7 @@
 #include "ruuvi_interface_bme280.h"
 #include "ruuvi_interface_environmental.h"
 #include "ruuvi_interface_spi.h"
+#include "ruuvi_interface_spi_bme280.h"
 #include "ruuvi_interface_yield.h"
 
 #include <string.h>
@@ -32,6 +33,14 @@
   #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
 #endif
 
+// Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
+#define RETURN_SUCCESS_ON_VALID(param) do {\
+            if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
+               RUUVI_DRIVER_SENSOR_CFG_MIN       == param ||\
+               RUUVI_DRIVER_SENSOR_CFG_MAX       == param ||\
+               RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == param   \
+             ) return RUUVI_DRIVER_SUCCESS;\
+           } while(0)
 
 /** State variables **/
 static struct bme280_dev dev = {0};
@@ -66,8 +75,8 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environ
       /* Sensor_0 interface over SPI with native chip select line */
       dev.dev_id = handle;
       dev.intf = BME280_SPI_INTF;
-      dev.read = ruuvi_platform_spi_bosch_write;
-      dev.write = ruuvi_platform_spi_bosch_write;
+      dev.read = ruuvi_platform_spi_bme280_read;
+      dev.write = ruuvi_platform_spi_bme280_write;
       dev.delay_ms = bosch_delay_ms;
 
       err_code |= BME_TO_RUUVI_ERROR(bme280_init(&dev));
@@ -150,21 +159,30 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(uint8_t* samplerate)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_resolution_set(uint8_t* resolution)
 {
+  uint8_t original = *resolution;
+  *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+  RETURN_SUCCESS_ON_VALID(original);
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
+
 ruuvi_driver_status_t ruuvi_interface_bme280_resolution_get(uint8_t* resolution)
 {
-  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+  *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_scale_set(uint8_t* scale)
 {
+  uint8_t original = *scale;
+  *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+  RETURN_SUCCESS_ON_VALID(original);
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_scale_get(uint8_t* scale)
 {
-  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+  *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* parameter)
@@ -182,7 +200,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* para
 
   // Error if DSP is not last, and if dsp is something else than IIR or OS
   if((RUUVI_DRIVER_SENSOR_DSP_LAST != *dsp) &&
-     (~RUUVI_DRIVER_SENSOR_DSP_IIR | RUUVI_DRIVER_SENSOR_DSP_OS) & (*dsp) )
+     ~(RUUVI_DRIVER_SENSOR_DSP_IIR | RUUVI_DRIVER_SENSOR_DSP_OS) & (*dsp) )
   {
     return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
   }
