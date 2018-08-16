@@ -7,9 +7,19 @@
 #ifndef RUUVI_INTERFACE_ENVIRONMENTAL_H
 #define RUUVI_INTERFACE_ENVIRONMENTAL_H
 #include "ruuvi_driver_error.h"
+#include "ruuvi_interface_environmental_mcu.h"
+#include "ruuvi_interface_bme280.h"
 #include <stdint.h>
 
 #define RUUVI_INTERFACE_ENVIRONMENTAL_INVALID RUUVI_DRIVER_FLOAT_INVALID
+
+// List of sensors which can provide environmental functionality at least partially
+typedef enum {
+  RUUVI_INTERFACE_ENVIRONMENTAL_SENSOR_MCU    = 1,
+  RUUVI_INTERFACE_ENVIRONMENTAL_SENSOR_BME280 = 2
+}ruuvi_interface_environmental_supported_sensors;
+
+
 
 typedef struct
 {

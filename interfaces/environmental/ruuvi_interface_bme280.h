@@ -10,18 +10,18 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
-ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environmental_sensor);
-ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* environmental_sensor);
-ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(ruuvi_driver_sensor_samplerate_t* samplerate);
-ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(ruuvi_driver_sensor_samplerate_t* samplerate);
-ruuvi_driver_status_t ruuvi_interface_bme280_resolution_set(ruuvi_driver_sensor_resolution_t* resolution);
-ruuvi_driver_status_t ruuvi_interface_bme280_resolution_get(ruuvi_driver_sensor_resolution_t* resolution);
-ruuvi_driver_status_t ruuvi_interface_bme280_scale_set(ruuvi_driver_sensor_scale_t* scale);
-ruuvi_driver_status_t ruuvi_interface_bme280_scale_get(ruuvi_driver_sensor_scale_t* scale);
-ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(ruuvi_driver_sensor_dsp_function_t* dsp, uint8_t* parameter);
-ruuvi_driver_status_t ruuvi_interface_bme280_dsp_get(ruuvi_driver_sensor_dsp_function_t* dsp, uint8_t* parameter);
-ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(ruuvi_driver_sensor_mode_t*);
-ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(ruuvi_driver_sensor_mode_t*);
+ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(uint8_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_bme280_resolution_set(uint8_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_bme280_resolution_get(uint8_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_bme280_scale_set(uint8_t* scale);
+ruuvi_driver_status_t ruuvi_interface_bme280_scale_get(uint8_t* scale);
+ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_bme280_dsp_get(uint8_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t*);
+ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t*);
 ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data);
 
 #endif

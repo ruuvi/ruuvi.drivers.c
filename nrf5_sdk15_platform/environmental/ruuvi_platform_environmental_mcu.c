@@ -106,30 +106,32 @@ static void nrf52832_temperature_sample(void)
   }
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor_t* environmental_sensor)
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
   // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
   nrf_temp_init();
   temperature = RUUVI_DRIVER_FLOAT_INVALID;
 
   // Setup function pointers
-  environmental_sensor->init           = ruuvi_interface_environmental_mcu_init;
-  environmental_sensor->uninit         = ruuvi_interface_environmental_mcu_uninit;
-  environmental_sensor->samplerate_set = ruuvi_interface_environmental_mcu_samplerate_set;
-  environmental_sensor->samplerate_set = ruuvi_interface_environmental_mcu_samplerate_get;
-  environmental_sensor->resolution_set = ruuvi_interface_environmental_mcu_resolution_set;
-  environmental_sensor->resolution_get = ruuvi_interface_environmental_mcu_resolution_get;
-  environmental_sensor->scale_set      = ruuvi_interface_environmental_mcu_scale_set;
-  environmental_sensor->scale_get      = ruuvi_interface_environmental_mcu_scale_get;
-  environmental_sensor->dsp_set        = ruuvi_interface_environmental_mcu_dsp_set;
-  environmental_sensor->dsp_get        = ruuvi_interface_environmental_mcu_dsp_get;
-  environmental_sensor->mode_set       = ruuvi_interface_environmental_mcu_mode_set;
-  environmental_sensor->mode_get       = ruuvi_interface_environmental_mcu_mode_get;
-  environmental_sensor->data_get       = ruuvi_interface_environmental_mcu_data_get;
+  environmental_sensor->init              = ruuvi_interface_environmental_mcu_init;
+  environmental_sensor->uninit            = ruuvi_interface_environmental_mcu_uninit;
+  environmental_sensor->samplerate_set    = ruuvi_interface_environmental_mcu_samplerate_set;
+  environmental_sensor->samplerate_set    = ruuvi_interface_environmental_mcu_samplerate_get;
+  environmental_sensor->resolution_set    = ruuvi_interface_environmental_mcu_resolution_set;
+  environmental_sensor->resolution_get    = ruuvi_interface_environmental_mcu_resolution_get;
+  environmental_sensor->scale_set         = ruuvi_interface_environmental_mcu_scale_set;
+  environmental_sensor->scale_get         = ruuvi_interface_environmental_mcu_scale_get;
+  environmental_sensor->dsp_set           = ruuvi_interface_environmental_mcu_dsp_set;
+  environmental_sensor->dsp_get           = ruuvi_interface_environmental_mcu_dsp_get;
+  environmental_sensor->mode_set          = ruuvi_interface_environmental_mcu_mode_set;
+  environmental_sensor->mode_get          = ruuvi_interface_environmental_mcu_mode_get;
+  environmental_sensor->data_get          = ruuvi_interface_environmental_mcu_data_get;
+  environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
+  environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
 
   return RUUVI_DRIVER_SUCCESS;
 }
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(ruuvi_driver_sensor_t* environmental_sensor)
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
   // No action necessary
   return RUUVI_DRIVER_SUCCESS;

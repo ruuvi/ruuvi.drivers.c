@@ -60,41 +60,74 @@
 #define RUUVI_DRIVER_SENSOR_DSP_IIR             (1<<3) // Parameter: coefficient
 #define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<4) // Parameter: Number of samples
 
+typedef struct __attribute__((packed, aligned(4))){
+  uint8_t samplerate;
+  uint8_t resolution;
+  uint8_t scale;
+  uint8_t dsp_function;
+  uint8_t dsp_parameter;
+  uint8_t mode;
+  uint8_t reserved0;
+  uint8_t reserved1;
+}ruuvi_driver_sensor_configuration_t;
+
+typedef enum {
+  RUUVI_DRIVER_BUS_NONE = 0,
+  RUUVI_DRIVER_BUS_SPI  = 1,
+  RUUVI_DRIVER_BUS_I2C  = 2
+}ruuvi_driver_bus_t;
+
 // Declare function pointers common to all sensors
 typedef struct ruuvi_driver_sensor_t ruuvi_driver_sensor_t;          // forward declaration *and* typedef
 
-// Init and uninit will setup our sensor with function pointers.
-typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor_t*);
+/** Init and uninit will setup our sensor with function pointers. Init functions have a void pointer to initialization context,
+ *  such as used read/write functions or SPI Slave select pins
+ **/
+typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor_t*, ruuvi_driver_bus_t, uint8_t);
 
-// Setters, getters. Setter will modify the pointed value and put actual value on data in function.
-// getter will put data on pointed value.
-typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_samplerate_fp)(uint8_t*);
-typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_resolution_fp)(uint8_t*);
-typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_scale_fp)(uint8_t*);
+/**
+ *  Setup a parameter of a sensor. The function will modify the pointed data to the actual value which was written
+ *
+ **/
+typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_setup_fp)(uint8_t*);
 
-// DSP function and a DSP parameter as input, configured value or error code as output.
+/**
+ * DSP function and a DSP parameter as input, configured value or error code as output.
+ * Modifies input parameters to actual values written on the sensor.
+ **/
 typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_dsp_fp)(uint8_t*, uint8_t*);
-typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_mode_fp)(uint8_t*);
 
 // Void pointer to sensor-specific struct which gets filled with data
 typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_data_fp)(void*);
 
+/**
+ * Convenience function to write/read entire configuration in one call
+ * Modifies input parameters to actual values written on the sensor.
+ **/
+typedef ruuvi_driver_status_t(*ruuvi_driver_configuration_fp)(const ruuvi_driver_sensor_t*, ruuvi_driver_sensor_configuration_t*);
+
 // Typedef is above
 struct ruuvi_driver_sensor_t{
-  ruuvi_driver_sensor_init_fp init;
-  ruuvi_driver_sensor_init_fp uninit;
-  ruuvi_driver_sensor_samplerate_fp samplerate_set;
-  ruuvi_driver_sensor_samplerate_fp samplerate_get;
-  ruuvi_driver_sensor_resolution_fp resolution_set;
-  ruuvi_driver_sensor_resolution_fp resolution_get;
-  ruuvi_driver_sensor_scale_fp      scale_set;
-  ruuvi_driver_sensor_scale_fp      scale_get;
-  ruuvi_driver_sensor_dsp_fp        dsp_set;
-  ruuvi_driver_sensor_dsp_fp        dsp_get;
-  ruuvi_driver_sensor_mode_fp       mode_set;
-  ruuvi_driver_sensor_mode_fp       mode_get;
+  ruuvi_driver_sensor_init_fp   init;
+  ruuvi_driver_sensor_init_fp   uninit;
+  ruuvi_driver_sensor_setup_fp  samplerate_set;
+  ruuvi_driver_sensor_setup_fp  samplerate_get;
+  ruuvi_driver_sensor_setup_fp  resolution_set;
+  ruuvi_driver_sensor_setup_fp  resolution_get;
+  ruuvi_driver_sensor_setup_fp  scale_set;
+  ruuvi_driver_sensor_setup_fp  scale_get;
+  ruuvi_driver_sensor_setup_fp  mode_set;
+  ruuvi_driver_sensor_setup_fp  mode_get;
+  ruuvi_driver_sensor_dsp_fp    dsp_set;
+  ruuvi_driver_sensor_dsp_fp    dsp_get;
+
   // Return latest measurement (or FIFO buffer) fetched from sensor at the time of calling this function.
-  ruuvi_driver_sensor_data_fp       data_get;
+  ruuvi_driver_sensor_data_fp   data_get;
+  ruuvi_driver_configuration_fp configuration_set;
+  ruuvi_driver_configuration_fp configuration_get;
 };
+
+ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
+ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
 
 #endif
