@@ -49,7 +49,7 @@
 #include "ruuvi_interface_yield.h"
 
 
-int8_t ruuvi_platform_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);
@@ -59,7 +59,7 @@ int8_t ruuvi_platform_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_t
   return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
 
-int8_t ruuvi_platform_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t ruuvi_interface_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);

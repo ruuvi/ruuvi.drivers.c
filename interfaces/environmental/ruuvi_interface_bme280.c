@@ -58,9 +58,9 @@ static ruuvi_driver_status_t BME_TO_RUUVI_ERROR(int8_t rslt)
   return err_code;
 }
 
-static void bosch_delay_ms(uint32_t time)
+static void bosch_delay_ms(uint32_t time_ms)
 {
-  ruuvi_platform_delay_ms(time);
+  ruuvi_platform_delay_ms(time_ms);
 }
 
 /** Initialize BME280 into low-power mode **/
@@ -75,8 +75,8 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environ
       /* Sensor_0 interface over SPI with native chip select line */
       dev.dev_id = handle;
       dev.intf = BME280_SPI_INTF;
-      dev.read = ruuvi_platform_spi_bme280_read;
-      dev.write = ruuvi_platform_spi_bme280_write;
+      dev.read = ruuvi_interface_spi_bme280_read;
+      dev.write = ruuvi_interface_spi_bme280_write;
       dev.delay_ms = bosch_delay_ms;
 
       err_code |= BME_TO_RUUVI_ERROR(bme280_init(&dev));
@@ -120,8 +120,11 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environ
 
 ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
+  ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
   memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
-  return BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
+  memset(&dev, 0, sizeof(dev));
+  return err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
@@ -281,10 +284,69 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* para
   return BME_TO_RUUVI_ERROR(bme280_set_sensor_settings(settings_sel, &dev));
 }
 
-// TODO
+// Read configuration
 ruuvi_driver_status_t ruuvi_interface_bme280_dsp_get(uint8_t* dsp, uint8_t* parameter)
 {
-  return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
+  if(NULL == dsp || NULL == parameter){ return RUUVI_DRIVER_ERROR_NULL; }
+
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  err_code |= BME_TO_RUUVI_ERROR(bme280_get_sensor_settings(&dev));
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
+
+  // Assume default / 0,
+  *dsp       = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+  *parameter = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+
+  // Check if IIR has been set. If yes, read DSP param from there.
+  if(BME280_FILTER_COEFF_OFF != dev.settings.filter)
+  {
+    *dsp |= RUUVI_DRIVER_SENSOR_DSP_IIR;
+    switch(dev.settings.filter)
+    {
+      case BME280_FILTER_COEFF_2:
+        *parameter = 2;
+        break;
+
+      case BME280_FILTER_COEFF_4:
+        *parameter = 4;
+        break;
+
+      case BME280_FILTER_COEFF_8:
+        *parameter = 8;
+        break;
+
+      case BME280_FILTER_COEFF_16:
+        *parameter = 16;
+        break;
+    }
+  }
+  // Check if OS has been set. If yes, read DSP param from there.
+  // Param should be same for OS and IIR if it is >1.
+  // OSR is same for every element.
+  if(BME280_NO_OVERSAMPLING != dev.settings.osr_h && BME280_OVERSAMPLING_1X != dev.settings.osr_h)
+  {
+    *dsp |= RUUVI_DRIVER_SENSOR_DSP_OS;
+    switch(dev.settings.osr_h)
+    {
+      case BME280_OVERSAMPLING_2X:
+        *parameter = 2;
+        break;
+
+      case BME280_OVERSAMPLING_4X:
+        *parameter = 4;
+        break;
+
+      case BME280_OVERSAMPLING_8X:
+        *parameter = 8;
+        break;
+
+      case BME280_OVERSAMPLING_16X:
+        *parameter = 16;
+        break;
+    }
+  }
+
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
