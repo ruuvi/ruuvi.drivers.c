@@ -54,6 +54,8 @@
 #include "nrf_sdm.h"
 #include "nrf_temp.h"
 
+#include <string.h>
+
 // XXX Find out why RUUVI_DRIVER_UINT64_INVALID is not defined here
 #ifndef RUUVI_DRIVER_UINT64_INVALID
   #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
@@ -131,30 +133,34 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
 
   return RUUVI_DRIVER_SUCCESS;
 }
+
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
-  // No action necessary
+  memset(environmental_sensor, 0, sizeof(ruuvi_driver_sensor_t));
   return RUUVI_DRIVER_SUCCESS;
 }
 
 // Continuous sampling is not supported, mark pointed value as not supported even if parameter is one of no-changes
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_set(uint8_t* samplerate)
 {
+  if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+  uint8_t original = *samplerate;
   *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
-  RETURN_SUCCESS_ON_VALID(*samplerate);
+  RETURN_SUCCESS_ON_VALID(original);
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
 
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_get(uint8_t* samplerate)
 {
+  if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
   *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
-  RETURN_SUCCESS_ON_VALID(*samplerate);
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
 
 // Temperature resolution is fixed to 10 bits, including sign. Return error to driver, but mark used value to pointer.
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_set(uint8_t* resolution)
 {
+  if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
   // If 10 bits was given, return success
   if(10 == *resolution) {return RUUVI_DRIVER_SUCCESS; }
   // Otherwise mark the actual resolution
@@ -166,6 +172,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_set(uint8_t* 
 
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_get(uint8_t* resolution)
 {
+  if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
   *resolution = 10;
   return RUUVI_DRIVER_SUCCESS;
 }
@@ -181,6 +188,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_set(uint8_t* scale
   RETURN_SUCCESS_ON_VALID(original);
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
+
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_get(uint8_t* scale)
 {
   *scale = 128;
@@ -254,4 +262,5 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(void* data)
   environmental->temperature_c = temperature;
   return RUUVI_DRIVER_SUCCESS;
 }
+
 #endif

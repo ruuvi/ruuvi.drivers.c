@@ -63,6 +63,17 @@ static void bosch_delay_ms(uint32_t time_ms)
   ruuvi_platform_delay_ms(time_ms);
 }
 
+// BME280 datasheet Appendix B.
+static uint32_t bme280_max_meas_time(uint8_t oversampling)
+{
+  // Time
+  float time = 1.25f + \
+               2.3 * 3 * oversampling + \
+               2 * 0.575;
+  // Roundoff + margin
+  return 2 + (uint32_t) time;
+}
+
 /** Initialize BME280 into low-power mode **/
 ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
@@ -120,6 +131,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environ
 
 ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
+  if(NULL == sensor) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
   memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
@@ -129,6 +141,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* senso
 
 ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
 {
+  if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
   if(0 == *samplerate ) { return RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
   else if(*samplerate == 1)   { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
   else if(*samplerate == 2)   { dev.settings.standby_time = BME280_STANDBY_TIME_500_MS; }
@@ -147,7 +160,9 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(uint8_t* samplerate)
 {
+  if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_settings(&dev));
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
 
   if(BME280_STANDBY_TIME_1000_MS == dev.settings.standby_time)      { *samplerate = 1;   }
   else if(BME280_STANDBY_TIME_500_MS == dev.settings.standby_time)  { *samplerate = 2;   }
@@ -162,6 +177,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(uint8_t* samplerate)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_resolution_set(uint8_t* resolution)
 {
+  if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
   uint8_t original = *resolution;
   *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   RETURN_SUCCESS_ON_VALID(original);
@@ -170,12 +186,14 @@ ruuvi_driver_status_t ruuvi_interface_bme280_resolution_set(uint8_t* resolution)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_resolution_get(uint8_t* resolution)
 {
+  if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
   *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_scale_set(uint8_t* scale)
 {
+  if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
   uint8_t original = *scale;
   *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   RETURN_SUCCESS_ON_VALID(original);
@@ -184,18 +202,23 @@ ruuvi_driver_status_t ruuvi_interface_bme280_scale_set(uint8_t* scale)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_scale_get(uint8_t* scale)
 {
+  if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
   *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* parameter)
 {
+  if(NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
   // Validate configuration
   if(   1  != *parameter
      && 2  != *parameter
      && 4  != *parameter
      && 8  != *parameter
      && 16 != *parameter
+     && RUUVI_DRIVER_SENSOR_CFG_DEFAULT != *parameter
+     && RUUVI_DRIVER_SENSOR_CFG_MIN     != *parameter
+     && RUUVI_DRIVER_SENSOR_CFG_MAX     != *parameter
      && RUUVI_DRIVER_SENSOR_DSP_LAST != *dsp)
   {
     return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
@@ -223,61 +246,86 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* para
   // Setup IIR
   if(RUUVI_DRIVER_SENSOR_DSP_IIR & *dsp)
   {
-    switch(*parameter)
+    if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *parameter || \
+       RUUVI_DRIVER_SENSOR_CFG_MIN     == *parameter || \
+       1 == *parameter
+    )
     {
-      case 1:
-        dev.settings.filter = BME280_FILTER_COEFF_OFF;
-        break;
-      case 2:
-        dev.settings.filter = BME280_FILTER_COEFF_2;
-        break;
-      case 4:
+      dev.settings.filter = BME280_FILTER_COEFF_OFF;
+      *parameter = 1;
+    }
+    else if(2 == *parameter)
+    {
+      dev.settings.filter = BME280_FILTER_COEFF_2;
+      *parameter = 2;
+    }
+    else if(4 >= *parameter)
+    {
         dev.settings.filter = BME280_FILTER_COEFF_4;
-        break;
-      case 8:
-        dev.settings.filter = BME280_FILTER_COEFF_8;
-        break;
-      case 16:
-        dev.settings.filter = BME280_FILTER_COEFF_16;
-        break;
-      default:
+        *parameter = 4;
+    }
+    else if(8 >= *parameter)
+    {
+      dev.settings.filter = BME280_FILTER_COEFF_8;
+      *parameter = 8;
+    }
+    else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *parameter || \
+            16 >= *parameter)
+    {
+      dev.settings.filter = BME280_FILTER_COEFF_16;
+      *parameter = 16;
+    }
+    else
+    {
+        *parameter = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
         return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
-        break;
     }
   }
   // Setup Oversampling
   if(RUUVI_DRIVER_SENSOR_DSP_OS & *dsp)
   {
-    switch(*parameter)
+    if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *parameter || \
+       RUUVI_DRIVER_SENSOR_CFG_MIN     == *parameter || \
+       1 == *parameter)
     {
-      case 1:
-          dev.settings.osr_h = BME280_OVERSAMPLING_1X;
-          dev.settings.osr_p = BME280_OVERSAMPLING_1X;
-          dev.settings.osr_t = BME280_OVERSAMPLING_1X;
-        break;
-      case 2:
-          dev.settings.osr_h = BME280_OVERSAMPLING_2X;
-          dev.settings.osr_p = BME280_OVERSAMPLING_2X;
-          dev.settings.osr_t = BME280_OVERSAMPLING_2X;
-        break;
-      case 4:
-          dev.settings.osr_h = BME280_OVERSAMPLING_4X;
-          dev.settings.osr_p = BME280_OVERSAMPLING_4X;
-          dev.settings.osr_t = BME280_OVERSAMPLING_4X;
-        break;
-      case 8:
-          dev.settings.osr_h = BME280_OVERSAMPLING_8X;
-          dev.settings.osr_p = BME280_OVERSAMPLING_8X;
-          dev.settings.osr_t = BME280_OVERSAMPLING_8X;
-        break;
-      case 16:
-          dev.settings.osr_h = BME280_OVERSAMPLING_16X;
-          dev.settings.osr_p = BME280_OVERSAMPLING_16X;
-          dev.settings.osr_t = BME280_OVERSAMPLING_16X;
-        break;
-      default:
-        return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
-        break;
+      dev.settings.osr_h = BME280_OVERSAMPLING_1X;
+      dev.settings.osr_p = BME280_OVERSAMPLING_1X;
+      dev.settings.osr_t = BME280_OVERSAMPLING_1X;
+      *parameter = 1;
+    }
+    else if(2 == *parameter)
+    {
+      dev.settings.osr_h = BME280_OVERSAMPLING_2X;
+      dev.settings.osr_p = BME280_OVERSAMPLING_2X;
+      dev.settings.osr_t = BME280_OVERSAMPLING_2X;
+      *parameter = 2;
+    }
+    else if (4 >= *parameter)
+    {
+      dev.settings.osr_h = BME280_OVERSAMPLING_4X;
+      dev.settings.osr_p = BME280_OVERSAMPLING_4X;
+      dev.settings.osr_t = BME280_OVERSAMPLING_4X;
+      *parameter = 4;
+    }
+    else if (8 >= *parameter)
+    {
+      dev.settings.osr_h = BME280_OVERSAMPLING_8X;
+      dev.settings.osr_p = BME280_OVERSAMPLING_8X;
+      dev.settings.osr_t = BME280_OVERSAMPLING_8X;
+      *parameter = 8;
+    }
+    else if (16 >= *parameter || \
+             RUUVI_DRIVER_SENSOR_CFG_MAX)
+    {
+      dev.settings.osr_h = BME280_OVERSAMPLING_16X;
+      dev.settings.osr_p = BME280_OVERSAMPLING_16X;
+      dev.settings.osr_t = BME280_OVERSAMPLING_16X;
+      *parameter = 16;
+    }
+    else
+    {
+      *parameter = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
+      return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
     }
   }
   //Write configuration
@@ -351,6 +399,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_get(uint8_t* dsp, uint8_t* para
 
 ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
 {
+  if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   switch(*mode)
   {
@@ -360,6 +409,11 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
 
     case RUUVI_DRIVER_SENSOR_CFG_SINGLE:
       err_code = BME_TO_RUUVI_ERROR(bme280_set_sensor_mode(BME280_FORCED_MODE, &dev));
+      // We assume that dev struct is in sync with the state of the BME280 and underlying interface
+      // which has the number of settings as 2^OSR is not changed.
+      // We also assume that each element runs same OSR
+      uint8_t samples = 1 << (dev.settings.osr_h - 1);
+      ruuvi_platform_delay_ms(bme280_max_meas_time(samples));
       break;
 
     case RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS:
@@ -375,9 +429,12 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t* mode)
 {
+  if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   uint8_t bme_mode;
   err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_mode(&bme_mode, &dev));
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
+
   switch(bme_mode)
   {
     case BME280_SLEEP_MODE:
@@ -399,14 +456,18 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t* mode)
 
 ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
 {
+  if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_interface_environmental_data_t* p_data = (ruuvi_interface_environmental_data_t*)data;
   struct bme280_data comp_data;
-  int8_t rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev);
+
+  ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_data(BME280_ALL, &comp_data, &dev));
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
+
   p_data->timestamp_ms   = RUUVI_DRIVER_UINT64_INVALID;
   p_data->temperature_c  = (float) comp_data.temperature;
   p_data->humidity_rh    = (float) comp_data.humidity;
   p_data->pressure_pa    = (float) comp_data.pressure;
-  return BME_TO_RUUVI_ERROR(rslt);
+  return err_code;
 }
 
 

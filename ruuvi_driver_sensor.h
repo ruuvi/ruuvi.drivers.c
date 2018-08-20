@@ -35,8 +35,8 @@
  * data get: return data from sensor, either latest sample of FIFO buffer
  */
 
-#ifndef RUUVI_SENSOR_H
-#define RUUVI_SENSOR_H
+#ifndef RUUVI_DRIVER_SENSOR_H
+#define RUUVI_DRIVER_SENSOR_H
 #include "ruuvi_driver_error.h"
 
 // Constants for sensor configuration and status
@@ -44,7 +44,6 @@
 #define RUUVI_DRIVER_SENSOR_ERR_INVALID         0xE0
 #define RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED 0xE1
 #define RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED   0xE2
-#define RUUVI_DRIVER_SENSOR_ERR_INVALID         0xE0
 #define RUUVI_DRIVER_SENSOR_CFG_MIN             0xF0
 #define RUUVI_DRIVER_SENSOR_CFG_MAX             0xF1
 #define RUUVI_DRIVER_SENSOR_CFG_SLEEP           0xF2   // Sensor should go to sleep after single measurement
@@ -120,12 +119,13 @@ struct ruuvi_driver_sensor_t{
   ruuvi_driver_sensor_setup_fp  mode_get;
   ruuvi_driver_sensor_dsp_fp    dsp_set;
   ruuvi_driver_sensor_dsp_fp    dsp_get;
-
-  // Return latest measurement (or FIFO buffer) fetched from sensor at the time of calling this function.
-  ruuvi_driver_sensor_data_fp   data_get;
   ruuvi_driver_configuration_fp configuration_set;
   ruuvi_driver_configuration_fp configuration_get;
+
+  // Return latest measurement fetched from sensor at the time of calling this function.
+  ruuvi_driver_sensor_data_fp   data_get;
 };
+
 
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);

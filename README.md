@@ -16,6 +16,23 @@ External platform-independent requirements are in `ruuvi_drivers_external_includ
 Files should be named `ruuvi_module_name`, for example `ruuvi_interface_spi.h`
 Globally visible functions, variables and definitions should be likewise named `ruuvi_module_file_name`, for example  `ruuvi_platform_yield_init()`
 
+# Usage
+## Enabling modules
+Se the repository may contain several different implementations of interface functions the desired implementation is enabled by definining
+`PLATFORM_MODULE_ENABLED 1`, for example `NRF5_SDK15_LOG_ENABLED 1`. 
+
+
+## Initializing modules
+All modules have `platform_module_init` -function which should be called before usage. Check the interface definition of explanation of any initialization parameters.
+
+## Error codes
+There are common error code definitions for the drivers, please see `ruuvi_driver_error.h` for details.
+
+## Sensor interface
+Sensors have a common interface which has setter and getter functions for common parameters such as scale, resolution, sample rate and dsp function. 
+Initialization function takes a pointer to sensor interface type, as well as used bus (I2C or SPI) and a handle which helps firmware to select the desired on board.
+On SPI the handle is GPIO pin of Chip Select, on I2C the handle is I2C address of the sensor.
+
 # Progress
 The repository is under active development and major refactors are to be expected. The roadmap for releases is: 
 
@@ -51,6 +68,9 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.5.0 
+Add SPI driver, BME280 support, nRF52 temperature sensing support
+
 ## 3.4.0 
 Add interrupts to GPIO
 
