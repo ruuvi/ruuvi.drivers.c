@@ -113,8 +113,8 @@ ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_con
 
   ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
 
-  nrf_drv_spi_mode_t mode;
-  nrf_drv_spi_frequency_t frequency;
+  nrf_drv_spi_mode_t mode = RUUVI_INTERFACE_SPI_MODE_0;
+  nrf_drv_spi_frequency_t frequency = NRF_DRV_SPI_FREQ_1M;
   status |= ruuvi_to_nrf_spi_mode(config->mode, &mode);
   status |= ruuvi_to_nrf_spi_freq(config->frequency, &frequency);
   RUUVI_DRIVER_ERROR_CHECK(status, RUUVI_DRIVER_SUCCESS);
