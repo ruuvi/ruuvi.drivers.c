@@ -16,8 +16,8 @@
  *
  * If function does not make sense for the sensor, it will return error code.
  *
- * INIT, UNINT: Init will prepare sensor for use, reset, run self-test and place it in low-power mode
- *              Uninit will release any resources used by sensor
+ * INIT, UNINT: Init will prepare sensor for use, reset, run self-test and place it in low-power mode. Additionally function pointers will be set up by init.
+ *              Uninit will release any resources used by sensor. Uninit NULLs the sensor function pointers-
  *
  * Samplerate: Applicable on continuous mode, how often sensor takes samples. Hz
  *
@@ -30,7 +30,7 @@
  * mode: Sleep, single, continuous.
  *  - Sleep mode should enter lowest-power state available
  *  - Single will return once new data is available with data_get call
- *  - Continuous: Sensor will sample at given rate. Returns immediately
+ *  - Continuous: Sensor will sample at given rate. Returns immediately, data will be available after first sample
  *
  * data get: return data from sensor, either latest sample of FIFO buffer
  */
@@ -125,7 +125,6 @@ struct ruuvi_driver_sensor_t{
   // Return latest measurement fetched from sensor at the time of calling this function.
   ruuvi_driver_sensor_data_fp   data_get;
 };
-
 
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
