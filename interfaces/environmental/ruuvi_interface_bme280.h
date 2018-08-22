@@ -1,5 +1,5 @@
 /**
- * Define environmental sensor abstraction functions for onboard MCU
+ * Define environmental sensor abstraction functions for BME280
  *
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
