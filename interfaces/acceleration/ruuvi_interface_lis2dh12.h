@@ -1,5 +1,8 @@
 /**
  *  Ruuvi sensor abstraction functions for LIS2DH12
+ *
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
  */
 
 #ifndef RUUVI_INTERFACE_LIS2DH12_H

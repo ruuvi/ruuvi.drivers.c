@@ -133,12 +133,13 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   dev.selftest = LIS2DH12_ST_POSITIVE;
   lis2dh12_self_test_set(dev_ctx, dev.selftest);
 
-  // wait 2 samples - LP, normal mode
+  // wait 2 samples in low power or normal mode for valid data.
   ruuvi_platform_delay_ms(9);
 
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
   err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
+  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
 
   // self-test to negative direction
   dev.selftest = LIS2DH12_ST_NEGATIVE;
@@ -150,6 +151,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
   err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
+  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
 
   // turn self-test off, keep error code in case we "lose" sensor after self-test
   dev.selftest = LIS2DH12_ST_DISABLE;
@@ -158,22 +160,25 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   // Turn accelerometer off
   dev.samplerate = LIS2DH12_POWER_DOWN;
   err_code |= lis2dh12_data_rate_set(dev_ctx, dev.samplerate);
+  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
-    acceleration_sensor->init           = ruuvi_interface_lis2dh12_init;
-    acceleration_sensor->uninit         = ruuvi_interface_lis2dh12_uninit;
-    acceleration_sensor->samplerate_set = ruuvi_interface_lis2dh12_samplerate_set;
-    acceleration_sensor->samplerate_get = ruuvi_interface_lis2dh12_samplerate_get;
-    acceleration_sensor->resolution_set = ruuvi_interface_lis2dh12_resolution_set;
-    acceleration_sensor->resolution_get = ruuvi_interface_lis2dh12_resolution_get;
-    acceleration_sensor->scale_set      = ruuvi_interface_lis2dh12_scale_set;
-    acceleration_sensor->scale_get      = ruuvi_interface_lis2dh12_scale_get;
-    acceleration_sensor->dsp_set        = ruuvi_interface_lis2dh12_dsp_set;
-    acceleration_sensor->dsp_get        = ruuvi_interface_lis2dh12_dsp_get;
-    acceleration_sensor->mode_set       = ruuvi_interface_lis2dh12_mode_set;
-    acceleration_sensor->mode_get       = ruuvi_interface_lis2dh12_mode_get;
-    acceleration_sensor->data_get       = ruuvi_interface_lis2dh12_data_get;
+    acceleration_sensor->init              = ruuvi_interface_lis2dh12_init;
+    acceleration_sensor->uninit            = ruuvi_interface_lis2dh12_uninit;
+    acceleration_sensor->samplerate_set    = ruuvi_interface_lis2dh12_samplerate_set;
+    acceleration_sensor->samplerate_get    = ruuvi_interface_lis2dh12_samplerate_get;
+    acceleration_sensor->resolution_set    = ruuvi_interface_lis2dh12_resolution_set;
+    acceleration_sensor->resolution_get    = ruuvi_interface_lis2dh12_resolution_get;
+    acceleration_sensor->scale_set         = ruuvi_interface_lis2dh12_scale_set;
+    acceleration_sensor->scale_get         = ruuvi_interface_lis2dh12_scale_get;
+    acceleration_sensor->dsp_set           = ruuvi_interface_lis2dh12_dsp_set;
+    acceleration_sensor->dsp_get           = ruuvi_interface_lis2dh12_dsp_get;
+    acceleration_sensor->mode_set          = ruuvi_interface_lis2dh12_mode_set;
+    acceleration_sensor->mode_get          = ruuvi_interface_lis2dh12_mode_get;
+    acceleration_sensor->data_get          = ruuvi_interface_lis2dh12_data_get;
+    acceleration_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
+    acceleration_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
  }
 
   return err_code;
@@ -335,7 +340,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_get(uint8_t* resolutio
 /**
  * Setup lis2dh12 scale. Scale is rounded up, i.e. "at least this much"
  */
-ruuvi_driver_status_t ruuvi_ionterface_lis2dh12_scale_set(uint8_t* scale)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_set(uint8_t* scale)
 {
   if(NULL == scale)                               { return RUUVI_DRIVER_ERROR_NULL; }
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *scale) { return RUUVI_DRIVER_SUCCESS;    }
@@ -355,7 +360,7 @@ ruuvi_driver_status_t ruuvi_ionterface_lis2dh12_scale_set(uint8_t* scale)
   return lis2dh12_full_scale_set(&(dev.ctx), dev.scale);
 }
 
-ruuvi_driver_status_t ruuvi_ionterface_lis2dh12_scale_get(uint8_t* scale)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_get(uint8_t* scale)
 {
   if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
 

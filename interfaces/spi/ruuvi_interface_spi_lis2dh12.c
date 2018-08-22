@@ -18,7 +18,7 @@ int32_t ruuvi_interface_spi_lis2dh12_write(void* dev_ptr, uint8_t reg_addr, uint
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   uint8_t dev_id = *((uint8_t*)dev_ptr);
   // bit 0: READ bit. The value is 0.
-  reg_addr &= 0x80;
+  reg_addr &= 0x7F;
   // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
   // multiple read / writes.
   if (len > 1) { reg_addr |= 0x40; }
