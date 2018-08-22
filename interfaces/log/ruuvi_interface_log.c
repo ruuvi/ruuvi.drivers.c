@@ -12,85 +12,89 @@ size_t ruuvi_platform_error_to_string(ruuvi_driver_status_t error, char* error_s
   if(NULL == error_string)
   {
     RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_NULL, RUUVI_DRIVER_ERROR_NULL);
-    return 0; 
+    return 0;
   }
 
   size_t written = 0;
   switch(error)
   {
-    case RUUVI_DRIVER_SUCCESS: 
+    case RUUVI_DRIVER_SUCCESS:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_SUCCESS");
       break;
-    
-    case RUUVI_DRIVER_ERROR_INTERNAL: 
+
+    case RUUVI_DRIVER_ERROR_INTERNAL:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_INTERNAL");
       break;
 
-    case RUUVI_DRIVER_ERROR_NOT_FOUND: 
+    case RUUVI_DRIVER_ERROR_NOT_FOUND:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_NOT_FOUND");
       break;
 
-    case RUUVI_DRIVER_ERROR_NO_MEM: 
+    case RUUVI_DRIVER_ERROR_NO_MEM:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_NO_MEM");
       break;
 
-    case RUUVI_DRIVER_ERROR_NOT_SUPPORTED: 
+    case RUUVI_DRIVER_ERROR_NOT_SUPPORTED:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_NOT_SUPPORTED");
       break;
-    
-     case RUUVI_DRIVER_ERROR_INVALID_STATE: 
+
+     case RUUVI_DRIVER_ERROR_INVALID_STATE:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_INVALID_STATE");
       break;
 
-    case RUUVI_DRIVER_ERROR_INVALID_LENGTH: 
+    case RUUVI_DRIVER_ERROR_INVALID_LENGTH:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_INVALID_LENGTH");
       break;
 
-    case RUUVI_DRIVER_ERROR_INVALID_FLAGS: 
+    case RUUVI_DRIVER_ERROR_INVALID_FLAGS:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_INVALID_FLAGS");
       break;
 
-    case RUUVI_DRIVER_ERROR_INVALID_DATA: 
+    case RUUVI_DRIVER_ERROR_INVALID_DATA:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_INVALID_DATA");
       break;
 
-    case RUUVI_DRIVER_ERROR_DATA_SIZE: 
+    case RUUVI_DRIVER_ERROR_DATA_SIZE:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_DATA_SIZE");
       break;
 
-    case RUUVI_DRIVER_ERROR_TIMEOUT: 
+    case RUUVI_DRIVER_ERROR_TIMEOUT:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_TIMEOUT");
       break;
 
-    case RUUVI_DRIVER_ERROR_NULL: 
+    case RUUVI_DRIVER_ERROR_NULL:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_NULL");
       break;
 
-    case RUUVI_DRIVER_ERROR_FORBIDDEN: 
+    case RUUVI_DRIVER_ERROR_FORBIDDEN:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_FORBIDDEN");
       break;
 
-    case RUUVI_DRIVER_ERROR_INVALID_ADDR: 
+    case RUUVI_DRIVER_ERROR_INVALID_ADDR:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_INVALID_ADDR");
       break;
 
-    case RUUVI_DRIVER_ERROR_BUSY: 
+    case RUUVI_DRIVER_ERROR_BUSY:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_BUSY");
       break;
 
-    case RUUVI_DRIVER_ERROR_RESOURCES: 
+    case RUUVI_DRIVER_ERROR_RESOURCES:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_RESOURCES");
       break;
 
-    case RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED: 
+    case RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED");
       break;
 
-    case RUUVI_DRIVER_ERROR_FATAL: 
+    case RUUVI_DRIVER_ERROR_SELFTEST:
+      written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_SELFTEST");
+      break;
+
+    case RUUVI_DRIVER_ERROR_FATAL:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_FATAL");
       break;
 
-    default: 
+    default:
       written = snprintf(error_string, space_remaining, "%s", "RUUVI_DRIVER_ERROR_UNKNOWN");
       break;
   }

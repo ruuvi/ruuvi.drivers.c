@@ -14,6 +14,7 @@
 #include "nrf_nvic.h"
 
 #include <stdio.h>
+#include <string.h>
 
 ruuvi_driver_status_t ruuvi_platform_to_ruuvi_error(void* error)
 {
@@ -43,10 +44,19 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error, ruuvi_driver_status_t
 {
   char message[NRF_LOG_BUFSIZE];
   size_t index = 0;
+  // Cut out the full path
+  const char* filename = strrchr(file, '/');
+  // If on Windows
+  if(NULL == filename) { filename = strrchr(file, '\\'); }
+  // In case the file was already only the name
+  if(NULL == filename) { filename = file; }
+  // Otherwise skip the slash
+  else{ filename++; }
+
   // Reset on fatal error
   if(~non_fatal_mask & error)
   {
-    index += snprintf(message, sizeof(message), "%s:%d FATAL: ", file, line);
+    index += snprintf(message, sizeof(message), "%s:%d FATAL: ", filename, line);
     index += ruuvi_platform_error_to_string(error, (message + index), (sizeof(message) - index));
     snprintf((message + index), (sizeof(message) - index), "\r\n");
     ruuvi_platform_log(RUUVI_INTERFACE_LOG_ERROR, message);
@@ -56,7 +66,7 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error, ruuvi_driver_status_t
   // Log non-fatal errors
   else if(RUUVI_DRIVER_SUCCESS != error)
   {
-    index += snprintf(message, sizeof(message), "%s:%d WARNING: ", file, line);
+    index += snprintf(message, sizeof(message), "%s:%d WARNING: ", filename, line);
     index += ruuvi_platform_error_to_string(error, (message + index), (sizeof(message) - index));
     snprintf((message + index), (sizeof(message) - index), "\r\n");
     ruuvi_platform_log(RUUVI_INTERFACE_LOG_WARNING, message);
