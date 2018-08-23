@@ -4,13 +4,13 @@
 
 #define RUUVI_INTERFACE_ACCELERATION_INVALID RUUVI_DRIVER_FLOAT_INVALID
 
-// Unit is mg
+// Unit is g
 typedef struct
 {
   uint64_t timestamp_ms;
-  float x_mg;
-  float y_mg;
-  float z_mg;
+  float x_g;
+  float y_g;
+  float z_g;
 }ruuvi_interface_acceleration_data_t;
 
 #endif
