@@ -1,3 +1,9 @@
+/**
+ * Acceleration data format
+ *
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
+ */
 #ifndef RUUVI_INTERFACE_ACCELERATION_H
 #define RUUVI_INTERFACE_ACCELERATION_H
 #include "ruuvi_driver_error.h"
