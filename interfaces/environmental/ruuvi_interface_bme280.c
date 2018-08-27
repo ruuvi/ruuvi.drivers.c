@@ -28,10 +28,6 @@
 #ifndef BME280_FLOAT_ENABLE
   #error "Please #define BME280_FLOAT_ENABLE in makefile CFLAGS"
 #endif
-// XXX Find out why RUUVI_DRIVER_UINT64_INVALID is not defined here
-#ifndef RUUVI_DRIVER_UINT64_INVALID
-  #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
-#endif
 
 // Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
 #define RETURN_SUCCESS_ON_VALID(param) do {\
