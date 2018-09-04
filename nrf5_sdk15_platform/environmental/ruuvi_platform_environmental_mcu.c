@@ -56,11 +56,6 @@
 
 #include <string.h>
 
-// XXX Find out why RUUVI_DRIVER_UINT64_INVALID is not defined here
-#ifndef RUUVI_DRIVER_UINT64_INVALID
-  #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
-#endif
-
 // Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
 #define RETURN_SUCCESS_ON_VALID(param) do {\
             if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
@@ -72,6 +67,7 @@
 
 // Flag to keep track if we should update the temperature register on data read.
 static bool autorefresh  = false;
+static bool sensor_is_init = false;
 static float temperature;
 
 static void nrf52832_temperature_sample(void)
@@ -110,6 +106,8 @@ static void nrf52832_temperature_sample(void)
 
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
+  if(NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(true == sensor_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
   // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
   nrf_temp_init();
   temperature = RUUVI_DRIVER_FLOAT_INVALID;
@@ -118,7 +116,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
   environmental_sensor->init              = ruuvi_interface_environmental_mcu_init;
   environmental_sensor->uninit            = ruuvi_interface_environmental_mcu_uninit;
   environmental_sensor->samplerate_set    = ruuvi_interface_environmental_mcu_samplerate_set;
-  environmental_sensor->samplerate_set    = ruuvi_interface_environmental_mcu_samplerate_get;
+  environmental_sensor->samplerate_get    = ruuvi_interface_environmental_mcu_samplerate_get;
   environmental_sensor->resolution_set    = ruuvi_interface_environmental_mcu_resolution_set;
   environmental_sensor->resolution_get    = ruuvi_interface_environmental_mcu_resolution_get;
   environmental_sensor->scale_set         = ruuvi_interface_environmental_mcu_scale_set;
@@ -130,12 +128,15 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
   environmental_sensor->data_get          = ruuvi_interface_environmental_mcu_data_get;
   environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
   environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+  sensor_is_init = true;
 
   return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
+  if(NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+  sensor_is_init = false;
   memset(environmental_sensor, 0, sizeof(ruuvi_driver_sensor_t));
   return RUUVI_DRIVER_SUCCESS;
 }

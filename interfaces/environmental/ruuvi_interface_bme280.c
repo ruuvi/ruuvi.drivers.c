@@ -73,8 +73,11 @@ static uint32_t bme280_max_meas_time(uint8_t oversampling)
 /** Initialize BME280 into low-power mode **/
 ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   if(NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+  // dev is NULL at boot, if function pointers have been set sensor is initialized
+  if(NULL != dev.write) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
   switch(bus)
   {

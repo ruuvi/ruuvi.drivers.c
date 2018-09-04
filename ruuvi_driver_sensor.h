@@ -105,7 +105,7 @@ typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_data_fp)(void*);
  **/
 typedef ruuvi_driver_status_t(*ruuvi_driver_configuration_fp)(const ruuvi_driver_sensor_t*, ruuvi_driver_sensor_configuration_t*);
 
-// Typedef is above
+// Typedef is above, please see README for the function details
 struct ruuvi_driver_sensor_t{
   ruuvi_driver_sensor_init_fp   init;
   ruuvi_driver_sensor_init_fp   uninit;

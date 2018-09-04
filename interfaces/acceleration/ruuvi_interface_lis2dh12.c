@@ -41,7 +41,7 @@ static struct {
 
   // device control structure
   lis2dh12_ctx_t ctx;
-}dev;
+}dev = {0};
 
 // Check that self-test values differ enough
 static ruuvi_driver_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new, axis3bit16_t* old)
@@ -64,6 +64,7 @@ static ruuvi_driver_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* n
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
   if(NULL == acceleration_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(NULL != dev.ctx.write_reg) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   // Initialize mems driver interface
   lis2dh12_ctx_t* dev_ctx = &(dev.ctx);
@@ -187,8 +188,10 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t* sen
   if(NULL == sensor) { return RUUVI_DRIVER_ERROR_NULL; }
   dev.samplerate = LIS2DH12_POWER_DOWN;
   memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
-  //LIS2DH12 function returns SPI write result which is ruuvi_status_t
-  return lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
+  //LIS2DH12 function returns SPI write result which is ruuvi_driver_status_t
+  ruuvi_driver_status_t err_code = lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
+  memset(&dev, 0, sizeof(dev));
+  return err_code;
 }
 
 /**
