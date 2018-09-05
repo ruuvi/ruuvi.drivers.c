@@ -77,7 +77,7 @@ static nrf_drv_saadc_config_t adc_config = NRF_DRV_SAADC_DEFAULT_CONFIG; // Stru
 
 static void nrf52832_adc_sample(void)
 {
-     ret_code_t err_code = nrf_drv_saadc_sample_convert(1, &adc_buf);
+  nrf_drv_saadc_sample_convert(1, &adc_buf);
 }
 
 /**@brief Function handling events from 'nrf_drv_saadc.c'.
@@ -182,6 +182,7 @@ static ruuvi_driver_status_t reinit_adc(void)
   ret_code_t err_code = NRF_SUCCESS;
   nrf_drv_saadc_uninit();
   err_code |= nrf_drv_saadc_init(&adc_config, saadc_event_handler);
+  return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
@@ -307,9 +308,8 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_scale_get(uint8_t* scale)
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_dsp_set(uint8_t* dsp, uint8_t* parameter)
 {
   // Store originals
-  uint8_t dsp_original, parameter_original;
+  uint8_t dsp_original;
   dsp_original       = *dsp;
-  parameter_original = *parameter;
 
   // Ge actual values
   ruuvi_interface_adc_mcu_dsp_get(dsp, parameter);
