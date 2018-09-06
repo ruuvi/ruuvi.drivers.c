@@ -259,7 +259,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(void* data)
   if(autorefresh) { nrf52832_temperature_sample(); }
   environmental->pressure_pa   = RUUVI_DRIVER_FLOAT_INVALID;
   environmental->humidity_rh   = RUUVI_DRIVER_FLOAT_INVALID;
-  environmental->timestamp_ms  = RUUVI_DRIVER_UINT64_INVALID;
+  environmental->timestamp_ms  = ruuvi_driver_sensor_timestamp_get();
   environmental->temperature_c = temperature;
   return RUUVI_DRIVER_SUCCESS;
 }

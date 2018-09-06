@@ -205,7 +205,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   adc_sensor->init              = ruuvi_interface_adc_mcu_init;
   adc_sensor->uninit            = ruuvi_interface_adc_mcu_uninit;
   adc_sensor->samplerate_set    = ruuvi_interface_adc_mcu_samplerate_set;
-  adc_sensor->samplerate_set    = ruuvi_interface_adc_mcu_samplerate_get;
+  adc_sensor->samplerate_get    = ruuvi_interface_adc_mcu_samplerate_get;
   adc_sensor->resolution_set    = ruuvi_interface_adc_mcu_resolution_set;
   adc_sensor->resolution_get    = ruuvi_interface_adc_mcu_resolution_get;
   adc_sensor->scale_set         = ruuvi_interface_adc_mcu_scale_set;
@@ -477,7 +477,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(void* data)
 
   // voltage = reference * ADC/ADC_MAX
   adc->adc_v = ADC_REF_VOLTAGE_IN_VOLTS * ((float)adc_buf/(float)counts) * ADC_PRE_SCALING_COMPENSATION;
-  adc->timestamp_ms = RUUVI_DRIVER_UINT64_INVALID;
+  adc->timestamp_ms = ruuvi_driver_sensor_timestamp_get();
   return RUUVI_DRIVER_SUCCESS;
 }
 

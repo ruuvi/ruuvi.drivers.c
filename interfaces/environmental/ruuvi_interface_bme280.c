@@ -462,7 +462,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
   ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_data(BME280_ALL, &comp_data, &dev));
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
 
-  p_data->timestamp_ms   = RUUVI_DRIVER_UINT64_INVALID;
+  p_data->timestamp_ms   = ruuvi_driver_sensor_timestamp_get();
   p_data->temperature_c  = (float) comp_data.temperature;
   p_data->humidity_rh    = (float) comp_data.humidity;
   p_data->pressure_pa    = (float) comp_data.pressure;

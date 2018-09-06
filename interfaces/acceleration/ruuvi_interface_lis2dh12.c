@@ -631,7 +631,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
         break;
     }
   }
-  p_acceleration->timestamp_ms = RUUVI_DRIVER_UINT64_INVALID;
+  p_acceleration->timestamp_ms = ruuvi_driver_sensor_timestamp_get();
   p_acceleration->x_g = acceleration[0];
   p_acceleration->y_g = acceleration[1];
   p_acceleration->z_g = acceleration[2];
