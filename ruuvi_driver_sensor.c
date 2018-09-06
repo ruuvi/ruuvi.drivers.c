@@ -27,3 +27,21 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_s
   err_code |= sensor->mode_get(&(config->mode));
   return err_code;
 }
+
+static ruuvi_driver_sensor_timestamp_fp millis = NULL;
+
+ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(ruuvi_driver_sensor_timestamp_fp timestamp_fp)
+{
+  millis = timestamp_fp;
+  return RUUVI_DRIVER_SUCCESS;
+}
+
+// Calls the timestamp function and returns it's value. returns RUUVI_DRIVER_UINT64_INVALID if timestamp function is NULL
+uint64_t ruuvi_driver_sensor_timestamp_get(void)
+{
+  if(NULL == millis)
+  {
+    return RUUVI_DRIVER_UINT64_INVALID;
+  }
+  return millis();
+}

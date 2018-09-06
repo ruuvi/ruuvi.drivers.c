@@ -105,6 +105,11 @@ typedef ruuvi_driver_status_t(*ruuvi_driver_sensor_data_fp)(void*);
  **/
 typedef ruuvi_driver_status_t(*ruuvi_driver_configuration_fp)(const ruuvi_driver_sensor_t*, ruuvi_driver_sensor_configuration_t*);
 
+/**
+ * Return number of milliseconds since the start of RTC, or RUUVI_DRIVER_UINT64_INVALID if the RTC is not initialized.
+ */
+typedef uint64_t (*ruuvi_driver_sensor_timestamp_fp)(void);
+
 // Typedef is above, please see README for the function details
 struct ruuvi_driver_sensor_t{
   ruuvi_driver_sensor_init_fp   init;
@@ -128,5 +133,14 @@ struct ruuvi_driver_sensor_t{
 
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config);
+
+/**
+ * Setup timestamping, NULL to disable timestamps.
+ *
+ * Returns RUUVI_DRIVER_SUCCESS
+ */
+ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(ruuvi_driver_sensor_timestamp_fp timestamp_fp);
+// Calls the timestamp function and returns it's value. returns RUUVI_DRIVER_UINT64_INVALID if timestamp function is NULL
+uint64_t ruuvi_driver_sensor_timestamp_get(void);
 
 #endif
