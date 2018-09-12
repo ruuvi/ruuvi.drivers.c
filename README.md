@@ -81,6 +81,10 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 
 # Changelog
 ## 3.7.0
+ * Add RTC support and timestamping
+ * Fix issues in sensor interface implementations
+
+## 3.7.0
 Add battery voltage measurement with nRF52 ADC
 
 ## 3.6.0
