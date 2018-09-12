@@ -141,12 +141,12 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(ruuvi_driver_sens
   return RUUVI_DRIVER_SUCCESS;
 }
 
-// Continuous sampling is not supported, mark pointed value as not supported even if parameter is one of no-changes
+// Continuous sampling is not supported, mark pointed value as default even if parameter is one of no-changes
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_set(uint8_t* samplerate)
 {
   if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
   uint8_t original = *samplerate;
-  *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
+  *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   RETURN_SUCCESS_ON_VALID(original);
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
@@ -154,8 +154,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_set(uint8_t* 
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_get(uint8_t* samplerate)
 {
   if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
-  *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
-  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+  *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 // Temperature resolution is fixed to 10 bits, including sign. Return error to driver, but mark used value to pointer.
@@ -181,8 +181,13 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_get(uint8_t* 
 // Scale cannot be set. Our scale is fixed at (2^9) / 4 = 128 (or -127).
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_set(uint8_t* scale)
 {
-  // If 128 was given, return success
-  if(128 == *scale) {return RUUVI_DRIVER_SUCCESS; }
+  if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+  // If 128 or less was given, return success
+  if(128 >= *scale)
+  {
+    *scale = 128;
+    return RUUVI_DRIVER_SUCCESS;
+  }
   // Otherwise mark the actual scale
   uint8_t original = *scale;
   *scale = 128;
@@ -192,6 +197,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_set(uint8_t* scale
 
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_get(uint8_t* scale)
 {
+  if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
   *scale = 128;
   return RUUVI_DRIVER_SUCCESS;
 }

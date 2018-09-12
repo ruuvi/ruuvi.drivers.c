@@ -227,6 +227,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_
   memset(adc_sensor, 0, sizeof(ruuvi_driver_sensor_t));
   nrf_drv_saadc_uninit();
   adc_is_init = false;
+
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -290,6 +291,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_resolution_get(uint8_t* resolution
 // While scale could be adjustable, we'll use fixed 3600 mV.
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_scale_set(uint8_t* scale)
 {
+  if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
   uint8_t original = *scale;
   // "At least" 3
   *scale = 3;
@@ -299,6 +301,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_scale_set(uint8_t* scale)
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_scale_get(uint8_t* scale)
 {
+  if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
   // "At least" 3
   *scale = 3;
   return RUUVI_DRIVER_SUCCESS;
