@@ -25,10 +25,6 @@ typedef enum
 
 typedef void(*ruuvi_interface_communication_radio_activity_interrupt_fp_t)(const ruuvi_interface_communication_radio_activity_evt_t*);
 
-// Set / get radio tx power
-//ruuvi_driver_status_t ruuvi_interface_communication_radio_tx_power_set(int8_t* dbm);
-//ruuvi_driver_status_t ruuvi_interface_communication_radio_tx_power_get(int8_t* dbm);
-
 // Enable / disable radio stacks
 ruuvi_driver_status_t ruuvi_interface_communication_radio_init  (const ruuvi_interface_communication_radio_user_t handle);
 ruuvi_driver_status_t ruuvi_interface_communication_radio_uninit(const ruuvi_interface_communication_radio_user_t handle);

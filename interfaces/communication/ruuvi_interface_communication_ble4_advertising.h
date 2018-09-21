@@ -43,10 +43,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_manufacturer_id_set(const uint16_t id);
 
-// Not implemented
-//ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(uint32_t* window_interval_ms, uint32_t* window_size_ms);
-//ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_get(uint32_t* window_interval_ms, uint32_t* window_size_ms);
-
 // Set manufacturer specific data to advertise. Clears previous data.
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(const uint8_t* data, const uint8_t data_length);
 
@@ -59,11 +55,15 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(co
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(ruuvi_interface_communication_message_t* messge);
 
-// Not implemented
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruuvi_interface_communication_message_t* messge);
-
 // Set / get radio tx power
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_set(int8_t* dbm);
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_get(int8_t* dbm);
+
+// Not implemented
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruuvi_interface_communication_message_t* messge);
+
+// Not implemented
+//ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(uint32_t* window_interval_ms, uint32_t* window_size_ms);
+//ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_get(uint32_t* window_interval_ms, uint32_t* window_size_ms);
 
 #endif

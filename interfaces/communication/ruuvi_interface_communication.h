@@ -8,6 +8,7 @@
 #define RUUVI_INTERFACE_COMMUNICATION_H
 #include "ruuvi_driver_error.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 // Standard BLE Broadcast manufacturer specific data payload length
 #define RUUVI_INTERFACE_COMMUNICATION_MESSAGE_MAX_LENGTH 24
@@ -15,6 +16,7 @@
 typedef struct{
   uint8_t data[RUUVI_INTERFACE_COMMUNICATION_MESSAGE_MAX_LENGTH];
   uint8_t data_length;
+  bool repeat;
 }ruuvi_interface_communication_message_t;
 
 typedef struct ruuvi_interface_communication_t ruuvi_interface_communication_t;          // forward declaration *and* typedef
