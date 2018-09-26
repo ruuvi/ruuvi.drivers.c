@@ -118,15 +118,50 @@ static uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC(NFC_MAX_NUMBER_OF
  *
  * Returns RUUVI_DIRVER_SUCCESS on success, RUUVI_DIRVER_ERROR_INVALID_STATE if radio is already initialized
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_communication_t* const channel);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_communication_t* const channel)
+{
+  if (NULL == channel)                  { return RUUVI_DRIVER_ERROR_NULL; }
+  if (nrf5_sdk15_nfc_state.initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
+  /* Set up NFC */
+  ret_code_t err_code = NRF_SUCCESS;
+  err_code |= nfc_t4t_setup(nfc_callback, NULL);
+
+  memset(nrf5_sdk15_nfc_state.nfc_ndef_msg, 0, sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
+
+  /* Run Read-Write mode for Type 4 Tag platform */
+  err_code |= nfc_t4t_ndef_rwpayload_set(nrf5_sdk15_nfc_state.nfc_ndef_msg, sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
+
+  /* Start sensing NFC field */
+  err_code |= nfc_t4t_emulation_start();
+
+  nrf5_sdk15_nfc_state.initialized = true;
+
+  // Setup communication abstraction fps
+  channel->init   = ruuvi_interface_communication_nfc_init;
+  channel->uninit = ruuvi_interface_communication_nfc_uninit;
+  channel->read   = ruuvi_interface_communication_nfc_receive;
+  channel->send   = ruuvi_interface_communication_nfc_send;
+  channel->on_evt = NULL;
+
+  return ruuvi_platform_to_ruuvi_error(&err_code);
+}
 
 /*
  * Uninitializes NFC hardware
  *
- * Returns RUUVI_DIRVER_SUCCESS on success or if radio was not initialized.
- * Returns RUUVI_DRIVER_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
+ * Returns RUUVI_DIRVER_SUCCESS on success or if NFC was not initialized.
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(ruuvi_interface_communication_t* const channel);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(ruuvi_interface_communication_t* const channel)
+{
+  ret_code_t err_code = nfc_t4t_emulation_stop();
+  err_code |= nfc_t4t_done();
+  nrf5_sdk15_nfc_state.initialized = false;
+  memset(channel, 0, sizeof(ruuvi_interface_communication_t));
+
+  return ruuvi_platform_to_ruuvi_error(&err_code);
+}
+
 
 // Encodes the given data fields into NFC buffer. Clears previous data.
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(const uint8_t* data, const uint8_t data_length)

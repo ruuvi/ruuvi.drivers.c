@@ -114,6 +114,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_init(ruuvi_
   channel->uninit  = ruuvi_interface_communication_ble4_advertising_uninit;
   channel->send    = ruuvi_interface_communication_ble4_advertising_send;
   channel->read    = ruuvi_interface_communication_ble4_advertising_receive;
+  channel->on_evt  = NULL;
 
   memset(&m_adv_data, 0, sizeof(m_adv_data));
   memset(&m_advertisement0, 0, sizeof(m_advertisement0));
@@ -146,6 +147,9 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_uninit(ruuv
   // Release radio
   err_code |= ruuvi_interface_communication_radio_uninit(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
   m_advertisement_is_init = false;
+
+  // Clear function pointers
+  memset(channel, 0, sizeof(ruuvi_interface_communication_t));
 
   return err_code;
 }
