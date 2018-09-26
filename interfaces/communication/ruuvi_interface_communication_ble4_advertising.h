@@ -53,14 +53,14 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(co
  * Returns RUUVI_DRIVER_SUCCESS if the data was placed in buffer
  * Returns RUUVI_DRIVER_ERROR_INVALID_LENGTH if data length is over 24 bytes
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(ruuvi_interface_communication_message_t* messge);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(ruuvi_interface_communication_message_t* message);
 
 // Set / get radio tx power
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_set(int8_t* dbm);
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_get(int8_t* dbm);
 
 // Not implemented
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruuvi_interface_communication_message_t* messge);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruuvi_interface_communication_message_t* message);
 
 // Not implemented
 //ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(uint32_t* window_interval_ms, uint32_t* window_size_ms);

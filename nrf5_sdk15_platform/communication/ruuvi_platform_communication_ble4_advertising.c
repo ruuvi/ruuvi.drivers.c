@@ -93,10 +93,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_manufacture
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_init(ruuvi_interface_communication_t* const channel)
 {
-  ret_code_t err_code = NRF_SUCCESS;
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   if (!m_advertisement_is_init)
   {
-      ruuvi_interface_communication_radio_init(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
+     err_code |= ruuvi_interface_communication_radio_init(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
+    if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
   }
 
   // Initialize advertising parameters (used when starting advertising).
@@ -228,7 +229,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(ruuvi_
 }
 
 // Not implemented
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruuvi_interface_communication_message_t* messge)
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruuvi_interface_communication_message_t* message)
 {
   return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
