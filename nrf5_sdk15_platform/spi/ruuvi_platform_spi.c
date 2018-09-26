@@ -42,7 +42,6 @@
 #include <stdint.h>
 #include <string.h> //memcpy
 
-#include "ruuvi_boards.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_yield.h"
