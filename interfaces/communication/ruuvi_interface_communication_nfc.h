@@ -26,7 +26,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_com
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(ruuvi_interface_communication_t* const channel);
 
 // Encodes the given data fields into NFC buffer. Clears previous data.
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(const uint8_t* data, const uint8_t data_length);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void);
 
 /**
  * Send data as ascii-encoded binary.

@@ -6,7 +6,7 @@
  */
 
 #include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_NFC_ENABLED
+#if NRF5_SDK15_COMMUNICATION_NFC_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_nfc.h"
@@ -163,8 +163,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(ruuvi_interface_c
 }
 
 
-// Encodes the given data fields into NFC buffer. Clears previous data.
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(const uint8_t* data, const uint8_t data_length)
+// Encodes the buffered data fields from record buffers into NFC buffer. Clears previous data on NFC buffer
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
 {
   // State check
   if (!nrf5_sdk15_nfc_state.initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
@@ -257,6 +257,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(ruuvi_interface_com
   if (message->data_length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_tx_length = message->data_length;
   memcpy(nfc_tx_buf, message->data, nfc_tx_length);
+  nrf5_sdk15_nfc_state.tx_updated = true;
+  ruuvi_interface_communication_nfc_data_set();
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -272,6 +274,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(const uin
   if (length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_fw_length = length;
   memcpy(nfc_fw_buf, version, nfc_fw_length);
+  nrf5_sdk15_nfc_state.tx_updated = true;
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -287,6 +290,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set(const uint8_
   if (length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_addr_length = length;
   memcpy(nfc_addr_buf, address, nfc_addr_length);
+  nrf5_sdk15_nfc_state.tx_updated = true;
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -302,6 +306,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set(const uint8_t* co
   if (length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_id_length = length;
   memcpy(nfc_id_buf, id, nfc_id_length);
+  nrf5_sdk15_nfc_state.tx_updated = true;
   return RUUVI_DRIVER_SUCCESS;
 }
 
