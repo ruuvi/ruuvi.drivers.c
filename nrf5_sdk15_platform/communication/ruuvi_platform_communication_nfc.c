@@ -1,5 +1,5 @@
 /**
- * Ruuvi BLE data advertising.
+ * Ruuvi NFC functions
  *
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
@@ -19,22 +19,6 @@
 #include "nfc_launchapp_rec.h"
 #include "nfc_ndef_msg_parser.h"
 
-#ifndef NFC_MAX_NUMBER_OF_RECORDS
-#define NFC_MAX_NUMBER_OF_RECORDS 4
-#endif
-
-#ifndef NDEF_FILE_SIZE
-#define NDEF_FILE_SIZE 128
-#endif
-
-#ifndef NFC_TEXT_BUF_SIZE
-#define NFC_TEXT_BUF_SIZE 32
-#endif
-
-#ifndef NFC_DATA_BUF_SIZE
-#define NFC_DATA_BUF_SIZE NFC_TEXT_BUF_SIZE
-#endif
-
 static struct
 {
   volatile uint8_t connected;    //NFC field is active
@@ -42,7 +26,7 @@ static struct
   volatile uint8_t rx_updated;   // New data received
   volatile uint8_t tx_updated;   // New data should be written to buffer
   volatile uint8_t configurable; // Allow NFC to write configuration
-  uint8_t nfc_ndef_msg[NDEF_FILE_SIZE];
+  uint8_t nfc_ndef_msg[NRF5_SDK15_COMMUNICATION_NFC_NDEF_FILE_SIZE];
   volatile size_t  nfc_ndef_msg_len;
   ruuvi_interface_communication_evt_handler_fp_t on_nfc_evt;
 }nrf5_sdk15_nfc_state;
@@ -97,27 +81,19 @@ static void nfc_callback(void * context,
   }
 }
 
-NFC_NDEF_MSG_DEF(nfc_ndef_msg, NFC_MAX_NUMBER_OF_RECORDS); // max NFC_MAX_NUMBER_OF_RECORDS records
+NFC_NDEF_MSG_DEF(nfc_ndef_msg, NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS); // max NFC_MAX_NUMBER_OF_RECORDS records
 
 // Setup constant records
-// TODO move these to state?
-static uint8_t nfc_fw_buf[NFC_TEXT_BUF_SIZE];
+static uint8_t nfc_fw_buf[NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
 static size_t nfc_fw_length = 0;
-static uint8_t nfc_addr_buf[NFC_TEXT_BUF_SIZE];
+static uint8_t nfc_addr_buf[NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
 static size_t nfc_addr_length = 0;
-static uint8_t nfc_id_buf[NFC_TEXT_BUF_SIZE];
+static uint8_t nfc_id_buf[NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
 static size_t nfc_id_length = 0;
-static uint8_t nfc_tx_buf[NFC_DATA_BUF_SIZE];
+static uint8_t nfc_tx_buf[NRF5_SDK15_COMMUNICATION_NFC_DATA_BUFFER_SIZE];
 static size_t nfc_tx_length = 0;
-static uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC(NFC_MAX_NUMBER_OF_RECORDS)];
+static uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC(NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS)];
 
-
-
-/*
- * Initializes NFC hardware
- *
- * Returns RUUVI_DIRVER_SUCCESS on success, RUUVI_DIRVER_ERROR_INVALID_STATE if radio is already initialized
- */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_communication_t* const channel)
 {
   if (NULL == channel)                  { return RUUVI_DRIVER_ERROR_NULL; }
@@ -147,11 +123,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_com
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
-/*
- * Uninitializes NFC hardware
- *
- * Returns RUUVI_DIRVER_SUCCESS on success or if NFC was not initialized.
- */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(ruuvi_interface_communication_t* const channel)
 {
   ret_code_t err_code = nfc_t4t_emulation_stop();
@@ -162,8 +133,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(ruuvi_interface_c
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
-
-// Encodes the buffered data fields from record buffers into NFC buffer. Clears previous data on NFC buffer
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
 {
   // State check
@@ -191,7 +160,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
                                 nfc_addr_buf,
                                 nfc_addr_length);
 
-  uint8_t id_code[] = {'i', 'i'}; // ID
+  uint8_t id_code[] = {'i', 'd'}; // ID
   NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_id_rec,
                                 UTF_8,
                                 id_code,
@@ -245,16 +214,10 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
-/**
- * Send data as binary.
- *
- * Returns RUUVI_DRIVER_SUCCESS if the data was placed in buffer
- * Returns error code from the stack if data could not be placed to the buffer
- */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(ruuvi_interface_communication_message_t* message)
 {
-  if (NULL == message)             { return RUUVI_DRIVER_ERROR_NULL; }
-  if (message->data_length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+  if (NULL == message)                                                       { return RUUVI_DRIVER_ERROR_NULL; }
+  if (message->data_length >= NRF5_SDK15_COMMUNICATION_NFC_DATA_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_tx_length = message->data_length;
   memcpy(nfc_tx_buf, message->data, nfc_tx_length);
   nrf5_sdk15_nfc_state.tx_updated = true;
@@ -262,48 +225,30 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(ruuvi_interface_com
   return RUUVI_DRIVER_SUCCESS;
 }
 
-/**
- * Sets the device firmware version into "FW" text field.
- *
- * returns RUUVI_DRIVER_SUCCESS on success
- * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 20 bytes long
- */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(const uint8_t* const version, const uint8_t length)
 {
-  if (NULL == version)             { return RUUVI_DRIVER_ERROR_NULL; }
-  if (length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+  if (NULL == version && length)                               { return RUUVI_DRIVER_ERROR_NULL; }
+  if (length >= NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_fw_length = length;
   memcpy(nfc_fw_buf, version, nfc_fw_length);
   nrf5_sdk15_nfc_state.tx_updated = true;
   return RUUVI_DRIVER_SUCCESS;
 }
 
-/**
- * Sets the device mac address into "ad" text field.
- *
- * returns RUUVI_DRIVER_SUCCESS on success
- * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 20 bytes long
- */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set(const uint8_t* const address, const uint8_t length)
 {
-  if (NULL == address)             { return RUUVI_DRIVER_ERROR_NULL; }
-  if (length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+  if (NULL == address && length)                               { return RUUVI_DRIVER_ERROR_NULL; }
+  if (length >= NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_addr_length = length;
   memcpy(nfc_addr_buf, address, nfc_addr_length);
   nrf5_sdk15_nfc_state.tx_updated = true;
   return RUUVI_DRIVER_SUCCESS;
 }
 
-/**
- * Sets the device id into "id" text field.
- *
- * returns RUUVI_DRIVER_SUCCESS on success
- * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 20 bytes long
- */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set(const uint8_t* const id, const uint8_t length)
 {
-  if (NULL == id)                  { return RUUVI_DRIVER_ERROR_NULL; }
-  if (length >= NFC_TEXT_BUF_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+  if (NULL == id && length)                                    { return RUUVI_DRIVER_ERROR_NULL; }
+  if (length >= NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
   nfc_id_length = length;
   memcpy(nfc_id_buf, id, nfc_id_length);
   nrf5_sdk15_nfc_state.tx_updated = true;

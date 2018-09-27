@@ -39,8 +39,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(ruuvi_interface_com
 /**
  * Sets the device firmware version into "FW" text field.
  *
+ *  parameter version: Pointer on string representation of the version. ie. "FW: ruuvi.firmware.c 3.10.0"
+ *
  * returns RUUVI_DRIVER_SUCCESS on success
- * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 20 bytes long
+ * returns RUUVI_DRIVER_ERROR_NULL if version is NULL and length != 0
+ * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 32 bytes long
  */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(const uint8_t* const version, const uint8_t length);
 
@@ -48,15 +51,19 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(const uin
  * Sets the device mac address into "ad" text field.
  *
  * returns RUUVI_DRIVER_SUCCESS on success
- * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 20 bytes long
+ * returns RUUVI_DRIVER_ERROR_NULL if address is NULL and length != 0
+ * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 32 bytes long
  */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set(const uint8_t* const address, const uint8_t length);
 
 /**
- * Sets the device id into "id" text field.
+ * Sets the device id into "id" text field. Set NULL/0 to disable
+ *
+ *  parameter id: Pointer on string representation of the id. ie. "ID: 12:34:56:78:90:AB:CD:EF
  *
  * returns RUUVI_DRIVER_SUCCESS on success
- * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 20 bytes long
+ * returns RUUVI_DRIVER_ERROR_NULL if id is NULL and length != 0
+ * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 32 bytes long
  */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set(const uint8_t* const id, const uint8_t length);
 
