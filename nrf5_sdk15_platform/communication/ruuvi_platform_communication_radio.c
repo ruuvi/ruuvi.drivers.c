@@ -6,7 +6,7 @@
  */
 
 #include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_BLE4_STACK_ENABLED
+#if NRF5_SDK15_COMMUNICATION_BLE4_STACK_ENABLED
 
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_driver_error.h"
@@ -54,6 +54,17 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_uninit  (const ruuvi_i
   return RUUVI_DRIVER_SUCCESS;
 }
 
-
+ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(uint64_t* const address)
+{
+  uint64_t mac = 0;
+  mac |= (uint64_t)(((NRF_FICR->DEVICEADDR[1]>>8)&0xFF) | 0xC0) << 40; //2 MSB must be 11;
+  mac |= (uint64_t)((NRF_FICR->DEVICEADDR[1]>>0)&0xFF)  << 32;
+  mac |= (uint64_t)((NRF_FICR->DEVICEADDR[0]>>24)&0xFF) << 24;
+  mac |= (uint64_t)((NRF_FICR->DEVICEADDR[0]>>16)&0xFF) << 16;
+  mac |= (uint64_t)((NRF_FICR->DEVICEADDR[0]>>8)&0xFF)  << 8;
+  mac |= (uint64_t)((NRF_FICR->DEVICEADDR[0]>>0)&0xFF)  << 0;
+  *address = mac;
+  return RUUVI_DRIVER_SUCCESS;
+}
 
 #endif

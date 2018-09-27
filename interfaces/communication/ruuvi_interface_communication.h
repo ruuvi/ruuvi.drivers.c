@@ -42,4 +42,15 @@ struct ruuvi_interface_communication_t
   ruuvi_interface_communication_evt_handler_fp_t on_evt;
 };
 
+/**
+ * Writes maximum 64-bit unique id of the device to the pointer. This ID
+ * must remain same across reboots and reflashes of the device
+ *
+ * param id: Output, value of id.
+ * return RUUVI_DRIVER_SUCCESS on success
+ * return RUUVI_DRIVER_ERROR_NOT_SUPPORTED if ID cannot be returned on given platform
+ *
+ */
+ruuvi_driver_status_t ruuvi_interface_communication_id_get(uint64_t* const id);
+
 #endif

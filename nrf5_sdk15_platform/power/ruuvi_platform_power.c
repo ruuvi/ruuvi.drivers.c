@@ -12,6 +12,8 @@
 #include "ruuvi_interface_power.h"
 #include "sdk_errors.h"
 
+static bool m_is_init = false;
+
 ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const ruuvi_interface_power_regulators_t regulators)
 {
 
@@ -27,8 +29,13 @@ ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const ruuvi_interf
     config.dcdcenhv = true;
     #endif
   }
-  nrfx_power_uninit();
+  if(m_is_init)
+  {
+    nrfx_power_uninit();
+    m_is_init = false;
+  }
   err_code |= nrfx_power_init (&config);
+  m_is_init = true;
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 

@@ -6,7 +6,7 @@
  */
 
 #include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_BLE4_ADVERTISING_ENABLED
+#if NRF5_SDK15_COMMUNICATION_BLE4_ADVERTISING_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_radio.h"
