@@ -92,7 +92,6 @@ static uint8_t nfc_id_buf[NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
 static size_t nfc_id_length = 0;
 static uint8_t nfc_tx_buf[NRF5_SDK15_COMMUNICATION_NFC_DATA_BUFFER_SIZE];
 static size_t nfc_tx_length = 0;
-static uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC(NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS)];
 
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_communication_t* const channel)
 {
