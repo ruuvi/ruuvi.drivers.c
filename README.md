@@ -80,7 +80,13 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
-## 3.7.0
+## 3.10.0
+  * Add NFC read functionality
+
+## 3.9.0
+  * Add BLE advertising functionality
+
+## 3.8.0
  * Add RTC support and timestamping
  * Fix issues in sensor interface implementations
 
