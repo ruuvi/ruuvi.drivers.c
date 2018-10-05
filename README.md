@@ -80,6 +80,10 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.11.0
+ * Add Timer and scheduler
+ * Fix bug in BME280 sample rate setter
+
 ## 3.10.0
   * Add NFC read functionality
 
