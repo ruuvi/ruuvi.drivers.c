@@ -157,8 +157,8 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
-  err_code |= ruuvi_interface_bme280_samplerate_get(samplerate);
   err_code |=  BME_TO_RUUVI_ERROR(bme280_set_sensor_settings(BME280_STANDBY_SEL, &dev));
+  err_code |= ruuvi_interface_bme280_samplerate_get(samplerate);
   }
 
   return err_code;
