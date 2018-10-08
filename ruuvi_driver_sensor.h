@@ -73,7 +73,8 @@ typedef struct __attribute__((packed, aligned(4))){
 typedef enum {
   RUUVI_DRIVER_BUS_NONE = 0,
   RUUVI_DRIVER_BUS_SPI  = 1,
-  RUUVI_DRIVER_BUS_I2C  = 2
+  RUUVI_DRIVER_BUS_I2C  = 2,
+  RUUVI_DRIVER_BUS_UART = 3
 }ruuvi_driver_bus_t;
 
 // Declare function pointers common to all sensors
