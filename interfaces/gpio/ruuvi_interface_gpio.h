@@ -11,7 +11,9 @@
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 
-typedef enum 
+#define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF; // Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
+
+typedef enum
 {
   RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,
   RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL,
@@ -36,10 +38,10 @@ ruuvi_driver_status_t ruuvi_platform_gpio_init(void);
 
 /**
  * Configure a pin of a port into a mode.
- * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t. 
+ * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
  * Parameter pin:  Pin number
- * Parameter mode: mode to set the pin to. 
+ * Parameter mode: mode to set the pin to.
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
@@ -52,7 +54,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface
  * Parameter pin:  Pin number
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output.
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin);
 
@@ -64,7 +66,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin);
  * Parameter state: State to which the pin should be set to.
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output. 
+ * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output.
  */
 ruuvi_driver_status_t ruuvi_platform_gpio_write(uint8_t pin, ruuvi_interface_gpio_state_t state);
 
