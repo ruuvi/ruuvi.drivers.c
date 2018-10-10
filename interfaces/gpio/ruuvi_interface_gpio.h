@@ -11,7 +11,7 @@
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 
-#define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF; // Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
+#define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF // Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
 
 typedef enum
 {
