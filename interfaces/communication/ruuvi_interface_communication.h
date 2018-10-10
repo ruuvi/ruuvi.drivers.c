@@ -29,7 +29,7 @@ typedef enum {
 typedef struct ruuvi_interface_communication_t ruuvi_interface_communication_t;          // forward declaration *and* typedef
 typedef ruuvi_driver_status_t(*ruuvi_interface_communication_xfer_fp_t)(ruuvi_interface_communication_message_t*);
 typedef ruuvi_driver_status_t(*ruuvi_interface_communication_init_fp_t)(ruuvi_interface_communication_t* const);
-typedef ruuvi_driver_status_t(*ruuvi_interface_communication_evt_handler_fp_t)(const ruuvi_interface_communication_evt_t);
+typedef ruuvi_driver_status_t(*ruuvi_interface_communication_evt_handler_fp_t)(const ruuvi_interface_communication_evt_t, void* p_data, size_t data_len);
 
 // Every Ruuvi communication channel must  be able to send data and receive data.
 // Channels can be init or uninit
