@@ -31,7 +31,7 @@
 #define RUUVI_DRIVER_ERROR_INVALID_ADDR    (1<<13) ///< Bad Memory Address
 #define RUUVI_DRIVER_ERROR_BUSY            (1<<14) ///< Busy
 #define RUUVI_DRIVER_ERROR_RESOURCES       (1<<15) ///< Not enough resources for operation
-#define RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED (1<<16) ///< Not implememnted yet
+#define RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED (1<<16) ///< Not implemented yet
 #define RUUVI_DRIVER_ERROR_SELFTEST        (1<<17) ///< Self-test fail
 #define RUUVI_DRIVER_ERROR_FATAL           (1<<31) ///< Program should always reset after this
 
