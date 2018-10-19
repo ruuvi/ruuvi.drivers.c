@@ -77,7 +77,7 @@ void ruuvi_platform_communication_ble4_advertising_activity_handler(const ruuvi_
   if(RUUVI_INTERFACE_COMMUNICATION_RADIO_BEFORE == evt ) { return; }
 
   // After activity - assume that all activity is related to advertisement tx
-  if(!RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER == evt)
+  if(RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER == evt)
   {
     if(NULL != m_adv_state.channel->on_evt)
     {
