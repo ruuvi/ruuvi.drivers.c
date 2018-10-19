@@ -2287,6 +2287,9 @@
 #define NRF_LOG_BUFSIZE 1024
 #endif
 
+#ifndef NRF_LOG_STR_PUSH_BUFFER_SIZE
+#define NRF_LOG_BUFSIZE NRF_LOG_BUFSIZE
+#endif
 // <q> NRF_LOG_ALLOW_OVERFLOW  - Configures behavior when circular buffer is full.
 
 
