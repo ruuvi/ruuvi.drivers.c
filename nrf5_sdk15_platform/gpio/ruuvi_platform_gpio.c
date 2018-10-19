@@ -20,6 +20,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_init(void)
 
 ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface_gpio_mode_t mode)
 {
+  if(RUUVI_INTERFACE_GPIO_PIN_UNUSED == pin) { return RUUVI_DRIVER_SUCCESS; }
   switch (mode)
   {
   case RUUVI_INTERFACE_GPIO_MODE_HIGH_Z:
