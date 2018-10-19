@@ -8,6 +8,7 @@
 #define RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_H
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
+#include "ruuvi_interface_communication_radio.h"
 #include <stdint.h>
 
 /*
@@ -65,5 +66,13 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruu
 // Not implemented
 //ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(uint32_t* window_interval_ms, uint32_t* window_size_ms);
 //ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_get(uint32_t* window_interval_ms, uint32_t* window_size_ms);
+
+/**
+ * Event handler for radio activity interrupts. This is called by ruuvi_platform_comuunication_radio.c event, application should
+ * not call this function directly.
+ *
+ * parameter evt: Radio activity event.
+ */
+void ruuvi_platform_communication_ble4_advertising_activity_handler(const ruuvi_interface_communication_radio_activity_evt_t evt);
 
 #endif

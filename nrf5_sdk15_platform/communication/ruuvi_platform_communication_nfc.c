@@ -46,18 +46,16 @@ static void nfc_callback(void * context,
   {
   case NFC_T4T_EVENT_FIELD_ON:
     nrf5_sdk15_nfc_state.connected = true;
-    if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_CONNECTED); }
-    //PLATFORM_LOG_DEBUG("Field detected, do not process data");
+    if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_CONNECTED, NULL, 0); }
     break;
 
   case NFC_T4T_EVENT_FIELD_OFF:
     nrf5_sdk15_nfc_state.connected = false;
-    if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED); }
-    //PLATFORM_LOG_DEBUG("Field lost, ok to process data now");
+    if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED, NULL, 0); }
     break;
 
   case NFC_T4T_EVENT_NDEF_READ:
-    if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_SENT); }
+    if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0); }
     // PLATFORM_LOG_DEBUG("Data chunk sent");
     break;
 
@@ -71,8 +69,8 @@ static void nfc_callback(void * context,
       nrf5_sdk15_nfc_state.rx_updated = true;
       // If tag is not configurable by NFC, set flag to overwrite received data.
       if (!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true;}
-      // Do not process data in interrupt context, you should rather schedule data processing
-      if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_RECEIVED); }
+      // Do not process data in interrupt context, you should rather schedule data processing. Note: If incoming data is long, it might exceed vent max size.
+      if (NULL != nrf5_sdk15_nfc_state.on_nfc_evt) { nrf5_sdk15_nfc_state.on_nfc_evt(RUUVI_INTERFACE_COMMUNICATION_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength); }
     }
     break;
 

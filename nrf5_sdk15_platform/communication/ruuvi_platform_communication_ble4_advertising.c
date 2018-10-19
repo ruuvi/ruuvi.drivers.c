@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include "nordic_common.h"
+#include "nrf_nvic.h"
 #include "nrf_soc.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
@@ -25,6 +26,7 @@ typedef struct {
     uint32_t advertisement_interval_ms;
     int8_t advertisement_power_dbm;
     uint16_t manufacturer_id;
+    ruuvi_interface_communication_t* channel;
 }ruuvi_platform_ble4_advertisement_state_t;
 
 // Buffer for advertised data - TODO: Use actual ringbuffer
@@ -64,6 +66,25 @@ static ruuvi_driver_status_t update_settings(void)
         err_code = sd_ble_gap_adv_start(m_adv_handle, NRF5_SDK15_BLE4_STACK_CONN_TAG);
     }
     return ruuvi_platform_to_ruuvi_error(&err_code);
+}
+
+/*
+ * Assume that radio activity was caused by this module and call event handler with sent-event
+ */
+void ruuvi_platform_communication_ble4_advertising_activity_handler(const ruuvi_interface_communication_radio_activity_evt_t evt)
+{
+  // Before activity - no action
+  if(RUUVI_INTERFACE_COMMUNICATION_RADIO_BEFORE == evt ) { return; }
+
+  // After activity - assume that all activity is related to advertisement tx
+  if(!RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER == evt)
+  {
+    if(NULL != m_adv_state.channel->on_evt)
+    {
+      // TODO: Add information about sent advertisement
+      m_adv_state.channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0);
+    }
+  }
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval_set(const uint32_t ms)
@@ -110,6 +131,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_init(ruuvi_
 
   m_advertisement_is_init = true;
   m_adv_state.advertisement_interval_ms = DEFAULT_ADV_INTERVAL_MS;
+  m_adv_state.channel = channel;
   channel->init    = ruuvi_interface_communication_ble4_advertising_init;
   channel->uninit  = ruuvi_interface_communication_ble4_advertising_uninit;
   channel->send    = ruuvi_interface_communication_ble4_advertising_send;
@@ -150,6 +172,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_uninit(ruuv
 
   // Clear function pointers
   memset(channel, 0, sizeof(ruuvi_interface_communication_t));
+  memset(&m_adv_state, 0 ,sizeof(m_adv_state));
 
   return err_code;
 }
@@ -214,8 +237,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(co
  * Send data as manufacturer specific data payload.
  * If no new data is placed to the buffer, last message sent will be repeated.
  *
- * Returns RUUVI_DRIVER_SUCCESS if the data was queued to softdevice
- * returns RUUVI_DRIVER_ERROR_NULL if the data was null.
+ * Returns RUUVI_DRIVER_SUCCESS if the data was queued to Softdevice
+ * Returns RUUVI_DRIVER_ERROR_NULL if the data was null.
  * Returns RUUVI_DRIVER_ERROR_INVALID_LENGTH if data length is over 24 bytes
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(ruuvi_interface_communication_message_t* message)
@@ -238,7 +261,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(ruu
   return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
 
-// TODO: Platform-specific TX powers
+// TODO: Device-specific TX powers
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_set(int8_t* dbm)
 {
     int8_t  tx_power = 0;
@@ -264,5 +287,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_ge
 {
   return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
+
+
 
 #endif

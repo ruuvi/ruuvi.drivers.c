@@ -7,8 +7,11 @@
 #ifndef RUUVI_INTERFACE_COMMUNICATION_H
 #define RUUVI_INTERFACE_COMMUNICATION_H
 #include "ruuvi_driver_error.h"
-#include <stdint.h>
+
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 
 // Standard BLE Broadcast manufacturer specific data payload length
 #define RUUVI_INTERFACE_COMMUNICATION_MESSAGE_MAX_LENGTH 24
@@ -27,9 +30,9 @@ typedef enum {
 }ruuvi_interface_communication_evt_t;
 
 typedef struct ruuvi_interface_communication_t ruuvi_interface_communication_t;          // forward declaration *and* typedef
-typedef ruuvi_driver_status_t(*ruuvi_interface_communication_xfer_fp_t)(ruuvi_interface_communication_message_t*);
+typedef ruuvi_driver_status_t(*ruuvi_interface_communication_xfer_fp_t)(ruuvi_interface_communication_message_t* const);
 typedef ruuvi_driver_status_t(*ruuvi_interface_communication_init_fp_t)(ruuvi_interface_communication_t* const);
-typedef ruuvi_driver_status_t(*ruuvi_interface_communication_evt_handler_fp_t)(const ruuvi_interface_communication_evt_t);
+typedef ruuvi_driver_status_t(*ruuvi_interface_communication_evt_handler_fp_t)(const ruuvi_interface_communication_evt_t, void* const, const size_t);
 
 // Every Ruuvi communication channel must  be able to send data and receive data.
 // Channels can be init or uninit

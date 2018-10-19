@@ -8,6 +8,7 @@
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_COMMUNICATION_BLE4_STACK_ENABLED
 
+#include "ruuvi_interface_communication_ble4_advertising.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_driver_error.h"
 
@@ -19,10 +20,33 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_sdm.h"
 #include "ble_advdata.h"
+#include "ble_radio_notification.h"
 #include "sdk_errors.h"
 
 // Handle of module which has "reserved" the radio
 static ruuvi_interface_communication_radio_user_t handle = RUUVI_INTERFACE_COMMUNICATION_RADIO_UNINIT;
+
+// Application callback for radio events
+static ruuvi_interface_communication_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
+
+/**
+ * Task to run on radio activity - call event handlers of radio modules and a common radio event handler.
+ * This function is in interrupt context, avoid long processing or using peripherals.
+ * Schedule any long tasks in application callbacks.
+ *
+ * parameter active: True if radio is going to be active after event, false if radio was turned off (after tx/rx)
+ */
+static void on_radio_evt(bool active)
+{
+
+  ruuvi_interface_communication_radio_activity_evt_t evt = active ? RUUVI_INTERFACE_COMMUNICATION_RADIO_BEFORE : RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER;
+  // Call advertising event handler
+  ruuvi_platform_communication_ble4_advertising_activity_handler(evt);
+
+  // Call common event handler if set
+  if(NULL != on_radio_activity_callback ){ on_radio_activity_callback(evt); }
+
+}
 
 ruuvi_driver_status_t ruuvi_interface_communication_radio_init  (const ruuvi_interface_communication_radio_user_t _handle)
 {
@@ -43,6 +67,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init  (const ruuvi_int
   err_code |= nrf_sdh_ble_enable(&ram_start);
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
 
+  // Initialize radio interrupts
+  err_code |= ble_radio_notification_init(NRF5_SDK15_RADIO_IRQ_PRIORITY,
+                                          NRF_RADIO_NOTIFICATION_DISTANCE_800US,
+                                          on_radio_evt);
+
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
@@ -51,6 +80,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_uninit  (const ruuvi_i
   if(RUUVI_INTERFACE_COMMUNICATION_RADIO_UNINIT == handle){ return RUUVI_DRIVER_SUCCESS; }
   if(_handle != handle) { return RUUVI_DRIVER_ERROR_FORBIDDEN; }
   sd_softdevice_disable();
+  on_radio_activity_callback = NULL;
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -65,6 +95,13 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(uint64_t* 
   mac |= (uint64_t)((NRF_FICR->DEVICEADDR[0]>>0)&0xFF)  << 0;
   *address = mac;
   return RUUVI_DRIVER_SUCCESS;
+}
+
+void ruuvi_interface_communication_radio_activity_callback_set(const ruuvi_interface_communication_radio_activity_interrupt_fp_t handler)
+{
+  // Warn user if CB is not NULL and non-null pointer is set, do not overwrite previous pointer.
+  if(NULL != handler && NULL != on_radio_activity_callback) { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INVALID_STATE, ~RUUVI_DRIVER_ERROR_FATAL); }
+  else { on_radio_activity_callback = handler; }
 }
 
 #endif

@@ -194,6 +194,9 @@
 #ifndef CLOCK_ENABLED
 #define CLOCK_ENABLED 1
 #endif
+#ifndef NRF_CLOCK_ENABLED
+#define NRF_CLOCK_ENABLED CLOCK_ENABLED
+#endif
 // <o> CLOCK_CONFIG_LF_SRC  - LF Clock Source
 
 // <0=> RC
