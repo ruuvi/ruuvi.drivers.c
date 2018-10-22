@@ -55,7 +55,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-const nrf_drv_rtc_t rtc = NRF_DRV_RTC_INSTANCE(RTC_INSTANCE); /**< RTC0 is reserved by the softdevice, use something else. */
+const nrf_drv_rtc_t rtc = NRF_DRV_RTC_INSTANCE(NRF5_SDK15_RTC_INSTANCE); /**< RTC0 is reserved by the softdevice, use something else. */
 static uint64_t ticks = 0;
 static bool m_is_init = false;
 
