@@ -25,7 +25,7 @@ typedef void(*ruuvi_timer_timeout_handler_t)(void* p_context);
 ruuvi_driver_status_t ruuvi_platform_timers_init(void);
 
 //return true if timers have been successfully initialized.
-bool platform_timers_is_init(void);
+bool ruuvi_platform_timers_is_init(void);
 
 /* Function for creating a timer instance
  *
