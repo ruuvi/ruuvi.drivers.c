@@ -11,10 +11,10 @@
 #include <float.h>
 #include <stdint.h>
 
-#define RUUVI_DRIVER_FLOAT_INVALID FLT_MAX
+#define RUUVI_DRIVER_FLOAT_INVALID  FLT_MAX
 #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
 
-#define RUUVI_DRIVER_SUCCESS 0
+#define RUUVI_DRIVER_SUCCESS               0
 #define RUUVI_DRIVER_ERROR_INTERNAL        (1<<0)  ///< Internal Error
 #define RUUVI_DRIVER_ERROR_NO_MEM          (1<<1)  ///< No Memory for operation
 #define RUUVI_DRIVER_ERROR_NOT_FOUND       (1<<2)  ///< Not found
@@ -33,6 +33,7 @@
 #define RUUVI_DRIVER_ERROR_RESOURCES       (1<<15) ///< Not enough resources for operation
 #define RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED (1<<16) ///< Not implemented yet
 #define RUUVI_DRIVER_ERROR_SELFTEST        (1<<17) ///< Self-test fail
+#define RUUVI_DRIVER_STATUS_MORE_AVAILABLE (1<<18) ///< Driver has more data queued
 #define RUUVI_DRIVER_ERROR_FATAL           (1<<31) ///< Program should always reset after this
 
 typedef int32_t ruuvi_driver_status_t;

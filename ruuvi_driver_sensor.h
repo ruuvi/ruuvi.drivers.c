@@ -39,6 +39,9 @@
 #define RUUVI_DRIVER_SENSOR_H
 #include "ruuvi_driver_error.h"
 
+#define RUUVI_DRIVER_SENSOR_INVALID_VALUE    RUUVI_DRIVER_FLOAT_INVALID
+#define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID
+
 // Constants for sensor configuration and status
 #define RUUVI_DRIVER_SENSOR_CFG_DEFAULT         0
 #define RUUVI_DRIVER_SENSOR_ERR_INVALID         0xE0
@@ -59,6 +62,9 @@
 #define RUUVI_DRIVER_SENSOR_DSP_IIR             (1<<3) // Parameter: coefficient
 #define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<4) // Parameter: Number of samples
 
+/**
+ * All sensors must implement configuration function which accepts this struct.
+ */
 typedef struct __attribute__((packed, aligned(4))){
   uint8_t samplerate;
   uint8_t resolution;
@@ -70,12 +76,26 @@ typedef struct __attribute__((packed, aligned(4))){
   uint8_t reserved1;
 }ruuvi_driver_sensor_configuration_t;
 
+/*
+ * Type of bus sensor uses.
+ */
 typedef enum {
   RUUVI_DRIVER_BUS_NONE = 0,
   RUUVI_DRIVER_BUS_SPI  = 1,
   RUUVI_DRIVER_BUS_I2C  = 2,
   RUUVI_DRIVER_BUS_UART = 3
 }ruuvi_driver_bus_t;
+
+/*
+ * Generic sensor data struct, used with ruuvi_driver_sensor_data_fp in tests.
+ * It's strongly recommended to match this format in all sensor data formats.
+ */
+ typedef struct {
+   uint64_t timestamp;
+   float value0;
+   float value1;
+   float value2;
+ }ruuvi_driver_sensor_data_t;
 
 // Declare function pointers common to all sensors
 typedef struct ruuvi_driver_sensor_t ruuvi_driver_sensor_t;          // forward declaration *and* typedef
@@ -141,6 +161,7 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_s
  * Returns RUUVI_DRIVER_SUCCESS
  */
 ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(ruuvi_driver_sensor_timestamp_fp timestamp_fp);
+
 // Calls the timestamp function and returns it's value. returns RUUVI_DRIVER_UINT64_INVALID if timestamp function is NULL
 uint64_t ruuvi_driver_sensor_timestamp_get(void);
 
