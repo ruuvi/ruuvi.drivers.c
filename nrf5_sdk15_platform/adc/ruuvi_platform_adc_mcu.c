@@ -69,15 +69,35 @@
              ) return RUUVI_DRIVER_SUCCESS;\
            } while(0)
 
+// Macro for checking that sensor is in sleep mode before configuration
+#define VERIFY_SENSOR_SLEEPS() do { \
+          uint8_t MACRO_MODE; \
+          ruuvi_interface_adc_mcu_mode_get(&MACRO_MODE); \
+          if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
+          } while(0)
+
 static bool autorefresh  = false;        // Flag to keep track if we should update the adc on data read.
 static bool adc_is_init  = false;        // Flag to keep track if ADC itself is initialized
 static uint8_t adc_channel;              // Channel of ADC
 static nrf_saadc_value_t adc_buf;        // Buffer used for storing ADC value.
+static float adc_volts;                  // Value of last sample in volts.
+static uint64_t adc_tsample;             // Time when sample was taken
 static nrf_drv_saadc_config_t adc_config = NRF_DRV_SAADC_DEFAULT_CONFIG; // Structure for ADC configuration
+
+static float raw_adc_to_volts(nrf_saadc_value_t adc)
+{
+  // Get ADC max value into counts
+  uint8_t resolution;
+  ruuvi_interface_adc_mcu_resolution_get(&resolution);
+  uint16_t counts = 1<<resolution;
+  return (ADC_REF_VOLTAGE_IN_VOLTS * ((float)adc/(float)counts) * ADC_PRE_SCALING_COMPENSATION);
+}
 
 static void nrf52832_adc_sample(void)
 {
   nrf_drv_saadc_sample_convert(1, &adc_buf);
+  adc_tsample = ruuvi_driver_sensor_timestamp_get();
+  adc_volts = raw_adc_to_volts(adc_buf);
 }
 
 /**@brief Function handling events from 'nrf_drv_saadc.c'.
@@ -182,6 +202,10 @@ static ruuvi_driver_status_t reinit_adc(void)
   ret_code_t err_code = NRF_SUCCESS;
   nrf_drv_saadc_uninit();
   err_code |= nrf_drv_saadc_init(&adc_config, saadc_event_handler);
+  adc_volts = RUUVI_INTERFACE_ADC_INVALID;
+  adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
+  autorefresh = false;
+
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
@@ -217,6 +241,8 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   adc_sensor->data_get          = ruuvi_interface_adc_mcu_data_get;
   adc_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
   adc_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+  adc_volts = RUUVI_INTERFACE_ADC_INVALID;
+  adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
 
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
@@ -227,6 +253,9 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_
   memset(adc_sensor, 0, sizeof(ruuvi_driver_sensor_t));
   nrf_drv_saadc_uninit();
   adc_is_init = false;
+  autorefresh = false;
+  adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
+  adc_volts = RUUVI_INTERFACE_ADC_INVALID;
 
   return RUUVI_DRIVER_SUCCESS;
 }
@@ -235,6 +264,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_samplerate_set(uint8_t* samplerate)
 {
   if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   uint8_t original = *samplerate;
   *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
   RETURN_SUCCESS_ON_VALID(original);
@@ -251,6 +281,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_samplerate_get(uint8_t* samplerate
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_resolution_set(uint8_t* resolution)
 {
   if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *resolution)    { return ruuvi_interface_adc_mcu_resolution_get(resolution); }
   if(RUUVI_DRIVER_SENSOR_CFG_MIN == *resolution)
   {
@@ -292,6 +323,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_resolution_get(uint8_t* resolution
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_scale_set(uint8_t* scale)
 {
   if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   uint8_t original = *scale;
   // "At least" 3
   *scale = 3;
@@ -310,6 +342,8 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_scale_get(uint8_t* scale)
 // Return success on DSP_LAST, DSP_OVERSAMPLING and acceptable defaults, not supported otherwise
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_dsp_set(uint8_t* dsp, uint8_t* parameter)
 {
+  if(NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   // Store originals
   uint8_t dsp_original;
   dsp_original       = *dsp;
@@ -426,6 +460,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_dsp_get(uint8_t* dsp, uint8_t* par
 // Start single on command, mark autorefresh with continuous
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_set(uint8_t* mode)
 {
+  if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
   // Enter sleep by default and by explicit sleep commmand
   if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == *mode || RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *mode)
   {
@@ -437,6 +472,15 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_set(uint8_t* mode)
 
   if(RUUVI_DRIVER_SENSOR_CFG_SINGLE == *mode)
   {
+    // Do nothing if sensor is in continuous mode
+    uint8_t current_mode;
+    ruuvi_interface_adc_mcu_mode_get(&current_mode);
+    if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == current_mode)
+    {
+      *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
+      return RUUVI_DRIVER_ERROR_INVALID_STATE;
+    }
+
     // Enter sleep after measurement
     autorefresh = false;
     *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
@@ -455,6 +499,8 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_set(uint8_t* mode)
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_get(uint8_t* mode)
 {
+  if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(autorefresh)
   {
     *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
@@ -469,18 +515,21 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_get(uint8_t* mode)
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(void* data)
 {
+  if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_interface_adc_data_t* adc = (ruuvi_interface_adc_data_t*) data;
   if(autorefresh) { nrf52832_adc_sample(); }
   adc->timestamp_ms  = RUUVI_DRIVER_UINT64_INVALID;
+  adc->reserved0     = RUUVI_INTERFACE_ADC_INVALID;
+  adc->reserved1     = RUUVI_INTERFACE_ADC_INVALID;
+  adc->adc_v         = RUUVI_INTERFACE_ADC_INVALID;
 
-  // Get ADC max value into counts
-  uint8_t resolution;
-  ruuvi_interface_adc_mcu_resolution_get(&resolution);
-  uint16_t counts = 1<<resolution;
+  if(RUUVI_INTERFACE_ADC_INVALID != adc_volts)
+  {
+    // autorefresh / continuous mode  updates tsample.
+    adc->timestamp_ms  = adc_tsample;
+    adc->adc_v         = adc_volts;
+  }
 
-  // voltage = reference * ADC/ADC_MAX
-  adc->adc_v = ADC_REF_VOLTAGE_IN_VOLTS * ((float)adc_buf/(float)counts) * ADC_PRE_SCALING_COMPENSATION;
-  adc->timestamp_ms = ruuvi_driver_sensor_timestamp_get();
   return RUUVI_DRIVER_SUCCESS;
 }
 

@@ -9,7 +9,7 @@
 #include "ruuvi_driver_error.h"
 #include <stdint.h>
 
-#define RUUVI_INTERFACE_BATTERY_INVALID RUUVI_DRIVER_FLOAT_INVALID
+#define RUUVI_INTERFACE_ADC_INVALID RUUVI_DRIVER_FLOAT_INVALID
 
 typedef struct
 {

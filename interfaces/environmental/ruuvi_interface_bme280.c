@@ -38,8 +38,17 @@
              ) return RUUVI_DRIVER_SUCCESS;\
            } while(0)
 
+// Macro for checking that sensor is in sleep mode before configuration
+#define VERIFY_SENSOR_SLEEPS() do { \
+          uint8_t MACRO_MODE; \
+          ruuvi_interface_bme280_mode_get(&MACRO_MODE); \
+          if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
+          } while(0)
+
+
 /** State variables **/
 static struct bme280_dev dev = {0};
+static uint64_t tsample;
 
 /**
  * Convert error from BME280 driver to appropriate NRF ERROR
@@ -124,6 +133,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environ
     environmental_sensor->data_get          = ruuvi_interface_bme280_data_get;
     environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
     environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+    tsample = RUUVI_DRIVER_UINT64_INVALID;
   }
   return err_code;
 }
@@ -135,12 +145,14 @@ ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* senso
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
   memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
   memset(&dev, 0, sizeof(dev));
+  tsample = RUUVI_DRIVER_UINT64_INVALID;
   return err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
 {
   if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate ) { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
   else if(*samplerate == 1)                           { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
@@ -157,6 +169,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
+  // BME 280 must be in standby while configured
   err_code |=  BME_TO_RUUVI_ERROR(bme280_set_sensor_settings(BME280_STANDBY_SEL, &dev));
   err_code |= ruuvi_interface_bme280_samplerate_get(samplerate);
   }
@@ -184,6 +197,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(uint8_t* samplerate)
 ruuvi_driver_status_t ruuvi_interface_bme280_resolution_set(uint8_t* resolution)
 {
   if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   uint8_t original = *resolution;
   *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   RETURN_SUCCESS_ON_VALID(original);
@@ -200,6 +214,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_resolution_get(uint8_t* resolution)
 ruuvi_driver_status_t ruuvi_interface_bme280_scale_set(uint8_t* scale)
 {
   if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   uint8_t original = *scale;
   *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
   RETURN_SUCCESS_ON_VALID(original);
@@ -216,6 +231,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_scale_get(uint8_t* scale)
 ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* parameter)
 {
   if(NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
+  VERIFY_SENSOR_SLEEPS();
   // Validate configuration
   if(   1  != *parameter
      && 2  != *parameter
@@ -407,6 +423,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
 {
   if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  uint8_t current_mode;
   switch(*mode)
   {
     case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
@@ -414,12 +431,22 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
       break;
 
     case RUUVI_DRIVER_SENSOR_CFG_SINGLE:
+      // Do nothing if sensor is in continuous mode
+      ruuvi_interface_bme280_mode_get(&current_mode);
+      if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == current_mode)
+      {
+        *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
+        return RUUVI_DRIVER_ERROR_INVALID_STATE;
+      }
       err_code = BME_TO_RUUVI_ERROR(bme280_set_sensor_mode(BME280_FORCED_MODE, &dev));
       // We assume that dev struct is in sync with the state of the BME280 and underlying interface
       // which has the number of settings as 2^OSR is not changed.
       // We also assume that each element runs same OSR
       uint8_t samples = 1 << (dev.settings.osr_h - 1);
       ruuvi_platform_delay_ms(bme280_max_meas_time(samples));
+      tsample = ruuvi_driver_sensor_timestamp_get();
+      // BME280 returns to SLEEP after forced sample
+      *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
       break;
 
     case RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS:
@@ -466,13 +493,29 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
   ruuvi_interface_environmental_data_t* p_data = (ruuvi_interface_environmental_data_t*)data;
   struct bme280_data comp_data;
 
+  p_data->timestamp_ms   = RUUVI_DRIVER_UINT64_INVALID;
+  p_data->temperature_c  = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
+  p_data->humidity_rh    = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
+  p_data->pressure_pa    = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
+
   ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_data(BME280_ALL, &comp_data, &dev));
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
 
-  p_data->timestamp_ms   = ruuvi_driver_sensor_timestamp_get();
-  p_data->temperature_c  = (float) comp_data.temperature;
-  p_data->humidity_rh    = (float) comp_data.humidity;
-  p_data->pressure_pa    = (float) comp_data.pressure;
+  // Write tsample if we're in single mode, current time if we're in continuous mode
+  // Leave sample time as invalid if forced mode is ongoing.
+  uint8_t mode;
+  ruuvi_interface_bme280_mode_get(&mode);
+  if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == mode)           { p_data->timestamp_ms = tsample; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) { p_data->timestamp_ms   = ruuvi_driver_sensor_timestamp_get(); }
+  else { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INTERNAL, ~RUUVI_DRIVER_ERROR_FATAL); }
+
+  // If we have valid data, return it.
+  if(RUUVI_DRIVER_UINT64_INVALID != tsample)
+  {
+    p_data->temperature_c  = (float) comp_data.temperature;
+    p_data->humidity_rh    = (float) comp_data.humidity;
+    p_data->pressure_pa    = (float) comp_data.pressure;
+  }
   return err_code;
 }
 
