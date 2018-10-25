@@ -8,7 +8,8 @@
 #define RUUVI_INTERFACE_ACCELERATION_H
 #include "ruuvi_driver_error.h"
 
-#define RUUVI_INTERFACE_ACCELERATION_INVALID RUUVI_DRIVER_FLOAT_INVALID
+#define RUUVI_INTERFACE_ACCELERATION_INVALID           RUUVI_DRIVER_FLOAT_INVALID
+#define RUUVI_INTERFACE_ACCELERATION_INTERRUPT_DISABLE RUUVI_DRIVER_FLOAT_INVALID
 
 // Unit is g
 typedef struct
@@ -18,5 +19,7 @@ typedef struct
   float y_g;
   float z_g;
 }ruuvi_interface_acceleration_data_t;
+
+
 
 #endif
