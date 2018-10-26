@@ -100,6 +100,12 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   lis2dh12_device_id_get(dev_ctx, &whoamI);
   if ( whoamI != LIS2DH12_ID ) { return RUUVI_DRIVER_ERROR_NOT_FOUND; }
 
+  // Disable FIFO
+  lis2dh12_fm_t mode = LIS2DH12_BYPASS_MODE;
+  lis2dh12_fifo_mode_set(&(dev.ctx), mode);
+  ruuvi_interface_lis2dh12_fifo_use(false);
+  ruuvi_interface_lis2dh12_fifo_interrupt_use(false);
+
   // Turn X-, Y-, Z-measurement on
   uint8_t enable_axes = 0x07;
   lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
@@ -704,7 +710,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
   else { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INTERNAL, ~RUUVI_DRIVER_ERROR_FATAL); }
 
   // If we have valid data, return it.
-  if(RUUVI_DRIVER_UINT64_INVALID != dev.tsample && RUUVI_DRIVER_SUCCESS == err_code)
+  if(RUUVI_DRIVER_UINT64_INVALID != p_acceleration->timestamp_ms && RUUVI_DRIVER_SUCCESS == err_code)
   {
     //Convert mG to G
     p_acceleration->x_g = acceleration[0] / 1000;
@@ -718,19 +724,22 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use(const bool enable)
 {
   lis2dh12_fm_t mode;
-  if(enable) { mode = LIS2DH12_FIFO_MODE; }
+  if(enable) { mode = LIS2DH12_DYNAMIC_STREAM_MODE; }
   else { mode = LIS2DH12_BYPASS_MODE; }
+  lis2dh12_fifo_set(&(dev.ctx), enable);
   return lis2dh12_fifo_mode_set(&(dev.ctx),  mode);
 }
 
 //TODO * return: RUUVI_DRIVER_INVALID_STATE if FIFO is not in use
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements, ruuvi_interface_acceleration_data_t** data)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements, ruuvi_interface_acceleration_data_t* data)
 {
   if(NULL == num_elements || NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
 
   uint8_t elements = 0;
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_fifo_data_level_get(&(dev.ctx), &elements);
+  // 31 FOFO + latest
+  elements++;
 
   // Do not read more than buffer size
   if(elements > *num_elements) { elements = *num_elements; }
@@ -751,10 +760,10 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements, r
     err_code |= lis2dh12_acceleration_raw_get(&(dev.ctx), raw_acceleration.u8bit);
     // Compensate data with resolution, scale
     err_code |= rawToMg(&raw_acceleration, acceleration);
-    data[ii]->timestamp_ms = now - ((elements-ii)*interval);
-    data[ii]->x_g = acceleration[0];
-    data[ii]->y_g = acceleration[1];
-    data[ii]->z_g = acceleration[2];
+    data[ii].timestamp_ms = now - ((elements-ii-1)*interval);
+    data[ii].x_g = acceleration[0] / 1000;
+    data[ii].y_g = acceleration[1] / 1000;
+    data[ii].z_g = acceleration[2] / 1000;
   }
   *num_elements = elements;
   return err_code;
@@ -794,6 +803,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool ena
  */
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool enable, float* limit_g)
 {
+  if(NULL == limit_g) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(0 > *limit_g)    { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   lis2dh12_hp_t high_pass = LIS2DH12_ON_INT1_GEN;
   lis2dh12_ctrl_reg6_t ctrl6 = { 0 };
@@ -802,9 +813,11 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
   cfg.xhie     = PROPERTY_ENABLE;
   cfg.yhie     = PROPERTY_ENABLE;
   cfg.zhie     = PROPERTY_ENABLE;
+  /*
   cfg.xlie     = PROPERTY_ENABLE;
   cfg.ylie     = PROPERTY_ENABLE;
   cfg.zlie     = PROPERTY_ENABLE;
+  */
 
   // Adjust for scale
   // 1 LSb = 16 mg @ FS = 2 g
@@ -840,6 +853,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
 
   threshold = (uint32_t)(*limit_g/divisor) + 1;
   if(threshold > 0x7F) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  *limit_g = threshold*divisor;
 
   // Configure highpass on INTERRUPT 1
   err_code |= lis2dh12_high_pass_int_conf_set(&(dev.ctx), high_pass);

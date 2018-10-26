@@ -510,7 +510,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
   else { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INTERNAL, ~RUUVI_DRIVER_ERROR_FATAL); }
 
   // If we have valid data, return it.
-  if(RUUVI_DRIVER_UINT64_INVALID != tsample)
+  if(RUUVI_DRIVER_UINT64_INVALID != p_data->timestamp_ms)
   {
     p_data->temperature_c  = (float) comp_data.temperature;
     p_data->humidity_rh    = (float) comp_data.humidity;
