@@ -22,7 +22,7 @@
 
 // Macro for checking that sensor is in sleep mode before configuration
 #define VERIFY_SENSOR_SLEEPS() do { \
-          uint8_t MACRO_MODE; \
+          uint8_t MACRO_MODE = 0; \
           ruuvi_interface_lis2dh12_mode_get(&MACRO_MODE); \
           if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
           } while(0)

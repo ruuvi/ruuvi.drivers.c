@@ -40,7 +40,7 @@
 
 // Macro for checking that sensor is in sleep mode before configuration
 #define VERIFY_SENSOR_SLEEPS() do { \
-          uint8_t MACRO_MODE; \
+          uint8_t MACRO_MODE = 0; \
           ruuvi_interface_bme280_mode_get(&MACRO_MODE); \
           if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
           } while(0)
@@ -423,7 +423,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
 {
   if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  uint8_t current_mode;
+  uint8_t current_mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
   switch(*mode)
   {
     case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
@@ -503,7 +503,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
 
   // Write tsample if we're in single mode, current time if we're in continuous mode
   // Leave sample time as invalid if forced mode is ongoing.
-  uint8_t mode;
+  uint8_t mode = 0;
   ruuvi_interface_bme280_mode_get(&mode);
   if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == mode)           { p_data->timestamp_ms = tsample; }
   else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) { p_data->timestamp_ms   = ruuvi_driver_sensor_timestamp_get(); }
