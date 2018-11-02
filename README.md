@@ -1,6 +1,6 @@
 # ruuvi.drivers.c
 Ruuvi embedded drivers used across various platforms. Generally you should not use this repository as-is, but rather as a submodule included in your project.
-Repository is under active development, expect breaking changes.
+Repository is under active development (alpha), expect breaking changes.
 
 # Structure
 ## Folders
@@ -64,6 +64,7 @@ The repository is under active development and major refactors are to be expecte
 12: Bootloader
 13: Battery measurement - synchronize to radio
 14: Accelerometer - interrupt
+15: Watchdog
 15: BLE GATT connection
 16: NFC writing
 ```
@@ -80,6 +81,17 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.15.0
+ * Add watchdog
+
+## 3.14.0
+ * Add FIFO and threshold interrupt support to LIS2DH12 
+ * Fix bugs found by unit tests
+
+## 3.13.0
+ * Skip 3.12
+ * Add callbacks to radio activity
+
 ## 3.11.0
  * Add Timer and scheduler
  * Fix bug in BME280 sample rate setter

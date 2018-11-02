@@ -5885,6 +5885,30 @@
 #define POWER_CONFIG_SOC_OBSERVER_PRIO 0
 #endif
 
+// <e> NRFX_WDT_ENABLED - nrfx_wdt - WDT peripheral driver
+//==========================================================
+#ifndef NRFX_WDT_ENABLED
+#define NRFX_WDT_ENABLED 1
+#endif
+// <o> NRFX_WDT_CONFIG_BEHAVIOUR  - WDT behavior in CPU SLEEP or HALT mode
+
+// <1=> Run in SLEEP, Pause in HALT
+// <8=> Pause in SLEEP, Run in HALT
+// <9=> Run in SLEEP and HALT
+// <0=> Pause in SLEEP and HALT
+
+#ifndef NRFX_WDT_CONFIG_BEHAVIOUR
+#define NRFX_WDT_CONFIG_BEHAVIOUR 1
+#endif
+
+// Default WDT reset interval in ms
+#ifndef NRFX_WDT_CONFIG_RELOAD_VALUE
+#define NRFX_WDT_CONFIG_RELOAD_VALUE 12000
+#endif
+
+#ifndef NRFX_WDT_CONFIG_IRQ_PRIORITY
+#define NRFX_WDT_CONFIG_IRQ_PRIORITY 2
+#endif
 // </h>
 //==========================================================
 
