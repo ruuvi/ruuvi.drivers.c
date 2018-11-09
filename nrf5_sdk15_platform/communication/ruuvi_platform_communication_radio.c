@@ -41,7 +41,10 @@ static void on_radio_evt(bool active)
 
   ruuvi_interface_communication_radio_activity_evt_t evt = active ? RUUVI_INTERFACE_COMMUNICATION_RADIO_BEFORE : RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER;
   // Call advertising event handler
-  ruuvi_platform_communication_ble4_advertising_activity_handler(evt);
+  if(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT == handle)
+  {
+    ruuvi_platform_communication_ble4_advertising_activity_handler(evt);
+  }
 
   // Call common event handler if set
   if(NULL != on_radio_activity_callback ){ on_radio_activity_callback(evt); }

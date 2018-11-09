@@ -16,7 +16,7 @@
 // Standard BLE Broadcast manufacturer specific data payload length
 #define RUUVI_INTERFACE_COMMUNICATION_MESSAGE_MAX_LENGTH 24
 
-typedef struct{
+typedef struct ruuvi_interface_communication_message_t{
   uint8_t data[RUUVI_INTERFACE_COMMUNICATION_MESSAGE_MAX_LENGTH];
   uint8_t data_length;
   bool repeat;
