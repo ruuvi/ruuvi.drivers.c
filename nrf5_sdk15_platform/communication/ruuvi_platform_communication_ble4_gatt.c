@@ -78,11 +78,6 @@
 
 #define APP_BLE_OBSERVER_PRIO            3                                          /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
-#define MIN_CONN_INTERVAL                MSEC_TO_UNITS(20, UNIT_0_625_MS)          /**< Minimum acceptable connection interval (0.02 seconds). */
-#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(400, UNIT_0_625_MS)          /**< Maximum acceptable connection interval (0.40 second). */
-#define SLAVE_LATENCY                    0                                          /**< Slave latency. */
-#define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(4000, UNIT_10_MS)            /**< Connection supervisory timeout (4 seconds). */
-
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)                       /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000)                      /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
 #define MAX_CONN_PARAMS_UPDATE_COUNT     3                                          /**< Number of attempts before giving up the connection parameter negotiation. */
@@ -675,10 +670,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruu
  *
  * parameter connectable: True to start advertising connectablity false to stop advertising connectablity
  * parameter name: Name of the device to be advertised.
+ * parameter company_id: Id of the manufacturer of device
  * parameter advertise_nus: True to enable advertising UUID of NUS in the scan response.
  *
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(const bool connectable, const char* const name, const bool advertise_nus)
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(const bool connectable, const char* const name, const uint16_t company_id, const bool advertise_nus)
 {
   ret_code_t err_code = NRF_SUCCESS;
   if(!connectable)
@@ -710,7 +706,12 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connecta
   advdata.flags     = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
   // Name will be read from the above GAP data
   advdata.name_type = BLE_ADVDATA_FULL_NAME;
+  ble_advdata_manuf_data_t manufacturer_data;
+  manufacturer_data.company_identifier = company_id;
+  manufacturer_data.data.size = 0;
+  manufacturer_data.data.p_data = NULL;
 
+  advdata.p_manuf_specific_data = &manufacturer_data;
   // Encode data
   m_adv_data.adv_data.len = sizeof(m_advertisement);
   err_code |= ble_advdata_encode(&advdata, m_advertisement, &m_adv_data.adv_data.len);

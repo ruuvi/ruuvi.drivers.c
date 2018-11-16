@@ -65,11 +65,12 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruu
  *
  * parameter connectable: True to start advertising connectablity false to stop advertising connectablity
  * parameter name: Name of the device to be advertised.
+ * parameter company_id: Id of the manufacturer of device
  * parameter advertise_nus: True to enable advertising UUID of NUS in the scan response.
  * Returns RUUVI_DRIVER_SUCCESS on success
  * Returns error code from stack in case there is  error.
  *
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(const bool connectable, const char* const name, const bool advertise_nus);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(const bool connectable, const char* const name, const uint16_t company_id, const bool advertise_nus);
 
 #endif
