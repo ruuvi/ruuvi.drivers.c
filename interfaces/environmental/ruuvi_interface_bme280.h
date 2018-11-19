@@ -10,6 +10,7 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
+void bosch_delay_ms(uint32_t time_ms);
 ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
 ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
 ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate);

@@ -63,7 +63,7 @@ static ruuvi_driver_status_t BME_TO_RUUVI_ERROR(int8_t rslt)
   return err_code;
 }
 
-static void bosch_delay_ms(uint32_t time_ms)
+void bosch_delay_ms(uint32_t time_ms)
 {
   ruuvi_platform_delay_ms(time_ms);
 }
