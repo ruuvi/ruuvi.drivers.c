@@ -129,9 +129,9 @@ size_t ruuvi_platform_error_to_string(ruuvi_driver_status_t error, char* error_s
 // Convert configuration value to string.
 static char* configuration_value_to_string(const uint8_t val)
 {
-  static char msg[12]; // sizeof "On interrupt", including NULL
+  static char msg[17]; // sizeof "Not implemented", including NULL
   memset(msg, 0, sizeof(msg));
-  if( val <= 200)
+  if( val <= 200 && val > 0)
   {
     snprintf(msg, sizeof(msg), "%d", val);
   }
@@ -171,6 +171,22 @@ static char* configuration_value_to_string(const uint8_t val)
 
     case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
       snprintf(msg, sizeof(msg), "Sleep");
+      break;
+
+    case RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED:
+      snprintf(msg, sizeof(msg), "Not supported");
+      break;
+
+    case RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED:
+      snprintf(msg, sizeof(msg), "Not implemented");
+      break;
+
+     case RUUVI_DRIVER_SENSOR_ERR_INVALID:
+      snprintf(msg, sizeof(msg), "Invalid");
+      break;
+
+    default:
+      snprintf(msg, sizeof(msg), "Unknown");
       break;
   }
   return msg;
@@ -224,16 +240,7 @@ void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity
   ruuvi_platform_log(level, msg);
   memset(msg, 0, sizeof(msg));
 
-  written = snprintf(msg, msg_size, "Mode:        ");
-  switch(configuration->mode)
-  {
-    case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
-      written += snprintf(msg + written, msg_size - written, "Sleep\r\n");
-      break;
+  written = snprintf(msg, msg_size, "Mode:        %s\r\n", configuration_value_to_string(configuration->mode));
 
-    case RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS:
-      written += snprintf(msg + written, msg_size - written, "Continuous\r\n");
-      break;
-  }
   ruuvi_platform_log(level, msg);
 }
