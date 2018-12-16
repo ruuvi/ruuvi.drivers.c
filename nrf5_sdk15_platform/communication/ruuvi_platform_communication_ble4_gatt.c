@@ -493,6 +493,14 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
 {
 
   ret_code_t err_code = NRF_SUCCESS;
+  ruuvi_driver_status_t radio_status = RUUVI_DRIVER_SUCCESS;
+
+  if (!m_gatt_is_init)
+  {
+    radio_status = ruuvi_interface_communication_radio_init(RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
+    if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
+  }
+
   // Connection param module requires timers
   if(!ruuvi_platform_timers_is_init())
   {
@@ -541,6 +549,7 @@ static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_uninit(
     sd_ble_gap_disconnect(m_conn_handle, HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST);
   }
   // Services cannot be uninitialized
+  ruuvi_interface_communication_radio_uninit(RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
   return RUUVI_DRIVER_SUCCESS;
 }
 
