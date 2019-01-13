@@ -58,7 +58,7 @@
 #define RUUVI_PLATFORM_ADC_NRF52832_DEFAULT_RESOLUTION 10
 
 #define ADC_REF_VOLTAGE_IN_VOLTS  0.600f  // Reference voltage (in milli volts) used by ADC while doing conversion.
-#define ADC_PRE_SCALING_COMPENSATION   6    // The ADC is configured to use VDD with 1/6 prescaling as input. And hence the result of conversion is to be multiplied by 6 to get the actual value of the voltage.
+#define ADC_PRE_SCALING_COMPENSATION 6.0f    // The ADC is configured to use channel with prescaling as input. And hence the result of conversion is to be multiplied by prescaling to get the actual value of the voltage.
 
 // Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
 #define RETURN_SUCCESS_ON_VALID(param) do {\
@@ -222,6 +222,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
 
   // Initialize given channel. Only one ADC channel is supported at a time
   nrf_saadc_channel_config_t ch_config = NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(ruuvi_to_nrf_adc_channel(handle));
+  ch_config.gain =  NRF_SAADC_GAIN1_6;
   nrf_saadc_channel_init(0, &ch_config);
   adc_channel = handle;
 
