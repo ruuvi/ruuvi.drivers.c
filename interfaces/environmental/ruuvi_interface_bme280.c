@@ -99,6 +99,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t* environ
       dev.delay_ms = bosch_delay_ms;
 
       err_code |= BME_TO_RUUVI_ERROR(bme280_init(&dev));
+      if(err_code != RUUVI_DRIVER_SUCCESS) { return err_code; }
       err_code |= BME_TO_RUUVI_ERROR(bme280_crc_selftest(&dev));
       err_code |= BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
 
@@ -464,7 +465,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t* mode)
 {
   if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  uint8_t bme_mode;
+  uint8_t bme_mode = 0;
   err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_mode(&bme_mode, &dev));
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
 
