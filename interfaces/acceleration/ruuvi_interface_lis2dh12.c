@@ -100,11 +100,14 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   lis2dh12_device_id_get(dev_ctx, &whoamI);
   if ( whoamI != LIS2DH12_ID ) { return RUUVI_DRIVER_ERROR_NOT_FOUND; }
 
-  // Disable FIFO
+  // Disable FIFO, activity
   lis2dh12_fm_t mode = LIS2DH12_BYPASS_MODE;
   lis2dh12_fifo_mode_set(&(dev.ctx), mode);
   ruuvi_interface_lis2dh12_fifo_use(false);
   ruuvi_interface_lis2dh12_fifo_interrupt_use(false);
+
+  float ths = 0;
+  ruuvi_interface_lis2dh12_activity_interrupt_use(false, &ths);
 
   // Turn X-, Y-, Z-measurement on
   uint8_t enable_axes = 0x07;
@@ -738,7 +741,12 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements, r
   uint8_t elements = 0;
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_fifo_data_level_get(&(dev.ctx), &elements);
-  // 31 FOFO + latest
+  if(!elements)
+  {
+    *num_elements = 0;
+    return RUUVI_DRIVER_SUCCESS;
+  }
+  // 31 FIFO + latest
   elements++;
 
   // Do not read more than buffer size
@@ -810,9 +818,12 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
   lis2dh12_ctrl_reg6_t ctrl6 = { 0 };
   lis2dh12_int1_cfg_t  cfg = { 0 };
   ctrl6.i2_ia1 = PROPERTY_ENABLE;
-  cfg.xhie     = PROPERTY_ENABLE;
-  cfg.yhie     = PROPERTY_ENABLE;
-  cfg.zhie     = PROPERTY_ENABLE;
+  if(enable)
+  {
+    cfg.xhie     = PROPERTY_ENABLE;
+    cfg.yhie     = PROPERTY_ENABLE;
+    cfg.zhie     = PROPERTY_ENABLE;
+  }
   /*
   cfg.xlie     = PROPERTY_ENABLE;
   cfg.ylie     = PROPERTY_ENABLE;
