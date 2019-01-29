@@ -7,6 +7,8 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_s
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   if(NULL == sensor || NULL == config) { return RUUVI_DRIVER_ERROR_NULL; }
   if(NULL == sensor->samplerate_set) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  uint8_t sleep = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
+  err_code |= sensor->mode_set(&sleep);
   err_code |= sensor->samplerate_set(&(config->samplerate));
   err_code |= sensor->resolution_set(&(config->resolution));
   err_code |= sensor->scale_set(&(config->scale));
