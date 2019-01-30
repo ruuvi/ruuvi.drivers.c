@@ -37,15 +37,6 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-/** @file
- * @defgroup nrf_dev_wdt_example_main main.c
- * @{
- * @ingroup nrf_dev_wdt_example
- * @brief WDT Example Application main file.
- *
- * This file contains the source code for a sample application using WDT.
- *
- */
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_WATCHDOG_ENABLED
 

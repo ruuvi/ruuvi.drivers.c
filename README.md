@@ -1,4 +1,4 @@
-# ruuvi.drivers.c
+# ruuvi.drivers.c {#mainpage}
 Ruuvi embedded drivers used across various platforms. Generally you should not use this repository as-is, but rather as a submodule included in your project.
 Repository is under active development (alpha), expect breaking changes.
 
@@ -14,7 +14,7 @@ External platform-independent requirements are in `ruuvi_drivers_external_includ
 
 ## File and variable naming
 Files should be named `ruuvi_module_name`, for example `ruuvi_interface_spi.h`
-Globally visible functions, variables and definitions should be likewise named `ruuvi_module_file_name`, for example  `ruuvi_platform_yield_init()`
+Globally visible functions, variables and definitions should be likewise named `ruuvi_module_file_name`, for example  `ruuvi_interface_yield_init()`
 
 # Usage
 ## Enabling modules
@@ -46,30 +46,10 @@ All sensors have `ruuvi_interface_sensor_init(ruuvi_driver_sensor_t*, ruuvi_driv
  * Init and Uninit should return RUUVI_DRIVER_ERROR_NULL if pointer to the sensor struct is NULL. May return other error if check for it triggers first.
 
 # Progress
-The repository is under active development and major refactors are to be expected. The roadmap for releases is:
-
-```
-0: Introduction
-1: Sleep / Yield
-2: Logging
-3: Led blinking
-4: Button - Interrupt
-5: Environmental sensing / BME280
-6: Accelerometer - polling / LIS2DH12
-7: Battery measurement - naive approach / ADC
-8: RTC
-9: BLE broadcasting
-10: NFC reading
-11: Scheduler
-12: Bootloader
-13: Battery measurement - synchronize to radio
-14: Accelerometer - interrupt
-15: Watchdog
-15: BLE GATT connection
-16: NFC writing
-```
-
+The repository is under active development and major refactors are to be expected.
 You can follow more detailed development blog at [Ruuvi Blog](https://blog.ruuvi.com). Repository will have tagged releases such as 3.1.0 to keep track of proggress in the roadmap.
+
+Currently the drivers are being refactored for more consistent naming, better test coverage and Doxygen support
 
 # Licenses
 All Ruuvi code is BSD-3 licensed.
@@ -81,6 +61,19 @@ All contributions are welcome, from typographical fixes to feedack on design and
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.19.0
+ * Doxygen support started.
+ * Rename yield and delay interface function to -interface, was -platform
+
+## 3.18.0
+ * Add Flash storage
+
+## 3.17.0
+ * Add NFC
+
+## 3.16.0
+ * Add BLE GATT connection
+
 ## 3.15.0
  * Add watchdog
 
