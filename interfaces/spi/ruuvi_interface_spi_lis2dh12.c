@@ -4,6 +4,8 @@
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
  **/
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED
 #include <stdint.h>
 #include <string.h>
 
@@ -44,3 +46,4 @@ int32_t ruuvi_interface_spi_lis2dh12_read (void* dev_ptr, uint8_t reg_addr, uint
   err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_HIGH);
   return err_code;
 }
+#endif

@@ -6,7 +6,7 @@
  * Requires floats enabled in application
  */
 
-#include "ruuvi_platform_external_includes.h"
+#include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"

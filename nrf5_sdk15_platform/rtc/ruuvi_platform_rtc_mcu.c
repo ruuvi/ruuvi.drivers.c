@@ -43,7 +43,8 @@
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
-
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_NRF52832_RTC_ENABLED
 #include "ruuvi_driver_error.h"
@@ -125,4 +126,5 @@ uint64_t ruuvi_platform_rtc_millis(void)
   return (ms*1000)/32768;
 }
 
+#endif
 #endif

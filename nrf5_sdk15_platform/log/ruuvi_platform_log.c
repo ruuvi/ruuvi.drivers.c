@@ -13,7 +13,8 @@
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
  **/
-
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_yield.h"
@@ -57,4 +58,5 @@ void ruuvi_platform_log(ruuvi_interface_log_severity_t severity, const char* mes
     NRF_LOG_INTERNAL_RAW_INFO("%s", message);
   }
 }
+#endif
 #endif

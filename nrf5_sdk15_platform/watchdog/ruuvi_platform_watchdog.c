@@ -37,6 +37,8 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ #include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_WATCHDOG_ENABLED
 
@@ -86,4 +88,5 @@ ruuvi_driver_status_t ruuvi_interface_watchdog_feed(void)
   return RUUVI_DRIVER_SUCCESS;
 }
 
+#endif
 #endif

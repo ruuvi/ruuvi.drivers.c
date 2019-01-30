@@ -1,3 +1,5 @@
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_TIMER_ENABLED
 #include "ruuvi_driver_error.h"
@@ -56,4 +58,5 @@ ruuvi_driver_status_t ruuvi_platform_timer_stop (ruuvi_platform_timer_id_t timer
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
+#endif
 #endif
