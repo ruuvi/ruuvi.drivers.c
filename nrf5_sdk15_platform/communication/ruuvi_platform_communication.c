@@ -5,6 +5,8 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
 
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_COMMUNICATION_ENABLED
 
@@ -31,5 +33,5 @@ ruuvi_driver_status_t ruuvi_interface_communication_id_get(uint64_t* const _id)
   *_id = id;
   return RUUVI_DRIVER_SUCCESS;
 }
-
+#endif
 #endif

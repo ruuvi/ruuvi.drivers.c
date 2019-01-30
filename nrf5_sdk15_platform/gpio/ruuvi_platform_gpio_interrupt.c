@@ -5,6 +5,8 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
 
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 
 #if NRF5_SDK15_GPIO_INTERRUPT_ENABLED
@@ -126,4 +128,5 @@ ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_enable(uint8_t pin,
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
+#endif
 #endif

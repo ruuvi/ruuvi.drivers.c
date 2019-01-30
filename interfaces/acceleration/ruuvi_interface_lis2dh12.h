@@ -7,6 +7,8 @@
 
 #ifndef RUUVI_INTERFACE_LIS2DH12_H
 #define RUUVI_INTERFACE_LIS2DH12_H
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
@@ -82,4 +84,5 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool ena
  */
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool enable, float* limit_g);
 
+#endif
 #endif

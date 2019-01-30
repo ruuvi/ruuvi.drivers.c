@@ -8,7 +8,7 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
 
-#include "ruuvi_platform_external_includes.h"
+#include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
 // Ruuvi headers
 #include "ruuvi_driver_error.h"

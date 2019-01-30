@@ -5,6 +5,8 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
 
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_COMMUNICATION_BLE4_ADVERTISING_ENABLED
 #include "ruuvi_driver_error.h"
@@ -289,5 +291,5 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_ge
 }
 
 
-
+#endif
 #endif

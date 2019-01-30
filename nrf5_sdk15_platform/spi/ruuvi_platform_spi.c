@@ -37,6 +37,8 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ #include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_SPI_ENABLED
 #include <stdint.h>
@@ -154,4 +156,5 @@ ruuvi_driver_status_t ruuvi_platform_spi_xfer_blocking(const uint8_t* tx, const 
   return ruuvi_platform_to_ruuvi_error(&err_code);
 }
 
+#endif
 #endif
