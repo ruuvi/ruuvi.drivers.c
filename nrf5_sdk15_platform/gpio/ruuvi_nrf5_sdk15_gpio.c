@@ -6,8 +6,6 @@
  */
 #include "ruuvi_driver_enabled_modules.h"
 #if (RUUVI_NRF5_SDK15_ENABLED || DOXYGEN)
-#include "ruuvi_platform_external_includes.h"
-#if (NRF5_SDK15_GPIO_ENABLED || DOXYGEN)
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_driver_error.h"
 #include "nrf_gpio.h"
@@ -100,5 +98,4 @@ ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin, ruuvi_interfa
   return RUUVI_DRIVER_SUCCESS;
 }
 
-#endif
 #endif

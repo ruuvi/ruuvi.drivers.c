@@ -7,6 +7,7 @@
 
 #ifndef RUUVI_DRIVER_ENABLED_MODULES_H
 #define RUUVI_DRIVER_ENABLED_MODULES_H
+
 #include "application_driver_configuration.h" //<! Enable modules used by your application.
 
 #ifndef RUUVI_INTERFACE_ACCELERATION_ENABLED

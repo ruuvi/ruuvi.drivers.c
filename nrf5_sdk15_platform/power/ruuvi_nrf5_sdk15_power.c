@@ -7,7 +7,12 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Power handling functions, such as enabling internal regulators.
  *
- */
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
+ **/
+
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_ENABLED 
 #include <stdint.h>
 #include "nrfx_power.h"
 #include "nvic.h"

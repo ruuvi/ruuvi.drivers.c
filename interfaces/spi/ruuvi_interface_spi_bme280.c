@@ -1,6 +1,7 @@
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
 /**
+<<<<<<< HEAD
  * @addtogroup SPI SPI functions
  * @brief Functions for using SPI bus
  * 
@@ -14,6 +15,15 @@
  * @brief Implementation for SPI operations
  * 
  */
+=======
+ * Ruuvi spi interface for bme280
+ *
+ * License: BSD-3
+ * Author: Otso Jousimaa <otso@ojousima.net>
+ **/
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
+>>>>>>> Support conditional compiling wip
 #include <stdint.h>
 #include <string.h>
 
