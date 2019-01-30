@@ -6,6 +6,7 @@
  */
 #ifndef RUUVI_INTERFACE_ACCELERATION_H
 #define RUUVI_INTERFACE_ACCELERATION_H
+
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ACCELERATION_ENABLED
 #include "ruuvi_driver_error.h"
@@ -22,5 +23,4 @@ typedef struct
   float z_g;
 }ruuvi_interface_acceleration_data_t;
 
-#endif
 #endif
