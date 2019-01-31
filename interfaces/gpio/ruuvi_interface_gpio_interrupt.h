@@ -1,11 +1,22 @@
-/**
- * GPIO interrupt definitions
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
 #ifndef RUUVI_INTERFACE_PIN_INTERRUPT_H
 #define RUUVI_INTERFACE_PIN_INTERRUPT_H
+/**
+ * @defgroup Gpio Gpio functions
+ * @brief Functions for digitally reading and actuating GPIO pins.
+ *
+ * The GPIO functions do include interrupts, but they do not include PWM,
+ * ADC or DAC functions.
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_gpio.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-01-30
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Interface for basic GPIO writes and reads 
+ *
+ */
 
 #include "nrf_drv_gpiote.h"
 
@@ -37,7 +48,7 @@ typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_ev
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_init(ruuvi_interface_gpio_interrupt_fp_t* interrupt_table, uint8_t max_interrupts);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(ruuvi_interface_gpio_interrupt_fp_t* interrupt_table, uint8_t max_interrupts);
 
 /**
  * Enable interrupt on a pin.
@@ -49,7 +60,7 @@ ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_init(ruuvi_interface_gpio_in
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_interrupt_enable(uint8_t pin, 
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(uint8_t pin, 
                                                            ruuvi_interface_gpio_slope_t slope, 
                                                            ruuvi_interface_gpio_mode_t mode, 
                                                            ruuvi_interface_gpio_interrupt_fp_t handler);
