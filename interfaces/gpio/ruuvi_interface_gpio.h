@@ -1,7 +1,7 @@
 #ifndef RUUVI_INTERFACE_GPIO_H
 #define RUUVI_INTERFACE_GPIO_H
 /**
- * @defgroup Gpio Gpio functions
+ * @defgroup GPIO GPIO functions
  * @brief Functions for digitally reading and actuating GPIO pins.
  *
  * The GPIO functions do include interrupts, but they do not include PWM,
