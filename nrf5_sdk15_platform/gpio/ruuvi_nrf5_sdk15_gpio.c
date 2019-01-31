@@ -15,12 +15,12 @@
 #include <stdbool.h>
 
 // No implementation required.
-ruuvi_driver_status_t ruuvi_platform_gpio_init(void)
+ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 {
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface_gpio_mode_t mode)
+ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin, const ruuvi_interface_gpio_mode_t mode)
 {
   if(RUUVI_INTERFACE_GPIO_PIN_UNUSED == pin) { return RUUVI_DRIVER_SUCCESS; }
   switch (mode)
@@ -60,20 +60,20 @@ ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin)
+ruuvi_driver_status_t ruuvi_interace_gpio_toggle(const uint8_t pin)
 {
     nrf_gpio_pin_toggle(pin);
     return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_platform_gpio_write(uint8_t pin, ruuvi_interface_gpio_state_t state)
+ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin, const ruuvi_interface_gpio_state_t state)
 {
   if(RUUVI_INTERFACE_GPIO_HIGH == state) { nrf_gpio_pin_set(pin);   }
   if(RUUVI_INTERFACE_GPIO_LOW  == state) { nrf_gpio_pin_clear(pin); }
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_platform_gpio_read(uint8_t pin, ruuvi_interface_gpio_state_t* state)
+ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin, ruuvi_interface_gpio_state_t* const state)
 {
   if(NULL == state) { return RUUVI_DRIVER_ERROR_NULL; }
   bool high = nrf_gpio_pin_read(pin);
