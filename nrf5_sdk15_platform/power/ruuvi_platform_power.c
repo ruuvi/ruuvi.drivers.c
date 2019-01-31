@@ -10,6 +10,7 @@
 #if NRF5_SDK15_POWER_ENABLED
 #include <stdint.h>
 #include "nrfx_power.h"
+#include "nvic.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_power.h"
 #include "sdk_errors.h"
@@ -39,6 +40,11 @@ ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const ruuvi_interf
   err_code |= nrfx_power_init (&config);
   m_is_init = true;
   return ruuvi_platform_to_ruuvi_error(&err_code);
+}
+
+void ruuvi_interface_power_reset(void)
+{
+  NVIC_SystemReset();
 }
 
 #endif

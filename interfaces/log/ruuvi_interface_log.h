@@ -28,14 +28,14 @@ typedef enum
  * parameter min_severity: least severe log level that will be printed.
  * returns RUUVI_DRIVER_SUCCESS if log was init, error code otherwise
  */
-ruuvi_driver_status_t ruuvi_platform_log_init(ruuvi_interface_log_severity_t min_severity);
+ruuvi_driver_status_t ruuvi_interface_log_init(ruuvi_interface_log_severity_t min_severity);
 
 /**
  * Blocks until remaining log messages are sent out
  *
  * returns RUUVI_DRIVER_SUCCESS if buffered messages were sent, error otherwise.
  */
-ruuvi_driver_status_t ruuvi_platform_log_flush(void);
+ruuvi_driver_status_t ruuvi_interface_log_flush(void);
 
 /**
  * Queues messages into log. May block or may return as soon as data is in buffer being transferred out
@@ -44,7 +44,7 @@ ruuvi_driver_status_t ruuvi_platform_log_flush(void);
  * parameter message: message string
  *
  */
-void ruuvi_platform_log(ruuvi_interface_log_severity_t severity, const char* message);
+void ruuvi_interface_log(ruuvi_interface_log_severity_t severity, const char* message);
 
 /**
  * Write text description of error message into given string pointer and null-terminate it.
@@ -55,7 +55,7 @@ void ruuvi_platform_log(ruuvi_interface_log_severity_t severity, const char* mes
  * parameter space_remaining: How many bytes there are remaining in the error string.
  * returns number of bytes written (snprintf rvalue).
  */
-size_t ruuvi_platform_error_to_string(ruuvi_driver_status_t error, char* error_string, size_t space_remaining);
+size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* error_string, size_t space_remaining);
 
 /**
  * Log the given configuration parameters at given log level.
