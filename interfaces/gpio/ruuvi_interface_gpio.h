@@ -22,6 +22,11 @@
 
 #define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF //!< Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
 
+/**
+ * GPIO modes supported by interface. If the underlying platform
+ * does not support given mode, it shall return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED 
+ * on configuration attempt.
+ */
 typedef enum
 {
   RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,          //!< High-impedance mode, electrically disconnected. 
@@ -43,7 +48,7 @@ typedef enum
  *
  * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
  */
-ruuvi_driver_status_t ruuvi_interace_gpio_init(void);
+ruuvi_driver_status_t ruuvi_interface_gpio_init(void);
 
 /**
  * @brief Configure a pin of a port into a mode.
@@ -52,7 +57,8 @@ ruuvi_driver_status_t ruuvi_interace_gpio_init(void);
  * @param pin[in] Pin number. On multi-port ICs port 0 or A is first, and port 1 or B is second etc. Pin number is <tt> port_index * pins_in_port + pin_index. </tt>
  * @param mode[in] Mode to set the pin to. See @ref ruuvi_interface_gpio_mode_t for possible values.
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode. 
  */
 ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin, const ruuvi_interface_gpio_mode_t mode);
 

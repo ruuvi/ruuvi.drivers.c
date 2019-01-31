@@ -39,14 +39,6 @@
 typedef int32_t ruuvi_driver_status_t;
 
 /**
- * Convert error code from platform to Ruuvi error code.
- *
- * parameter error: Error code from platform
- * return: Most descriptive ruuvi_driver_status_t code of the platform error.
- **/
-ruuvi_driver_status_t ruuvi_platform_to_ruuvi_error(void* error);
-
-/**
  * Check given error code and compare it to non-fatal errors.
  *
  * If error is considered fatal (or not non-fatal), reset the device

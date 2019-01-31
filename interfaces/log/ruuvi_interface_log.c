@@ -4,13 +4,14 @@
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
  **/
+#include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_driver_error.h"
+#include "ruuvi_driver_sensor.h"
+#include "ruuvi_interface_log.h"
+#include <stdio.h>
+#include <string.h>
 
- #include "ruuvi_driver_error.h"
- #include "ruuvi_driver_sensor.h"
- #include "ruuvi_interface_log.h"
- #include <stdio.h>
- #include <string.h>
-size_t ruuvi_platform_error_to_string(ruuvi_driver_status_t error, char* error_string, size_t space_remaining)
+size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const error_string, const size_t space_remaining)
 {
   if(NULL == error_string)
   {
@@ -194,53 +195,52 @@ static char* configuration_value_to_string(const uint8_t val)
 
 void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity_t level, const ruuvi_driver_sensor_configuration_t* const configuration, const char* unit)
 {
-  #define msg_size 128
-  char msg[msg_size] = {0};
-  snprintf(msg, msg_size, "Sample rate: %s Hz\r\n", configuration_value_to_string(configuration->samplerate));
-  ruuvi_platform_log(level, msg);
+  char msg[APPLICATION_LOG_BUFFER_SIZE] = {0};
+  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Sample rate: %s Hz\r\n", configuration_value_to_string(configuration->samplerate));
+  ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
 
-  snprintf(msg, msg_size, "Resolution:  %s bits\r\n", configuration_value_to_string(configuration->resolution));
-  ruuvi_platform_log(level, msg);
+  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Resolution:  %s bits\r\n", configuration_value_to_string(configuration->resolution));
+  ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
 
-  snprintf(msg, msg_size, "Scale:       %s %s\r\n", configuration_value_to_string(configuration->scale), unit);
-  ruuvi_platform_log(level, msg);
+  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Scale:       %s %s\r\n", configuration_value_to_string(configuration->scale), unit);
+  ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
 
-  size_t written = snprintf(msg, msg_size, "DSP:         ");
+  size_t written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "DSP:         ");
 
   switch(configuration->dsp_function)
   {
     case RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS:
-      written += snprintf(msg + written, msg_size - written, "High pass x ");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "High pass x ");
       break;
 
     case RUUVI_DRIVER_SENSOR_DSP_IIR:
-      written += snprintf(msg + written, msg_size - written, "Infinite Impulse Response x ");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Infinite Impulse Response x ");
       break;
 
     case RUUVI_DRIVER_SENSOR_DSP_LAST:
-      written += snprintf(msg + written, msg_size - written, "Last x ");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Last x ");
       break;
 
     case RUUVI_DRIVER_SENSOR_DSP_LOW_PASS:
-      written += snprintf(msg + written, msg_size - written, "Lowpass x ");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Lowpass x ");
       break;
 
     case RUUVI_DRIVER_SENSOR_DSP_OS:
-      written += snprintf(msg + written, msg_size - written, "Oversampling x ");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Oversampling x ");
       break;
 
     default:
-      written += snprintf(msg + written, msg_size - written, "Unknown x");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Unknown x");
       break;
   }
-  snprintf(msg + written, msg_size - written, "%s\r\n", configuration_value_to_string(configuration->dsp_parameter));
-  ruuvi_platform_log(level, msg);
+  snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "%s\r\n", configuration_value_to_string(configuration->dsp_parameter));
+  ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
 
-  written = snprintf(msg, msg_size, "Mode:        %s\r\n", configuration_value_to_string(configuration->mode));
+  written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Mode:        %s\r\n", configuration_value_to_string(configuration->mode));
 
-  ruuvi_platform_log(level, msg);
+  ruuvi_interface_log(level, msg);
 }
