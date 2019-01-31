@@ -4,22 +4,40 @@
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
-
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
+#if (RUUVI_NRF5_SDK15_ENABLED || DOXYGEN)
 #include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_GPIO_ENABLED
+#if (NRF5_SDK15_GPIO_ENABLED || DOXYGEN)
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_driver_error.h"
 #include "nrf_gpio.h"
 #include <stdbool.h>
 
-// No implementation required.
+/**
+ * @addtogroup GPIO
+ * @{
+ */
+ /**
+ * @file ruuvi_nrf5_sdk15_gpio.c
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-01-31
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Implementations for basic GPIO writes and reads on nRF5 SDK15.
+ *
+ */
+
+/**
+ * No implementation required.
+ */
 ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 {
   return RUUVI_DRIVER_SUCCESS;
 }
 
+/**
+ * 
+ */
 ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin, const ruuvi_interface_gpio_mode_t mode)
 {
   if(RUUVI_INTERFACE_GPIO_PIN_UNUSED == pin) { return RUUVI_DRIVER_SUCCESS; }
