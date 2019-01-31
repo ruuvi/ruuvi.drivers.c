@@ -6,7 +6,7 @@
  */
 #ifndef RUUVI_INTERFACE_ACCELERATION_H
 #define RUUVI_INTERFACE_ACCELERATION_H
-#include "ruuvi_driver_external_includes.h"
+#include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ACCELERATION_ENABLED
 #include "ruuvi_driver_error.h"
 
