@@ -1,5 +1,5 @@
 #ifndef RUUVI_NRF5_SDK15_ERROR_H
-#define  RUUVI_NRF5_SDK15_ERROR_H
+#define RUUVI_NRF5_SDK15_ERROR_H
 #include "nrf_error.h"
 #include "sdk_errors.h"
 #include "ruuvi_driver_error.h"
