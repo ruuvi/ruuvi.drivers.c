@@ -25,7 +25,7 @@
 #include "bme280.h"
 #include "bme280_defs.h"
 #include "bme280_selftest.h"
-#ifndef (BME280_FLOAT_ENABLE || DOXYGEN)
+#if (BME280_FLOAT_ENABLE || DOXYGEN)
   #error "Please #define BME280_FLOAT_ENABLE in makefile CFLAGS"
 #endif
 
@@ -65,7 +65,7 @@ static ruuvi_driver_status_t BME_TO_RUUVI_ERROR(int8_t rslt)
 
 void bosch_delay_ms(uint32_t time_ms)
 {
-  ruuvi_platform_delay_ms(time_ms);
+  ruuvi_interface_delay_ms(time_ms);
 }
 
 // BME280 datasheet Appendix B.
@@ -444,7 +444,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t* mode)
       // which has the number of settings as 2^OSR is not changed.
       // We also assume that each element runs same OSR
       uint8_t samples = 1 << (dev.settings.osr_h - 1);
-      ruuvi_platform_delay_ms(bme280_max_meas_time(samples));
+      ruuvi_interface_delay_ms(bme280_max_meas_time(samples));
       tsample = ruuvi_driver_sensor_timestamp_get();
       // BME280 returns to SLEEP after forced sample
       *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;

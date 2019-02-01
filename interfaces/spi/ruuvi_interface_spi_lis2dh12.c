@@ -24,10 +24,10 @@ int32_t ruuvi_interface_spi_lis2dh12_write(void* dev_ptr, uint8_t reg_addr, uint
   // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
   // multiple read / writes.
   if (len > 1) { reg_addr |= 0x40; }
-  err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);
-  err_code |= ruuvi_platform_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
-  err_code |= ruuvi_platform_spi_xfer_blocking(reg_data, len, NULL, 0);
-  err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_HIGH);
+  err_code |= ruuvi_interface_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);
+  err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
+  err_code |= ruuvi_interface_spi_xfer_blocking(reg_data, len, NULL, 0);
+  err_code |= ruuvi_interface_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_HIGH);
   return err_code;
 }
 
@@ -40,10 +40,10 @@ int32_t ruuvi_interface_spi_lis2dh12_read (void* dev_ptr, uint8_t reg_addr, uint
   // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
   // multiple read / writes.
   if (len > 1) { reg_addr |= 0x40; }
-  err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);
-  err_code |= ruuvi_platform_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
-  err_code |= ruuvi_platform_spi_xfer_blocking(NULL, 0, reg_data, len);
-  err_code |= ruuvi_platform_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_HIGH);
+  err_code |= ruuvi_interface_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);
+  err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
+  err_code |= ruuvi_interface_spi_xfer_blocking(NULL, 0, reg_data, len);
+  err_code |= ruuvi_interface_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_HIGH);
   return err_code;
 }
 #endif
