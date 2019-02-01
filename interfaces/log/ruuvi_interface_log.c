@@ -1,10 +1,20 @@
-/**
- * Platform-independent helper functions for logging
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- **/
 #include "ruuvi_driver_enabled_modules.h"
+#if APPLICATION_LOG_ENABLED
+/**
+ * @addtogroup Log
+ * @{
+ */
+/**
+ * @file ruuvi_interface_log.c
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-01-31
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Interface for printing out logging.
+ * The application configuration and underlying implementation
+ * decide how the log messages are handled, i.e. sent via RTT, UART or BLE.
+ *
+ */
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_log.h"
@@ -244,3 +254,5 @@ void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity
 
   ruuvi_interface_log(level, msg);
 }
+/** @} */
+#endif

@@ -25,7 +25,7 @@
 #include "bme280.h"
 #include "bme280_defs.h"
 #include "bme280_selftest.h"
-#ifndef BME280_FLOAT_ENABLE
+#ifndef (BME280_FLOAT_ENABLE || DOXYGEN)
   #error "Please #define BME280_FLOAT_ENABLE in makefile CFLAGS"
 #endif
 

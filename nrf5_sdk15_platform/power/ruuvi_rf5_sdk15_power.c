@@ -16,7 +16,7 @@
 #include "sdk_errors.h"
 
 
-static bool m_is_init = false; //!< Flag to keep track if module is init
+static bool m_is_init = false;
 
 ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const ruuvi_interface_power_regulators_t regulators)
 {

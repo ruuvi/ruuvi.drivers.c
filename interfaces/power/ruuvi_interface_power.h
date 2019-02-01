@@ -1,7 +1,7 @@
 #ifndef RUUVI_INTERFACE_POWER_H
 #define RUUVI_INTERFACE_POWER_H
 /**
- * @defgroup Power CPU power functions, such as entering sleep states or rebooting
+ * @defgroup Power CPU power
  */
 /*@{*/
 /**
@@ -22,8 +22,8 @@
  * Bitfield for regulators to enable
  */
 typedef struct {
-   unsigned int DCDC_INTERNAL : 1;    /**<! DC/DC for internal circuitry, i.e. nRF52832 radio */
-   unsigned int DCDC_HV : 1;          /**<! DC/DC for high voltage, i.e. nRF52840 USB */
+   unsigned int DCDC_INTERNAL : 1;    //!< DC/DC for internal circuitry, i.e. nRF52832 radio
+   unsigned int DCDC_HV : 1;          //!< DC/DC for high voltage, i.e. nRF52840 USB
 }ruuvi_interface_power_regulators_t; 
 
 /**
