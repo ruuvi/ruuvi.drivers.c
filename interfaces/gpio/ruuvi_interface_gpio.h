@@ -1,5 +1,7 @@
 #ifndef RUUVI_INTERFACE_GPIO_H
 #define RUUVI_INTERFACE_GPIO_H
+#include "ruuvi_driver_error.h"
+#include <stdbool.h>
 /**
  * @defgroup GPIO GPIO functions
  * @brief Functions for digitally reading and actuating GPIO pins.
@@ -17,8 +19,6 @@
  * Interface for basic GPIO writes and reads 
  *
  */
-#include "ruuvi_driver_error.h"
-#include <stdbool.h>
 
 #define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF //!< Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
 
@@ -37,10 +37,13 @@ typedef enum
   RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE //!< Push-pull output, can be written. Higher current drive than standard. 
 }ruuvi_interface_gpio_mode_t;
 
+/**
+ * States of GPIO pins
+ */
 typedef enum
 {
-  RUUVI_INTERFACE_GPIO_LOW = false,
-  RUUVI_INTERFACE_GPIO_HIGH = true
+  RUUVI_INTERFACE_GPIO_LOW = false, //!< GPIO electrically low
+  RUUVI_INTERFACE_GPIO_HIGH = true  //!< GPIO electrically high
 }ruuvi_interface_gpio_state_t;
 
 /**
@@ -98,5 +101,5 @@ ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin, const ruuvi_
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input (optional).
  */
 ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin, ruuvi_interface_gpio_state_t* const p_state);
-
+/*@}*/
 #endif

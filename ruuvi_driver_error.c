@@ -1,10 +1,17 @@
 /**
- * Convert NRF SDK errors to ruuvi errors
+ * @addtogroup Error
+ * @{
+ */
+/**
+ * @file ruuvi_driver_error.c
+ * @author Otso Jousimaa
+ * @date 2019-01-31
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
+ * @brief Check given error code, log warning on non-fatal error and reset on fatal error
  *
- * License: BSD-3
- * Author Otso Jousimaa <otso@ojousima.net>
  */
 #include "ruuvi_driver_enabled_modules.h"
+
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_power.h"
@@ -46,3 +53,4 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error, ruuvi_driver_status_t
   }
   // Do nothing on success
 }
+/** @} */

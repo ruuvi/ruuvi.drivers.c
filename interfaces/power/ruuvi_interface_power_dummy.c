@@ -1,9 +1,10 @@
 #include "ruuvi_driver_enabled_modules.h"
 #if (!APPLICATION_POWER_ENABLED)
 /**
- * @defgroup Power CPU power functions, such as entering sleep states or rebooting
+ * @addtogroup Power
+ * @{
  */
-/*@{*/
+
 /**
  * @file ruuvi_interface_power_dummy.c
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -17,4 +18,6 @@
 void ruuvi_interface_power_reset(void)
 {
 }
+
+/** @} */
 #endif

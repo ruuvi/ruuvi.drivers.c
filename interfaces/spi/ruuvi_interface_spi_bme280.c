@@ -1,13 +1,21 @@
-/**
- * Ruuvi spi interface for bme280
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- **/
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
+/**
+ * @addtogroup SPI SPI functions
+ * @brief Functions for using SPI bus
+ * 
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_spi.c
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-01-31
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @brief Implementation for SPI operations
+ * 
+ */
 #include <stdint.h>
-#include <string.h> //memcpy
+#include <string.h>
 
 #include "ruuvi_boards.h"
 #include "ruuvi_driver_error.h"
