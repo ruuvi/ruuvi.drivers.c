@@ -136,7 +136,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   dev.selftest = LIS2DH12_ST_DISABLE;
   err_code |= lis2dh12_self_test_set(dev_ctx, dev.selftest);
   // wait for valid sample to be available, 3 samples at 400 Hz = 2.5 ms / sample => 7.5 ms. Wait 9 ms.
-  ruuvi_platform_delay_ms(9);
+  ruuvi_interface_delay_ms(9);
 
   // read accelerometer
   axis3bit16_t data_raw_acceleration_old;
@@ -150,7 +150,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   lis2dh12_self_test_set(dev_ctx, dev.selftest);
 
   // wait 2 samples in low power or normal mode for valid data.
-  ruuvi_platform_delay_ms(9);
+  ruuvi_interface_delay_ms(9);
 
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
@@ -162,7 +162,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   err_code |= lis2dh12_self_test_set(dev_ctx, dev.selftest);
 
   // wait 2 samples and read value
-  ruuvi_platform_delay_ms(9);
+  ruuvi_interface_delay_ms(9);
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_old.u8bit);
 
   // self-test to negative direction
@@ -170,7 +170,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   lis2dh12_self_test_set(dev_ctx, dev.selftest);
 
   // wait 2 samples
-  ruuvi_platform_delay_ms(9);
+  ruuvi_interface_delay_ms(9);
 
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
@@ -526,7 +526,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_set(uint8_t* mode)
     // Refer to LIS2DH12 datasheet p.16.
     dev.samplerate = LIS2DH12_ODR_400Hz;
     err_code |= lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
-    ruuvi_platform_delay_ms((7000 / 400) + 1);
+    ruuvi_interface_delay_ms((7000 / 400) + 1);
     dev.tsample = ruuvi_driver_sensor_timestamp_get();
     dev.samplerate = LIS2DH12_POWER_DOWN;
     err_code |= lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);

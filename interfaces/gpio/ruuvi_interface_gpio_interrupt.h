@@ -1,5 +1,5 @@
-#ifndef RUUVI_INTERFACE_PIN_INTERRUPT_H
-#define RUUVI_INTERFACE_PIN_INTERRUPT_H
+#ifndef RUUVI_INTERFACE_GPIO_INTERRUPT_H
+#define RUUVI_INTERFACE_GPIO_INTERRUPT_H
 /**
  * @addtogroup GPIO
  * @{
@@ -7,17 +7,13 @@
 /**
  * @file ruuvi_interface_gpio_interrupt.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-31
+ * @date 2019-02-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for basic GPIO interrupt functions
  */
-
-#include "nrf_drv_gpiote.h"
-
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
-
 /**
  * Enumeration for GPIO slopes
  */
