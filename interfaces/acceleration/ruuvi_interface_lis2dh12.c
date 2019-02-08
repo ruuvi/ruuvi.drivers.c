@@ -716,9 +716,9 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
   if(RUUVI_DRIVER_UINT64_INVALID != p_acceleration->timestamp_ms && RUUVI_DRIVER_SUCCESS == err_code)
   {
     //Convert mG to G
-    p_acceleration->x_g = acceleration[0] / 1000;
-    p_acceleration->y_g = acceleration[1] / 1000;
-    p_acceleration->z_g = acceleration[2] / 1000;
+    p_acceleration->x_g = acceleration[0] / 1000.0;
+    p_acceleration->y_g = acceleration[1] / 1000.0;
+    p_acceleration->z_g = acceleration[2] / 1000.0;
   }
   return err_code;
 }

@@ -76,7 +76,7 @@ static uint32_t bme280_max_meas_time(uint8_t oversampling)
                2.3 * 3 * oversampling + \
                2 * 0.575;
   // Roundoff + margin
-  return 2 + (uint32_t) time;
+  return (uint32_t)(2 + (uint32_t) time);
 }
 
 /** Initialize BME280 into low-power mode **/
@@ -491,25 +491,29 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t* mode)
 ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
 {
   if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
+ 
   ruuvi_interface_environmental_data_t* p_data = (ruuvi_interface_environmental_data_t*)data;
   struct bme280_data comp_data;
 
-  p_data->timestamp_ms   = RUUVI_DRIVER_UINT64_INVALID;
+  p_data->timestamp_ms   = 0;
   p_data->temperature_c  = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
   p_data->humidity_rh    = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
   p_data->pressure_pa    = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-
-  ruuvi_driver_status_t err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_data(BME280_ALL, &comp_data, &dev));
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_data(BME280_ALL, &comp_data, &dev));
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
+  
 
   // Write tsample if we're in single mode, current time if we're in continuous mode
   // Leave sample time as invalid if forced mode is ongoing.
   uint8_t mode = 0;
-  ruuvi_interface_bme280_mode_get(&mode);
+  err_code |= ruuvi_interface_bme280_mode_get(&mode);
+  
   if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == mode)           { p_data->timestamp_ms = tsample; }
-  else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) { p_data->timestamp_ms   = ruuvi_driver_sensor_timestamp_get(); }
+  else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) { p_data->timestamp_ms = ruuvi_driver_sensor_timestamp_get(); }
   else { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INTERNAL, ~RUUVI_DRIVER_ERROR_FATAL); }
-
+  
+  
   // If we have valid data, return it.
   if(RUUVI_DRIVER_UINT64_INVALID != p_data->timestamp_ms)
   {
@@ -517,6 +521,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
     p_data->humidity_rh    = (float) comp_data.humidity;
     p_data->pressure_pa    = (float) comp_data.pressure;
   }
+  
   return err_code;
 }
 
