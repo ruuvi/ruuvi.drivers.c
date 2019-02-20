@@ -249,7 +249,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* para
 
   // Error if DSP is not last, and if dsp is something else than IIR or OS
   if((RUUVI_DRIVER_SENSOR_DSP_LAST != *dsp) &&
-     ~(RUUVI_DRIVER_SENSOR_DSP_IIR | RUUVI_DRIVER_SENSOR_DSP_OS) & (*dsp) )
+     ~(RUUVI_DRIVER_SENSOR_DSP_LOW_PASS | RUUVI_DRIVER_SENSOR_DSP_OS) & (*dsp) )
   {
     return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
   }
@@ -267,7 +267,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_set(uint8_t* dsp, uint8_t* para
   settings_sel |= BME280_FILTER_SEL;
 
   // Setup IIR
-  if(RUUVI_DRIVER_SENSOR_DSP_IIR & *dsp)
+  if(RUUVI_DRIVER_SENSOR_DSP_LOW_PASS & *dsp)
   {
     if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *parameter || \
        RUUVI_DRIVER_SENSOR_CFG_MIN     == *parameter || \
@@ -371,7 +371,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_dsp_get(uint8_t* dsp, uint8_t* para
   // Check if IIR has been set. If yes, read DSP param from there.
   if(BME280_FILTER_COEFF_OFF != dev.settings.filter)
   {
-    *dsp |= RUUVI_DRIVER_SENSOR_DSP_IIR;
+    *dsp |= RUUVI_DRIVER_SENSOR_DSP_LOW_PASS;
     switch(dev.settings.filter)
     {
       case BME280_FILTER_COEFF_2:

@@ -6,13 +6,11 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_COMMUNICATION_BLE4_STACK_ENABLED
-
+#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_STACK_ENABLED
+#include "ruuvi_driver_error.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication_ble4_advertising.h"
 #include "ruuvi_interface_communication_radio.h"
-#include "ruuvi_driver_error.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -65,7 +63,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init  (const ruuvi_int
   // Configure the BLE stack using the default settings.
   // Fetch the start address of the application RAM.
   uint32_t ram_start = 0;
-  err_code |= nrf_sdh_ble_default_cfg_set(NRF5_SDK15_BLE4_STACK_CONN_TAG, &ram_start);
+  err_code |= nrf_sdh_ble_default_cfg_set(RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG, &ram_start);
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
 
   // Enable BLE stack.
@@ -73,11 +71,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init  (const ruuvi_int
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
 
   // Initialize radio interrupts
-  err_code |= ble_radio_notification_init(NRF5_SDK15_RADIO_IRQ_PRIORITY,
+  err_code |= ble_radio_notification_init(RUUVI_NRF5_SDK15_RADIO_IRQ_PRIORITY,
                                           NRF_RADIO_NOTIFICATION_DISTANCE_800US,
                                           on_radio_evt);
 
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_radio_uninit  (const ruuvi_interface_communication_radio_user_t _handle)
@@ -109,5 +107,4 @@ void ruuvi_interface_communication_radio_activity_callback_set(const ruuvi_inter
   else { on_radio_activity_callback = handler; }
 }
 
-#endif
 #endif

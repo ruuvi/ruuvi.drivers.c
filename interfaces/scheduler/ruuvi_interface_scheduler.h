@@ -40,12 +40,12 @@ typedef void(*ruuvi_scheduler_event_handler_t)(void *p_event_data, uint16_t even
  *  Returns RUUVI_DRIVER_SUCCESS if queue was executed successfully.
  *  Returns error code from the stack if error occurs.
  */
-ruuvi_driver_status_t ruuvi_platform_scheduler_execute(void);
+ruuvi_driver_status_t ruuvi_interface_scheduler_execute(void);
 
 /**
  * Schedule given task to be executed on next call to ruuvi_platform_scheduler_execute
  */
-ruuvi_driver_status_t ruuvi_platform_scheduler_event_put (void const *p_event_data, uint16_t event_size, ruuvi_scheduler_event_handler_t handler);
+ruuvi_driver_status_t ruuvi_interface_scheduler_event_put (const void const *p_event_data, const uint16_t event_size, const ruuvi_scheduler_event_handler_t handler);
 
 
 
