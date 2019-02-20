@@ -38,13 +38,13 @@
  *
  */
  #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_SPI_ENABLED
+#if RUUVI_NRF5_SDK15_SPI_ENABLED
+
 #include <stdint.h>
 #include <string.h> //memcpy
 
 #include "ruuvi_driver_error.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_yield.h"
 
@@ -107,7 +107,7 @@ static ruuvi_driver_status_t ruuvi_to_nrf_spi_freq(const ruuvi_interface_spi_mod
 }
 
 
-ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_config_t* config)
+ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_config_t* config)
 {
   //Return error if SPI is already init
   if (spi_init_done) { return NRF_ERROR_INVALID_STATE; }
@@ -142,10 +142,10 @@ ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_con
   }
 
   spi_init_done = true;
-  return (status | ruuvi_platform_to_ruuvi_error(&err_code));
+  return (status | ruuvi_nrf5_sdk15_to_ruuvi_error(err_code));
 }
 
-ruuvi_driver_status_t ruuvi_platform_spi_xfer_blocking(const uint8_t* tx, const size_t tx_len, uint8_t* rx, const size_t rx_len)
+ruuvi_driver_status_t ruuvi_interface_spi_xfer_blocking(const uint8_t* tx, const size_t tx_len, uint8_t* rx, const size_t rx_len)
 {
   //Return error if not init or if given null pointer
   if (!spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
@@ -153,8 +153,7 @@ ruuvi_driver_status_t ruuvi_platform_spi_xfer_blocking(const uint8_t* tx, const 
 
   ret_code_t err_code = NRF_SUCCESS;
   err_code |= nrf_drv_spi_transfer(&spi, tx, tx_len, rx, rx_len);
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
-#endif
 #endif

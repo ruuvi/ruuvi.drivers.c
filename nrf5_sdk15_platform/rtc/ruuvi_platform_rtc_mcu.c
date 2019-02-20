@@ -44,11 +44,11 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_NRF52832_RTC_ENABLED
+#if RUUVI_NRF5_SDK15_NRF52832_RTC_ENABLED
+
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_rtc.h"
 #include "nrf.h"
 #include "nrf_drv_rtc.h"
@@ -77,7 +77,7 @@ static void rtc_handler(nrf_drv_rtc_int_type_t int_type)
  *
  * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
  **/
-ruuvi_driver_status_t ruuvi_platform_rtc_init(void)
+ruuvi_driver_status_t ruuvi_interface_rtc_init(void)
 {
   if(true == m_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
@@ -97,7 +97,7 @@ ruuvi_driver_status_t ruuvi_platform_rtc_init(void)
   nrf_drv_rtc_counter_clear(&rtc);
   nrf_drv_rtc_overflow_enable(&rtc, true);
   if(NRF_SUCCESS == err_code) { m_is_init = true; }
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 /**
@@ -105,7 +105,7 @@ ruuvi_driver_status_t ruuvi_platform_rtc_init(void)
   *
   * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
   **/
-ruuvi_driver_status_t ruuvi_platform_rtc_uninit(void)
+ruuvi_driver_status_t ruuvi_interface_rtc_uninit(void)
 {
   if(true == m_is_init)
   {
@@ -119,12 +119,11 @@ ruuvi_driver_status_t ruuvi_platform_rtc_uninit(void)
 /**
   * Return number of milliseconds since RTC init, RUUVI_DRIVER_UINT64_INVALID if RTC is not running
   **/
-uint64_t ruuvi_platform_rtc_millis(void)
+uint64_t ruuvi_interface_rtc_millis(void)
 {
   if(false == m_is_init) { return RUUVI_DRIVER_UINT64_INVALID; }
   uint64_t ms = nrf_drv_rtc_counter_get(&rtc) + ticks;
   return (ms*1000)/32768;
 }
 
-#endif
 #endif

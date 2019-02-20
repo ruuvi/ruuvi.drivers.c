@@ -168,14 +168,6 @@ static char* configuration_value_to_string(const uint8_t val)
       snprintf(msg, sizeof(msg), "No change");
       break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_ON_DRDY:
-      snprintf(msg, sizeof(msg), "On data");
-      break;
-
-    case RUUVI_DRIVER_SENSOR_CFG_ON_INTERRUPT:
-      snprintf(msg, sizeof(msg), "On interrupt");
-      break;
-
     case RUUVI_DRIVER_SENSOR_CFG_SINGLE:
       snprintf(msg, sizeof(msg), "Single");
       break;
@@ -224,10 +216,6 @@ void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity
   {
     case RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS:
       written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "High pass x ");
-      break;
-
-    case RUUVI_DRIVER_SENSOR_DSP_IIR:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Infinite Impulse Response x ");
       break;
 
     case RUUVI_DRIVER_SENSOR_DSP_LAST:

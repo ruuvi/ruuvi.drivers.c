@@ -39,10 +39,9 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_FLASH_ENABLED
+#if RUUVI_NRF5_SDK15_FLASH_ENABLED
 #include "ruuvi_driver_error.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h"
 
@@ -146,7 +145,7 @@ static void fds_evt_handler(fds_evt_t const * p_evt)
             if (p_evt->result == FDS_SUCCESS)
             {
                 m_fds_initialized = true;
-                ruuvi_platform_log(RUUVI_INTERFACE_LOG_INFO, "FDS init\r\n");
+                ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "FDS init\r\n");
             }
             break;
 
@@ -154,7 +153,7 @@ static void fds_evt_handler(fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_platform_log(RUUVI_INTERFACE_LOG_INFO, "Record written\r\n");
+                ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record written\r\n");
                 m_fds_processing = false;
             }
         } break;
@@ -163,7 +162,7 @@ static void fds_evt_handler(fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_platform_log(RUUVI_INTERFACE_LOG_INFO, "Record updated\r\n");
+                ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record updated\r\n");
                 m_fds_processing = false;
             }
         } break;
@@ -172,7 +171,7 @@ static void fds_evt_handler(fds_evt_t const * p_evt)
         {
           if (p_evt->result == FDS_SUCCESS)
           {
-            ruuvi_platform_log(RUUVI_INTERFACE_LOG_INFO, "Record deleted\r\n");
+            ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record deleted\r\n");
             m_fds_processing = false;
           }
         } break;
@@ -181,7 +180,7 @@ static void fds_evt_handler(fds_evt_t const * p_evt)
         {
           if (p_evt->result == FDS_SUCCESS)
           {
-            ruuvi_platform_log(RUUVI_INTERFACE_LOG_INFO, "File deleted\r\n");
+            ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "File deleted\r\n");
             m_fds_processing = false;
           }
         } break;
@@ -191,7 +190,7 @@ static void fds_evt_handler(fds_evt_t const * p_evt)
         {
           if (p_evt->result == FDS_SUCCESS)
           {
-            ruuvi_platform_log(RUUVI_INTERFACE_LOG_INFO, "Garbage collected\r\n");
+            ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Garbage collected\r\n");
             m_fds_processing = false;
           }
         } break;
@@ -409,5 +408,4 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void)
   return err_code;
 }
 
-#endif
 #endif

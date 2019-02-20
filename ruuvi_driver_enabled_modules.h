@@ -11,7 +11,7 @@
 #include "application_driver_configuration.h" //<! Enable modules used by your application.
 
 #ifndef RUUVI_INTERFACE_ACCELERATION_ENABLED
-#define RUUVI_INTERFACE_ACCELERATION_ENABLED 0 
+#define RUUVI_INTERFACE_ACCELERATION_ENABLED 0
 #endif
 
 #ifndef RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED

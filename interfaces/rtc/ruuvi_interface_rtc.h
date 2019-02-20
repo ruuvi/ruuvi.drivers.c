@@ -14,18 +14,18 @@
  *
  * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
  **/
-ruuvi_driver_status_t ruuvi_platform_rtc_init(void);
+ruuvi_driver_status_t ruuvi_interface_rtc_init(void);
 
 /**
   * Stop RTC if applicable.
   *
   * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
   **/
-ruuvi_driver_status_t ruuvi_platform_rtc_uninit(void);
+ruuvi_driver_status_t ruuvi_interface_rtc_uninit(void);
 
 /**
   * Return number of milliseconds since RTC init, RUUVI_DRIVER_UINT64_INVALID if RTC is not running
   **/
-uint64_t ruuvi_platform_rtc_millis(void);
+uint64_t ruuvi_interface_rtc_millis(void);
 
 #endif

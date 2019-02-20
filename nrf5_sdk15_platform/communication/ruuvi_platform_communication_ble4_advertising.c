@@ -6,10 +6,10 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_COMMUNICATION_BLE4_ADVERTISING_ENABLED
+#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_ADVERTISING_ENABLED
+
 #include "ruuvi_driver_error.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_interface_communication_ble4_advertising.h"
@@ -65,9 +65,9 @@ static ruuvi_driver_status_t update_settings(void)
     err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
     if (m_advertising)
     {
-        err_code = sd_ble_gap_adv_start(m_adv_handle, NRF5_SDK15_BLE4_STACK_CONN_TAG);
+        err_code = sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
     }
-    return ruuvi_platform_to_ruuvi_error(&err_code);
+    return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 /*
@@ -146,7 +146,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_init(ruuvi_
   m_adv0_len = 0;
   m_adv1_len = 0;
 
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 /*
@@ -232,7 +232,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(co
 
   err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, p_adv_data, p_adv_params);
 
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 /**
@@ -250,7 +250,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(ruuvi_
     // Start advertising if it was not already started
   if(false == m_advertising)
   {
-    err_code |= sd_ble_gap_adv_start(m_adv_handle, NRF5_SDK15_BLE4_STACK_CONN_TAG);
+    err_code |= sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
     m_advertising = true;
   }
 
@@ -281,7 +281,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_se
                                         m_adv_handle,
                                         tx_power
                                        );
-    return ruuvi_platform_to_ruuvi_error(&err_code);
+    return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 
@@ -290,6 +290,4 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_ge
   return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
 
-
-#endif
 #endif

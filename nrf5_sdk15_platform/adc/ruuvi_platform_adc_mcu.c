@@ -44,11 +44,10 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_NRF52832_ADC_ENABLED
+#if RUUVI_NRF5_SDK15_NRF52832_ADC_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_adc.h"
 #include "ruuvi_interface_adc_mcu.h"
 
@@ -207,7 +206,7 @@ static ruuvi_driver_status_t reinit_adc(void)
   adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
   autorefresh = false;
 
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
@@ -246,7 +245,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   adc_volts = RUUVI_INTERFACE_ADC_INVALID;
   adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
 
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
@@ -535,5 +534,4 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(void* data)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-#endif
 #endif

@@ -2,16 +2,15 @@
 #define RUUVI_DRIVER_ERROR_H
 /**
  * @defgroup Error Error reporting and handling
- * @brief Functions for digitally reading and actuating GPIO pins.
+ * @brief Functions and definitions for errors and error handling
  *
- * The GPIO functions do include interrupts, but they do not include PWM,
- * ADC or DAC functions.
+ * 
  */
 /*@{*/
 /**
  * @file ruuvi_driver_error.h
  * @author Otso Jousimaa
- * @date 2019-01-31
+ * @date 2019-02-17
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Ruuvi error codes and error check function
  *
@@ -23,7 +22,7 @@
 #define RUUVI_DRIVER_FLOAT_INVALID  FLT_MAX
 #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
 
-#define RUUVI_DRIVER_SUCCESS               0
+#define RUUVI_DRIVER_SUCCESS               0       ///< Internal Error
 #define RUUVI_DRIVER_ERROR_INTERNAL        (1<<0)  ///< Internal Error
 #define RUUVI_DRIVER_ERROR_NO_MEM          (1<<1)  ///< No Memory for operation
 #define RUUVI_DRIVER_ERROR_NOT_FOUND       (1<<2)  ///< Not found
@@ -45,7 +44,7 @@
 #define RUUVI_DRIVER_STATUS_MORE_AVAILABLE (1<<18) ///< Driver has more data queued
 #define RUUVI_DRIVER_ERROR_FATAL           (1<<31) ///< Program should always reset after this
 
-typedef int32_t ruuvi_driver_status_t;
+typedef int32_t ruuvi_driver_status_t; ///< bitfield for representing errors
 
 /**
  * @brief Check given error code and compare it to non-fatal errors.

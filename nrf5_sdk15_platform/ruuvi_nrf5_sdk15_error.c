@@ -1,5 +1,5 @@
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF_SDK15_ENABLED
+#if RUUVI_NRF5_SDK15_ENABLED
 /**
  * @addtogroup Error
  * @{

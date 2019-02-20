@@ -45,9 +45,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_NRF52832_ENVIRONMENTAL_ENABLED
+#if RUUVI_NRF5_SDK15_NRF52832_ENVIRONMENTAL_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_environmental.h"
@@ -316,5 +314,4 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(void* data)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-#endif
 #endif
