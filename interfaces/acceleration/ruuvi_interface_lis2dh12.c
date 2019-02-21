@@ -30,7 +30,8 @@
 /*!
  * @brief lis2dh12 sensor settings structure.
  */
-static struct {
+static struct
+{
   // resolution
   lis2dh12_op_md_t resolution;
 
@@ -50,10 +51,11 @@ static struct {
 
   // device control structure
   lis2dh12_ctx_t ctx;
-}dev = {0};
+} dev = {0};
 
 // Check that self-test values differ enough
-static ruuvi_driver_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new, axis3bit16_t* old)
+static ruuvi_driver_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new,
+    axis3bit16_t* old)
 {
   if(LIS2DH12_2g != dev.scale || LIS2DH12_NM_10bit != dev.resolution) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
@@ -62,21 +64,29 @@ static ruuvi_driver_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* n
   {
     int16_t diff = new->i16bit[ii] - old->i16bit[ii];
     //Compensate justification, check absolute difference
-    diff >>=6;
+    diff >>= 6;
+
     if(0 > diff) { diff = 0 - diff; }
+
     if(RUUVI_INTERFACE_LIS2DH12_SELFTEST_DIFF_MIN > diff) { return RUUVI_DRIVER_ERROR_SELFTEST; }
+
     if(RUUVI_INTERFACE_LIS2DH12_SELFTEST_DIFF_MAX < diff) { return RUUVI_DRIVER_ERROR_SELFTEST; }
   }
+
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
+    acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
   if(NULL == acceleration_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(NULL != dev.ctx.write_reg) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   // Initialize mems driver interface
   lis2dh12_ctx_t* dev_ctx = &(dev.ctx);
+
   switch(bus)
   {
     case RUUVI_DRIVER_BUS_SPI:
@@ -94,93 +104,76 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
   dev.handle = handle;
   dev_ctx->handle = &dev.handle;
   dev.mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-
   // Check device ID
   uint8_t whoamI = 0;
   lis2dh12_device_id_get(dev_ctx, &whoamI);
-  if ( whoamI != LIS2DH12_ID ) { return RUUVI_DRIVER_ERROR_NOT_FOUND; }
+
+  if(whoamI != LIS2DH12_ID) { return RUUVI_DRIVER_ERROR_NOT_FOUND; }
 
   // Disable FIFO, activity
   lis2dh12_fm_t mode = LIS2DH12_BYPASS_MODE;
   lis2dh12_fifo_mode_set(&(dev.ctx), mode);
   ruuvi_interface_lis2dh12_fifo_use(false);
   ruuvi_interface_lis2dh12_fifo_interrupt_use(false);
-
   float ths = 0;
   ruuvi_interface_lis2dh12_activity_interrupt_use(false, &ths);
-
   // Turn X-, Y-, Z-measurement on
   uint8_t enable_axes = 0x07;
   lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
-
   // Disable Block Data Update, allow values to update even if old is not read
   lis2dh12_block_data_update_set(dev_ctx, PROPERTY_DISABLE);
-
-    // Set Output Data Rate for self-test
+  // Set Output Data Rate for self-test
   dev.samplerate = LIS2DH12_ODR_400Hz;
   lis2dh12_data_rate_set(dev_ctx, dev.samplerate);
-
   // Set full scale to 2G for self-test
   dev.scale = LIS2DH12_2g;
   lis2dh12_full_scale_set(dev_ctx, dev.scale);
-
   // (Don't) Enable temperature sensor
   //lis2dh12_temperature_meas_set(&dev_ctx, LIS2DH12_TEMP_ENABLE);
-
   // Set device in 10 bit mode
   dev.resolution = LIS2DH12_NM_10bit;
   lis2dh12_operating_mode_set(dev_ctx, dev.resolution);
-
   // Run self-test
   // turn self-test off.
   dev.selftest = LIS2DH12_ST_DISABLE;
   err_code |= lis2dh12_self_test_set(dev_ctx, dev.selftest);
   // wait for valid sample to be available, 3 samples at 400 Hz = 2.5 ms / sample => 7.5 ms. Wait 9 ms.
   ruuvi_interface_delay_ms(9);
-
   // read accelerometer
   axis3bit16_t data_raw_acceleration_old;
   axis3bit16_t data_raw_acceleration_new;
-  memset(data_raw_acceleration_old.u8bit, 0x00, 3*sizeof(int16_t));
-  memset(data_raw_acceleration_new.u8bit, 0x00, 3*sizeof(int16_t));
+  memset(data_raw_acceleration_old.u8bit, 0x00, 3 * sizeof(int16_t));
+  memset(data_raw_acceleration_new.u8bit, 0x00, 3 * sizeof(int16_t));
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_old.u8bit);
-
   // self-test to positive direction
   dev.selftest = LIS2DH12_ST_POSITIVE;
   lis2dh12_self_test_set(dev_ctx, dev.selftest);
-
   // wait 2 samples in low power or normal mode for valid data.
   ruuvi_interface_delay_ms(9);
-
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
-  err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
+  err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new,
+              &data_raw_acceleration_old);
   RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
-
   // turn self-test off, keep error code in case we "lose" sensor after self-test
   dev.selftest = LIS2DH12_ST_DISABLE;
   err_code |= lis2dh12_self_test_set(dev_ctx, dev.selftest);
-
   // wait 2 samples and read value
   ruuvi_interface_delay_ms(9);
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_old.u8bit);
-
   // self-test to negative direction
   dev.selftest = LIS2DH12_ST_NEGATIVE;
   lis2dh12_self_test_set(dev_ctx, dev.selftest);
-
   // wait 2 samples
   ruuvi_interface_delay_ms(9);
-
   // Check self-test result
   lis2dh12_acceleration_raw_get(dev_ctx, data_raw_acceleration_new.u8bit);
-  err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new, &data_raw_acceleration_old);
+  err_code |= lis2dh12_verify_selftest_difference(&data_raw_acceleration_new,
+              &data_raw_acceleration_old);
   RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
-
   // turn self-test off, keep error code in case we "lose" sensor after self-test
   dev.selftest = LIS2DH12_ST_DISABLE;
   err_code |= lis2dh12_self_test_set(dev_ctx, dev.selftest);
-
   // Turn accelerometer off
   dev.samplerate = LIS2DH12_POWER_DOWN;
   err_code |= lis2dh12_data_rate_set(dev_ctx, dev.samplerate);
@@ -204,7 +197,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
     acceleration_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
     acceleration_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
     dev.tsample = RUUVI_DRIVER_UINT64_INVALID;
- }
+  }
 
   return err_code;
 }
@@ -213,9 +206,11 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t* accel
  * Lis2dh12 does not have a proper softreset (boot does not reset all registers)
  * Therefore just stop sampling
  */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t* sensor, ruuvi_driver_bus_t bus, uint8_t handle)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t* sensor,
+    ruuvi_driver_bus_t bus, uint8_t handle)
 {
   if(NULL == sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+
   dev.samplerate = LIS2DH12_POWER_DOWN;
   memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
   //LIS2DH12 function returns SPI write result which is ruuvi_driver_status_t
@@ -233,13 +228,14 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t* sen
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_set(uint8_t* samplerate)
 {
   if(NULL == samplerate)                                { return RUUVI_DRIVER_ERROR_NULL; }
+
   VERIFY_SENSOR_SLEEPS();
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *samplerate)   {}
   else if(RUUVI_DRIVER_SENSOR_CFG_MIN == *samplerate)    { dev.samplerate = LIS2DH12_ODR_1Hz;   }
   else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate)    { dev.samplerate = LIS2DH12_ODR_200Hz; }
-  else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate){ dev.samplerate = LIS2DH12_ODR_1Hz;   }
+  else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate) { dev.samplerate = LIS2DH12_ODR_1Hz;   }
   else if(1   == *samplerate)                            { dev.samplerate = LIS2DH12_ODR_1Hz;   }
   else if(10  >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_10Hz;  }
   else if(25  >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_25Hz;  }
@@ -253,6 +249,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_set(uint8_t* samplerat
     err_code |= lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
     err_code |= ruuvi_interface_lis2dh12_samplerate_get(samplerate);
   }
+
   return err_code;
 }
 
@@ -262,9 +259,10 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_set(uint8_t* samplerat
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_get(uint8_t* samplerate)
 {
   if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_data_rate_get(&(dev.ctx), &dev.samplerate);
+
   switch(dev.samplerate)
   {
     case LIS2DH12_ODR_1Hz:
@@ -295,6 +293,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_get(uint8_t* samplerat
       *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
       err_code |=  RUUVI_DRIVER_ERROR_INTERNAL;
   }
+
   return err_code;
 }
 
@@ -304,6 +303,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_get(uint8_t* samplerat
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_set(uint8_t* resolution)
 {
   if(NULL == resolution)                               { return RUUVI_DRIVER_ERROR_NULL; }
+
   VERIFY_SENSOR_SLEEPS();
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
@@ -311,9 +311,9 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_set(uint8_t* resolutio
   else if(RUUVI_DRIVER_SENSOR_CFG_MIN == *resolution)     { dev.resolution = LIS2DH12_LP_8bit;  }
   else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *resolution)     { dev.resolution = LIS2DH12_HR_12bit; }
   else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *resolution) { dev.samplerate = LIS2DH12_NM_10bit; }
-  else if(8 >= *resolution )                              { dev.resolution = LIS2DH12_LP_8bit;  }
-  else if(10 >= *resolution )                             { dev.resolution = LIS2DH12_NM_10bit; }
-  else if(12 >= *resolution )                             { dev.resolution = LIS2DH12_HR_12bit; }
+  else if(8 >= *resolution)                              { dev.resolution = LIS2DH12_LP_8bit;  }
+  else if(10 >= *resolution)                             { dev.resolution = LIS2DH12_NM_10bit; }
+  else if(12 >= *resolution)                             { dev.resolution = LIS2DH12_HR_12bit; }
   else { *resolution = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED; err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
@@ -321,34 +321,37 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_set(uint8_t* resolutio
     err_code |= lis2dh12_operating_mode_set(&(dev.ctx), dev.resolution);
     err_code |= ruuvi_interface_lis2dh12_resolution_get(resolution);
   }
+
   return err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_get(uint8_t* resolution)
 {
   if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_operating_mode_get(&(dev.ctx), &dev.resolution);
+
   switch(dev.resolution)
   {
     case LIS2DH12_LP_8bit:
-    *resolution = 8;
-    break;
+      *resolution = 8;
+      break;
 
     case LIS2DH12_NM_10bit:
-    *resolution = 10;
-    break;
+      *resolution = 10;
+      break;
 
     case LIS2DH12_HR_12bit:
-    *resolution = 12;
-    break;
+      *resolution = 12;
+      break;
 
     default:
-    *resolution = RUUVI_DRIVER_SENSOR_ERR_INVALID;
-    err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
-    break;
+      *resolution = RUUVI_DRIVER_SENSOR_ERR_INVALID;
+      err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
+      break;
   }
+
   return err_code;
 }
 
@@ -358,8 +361,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_get(uint8_t* resolutio
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_set(uint8_t* scale)
 {
   if(NULL == scale)                               { return RUUVI_DRIVER_ERROR_NULL; }
-  VERIFY_SENSOR_SLEEPS();
 
+  VERIFY_SENSOR_SLEEPS();
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *scale)    { }
@@ -375,6 +378,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_set(uint8_t* scale)
     *scale = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
     err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
   }
+
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
     err_code |= lis2dh12_full_scale_set(&(dev.ctx), dev.scale);
@@ -387,9 +391,10 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_set(uint8_t* scale)
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_get(uint8_t* scale)
 {
   if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_full_scale_get(&(dev.ctx), &dev.scale);
+
   switch(dev.scale)
   {
     case LIS2DH12_2g:
@@ -409,29 +414,35 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_get(uint8_t* scale)
       break;
 
     default:
-       *scale = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
+      *scale = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
       err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
   }
+
   return err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_set(uint8_t* dsp, uint8_t* parameter)
 {
   if(NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
+
   VERIFY_SENSOR_SLEEPS();
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   // Read original values in case one is NO_CHANGE and other should be adjusted.
   uint8_t orig_dsp, orig_param;
   err_code |= ruuvi_interface_lis2dh12_dsp_get(&orig_dsp, &orig_param);
+
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *dsp)       { *dsp       = orig_dsp; }
+
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *parameter) { *parameter = orig_param; }
 
   if(RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS == *dsp)
   {
     lis2dh12_hpcf_t hpcf;
+
     // Set default here to avoid duplicate value error in switch-case
     if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *parameter) { *parameter = 0; }
-    switch (*parameter)
+
+    switch(*parameter)
     {
       case RUUVI_DRIVER_SENSOR_CFG_MIN:
       case 0:
@@ -457,18 +468,21 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_set(uint8_t* dsp, uint8_t* pa
         *parameter = RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
         return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
     }
+
     err_code |= lis2dh12_high_pass_bandwidth_set(&(dev.ctx), hpcf);
     err_code |= lis2dh12_high_pass_mode_set(&(dev.ctx), LIS2DH12_NORMAL);
     err_code |= lis2dh12_high_pass_on_outputs_set(&(dev.ctx), PROPERTY_ENABLE);
     return err_code;
   }
+
   if(RUUVI_DRIVER_SENSOR_DSP_LAST == *dsp ||
-     RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *dsp)
+      RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *dsp)
   {
     err_code |= lis2dh12_high_pass_on_outputs_set(&(dev.ctx), PROPERTY_DISABLE);
     *dsp = RUUVI_DRIVER_SENSOR_DSP_LAST;
     return err_code;
   }
+
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
 
@@ -478,6 +492,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_get(uint8_t* dsp, uint8_t* pa
   uint8_t mode, hpcf;
   err_code |= lis2dh12_high_pass_bandwidth_get(&(dev.ctx), &hpcf);
   err_code |= lis2dh12_high_pass_on_outputs_get(&(dev.ctx), &mode);
+
   if(mode) { *dsp = RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS; }
   else { *dsp = RUUVI_DRIVER_SENSOR_DSP_LAST; }
 
@@ -510,17 +525,21 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_get(uint8_t* dsp, uint8_t* pa
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_set(uint8_t* mode)
 {
   if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+
   if(RUUVI_DRIVER_SENSOR_CFG_SINGLE == *mode)
   {
     // Do nothing if sensor is in continuous mode
     uint8_t current_mode;
     ruuvi_interface_lis2dh12_mode_get(&current_mode);
+
     if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == current_mode)
     {
       *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
       return RUUVI_DRIVER_ERROR_INVALID_STATE;
     }
+
     // Start sensor at 400 Hz (highest common samplerate)
     // and wait for 7/ODR ms for turn-on (?) NOTE: 7 s / 400 just to be on safe side.
     // Refer to LIS2DH12 datasheet p.16.
@@ -531,11 +550,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_set(uint8_t* mode)
     dev.samplerate = LIS2DH12_POWER_DOWN;
     err_code |= lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
     *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-
     return err_code;
   }
-
-
 
   // Do not store power down mode to dev structure, so we can continue at previous data rate
   // when mode is set to continous.
@@ -550,6 +566,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_set(uint8_t* mode)
     err_code |= lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
   }
   else { err_code |= RUUVI_DRIVER_ERROR_INVALID_PARAM; }
+
   return err_code;
 }
 
@@ -571,6 +588,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_get(uint8_t* mode)
       *mode = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
       return RUUVI_DRIVER_ERROR_INTERNAL;
   }
+
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -581,7 +599,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_get(uint8_t* mode)
  * parameter acceleration: Output. Acceleration values in mg
  *
  */
-static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration, float* acceleration)
+static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
+                                     float* acceleration)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
@@ -609,6 +628,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration, float
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
+
         break;
 
       case LIS2DH12_4g:
@@ -631,9 +651,10 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration, float
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
+
         break;
 
-        case LIS2DH12_8g:
+      case LIS2DH12_8g:
         switch(dev.resolution)
         {
           case LIS2DH12_LP_8bit:
@@ -651,9 +672,10 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration, float
           default:
             acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
-          break;
+            break;
         }
-      break;
+
+        break;
 
       case LIS2DH12_16g:
         switch(dev.resolution)
@@ -675,7 +697,8 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration, float
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
-      break;
+
+        break;
 
       default:
         acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
@@ -683,6 +706,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration, float
         break;
     }
   }
+
   return err_code;
 }
 
@@ -692,34 +716,34 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
 
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   axis3bit16_t raw_acceleration;
-  memset(raw_acceleration.u8bit, 0x00, 3*sizeof(int16_t));
+  memset(raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
   err_code |= lis2dh12_acceleration_raw_get(&(dev.ctx), raw_acceleration.u8bit);
-
-  ruuvi_interface_acceleration_data_t* p_acceleration = (ruuvi_interface_acceleration_data_t*)data;
+  ruuvi_interface_acceleration_data_t* p_acceleration =
+    (ruuvi_interface_acceleration_data_t*)data;
   float acceleration[3] = {0};
-
   p_acceleration->timestamp_ms = RUUVI_DRIVER_UINT64_INVALID;
   p_acceleration->x_g = RUUVI_INTERFACE_ACCELERATION_INVALID;
   p_acceleration->y_g = RUUVI_INTERFACE_ACCELERATION_INVALID;
   p_acceleration->z_g = RUUVI_INTERFACE_ACCELERATION_INVALID;
-
   // Compensate data with resolution, scale
   err_code |= rawToMg(&raw_acceleration, acceleration);
-
   uint8_t mode;
   err_code |= ruuvi_interface_lis2dh12_mode_get(&mode);
+
   if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == mode)           {  p_acceleration->timestamp_ms   = dev.tsample; }
   else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) {  p_acceleration->timestamp_ms   = ruuvi_driver_sensor_timestamp_get(); }
   else { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INTERNAL, ~RUUVI_DRIVER_ERROR_FATAL); }
 
   // If we have valid data, return it.
-  if(RUUVI_DRIVER_UINT64_INVALID != p_acceleration->timestamp_ms && RUUVI_DRIVER_SUCCESS == err_code)
+  if(RUUVI_DRIVER_UINT64_INVALID != p_acceleration->timestamp_ms
+      && RUUVI_DRIVER_SUCCESS == err_code)
   {
     //Convert mG to G
     p_acceleration->x_g = acceleration[0] / 1000.0;
     p_acceleration->y_g = acceleration[1] / 1000.0;
     p_acceleration->z_g = acceleration[2] / 1000.0;
   }
+
   return err_code;
 }
 
@@ -727,25 +751,30 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use(const bool enable)
 {
   lis2dh12_fm_t mode;
+
   if(enable) { mode = LIS2DH12_DYNAMIC_STREAM_MODE; }
   else { mode = LIS2DH12_BYPASS_MODE; }
+
   lis2dh12_fifo_set(&(dev.ctx), enable);
   return lis2dh12_fifo_mode_set(&(dev.ctx),  mode);
 }
 
 //TODO * return: RUUVI_DRIVER_INVALID_STATE if FIFO is not in use
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements, ruuvi_interface_acceleration_data_t* data)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
+    ruuvi_interface_acceleration_data_t* data)
 {
   if(NULL == num_elements || NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
 
   uint8_t elements = 0;
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_fifo_data_level_get(&(dev.ctx), &elements);
+
   if(!elements)
   {
     *num_elements = 0;
     return RUUVI_DRIVER_SUCCESS;
   }
+
   // 31 FIFO + latest
   elements++;
 
@@ -759,20 +788,21 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements, r
   ruuvi_interface_lis2dh12_samplerate_get(&rate);
   // Calculate sample interval
   uint32_t interval = 1000 / rate;
-
   // Read all elements
   axis3bit16_t raw_acceleration;
   float acceleration[3];
+
   for(size_t ii = 0; ii < elements; ii++)
   {
     err_code |= lis2dh12_acceleration_raw_get(&(dev.ctx), raw_acceleration.u8bit);
     // Compensate data with resolution, scale
     err_code |= rawToMg(&raw_acceleration, acceleration);
-    data[ii].timestamp_ms = now - ((elements-ii-1)*interval);
+    data[ii].timestamp_ms = now - ((elements - ii - 1) * interval);
     data[ii].x_g = acceleration[0] / 1000;
     data[ii].y_g = acceleration[1] / 1000;
     data[ii].z_g = acceleration[2] / 1000;
   }
+
   *num_elements = elements;
   return err_code;
 }
@@ -782,14 +812,15 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool ena
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   lis2dh12_ctrl_reg3_t ctrl = { 0 };
+
   if(true == enable)
   {
     // Setting the FTH [4:0] bit in the FIFO_CTRL_REG (2Eh) register to an N value,
     // the number of X, Y and Z data samples that should be read at the rise of the watermark interrupt is up to (N+1).
     err_code |= lis2dh12_fifo_watermark_set(&(dev.ctx), 31);
     ctrl.i1_wtm = PROPERTY_ENABLE;
-
   }
+
   err_code |= lis2dh12_pin_int1_config_set(&(dev.ctx), &ctrl);
   return err_code;
 }
@@ -809,27 +840,31 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool ena
  * returns: error code from stack on error.
  *
  */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool enable, float* limit_g)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool enable,
+    float* limit_g)
 {
   if(NULL == limit_g) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(0 > *limit_g)    { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
+
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   lis2dh12_hp_t high_pass = LIS2DH12_ON_INT1_GEN;
   lis2dh12_ctrl_reg6_t ctrl6 = { 0 };
   lis2dh12_int1_cfg_t  cfg = { 0 };
   ctrl6.i2_ia1 = PROPERTY_ENABLE;
+
   if(enable)
   {
     cfg.xhie     = PROPERTY_ENABLE;
     cfg.yhie     = PROPERTY_ENABLE;
     cfg.zhie     = PROPERTY_ENABLE;
   }
+
   /*
   cfg.xlie     = PROPERTY_ENABLE;
   cfg.ylie     = PROPERTY_ENABLE;
   cfg.zlie     = PROPERTY_ENABLE;
   */
-
   // Adjust for scale
   // 1 LSb = 16 mg @ FS = 2 g
   // 1 LSb = 32 mg @ FS = 4 g
@@ -839,6 +874,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
   uint32_t threshold;
   float divisor;
   err_code |= ruuvi_interface_lis2dh12_scale_get(&scale);
+
   switch(scale)
   {
     case 2:
@@ -862,22 +898,19 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
       break;
   }
 
-  threshold = (uint32_t)(*limit_g/divisor) + 1;
-  if(threshold > 0x7F) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
-  *limit_g = threshold*divisor;
+  threshold = (uint32_t)(*limit_g / divisor) + 1;
 
+  if(threshold > 0x7F) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
+  *limit_g = threshold * divisor;
   // Configure highpass on INTERRUPT 1
   err_code |= lis2dh12_high_pass_int_conf_set(&(dev.ctx), high_pass);
-
   // Configure INTERRUPT 1 Threshold
   err_code |= lis2dh12_int1_gen_threshold_set(&(dev.ctx), threshold);
-
   // Configure INTERRUPT 1 ON ZHI, ZLO, YHI, YLO, XHI, XLO
   err_code |= lis2dh12_int1_gen_conf_set(&(dev.ctx), &cfg);
-
   // Route INTERRUPT 1 to PIN 2
   err_code |= lis2dh12_pin_int2_config_set(&(dev.ctx), &ctrl6);
-
   return err_code;
 }
 

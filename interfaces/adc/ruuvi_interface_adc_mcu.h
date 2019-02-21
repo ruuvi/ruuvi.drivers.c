@@ -9,7 +9,8 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
-typedef enum {
+typedef enum
+{
   RUUVI_INTERFACE_ADC_AIN0,
   RUUVI_INTERFACE_ADC_AIN1,
   RUUVI_INTERFACE_ADC_AIN2,
@@ -19,10 +20,12 @@ typedef enum {
   RUUVI_INTERFACE_ADC_AIN6,
   RUUVI_INTERFACE_ADC_AIN7,
   RUUVI_INTERFACE_ADC_AINVDD
-}ruuvi_interface_adc_channel_t;
+} ruuvi_interface_adc_channel_t;
 
-ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor, ruuvi_driver_bus_t, uint8_t handle);
-ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_sensor, ruuvi_driver_bus_t, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor,
+    ruuvi_driver_bus_t, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_sensor,
+    ruuvi_driver_bus_t, uint8_t handle);
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_samplerate_set(uint8_t* samplerate);
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_samplerate_get(uint8_t* samplerate);
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_resolution_set(uint8_t* resolution);

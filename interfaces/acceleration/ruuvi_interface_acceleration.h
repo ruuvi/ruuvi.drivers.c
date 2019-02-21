@@ -21,6 +21,6 @@ typedef struct
   float x_g;
   float y_g;
   float z_g;
-}ruuvi_interface_acceleration_data_t;
+} ruuvi_interface_acceleration_data_t;
 
 #endif

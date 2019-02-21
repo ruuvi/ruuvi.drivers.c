@@ -1,5 +1,5 @@
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_POWER_ENABLED 
+#if RUUVI_NRF5_SDK15_POWER_ENABLED
 /**
  * @file ruuvi_nrf5_sdk15_power.c
  * @author Otso Jousimaa
@@ -23,15 +23,17 @@
 
 static bool m_is_init = false;
 
-ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const ruuvi_interface_power_regulators_t regulators)
+ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const
+    ruuvi_interface_power_regulators_t regulators)
 {
-
   ret_code_t err_code = NRF_SUCCESS;
   nrfx_power_config_t config = {0};
+
   if(regulators.DCDC_INTERNAL)
   {
     config.dcdcen = true;
   }
+
   if(regulators.DCDC_HV)
   {
     #if NRF_POWER_HAS_VDDH
@@ -39,14 +41,15 @@ ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const ruuvi_interf
     #else
     err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
     #endif
-
   }
+
   if(m_is_init)
   {
     nrfx_power_uninit();
     m_is_init = false;
   }
-  err_code |= nrfx_power_init (&config);
+
+  err_code |= nrfx_power_init(&config);
   m_is_init = true;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }

@@ -37,7 +37,7 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_NRF5_SDK15_WATCHDOG_ENABLED
 
 #include "ruuvi_driver_error.h"
@@ -54,8 +54,8 @@ nrf_drv_wdt_channel_id m_channel_id;
  */
 void wdt_event_handler(void)
 {
-    //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
+  //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
+  ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
 }
 
 /**

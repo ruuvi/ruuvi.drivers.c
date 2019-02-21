@@ -14,12 +14,12 @@
 
 typedef struct
 {
- char fw_version[32];
- char model[32];
- char hw_version[32];
- char manufacturer[32];
- char deviceid[32];
-}ruuvi_interface_communication_ble4_gatt_dis_init_t;
+  char fw_version[32];
+  char model[32];
+  char hw_version[32];
+  char manufacturer[32];
+  char deviceid[32];
+} ruuvi_interface_communication_ble4_gatt_dis_init_t;
 
 /**
  * Initializes GATT stack. Uses default values from sdk_config.h, these can be overridden in nrf5_sdk15_application_config.h
@@ -41,7 +41,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void);
  *                                          or if ruuvi_interface_communication_ble4_gatt_init has not been called.
  * Returns error code from stack in case there is other error.
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init(ruuvi_interface_communication_t* const channel);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init(
+  ruuvi_interface_communication_t* const channel);
 
 /**
  * Initialize BLE4 Device firmware update service.
@@ -58,7 +59,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init(void);
  * Returns RUUVI_DRIVER_SUCCESS on success
  * Returns error code from stack in case there is  error.
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruuvi_interface_communication_ble4_gatt_dis_init_t* const dis);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(
+  const ruuvi_interface_communication_ble4_gatt_dis_init_t* const dis);
 
 /**
  * Start or stop advertising GATT connection.
@@ -71,6 +73,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruu
  * Returns error code from stack in case there is  error.
  *
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(const bool connectable, const char* const name, const uint16_t company_id, const bool advertise_nus);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(
+  const bool connectable, const char* const name, const uint16_t company_id,
+  const bool advertise_nus);
 
 #endif

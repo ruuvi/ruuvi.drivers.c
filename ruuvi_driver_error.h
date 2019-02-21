@@ -4,7 +4,7 @@
  * @defgroup Error Error reporting and handling
  * @brief Functions and definitions for errors and error handling
  *
- * 
+ *
  */
 /*@{*/
 /**
@@ -59,7 +59,8 @@ typedef int32_t ruuvi_driver_status_t; ///< bitfield for representing errors
  * @param[in] p_file file from which function was called
  * @param[in] line line from which the function was called
  **/
-void ruuvi_driver_error_check(const ruuvi_driver_status_t error, const ruuvi_driver_status_t non_fatal_mask, const char* p_file, const int line);
+void ruuvi_driver_error_check(const ruuvi_driver_status_t error,
+                              const ruuvi_driver_status_t non_fatal_mask, const char* p_file, const int line);
 
 /**
  * @brief Shorthand macro for calling the @ref ruuvi_driver_error_check with current file & line

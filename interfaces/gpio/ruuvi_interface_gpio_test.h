@@ -6,15 +6,15 @@
  * @addtogroup GPIO
  * @{
  */
- /**
- * @file ruuvi_interface_gpio_test.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-02-20
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Test functionality defined in @ref ruuvi_interface_gpio.h
- *
- */
+/**
+* @file ruuvi_interface_gpio_test.h
+* @author Otso Jousimaa <otso@ojousima.net>
+* @date 2019-02-20
+* @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+*
+* Test functionality defined in @ref ruuvi_interface_gpio.h
+*
+*/
 
 /**
  * @brief Test GPIO module
@@ -22,8 +22,8 @@
  * - Interface must return RUUVI_DRIVER_SUCCESS after first call.
  * - Interface must return RUUVI_DRIVER_ERROR_INVALID_STATE when called while already initialized.
  * - Interface must return RUUVI_DRIVER_SUCCESS when called after uninitialization.
- * 
- * 
+ *
+ *
  *
  * @return @c true if test passes, @c false on error.
  */
@@ -37,9 +37,10 @@ ruuvi_driver_status_t ruuvi_interface_gpio_init_test(void);
  * @param mode[in] Mode to set the pin to. See @ref ruuvi_interface_gpio_mode_t for possible values.
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode. 
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin, const ruuvi_interface_gpio_mode_t mode);
+ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin,
+    const ruuvi_interface_gpio_mode_t mode);
 
 /**
  * @brief Toggle the state of a pin of a port.
@@ -62,7 +63,8 @@ ruuvi_driver_status_t ruuvi_interface_gpio_toggle(const uint8_t pin);
  * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output (optional).
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin, const ruuvi_interface_gpio_state_t state);
+ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin,
+    const ruuvi_interface_gpio_state_t state);
 
 /**
  * @brief Read state of a pin of a port into bool high
@@ -76,6 +78,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin, const ruuvi_
  * @return RUUVI_DRIVER_ERROR_INVALID_ADDRESS if pointer is invalid for any reason (optional).
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input (optional).
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin, ruuvi_interface_gpio_state_t* const p_state);
+ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin,
+    ruuvi_interface_gpio_state_t* const p_state);
 /*@}*/
 #endif

@@ -94,19 +94,25 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
 NRF_BLE_GATT_DEF(m_gatt);                                /**< GATT module instance. */
-NRF_BLE_QWR_DEF(m_qwr);                                  /**< Context for the Queued Write module.*/
+NRF_BLE_QWR_DEF(
+  m_qwr);                                  /**< Context for the Queued Write module.*/
 BLE_NUS_DEF(m_nus, NRF_SDH_BLE_TOTAL_LINK_COUNT);        /**< BLE NUS service instance. */
-static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
+static uint16_t m_conn_handle =
+  BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 static bool     m_gatt_is_init = false;
-static ruuvi_interface_communication_t* channel = NULL;  /**< Pointer to application communication interface, given at initialization */
-static ble_uuid_t m_adv_uuids[] =                        /**< Universally unique service identifier. */
+static ruuvi_interface_communication_t* channel =
+  NULL;  /**< Pointer to application communication interface, given at initialization */
+static ble_uuid_t m_adv_uuids[]
+=                        /**< Universally unique service identifier. */
 {
-    {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
+  {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
 };
 
 // Advertising data for connectability
-static ble_gap_adv_params_t   m_adv_params;              /**< Parameters to be passed to the stack when starting advertising. */
-static uint8_t                m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET; /**< Advertising handle used to identify an advertising set. */
+static ble_gap_adv_params_t
+m_adv_params;              /**< Parameters to be passed to the stack when starting advertising. */
+static uint8_t                m_adv_handle =
+  BLE_GAP_ADV_SET_HANDLE_NOT_SET; /**< Advertising handle used to identify an advertising set. */
 static uint8_t                m_advertisement[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
 static uint8_t                m_scanresp[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
 static ble_gap_adv_data_t     m_adv_data = {0};
@@ -121,16 +127,12 @@ static ret_code_t gap_params_init(void)
   ret_code_t              err_code;
   ble_gap_conn_params_t   gap_conn_params;
   ble_gap_conn_sec_mode_t sec_mode;
-
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
-
   memset(&gap_conn_params, 0, sizeof(gap_conn_params));
-
   gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
   gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
   gap_conn_params.slave_latency     = SLAVE_LATENCY;
   gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
-
   err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
   return err_code;
 }
@@ -141,7 +143,8 @@ static ret_code_t gap_params_init(void)
  */
 static void conn_params_error_handler(uint32_t nrf_error)
 {
-  RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(nrf_error), RUUVI_DRIVER_SUCCESS);
+  RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(nrf_error),
+                           RUUVI_DRIVER_SUCCESS);
 }
 
 /**@brief Function for handling an event from the Connection Parameters Module.
@@ -155,10 +158,11 @@ static void conn_params_error_handler(uint32_t nrf_error)
  *
  * @param[in] p_evt  Event received from the Connection Parameters Module.
  */
-static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
+static void on_conn_params_evt(ble_conn_params_evt_t* p_evt)
 {
   uint32_t err_code;
-  if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
+
+  if(p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
   {
     err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
     RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
@@ -172,9 +176,7 @@ static ret_code_t conn_params_init(void)
 {
   uint32_t               err_code;
   ble_conn_params_init_t cp_init;
-
   memset(&cp_init, 0, sizeof(cp_init));
-
   cp_init.p_conn_params                  = NULL;
   cp_init.first_conn_params_update_delay = FIRST_CONN_PARAMS_UPDATE_DELAY;
   cp_init.next_conn_params_update_delay  = NEXT_CONN_PARAMS_UPDATE_DELAY;
@@ -183,7 +185,6 @@ static ret_code_t conn_params_init(void)
   cp_init.disconnect_on_fail             = false;
   cp_init.evt_handler                    = on_conn_params_evt;
   cp_init.error_handler                  = conn_params_error_handler;
-
   err_code = ble_conn_params_init(&cp_init);
   return err_code;
 }
@@ -197,10 +198,10 @@ static ret_code_t conn_params_init(void)
  * @param[in] p_evt       Nordic UART Service event.
  */
 /**@snippet [Handling the data received over BLE] */
-static void nus_data_handler(ble_nus_evt_t * p_evt)
+static void nus_data_handler(ble_nus_evt_t* p_evt)
 {
   if(NULL == channel ||
-     NULL == channel->on_evt)
+      NULL == channel->on_evt)
   {
     return;
   }
@@ -208,7 +209,8 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
   switch(p_evt->type)
   {
     case BLE_NUS_EVT_RX_DATA:
-      channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_RECEIVED, (void*)p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
+      channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_RECEIVED,
+                      (void*)p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
       break;
 
     case BLE_NUS_EVT_COMM_STARTED:
@@ -236,83 +238,87 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
  * @param[in]   p_context   Unused.
  *
  */
-static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
+static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 {
   uint32_t err_code;
 
-  switch (p_ble_evt->header.evt_id)
+  switch(p_ble_evt->header.evt_id)
   {
-  case BLE_GAP_EVT_CONNECTED:
-    m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-    err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Connected \r\n");
-    RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
-    break;
+    case BLE_GAP_EVT_CONNECTED:
+      m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+      err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Connected \r\n");
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      break;
 
-  case BLE_GAP_EVT_DISCONNECTED:
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Disconnected \r\n");
-    // ble_nus.c does not call NUS callback on disconnect, call it here.
-    ble_nus_evt_t evt = { 0 };
-    evt.type = BLE_NUS_EVT_COMM_STOPPED;
-    nus_data_handler(&evt);
-    m_conn_handle = BLE_CONN_HANDLE_INVALID;
-    break;
+    case BLE_GAP_EVT_DISCONNECTED:
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Disconnected \r\n");
+      // ble_nus.c does not call NUS callback on disconnect, call it here.
+      ble_nus_evt_t evt = { 0 };
+      evt.type = BLE_NUS_EVT_COMM_STOPPED;
+      nus_data_handler(&evt);
+      m_conn_handle = BLE_CONN_HANDLE_INVALID;
+      break;
 
-  case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-  {
-    ble_gap_phys_t const phys =
+    case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
     {
-      .rx_phys = BLE_GAP_PHY_AUTO,
-      .tx_phys = BLE_GAP_PHY_AUTO,
-    };
-    err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-    RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
-  } break;
-
-  case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-    // Pairing not supported
-    err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
-    RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      ble_gap_phys_t const phys =
+      {
+        .rx_phys = BLE_GAP_PHY_AUTO,
+        .tx_phys = BLE_GAP_PHY_AUTO,
+      };
+      err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+    }
     break;
 
-  case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-    // No system attributes have been stored.
-    err_code = sd_ble_gatts_sys_attr_set(m_conn_handle, NULL, 0, 0);
-    RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
-    break;
+    case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
+      // Pairing not supported
+      err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
+                                             NULL, NULL);
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      break;
 
-  case BLE_GATTC_EVT_TIMEOUT:
-    // Disconnect on GATT Client timeout event.
-    err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
-                                     BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-    RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
-    break;
+    case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+      // No system attributes have been stored.
+      err_code = sd_ble_gatts_sys_attr_set(m_conn_handle, NULL, 0, 0);
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      break;
 
-  case BLE_GATTS_EVT_TIMEOUT:
-    // Disconnect on GATT Server timeout event.
-    err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
-                                     BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-    RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
-    break;
+    case BLE_GATTC_EVT_TIMEOUT:
+      // Disconnect on GATT Client timeout event.
+      err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
+                                       BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      break;
 
-  // TODO: Move to advertisement?
-  case BLE_GAP_EVT_ADV_REPORT:
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "RX'd scan data\r\n");
-    break;
+    case BLE_GATTS_EVT_TIMEOUT:
+      // Disconnect on GATT Server timeout event.
+      err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
+                                       BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      break;
 
-  default:
-    // No implementation needed.
-    break;
+    // TODO: Move to advertisement?
+    case BLE_GAP_EVT_ADV_REPORT:
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "RX'd scan data\r\n");
+      break;
+
+    default:
+      // No implementation needed.
+      break;
   }
 }
 
 /**@brief Function for handling events from the GATT library. */
-static void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const * p_evt)
+static void gatt_evt_handler(nrf_ble_gatt_t* p_gatt, nrf_ble_gatt_evt_t const* p_evt)
 {
-  if ((m_conn_handle == p_evt->conn_handle) && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
+  if((m_conn_handle == p_evt->conn_handle)
+      && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
   {
     //m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "Changing MTU size is not supported\r\n");
+    ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING,
+                        "Changing MTU size is not supported\r\n");
   }
 }
 
@@ -325,7 +331,8 @@ static void gatt_evt_handler(nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const *
  */
 static void nrf_qwr_error_handler(uint32_t nrf_error)
 {
-  RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(nrf_error), RUUVI_DRIVER_SUCCESS);
+  RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(nrf_error),
+                           RUUVI_DRIVER_SUCCESS);
 }
 
 // YOUR_JOB: Update this code if you want to do anything given a DFU event (optional).
@@ -335,123 +342,132 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
  */
 static void ble_dfu_evt_handler(ble_dfu_buttonless_evt_type_t event)
 {
-    switch (event)
-    {
-        case BLE_DFU_EVT_BOOTLOADER_ENTER_PREPARE:
-            // YOUR_JOB: Disconnect all bonded devices that currently are connected.
-            //           This is required to receive a service changed indication
-            //           on bootup after a successful (or aborted) Device Firmware Update.
-            break;
+  switch(event)
+  {
+    case BLE_DFU_EVT_BOOTLOADER_ENTER_PREPARE:
+      // YOUR_JOB: Disconnect all bonded devices that currently are connected.
+      //           This is required to receive a service changed indication
+      //           on bootup after a successful (or aborted) Device Firmware Update.
+      break;
 
-        case BLE_DFU_EVT_BOOTLOADER_ENTER:
-            // YOUR_JOB: Write app-specific unwritten data to FLASH, control finalization of this
-            //           by delaying reset by reporting false in app_shutdown_handler
-            break;
+    case BLE_DFU_EVT_BOOTLOADER_ENTER:
+      // YOUR_JOB: Write app-specific unwritten data to FLASH, control finalization of this
+      //           by delaying reset by reporting false in app_shutdown_handler
+      break;
 
-        case BLE_DFU_EVT_BOOTLOADER_ENTER_FAILED:
-            // YOUR_JOB: Take corrective measures to resolve the issue
-            //           like calling APP_ERROR_CHECK to reset the device.
-            break;
+    case BLE_DFU_EVT_BOOTLOADER_ENTER_FAILED:
+      // YOUR_JOB: Take corrective measures to resolve the issue
+      //           like calling APP_ERROR_CHECK to reset the device.
+      break;
 
-        case BLE_DFU_EVT_RESPONSE_SEND_ERROR:
-            // YOUR_JOB: Take corrective measures to resolve the issue
-            //           like calling APP_ERROR_CHECK to reset the device.
-            break;
+    case BLE_DFU_EVT_RESPONSE_SEND_ERROR:
+      // YOUR_JOB: Take corrective measures to resolve the issue
+      //           like calling APP_ERROR_CHECK to reset the device.
+      break;
 
-        default:
-            break;
-    }
+    default:
+      break;
+  }
 }
 
 /**@brief Function for handling Peer Manager events.
  *
  * @param[in] p_evt  Peer Manager event.
  */
-static void pm_evt_handler(pm_evt_t const * p_evt)
+static void pm_evt_handler(pm_evt_t const* p_evt)
 {
-    ret_code_t err_code;
+  ret_code_t err_code;
 
-    switch (p_evt->evt_id)
+  switch(p_evt->evt_id)
+  {
+    case PM_EVT_BONDED_PEER_CONNECTED:
     {
-        case PM_EVT_BONDED_PEER_CONNECTED:
-        {
-        } break;
+    } break;
 
-        case PM_EVT_CONN_SEC_SUCCEEDED:
-        {
+    case PM_EVT_CONN_SEC_SUCCEEDED:
+    {
+    } break;
 
-        } break;
+    case PM_EVT_CONN_SEC_FAILED:
+    {
+      /* Often, when securing fails, it shouldn't be restarted, for security reasons.
+       * Other times, it can be restarted directly.
+       * Sometimes it can be restarted, but only after changing some Security Parameters.
+       * Sometimes, it cannot be restarted until the link is disconnected and reconnected.
+       * Sometimes it is impossible, to secure the link, or the peer device does not support it.
+       * How to handle this error is highly application dependent. */
+    } break;
 
-        case PM_EVT_CONN_SEC_FAILED:
-        {
-            /* Often, when securing fails, it shouldn't be restarted, for security reasons.
-             * Other times, it can be restarted directly.
-             * Sometimes it can be restarted, but only after changing some Security Parameters.
-             * Sometimes, it cannot be restarted until the link is disconnected and reconnected.
-             * Sometimes it is impossible, to secure the link, or the peer device does not support it.
-             * How to handle this error is highly application dependent. */
-        } break;
-
-        case PM_EVT_CONN_SEC_CONFIG_REQ:
-        {
-            // Reject pairing request from an already bonded peer.
-            pm_conn_sec_config_t conn_sec_config = {.allow_repairing = false};
-            pm_conn_sec_config_reply(p_evt->conn_handle, &conn_sec_config);
-        } break;
-
-        case PM_EVT_STORAGE_FULL:
-        {
-            // Run garbage collection on the flash.
-            err_code = fds_gc();
-            if (err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
-            {
-                // Retry.
-            }
-            else
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-        } break;
-
-        case PM_EVT_PEERS_DELETE_SUCCEEDED:
-        {
-
-        } break;
-
-        case PM_EVT_PEER_DATA_UPDATE_FAILED:
-        {
-            // Assert.
-            RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(p_evt->params.peer_data_update_failed.error), RUUVI_DRIVER_SUCCESS);
-        } break;
-
-        case PM_EVT_PEER_DELETE_FAILED:
-        {
-            // Assert.
-            RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(p_evt->params.peer_delete_failed.error), RUUVI_DRIVER_SUCCESS);
-        } break;
-
-        case PM_EVT_PEERS_DELETE_FAILED:
-        {
-            // Assert.
-            RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(p_evt->params.peers_delete_failed_evt.error), RUUVI_DRIVER_SUCCESS);
-        } break;
-
-        case PM_EVT_ERROR_UNEXPECTED:
-        {
-            // Assert.
-            RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(p_evt->params.error_unexpected.error), RUUVI_DRIVER_SUCCESS);
-        } break;
-
-        case PM_EVT_CONN_SEC_START:
-        case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:
-        case PM_EVT_PEER_DELETE_SUCCEEDED:
-        case PM_EVT_LOCAL_DB_CACHE_APPLIED:
-        case PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED:
-        case PM_EVT_SERVICE_CHANGED_IND_SENT:
-        case PM_EVT_SERVICE_CHANGED_IND_CONFIRMED:
-        default:
-            break;
+    case PM_EVT_CONN_SEC_CONFIG_REQ:
+    {
+      // Reject pairing request from an already bonded peer.
+      pm_conn_sec_config_t conn_sec_config = {.allow_repairing = false};
+      pm_conn_sec_config_reply(p_evt->conn_handle, &conn_sec_config);
     }
+    break;
+
+    case PM_EVT_STORAGE_FULL:
+    {
+      // Run garbage collection on the flash.
+      err_code = fds_gc();
+
+      if(err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
+      {
+        // Retry.
+      }
+      else
+      {
+        APP_ERROR_CHECK(err_code);
+      }
+    }
+    break;
+
+    case PM_EVT_PEERS_DELETE_SUCCEEDED:
+    {
+    } break;
+
+    case PM_EVT_PEER_DATA_UPDATE_FAILED:
+    {
+      // Assert.
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(
+                                 p_evt->params.peer_data_update_failed.error), RUUVI_DRIVER_SUCCESS);
+    }
+    break;
+
+    case PM_EVT_PEER_DELETE_FAILED:
+    {
+      // Assert.
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(
+                                 p_evt->params.peer_delete_failed.error), RUUVI_DRIVER_SUCCESS);
+    }
+    break;
+
+    case PM_EVT_PEERS_DELETE_FAILED:
+    {
+      // Assert.
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(
+                                 p_evt->params.peers_delete_failed_evt.error), RUUVI_DRIVER_SUCCESS);
+    }
+    break;
+
+    case PM_EVT_ERROR_UNEXPECTED:
+    {
+      // Assert.
+      RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(
+                                 p_evt->params.error_unexpected.error), RUUVI_DRIVER_SUCCESS);
+    }
+    break;
+
+    case PM_EVT_CONN_SEC_START:
+    case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:
+    case PM_EVT_PEER_DELETE_SUCCEEDED:
+    case PM_EVT_LOCAL_DB_CACHE_APPLIED:
+    case PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED:
+    case PM_EVT_SERVICE_CHANGED_IND_SENT:
+    case PM_EVT_SERVICE_CHANGED_IND_CONFIRMED:
+    default:
+      break;
+  }
 }
 
 
@@ -459,76 +475,71 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
  */
 static ret_code_t peer_manager_init()
 {
-    ble_gap_sec_params_t sec_param;
-    ret_code_t           err_code = NRF_SUCCESS;
+  ble_gap_sec_params_t sec_param;
+  ret_code_t           err_code = NRF_SUCCESS;
+  err_code |= pm_init();
 
-    err_code |= pm_init();
-    if(NRF_SUCCESS != err_code) { }
+  if(NRF_SUCCESS != err_code) { }
 
-    memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
+  memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
+  // Security parameters to be used for all security procedures.
+  sec_param.bond           = SEC_PARAM_BOND;
+  sec_param.mitm           = SEC_PARAM_MITM;
+  sec_param.lesc           = SEC_PARAM_LESC;
+  sec_param.keypress       = SEC_PARAM_KEYPRESS;
+  sec_param.io_caps        = SEC_PARAM_IO_CAPABILITIES;
+  sec_param.oob            = SEC_PARAM_OOB;
+  sec_param.min_key_size   = SEC_PARAM_MIN_KEY_SIZE;
+  sec_param.max_key_size   = SEC_PARAM_MAX_KEY_SIZE;
+  sec_param.kdist_own.enc  = 1;
+  sec_param.kdist_own.id   = 1;
+  sec_param.kdist_peer.enc = 1;
+  sec_param.kdist_peer.id  = 1;
+  err_code = pm_sec_params_set(&sec_param);
 
-    // Security parameters to be used for all security procedures.
-    sec_param.bond           = SEC_PARAM_BOND;
-    sec_param.mitm           = SEC_PARAM_MITM;
-    sec_param.lesc           = SEC_PARAM_LESC;
-    sec_param.keypress       = SEC_PARAM_KEYPRESS;
-    sec_param.io_caps        = SEC_PARAM_IO_CAPABILITIES;
-    sec_param.oob            = SEC_PARAM_OOB;
-    sec_param.min_key_size   = SEC_PARAM_MIN_KEY_SIZE;
-    sec_param.max_key_size   = SEC_PARAM_MAX_KEY_SIZE;
-    sec_param.kdist_own.enc  = 1;
-    sec_param.kdist_own.id   = 1;
-    sec_param.kdist_peer.enc = 1;
-    sec_param.kdist_peer.id  = 1;
+  if(NRF_SUCCESS != err_code) { }
 
-    err_code = pm_sec_params_set(&sec_param);
-    if(NRF_SUCCESS != err_code) { }
+  err_code = pm_register(pm_evt_handler);
 
-    err_code = pm_register(pm_evt_handler);
-    if(NRF_SUCCESS != err_code) { }
+  if(NRF_SUCCESS != err_code) { }
 
-    return err_code;
+  return err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
 {
-
   ret_code_t err_code = NRF_SUCCESS;
   ruuvi_driver_status_t radio_status = RUUVI_DRIVER_SUCCESS;
 
-  if (!m_gatt_is_init)
+  if(!m_gatt_is_init)
   {
-    radio_status = ruuvi_interface_communication_radio_init(RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
+    radio_status = ruuvi_interface_communication_radio_init(
+                     RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
+
     if(RUUVI_DRIVER_SUCCESS != radio_status) { return radio_status; }
   }
 
   // Connection param module requires timers
   if(!ruuvi_interface_timers_is_init())
   {
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR, "NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
+    ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR,
+                        "NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
     return RUUVI_DRIVER_ERROR_INVALID_STATE;
   }
-  nrf_ble_qwr_init_t qwr_init = {0};
 
+  nrf_ble_qwr_init_t qwr_init = {0};
   // Register a handler for BLE events.
   NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
-
   err_code |= peer_manager_init();
-
   err_code |= gap_params_init();
-
   err_code |= nrf_ble_gatt_init(&m_gatt, gatt_evt_handler);
-
   err_code |= nrf_ble_gatt_att_mtu_periph_set(&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
-
   // Initialize Queued Write Module.
   qwr_init.error_handler = nrf_qwr_error_handler;
-
   err_code |= nrf_ble_qwr_init(&m_qwr, &qwr_init);
-
   err_code |= conn_params_init();
 
-  if (NRF_SUCCESS == err_code)
+  if(NRF_SUCCESS == err_code)
   {
     m_gatt_is_init = true;
   }
@@ -539,16 +550,20 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
 /**
  *
  */
-static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_uninit(ruuvi_interface_communication_t* const _channel)
+static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_uninit(
+  ruuvi_interface_communication_t* const _channel)
 {
   if(NULL == _channel) { return RUUVI_DRIVER_ERROR_NULL; }
+
   memset(_channel, 0, sizeof(ruuvi_interface_communication_t));
   m_gatt_is_init = false;
+
   // disconnect
   if(BLE_CONN_HANDLE_INVALID != m_conn_handle)
   {
     sd_ble_gap_disconnect(m_conn_handle, HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST);
   }
+
   // Services cannot be uninitialized
   ruuvi_interface_communication_radio_uninit(RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
   return RUUVI_DRIVER_SUCCESS;
@@ -557,10 +572,13 @@ static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_uninit(
 /**
  *
  */
-static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_send(ruuvi_interface_communication_message_t* const message)
+static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_send(
+  ruuvi_interface_communication_message_t* const message)
 {
   if(NULL == message) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(BLE_NUS_MAX_DATA_LEN < message->data_length) { return RUUVI_DRIVER_ERROR_DATA_SIZE; }
+
   if(BLE_CONN_HANDLE_INVALID == m_conn_handle) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   if(message->repeat)
@@ -577,17 +595,19 @@ static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_send(ru
 /**
  *
  */
-static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_read(ruuvi_interface_communication_message_t* const message)
+static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_read(
+  ruuvi_interface_communication_message_t* const message)
 {
   return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init(ruuvi_interface_communication_t* const _channel)
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init(
+  ruuvi_interface_communication_t* const _channel)
 {
   if(NULL == _channel) { return RUUVI_DRIVER_ERROR_NULL; }
+
   uint32_t           err_code;
   ble_nus_init_t     nus_init;
-
   // Initialize NUS.
   memset(&nus_init, 0, sizeof(nus_init));
   nus_init.data_handler = nus_data_handler;
@@ -597,7 +617,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init(ruuvi_int
   channel->uninit = ruuvi_interface_communication_ble4_gatt_nus_uninit;
   channel->send   = ruuvi_interface_communication_ble4_gatt_nus_send;
   channel->read   = ruuvi_interface_communication_ble4_gatt_nus_read;
-
   m_gatt_is_init = true;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
@@ -605,41 +624,40 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init(ruuvi_int
 bool ble4_nus_is_connected(void)
 {
   ret_code_t err_code = NRF_SUCCESS;
-  ble_nus_client_context_t * p_client;
+  ble_nus_client_context_t* p_client;
+  err_code = blcm_link_ctx_get(m_nus.p_link_ctx_storage, m_conn_handle, (void*) &p_client);
 
-  err_code = blcm_link_ctx_get(m_nus.p_link_ctx_storage, m_conn_handle, (void *) &p_client);
-  if (NRF_SUCCESS != err_code)
+  if(NRF_SUCCESS != err_code)
   {
     return false;
   }
 
-  if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) || (p_client == NULL))
+  if((m_conn_handle == BLE_CONN_HANDLE_INVALID) || (p_client == NULL))
   {
     return false;
   }
 
-  if (!p_client->is_notification_enabled)
+  if(!p_client->is_notification_enabled)
   {
     return false;
   }
+
   return true;
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init(void)
 {
-
   ret_code_t err_code = NRF_SUCCESS;
+  ble_dfu_buttonless_init_t dfus_init = {0};
+  // Initialize the async SVCI interface to bootloader.
+  err_code = ble_dfu_buttonless_async_svci_init();
 
-    ble_dfu_buttonless_init_t dfus_init = {0};
+  if(NRF_SUCCESS != err_code) {}
 
-    // Initialize the async SVCI interface to bootloader.
-    err_code = ble_dfu_buttonless_async_svci_init();
-    if(NRF_SUCCESS != err_code) {}
+  dfus_init.evt_handler = ble_dfu_evt_handler;
+  err_code = ble_dfu_buttonless_init(&dfus_init);
 
-    dfus_init.evt_handler = ble_dfu_evt_handler;
-
-    err_code = ble_dfu_buttonless_init(&dfus_init);
-    if(NRF_SUCCESS != err_code) {}
+  if(NRF_SUCCESS != err_code) {}
 
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
@@ -654,9 +672,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init();
  *
  * parameter dis: pointer to data which should be presented over DIS. Memory will be deep-copied
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruuvi_interface_communication_ble4_gatt_dis_init_t* const dis)
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(
+  const ruuvi_interface_communication_ble4_gatt_dis_init_t* const dis)
 {
   if(NULL == dis) { return RUUVI_DRIVER_ERROR_NULL; }
+
   ret_code_t err_code = NRF_SUCCESS;
   ble_dis_init_t dis_init;
   memset(&dis_init, 0, sizeof(dis_init));
@@ -667,7 +687,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruu
   ble_srv_ascii_to_utf8(&dis_init.serial_num_str, dis_local.deviceid);
   ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, dis_local.hw_version);
   ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, dis_local.fw_version);
-
   // Read security level 1, mode 1. OPEN, i.e. anyone can read without encryption.
   // Write not allowed.
   dis_init.dis_char_rd_sec = SEC_OPEN;
@@ -684,30 +703,32 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(const ruu
  * parameter advertise_nus: True to enable advertising UUID of NUS in the scan response.
  *
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(const bool connectable, const char* const name, const uint16_t company_id, const bool advertise_nus)
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(
+  const bool connectable, const char* const name, const uint16_t company_id,
+  const bool advertise_nus)
 {
   ret_code_t err_code = NRF_SUCCESS;
+
   if(!connectable)
   {
     err_code |= sd_ble_gap_adv_stop(m_adv_handle);
     return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
   }
 
-// Initialize advertising parameters (used when starting advertising).
+  // Initialize advertising parameters (used when starting advertising).
   memset(&m_adv_params, 0, sizeof(m_adv_params));
   m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
   m_adv_params.duration        = 0;       // Never time out.
   m_adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
   m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
-  m_adv_params.interval        = MSEC_TO_UNITS(APPLICATION_CONNECTION_ADVERTISEMENT_INTERVAL, UNIT_0_625_MS);
-
+  m_adv_params.interval        = MSEC_TO_UNITS(
+                                   APPLICATION_CONNECTION_ADVERTISEMENT_INTERVAL, UNIT_0_625_MS);
   // OPEN security for name
   ble_gap_conn_sec_mode_t security;
   uint8_t len = strlen(name);
   security.sm = 1;
   security.lv = 1;
   err_code |= sd_ble_gap_device_name_set(&security, (uint8_t*)name, len);
-
   memset(&m_adv_data, 0, sizeof(m_adv_data));
   memset(&m_advertisement, 0, sizeof(m_advertisement));
   memset(&m_scanresp, 0, sizeof(m_scanresp));
@@ -720,7 +741,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connecta
   manufacturer_data.company_identifier = company_id;
   manufacturer_data.data.size = 0;
   manufacturer_data.data.p_data = NULL;
-
   advdata.p_manuf_specific_data = &manufacturer_data;
   // Encode data
   m_adv_data.adv_data.len = sizeof(m_advertisement);
@@ -742,7 +762,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connecta
   // Configure advertisement and start
   err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
   err_code |= sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
-
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 

@@ -7,15 +7,15 @@
  * @addtogroup Error
  * @{
  */
- /**
- * @file ruuvi_nrf5_sdk15_error.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-31
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Converts nRF5 SDK15 error codes to Ruuvi error codes
- *
- */
+/**
+* @file ruuvi_nrf5_sdk15_error.h
+* @author Otso Jousimaa <otso@ojousima.net>
+* @date 2019-01-31
+* @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+*
+* Converts nRF5 SDK15 error codes to Ruuvi error codes
+*
+*/
 
 /**
  * @brief convert nrf5 sdk15 error code into Ruuvi error code.

@@ -3,7 +3,7 @@
 /**
  * @defgroup Log Logging functions
  * @brief Functions for printing out logs
- * 
+ *
  */
 /*@{*/
 /**
@@ -31,7 +31,7 @@ typedef enum
   RUUVI_INTERFACE_LOG_WARNING,    //<! Warn user abour something, such as uninitialized peripheral
   RUUVI_INTERFACE_LOG_INFO,       //<! General information, such as changing mode of application
   RUUVI_INTERFACE_LOG_DEBUG       //<! Debug messages
-}ruuvi_interface_log_severity_t;
+} ruuvi_interface_log_severity_t;
 
 /**
  * @brief Runs initialization code for the logging backend and sets the severity level.
@@ -39,7 +39,8 @@ typedef enum
  * @param min_severity least severe log level that will be printed.
  * @return @ref RUUVI_DRIVER_SUCCESS if log was init, error code otherwise
  */
-ruuvi_driver_status_t ruuvi_interface_log_init(const ruuvi_interface_log_severity_t min_severity);
+ruuvi_driver_status_t ruuvi_interface_log_init(const ruuvi_interface_log_severity_t
+    min_severity);
 
 /**
  * @brief Blocks until remaining log messages are sent out
@@ -49,7 +50,7 @@ ruuvi_driver_status_t ruuvi_interface_log_init(const ruuvi_interface_log_severit
 ruuvi_driver_status_t ruuvi_interface_log_flush(void);
 
 /**
- * @brief Queues messages into log. 
+ * @brief Queues messages into log.
  *
  * May block or may return as soon as data is in buffer being transferred out
  *
@@ -57,7 +58,8 @@ ruuvi_driver_status_t ruuvi_interface_log_flush(void);
  * @param message message string
  *
  */
-void ruuvi_interface_log(const ruuvi_interface_log_severity_t severity, const char* const message);
+void ruuvi_interface_log(const ruuvi_interface_log_severity_t severity,
+                         const char* const message);
 
 /**
  * @brief Write text description of error message into given string pointer and null-terminate it.
@@ -68,7 +70,8 @@ void ruuvi_interface_log(const ruuvi_interface_log_severity_t severity, const ch
  * @param space_remaining How many bytes there are remaining in the error string.
  * @return number of bytes written (snprintf rvalue).
  */
-size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* error_string, size_t space_remaining);
+size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* error_string,
+                                       size_t space_remaining);
 
 /**
  * Log the given configuration parameters at given log level.
@@ -77,6 +80,7 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* error_
  * parameter configuration: Configuration to print
  * parameter unit: String representation to the unit of a scale
  */
-void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity_t level, const ruuvi_driver_sensor_configuration_t* const configuration, const char* unit);
+void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity_t level,
+    const ruuvi_driver_sensor_configuration_t* const configuration, const char* unit);
 
 #endif
