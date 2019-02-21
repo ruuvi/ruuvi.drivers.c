@@ -499,7 +499,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
   if (!m_gatt_is_init)
   {
     radio_status = ruuvi_interface_communication_radio_init(RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
-    if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
+    if(RUUVI_DRIVER_SUCCESS != radio_status) { return radio_status; }
   }
 
   // Connection param module requires timers

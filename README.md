@@ -10,7 +10,7 @@ Interfaces folder provides platform-independent access to the peripherals of the
 
 Implementation is in `*_platform`-folders.
 
-External platform-independent requirements are in `ruuvi_drivers_external_includes.h` -file. Platform specific external requirements are in `ruuvi_platform_external_includes.h` file.
+External platform-independent requirements are in `ruuvi_driver_enabled_modules.h` -file. 
 
 ## File and variable naming
 Files should be named `ruuvi_module_name`, for example `ruuvi_interface_spi.h`
@@ -18,8 +18,8 @@ Globally visible functions, variables and definitions should be likewise named `
 
 # Usage
 ## Enabling modules
-Se the repository may contain several different implementations of interface functions the desired implementation is enabled by definining
-`PLATFORM_MODULE_ENABLED 1`, for example `NRF5_SDK15_LOG_ENABLED 1`.
+As the repository may contain several different implementations of interface functions the desired implementation is enabled by definining
+`PLATFORM_MODULE_ENABLED 1`, for example `RUUVI_NRF5_SDK15_LOG_ENABLED 1`.
 
 ## Error codes
 There are common error code definitions for the drivers, please see `ruuvi_driver_error.h` for details.
@@ -57,7 +57,7 @@ Drivers from other sources (as git submodules) have their own licenses, please c
 Platforms have license of the platform providers, for example Nordic semiconductor platform files follow Nordic SDK License.
 
 # How to contribute
-All contributions are welcome, from typographical fixes to feedack on design and naming schemes.
+All contributions are welcome, from typographical fixes to feedback on design and naming schemes.
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
@@ -100,19 +100,19 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
  * Fix issues in sensor interface implementations
 
 ## 3.7.0
-Add battery voltage measurement with nRF52 ADC
+ * Add battery voltage measurement with nRF52 ADC
 
 ## 3.6.0
-ADD LIS2DH12 support
+ * ADD LIS2DH12 support
 
 ## 3.5.0
-Add SPI driver, BME280 support, nRF52 temperature sensing support
+ * Add SPI driver, BME280 support, nRF52 temperature sensing support
 
 ## 3.4.0
-Add interrupts to GPIO
+ * Add interrupts to GPIO
 
 ## 3.2.0
-Adds logging and error code handling
+ * Adds logging and error code handling
 
 ## 3.1.1
- Clear up files not presented in Ruuvi Blog at the time of writing. Add GPIO and yield.
+ * Clear up files not presented in Ruuvi Blog at the time of writing. Add GPIO and yield.

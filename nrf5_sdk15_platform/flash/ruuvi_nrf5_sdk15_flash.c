@@ -52,17 +52,6 @@
 
 #include <string.h>
 
-/* Array to map FDS events to strings. */
-static char const * fds_evt_str[] =
-{
-    "FDS_EVT_INIT",
-    "FDS_EVT_WRITE",
-    "FDS_EVT_UPDATE",
-    "FDS_EVT_DEL_RECORD",
-    "FDS_EVT_DEL_FILE",
-    "FDS_EVT_GC",
-};
-
 static size_t m_number_of_pages = 0;
 
 // convert FDS error to ruuvi error
@@ -122,16 +111,7 @@ static ruuvi_driver_status_t fds_to_ruuvi_error(ret_code_t err_code)
   return RUUVI_DRIVER_ERROR_INTERNAL;
 }
 
-/* A record containing dummy configuration data. 
-static fds_record_t const m_dummy_record =
-{
-    .file_id           = CONFIG_FILE,
-    .key               = CONFIG_REC_KEY,
-    .data.p_data       = &m_dummy_cfg,
-    /* The length of a record is always expressed in 4-byte units (words). 
-    .data.length_words = (sizeof(m_dummy_cfg) + 3) / sizeof(uint32_t),
-};
-*/
+
 /* Flag to check fds initialization. */
 static bool volatile m_fds_initialized;
 /* Flag to check fds processing status. */

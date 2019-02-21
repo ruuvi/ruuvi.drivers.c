@@ -16,9 +16,8 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 
-ruuvi_driver_status_t ruuvi_nrf5_sdk15_to_ruuvi_error(const ret_code_t error)
+ruuvi_driver_status_t ruuvi_nrf5_sdk15_to_ruuvi_error(const ret_code_t err_code)
 {
-  ret_code_t err_code = *(ret_code_t*)error;
   if(NRF_SUCCESS == err_code)              { return RUUVI_DRIVER_SUCCESS; }
   if(NRF_ERROR_INTERNAL == err_code)       { return RUUVI_DRIVER_ERROR_INTERNAL; }
   if(NRF_ERROR_NO_MEM == err_code)         { return RUUVI_DRIVER_ERROR_NO_MEM; }
