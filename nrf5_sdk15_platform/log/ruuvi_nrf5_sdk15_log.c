@@ -14,7 +14,7 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  **/
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_LOG_ENABLED 
+#if RUUVI_NRF5_SDK15_LOG_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_yield.h"
@@ -28,7 +28,8 @@
 NRF_LOG_MODULE_REGISTER();
 
 static ruuvi_interface_log_severity_t log_level;
-ruuvi_driver_status_t ruuvi_interface_log_init(const ruuvi_interface_log_severity_t min_severity)
+ruuvi_driver_status_t ruuvi_interface_log_init(const ruuvi_interface_log_severity_t
+    min_severity)
 {
   log_level = min_severity;
   NRF_LOG_INIT(NULL);
@@ -43,12 +44,13 @@ ruuvi_driver_status_t ruuvi_interface_log_flush(void)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-void ruuvi_interface_log(const ruuvi_interface_log_severity_t severity, const char* const message)
+void ruuvi_interface_log(const ruuvi_interface_log_severity_t severity,
+                         const char* const message)
 {
   if(NULL == message)
   {
     RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_NULL, RUUVI_DRIVER_ERROR_NULL);
-    return; 
+    return;
   }
 
   if(log_level >= severity)

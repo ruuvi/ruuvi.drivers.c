@@ -25,27 +25,27 @@
 // which will be recovered in the return from interrupt handling.
 void FPU_IRQHandler(void)
 {
- 
-    // Prepare pointer to stack address with pushed FPSCR register (0x40 is FPSCR register offset in stacked data)
-    uint32_t * fpscr = (uint32_t * )(FPU->FPCAR + 0x40);
-    // Execute FPU instruction to activate lazy stacking
-    (void)__get_FPSCR();
-    // Check exception flags
-    // Critical FPU exceptions signaled:
-    // - IOC - Invalid Operation cumulative exception bit.
-    // - DZC - Division by Zero cumulative exception bit.
-    // - OFC - Overflow cumulative exception bit.
-    if (*fpscr & 0x07)
-    {
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "FPU Error \r\n");
-    }
-    
-    // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.
-    *fpscr = *fpscr & ~(0x0000009F);
+  // Prepare pointer to stack address with pushed FPSCR register (0x40 is FPSCR register offset in stacked data)
+  uint32_t* fpscr = (uint32_t*)(FPU->FPCAR + 0x40);
+  // Execute FPU instruction to activate lazy stacking
+  (void)__get_FPSCR();
+
+  // Check exception flags
+  // Critical FPU exceptions signaled:
+  // - IOC - Invalid Operation cumulative exception bit.
+  // - DZC - Division by Zero cumulative exception bit.
+  // - OFC - Overflow cumulative exception bit.
+  if(*fpscr & 0x07)
+  {
+    ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "FPU Error \r\n");
+  }
+
+  // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.
+  *fpscr = *fpscr & ~(0x0000009F);
 }
 
 /**
- * 
+ *
  */
 ruuvi_driver_status_t ruuvi_interface_yield_init(void)
 {

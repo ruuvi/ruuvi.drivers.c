@@ -11,11 +11,11 @@
 /**
  * @file ruuvi_interface_spi_bme280.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @brief SPI read/write functions for Bosch BME280. 
+ * @brief SPI read/write functions for Bosch BME280.
  * @date 2019-01-31
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * You'll need to get the official Bosch BME280 driver, available on 
+ * You'll need to get the official Bosch BME280 driver, available on
  * <a href="https://github.com/BoschSensortec/BME280_driver">GitHub</a>.
  * The wrappers will use Ruuvi Interface internally, so you don't have to port these to
  * use BME280 on a new platform. You're required to port @ref Yield, @ref GPIO and @ref SPI.
@@ -34,8 +34,8 @@
 
 /**
  * @brief SPI write function for BME280
- * 
- * Binds Ruuvi Interface SPI functions into official Bosch BME280 driver. 
+ *
+ * Binds Ruuvi Interface SPI functions into official Bosch BME280 driver.
  * Handles GPIO chip select, there is no forced delay to let th CS settle.
  *
  * @param[in] dev_id @ref SPI interface handle, i.e. pin number of the chip select pin of BME280.
@@ -43,12 +43,13 @@
  * @param[in] p_reg_data pointer to data to be written.
  * @param[in] len length of data to be written.
  **/
-int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_t* p_reg_data, uint16_t len);
+int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr,
+                                        uint8_t* p_reg_data, uint16_t len);
 
 /**
  * @brief SPI Read function for BME280
- * 
- * Binds Ruuvi Interface SPI functions into official Bosch BME280 driver. 
+ *
+ * Binds Ruuvi Interface SPI functions into official Bosch BME280 driver.
  * Handles GPIO chip select, there is no forced delay to let th CS settle.
  *
  * @param[in] dev_id @ref SPI interface handle, i.e. pin number of the chip select pin of BME280.
@@ -56,6 +57,7 @@ int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_
  * @param[in] p_reg_data pointer to data to be received.
  * @param[in] len length of data to be received.
  **/
-int8_t ruuvi_interface_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr, uint8_t* reg_data, uint16_t len);
+int8_t ruuvi_interface_spi_bme280_read(uint8_t dev_id, uint8_t reg_addr,
+                                       uint8_t* reg_data, uint16_t len);
 /** @} */
 #endif

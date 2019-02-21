@@ -16,7 +16,7 @@
  * @date 2019-01-30
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Interface for basic GPIO writes and reads 
+ * Interface for basic GPIO writes and reads
  *
  */
 
@@ -24,18 +24,18 @@
 
 /**
  * GPIO modes supported by interface. If the underlying platform
- * does not support given mode, it shall return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED 
+ * does not support given mode, it shall return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
  * on configuration attempt.
  */
 typedef enum
 {
-  RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,          //!< High-impedance mode, electrically disconnected. 
+  RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,          //!< High-impedance mode, electrically disconnected.
   RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL,    //!< Input, can be read. No pull resistors
   RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP,    //!< Input, can be read. Pulled up by internal resistor, value depends on IC.
   RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN,  //!< Input, can be read. Pulled dpwn by internal resistor, value depends on IC.
   RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD, //!< Push-pull output, can be written.
-  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE //!< Push-pull output, can be written. Higher current drive than standard. 
-}ruuvi_interface_gpio_mode_t;
+  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE //!< Push-pull output, can be written. Higher current drive than standard.
+} ruuvi_interface_gpio_mode_t;
 
 /**
  * States of GPIO pins
@@ -44,7 +44,7 @@ typedef enum
 {
   RUUVI_INTERFACE_GPIO_LOW = false, //!< GPIO electrically low
   RUUVI_INTERFACE_GPIO_HIGH = true  //!< GPIO electrically high
-}ruuvi_interface_gpio_state_t;
+} ruuvi_interface_gpio_state_t;
 
 /**
  * @brief Initializes GPIO module. Call this before other GPIO functions.
@@ -61,9 +61,10 @@ ruuvi_driver_status_t ruuvi_interface_gpio_init(void);
  * @param mode[in] Mode to set the pin to. See @ref ruuvi_interface_gpio_mode_t for possible values.
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode. 
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin, const ruuvi_interface_gpio_mode_t mode);
+ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin,
+    const ruuvi_interface_gpio_mode_t mode);
 
 /**
  * @brief Toggle the state of a pin of a port.
@@ -86,7 +87,8 @@ ruuvi_driver_status_t ruuvi_interface_gpio_toggle(const uint8_t pin);
  * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output (optional).
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin, const ruuvi_interface_gpio_state_t state);
+ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin,
+    const ruuvi_interface_gpio_state_t state);
 
 /**
  * @brief Read state of a pin of a port into bool high
@@ -100,6 +102,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin, const ruuvi_
  * @return RUUVI_DRIVER_ERROR_INVALID_ADDRESS if pointer is invalid for any reason (optional).
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input (optional).
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin, ruuvi_interface_gpio_state_t* const p_state);
+ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin,
+    ruuvi_interface_gpio_state_t* const p_state);
 /*@}*/
 #endif

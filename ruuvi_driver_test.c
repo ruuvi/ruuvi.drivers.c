@@ -6,9 +6,9 @@
 
 
 /*
-  
+
 bool ruuvi_driver_test_all_run(const ruuvi_driver_test_print_fp printfp)
-{ 
+{
   uint32_t total_tests = 0;
   uint32_t passed = 0;
 

@@ -21,7 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 
-size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const error_string, const size_t space_remaining)
+size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error,
+                                       char* const error_string, const size_t space_remaining)
 {
   if(NULL == error_string)
   {
@@ -31,6 +32,7 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const 
 
   size_t written = 0;
   ruuvi_driver_status_t error_bit = 0;
+
   // Print each error individually
   do
   {
@@ -39,18 +41,20 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const 
     {
       written += snprintf(error_string + written, space_remaining - written, ", ");
     }
+
     // If there is some error, print the lowest bit and reset the lowest bit in error code.
     if(error)
     {
       for(uint8_t ii = 0; ii < 32; ii++)
       {
-        if(error & (1<<ii))
+        if(error & (1 << ii))
         {
-          error_bit = 1<<ii;
-          error &= 0xFFFFFFFF-(1<<ii);
+          error_bit = 1 << ii;
+          error &= 0xFFFFFFFF - (1 << ii);
         }
       }
     }
+
     switch(error_bit)
     {
       case RUUVI_DRIVER_SUCCESS:
@@ -70,23 +74,28 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const 
         break;
 
       case RUUVI_DRIVER_ERROR_NOT_SUPPORTED:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "NOT_SUPPORTED");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "NOT_SUPPORTED");
         break;
 
-       case RUUVI_DRIVER_ERROR_INVALID_STATE:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "INVALID_STATE");
+      case RUUVI_DRIVER_ERROR_INVALID_STATE:
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "INVALID_STATE");
         break;
 
       case RUUVI_DRIVER_ERROR_INVALID_LENGTH:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "INVALID_LENGTH");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "INVALID_LENGTH");
         break;
 
       case RUUVI_DRIVER_ERROR_INVALID_FLAGS:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "INVALID_FLAGS");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "INVALID_FLAGS");
         break;
 
       case RUUVI_DRIVER_ERROR_INVALID_DATA:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "INVALID_DATA");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "INVALID_DATA");
         break;
 
       case RUUVI_DRIVER_ERROR_DATA_SIZE:
@@ -106,7 +115,8 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const 
         break;
 
       case RUUVI_DRIVER_ERROR_INVALID_ADDR:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "INVALID_ADDR");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "INVALID_ADDR");
         break;
 
       case RUUVI_DRIVER_ERROR_BUSY:
@@ -118,7 +128,8 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const 
         break;
 
       case RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "NOT_IMPLEMENTED");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "NOT_IMPLEMENTED");
         break;
 
       case RUUVI_DRIVER_ERROR_SELFTEST:
@@ -133,7 +144,8 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* const 
         written = snprintf(error_string + written, space_remaining - written, "%s", "UNKNOWN");
         break;
     }
-  }while(error);
+  } while(error);
+
   return written;
 }
 
@@ -142,74 +154,77 @@ static char* configuration_value_to_string(const uint8_t val)
 {
   static char msg[17]; // sizeof "Not implemented", including NULL
   memset(msg, 0, sizeof(msg));
-  if( val <= 200 && val > 0)
+
+  if(val <= 200 && val > 0)
   {
     snprintf(msg, sizeof(msg), "%d", val);
   }
   else switch(val)
-  {
-    case RUUVI_DRIVER_SENSOR_CFG_MIN:
-      snprintf(msg, sizeof(msg), "MIN");
-      break;
+    {
+      case RUUVI_DRIVER_SENSOR_CFG_MIN:
+        snprintf(msg, sizeof(msg), "MIN");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_MAX:
-      snprintf(msg, sizeof(msg), "MAX");
-      break;
+      case RUUVI_DRIVER_SENSOR_CFG_MAX:
+        snprintf(msg, sizeof(msg), "MAX");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS:
-      snprintf(msg, sizeof(msg), "CONTINUOUS");
-      break;
+      case RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS:
+        snprintf(msg, sizeof(msg), "CONTINUOUS");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_DEFAULT:
-      snprintf(msg, sizeof(msg), "DEFAULT");
-      break;
+      case RUUVI_DRIVER_SENSOR_CFG_DEFAULT:
+        snprintf(msg, sizeof(msg), "DEFAULT");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE:
-      snprintf(msg, sizeof(msg), "No change");
-      break;
+      case RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE:
+        snprintf(msg, sizeof(msg), "No change");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_SINGLE:
-      snprintf(msg, sizeof(msg), "Single");
-      break;
+      case RUUVI_DRIVER_SENSOR_CFG_SINGLE:
+        snprintf(msg, sizeof(msg), "Single");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
-      snprintf(msg, sizeof(msg), "Sleep");
-      break;
+      case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
+        snprintf(msg, sizeof(msg), "Sleep");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED:
-      snprintf(msg, sizeof(msg), "Not supported");
-      break;
+      case RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED:
+        snprintf(msg, sizeof(msg), "Not supported");
+        break;
 
-    case RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED:
-      snprintf(msg, sizeof(msg), "Not implemented");
-      break;
+      case RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED:
+        snprintf(msg, sizeof(msg), "Not implemented");
+        break;
 
-     case RUUVI_DRIVER_SENSOR_ERR_INVALID:
-      snprintf(msg, sizeof(msg), "Invalid");
-      break;
+      case RUUVI_DRIVER_SENSOR_ERR_INVALID:
+        snprintf(msg, sizeof(msg), "Invalid");
+        break;
 
-    default:
-      snprintf(msg, sizeof(msg), "Unknown");
-      break;
-  }
+      default:
+        snprintf(msg, sizeof(msg), "Unknown");
+        break;
+    }
+
   return msg;
 }
 
-void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity_t level, const ruuvi_driver_sensor_configuration_t* const configuration, const char* unit)
+void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity_t level,
+    const ruuvi_driver_sensor_configuration_t* const configuration, const char* unit)
 {
   char msg[APPLICATION_LOG_BUFFER_SIZE] = {0};
-  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Sample rate: %s Hz\r\n", configuration_value_to_string(configuration->samplerate));
+  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Sample rate: %s Hz\r\n",
+           configuration_value_to_string(configuration->samplerate));
   ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
-
-  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Resolution:  %s bits\r\n", configuration_value_to_string(configuration->resolution));
+  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Resolution:  %s bits\r\n",
+           configuration_value_to_string(configuration->resolution));
   ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
-
-  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Scale:       %s %s\r\n", configuration_value_to_string(configuration->scale), unit);
+  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Scale:       %s %s\r\n",
+           configuration_value_to_string(configuration->scale), unit);
   ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
-
   size_t written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "DSP:         ");
 
   switch(configuration->dsp_function)
@@ -227,19 +242,21 @@ void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity
       break;
 
     case RUUVI_DRIVER_SENSOR_DSP_OS:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Oversampling x ");
+      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written,
+                          "Oversampling x ");
       break;
 
     default:
       written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Unknown x");
       break;
   }
-  snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "%s\r\n", configuration_value_to_string(configuration->dsp_parameter));
+
+  snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "%s\r\n",
+           configuration_value_to_string(configuration->dsp_parameter));
   ruuvi_interface_log(level, msg);
   memset(msg, 0, sizeof(msg));
-
-  written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Mode:        %s\r\n", configuration_value_to_string(configuration->mode));
-
+  written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Mode:        %s\r\n",
+                     configuration_value_to_string(configuration->mode));
   ruuvi_interface_log(level, msg);
 }
 /** @} */

@@ -4,7 +4,7 @@
 <<<<<<< HEAD
  * @addtogroup SPI SPI functions
  * @brief Functions for using SPI bus
- * 
+ *
  */
 /*@{*/
 /**
@@ -13,7 +13,7 @@
  * @date 2019-01-31
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Implementation for SPI operations
- * 
+ *
  */
 =======
  * Ruuvi spi interface for bme280
@@ -34,7 +34,8 @@
 #include "ruuvi_interface_yield.h"
 
 
-int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_t* reg_data, uint16_t len)
+int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr,
+                                        uint8_t* reg_data, uint16_t len)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= ruuvi_interface_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);
@@ -44,7 +45,8 @@ int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr, uint8_
   return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
 
-int8_t ruuvi_interface_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t ruuvi_interface_spi_bme280_read(uint8_t dev_id, uint8_t reg_addr,
+                                       uint8_t* reg_data, uint16_t len)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= ruuvi_interface_gpio_write(dev_id, RUUVI_INTERFACE_GPIO_LOW);

@@ -19,7 +19,9 @@
 static ruuvi_interface_gpio_interrupt_fp_t* pin_event_handlers;
 static uint8_t max_interrupts = 0;
 
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table, const uint8_t interrupt_table_size)
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
+  ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table,
+  const uint8_t interrupt_table_size)
 {
   /* Driver initialization
      The GPIOTE driver is a shared resource that can be used by multiple modules in an application.
@@ -30,51 +32,58 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(ruuvi_interface_gpio_i
      The following code example shows how to initialize the driver:
   */
   ret_code_t err_code = NRF_SUCCESS;
-  if (!nrf_drv_gpiote_is_init())
+
+  if(!nrf_drv_gpiote_is_init())
   {
     err_code = nrf_drv_gpiote_init();
   }
+
   pin_event_handlers = interrupt_table;
   max_interrupts = interrupt_table_size;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
-static void in_pin_handler(const nrf_drv_gpiote_pin_t pin, const nrf_gpiote_polarity_t action)
+static void in_pin_handler(const nrf_drv_gpiote_pin_t pin,
+                           const nrf_gpiote_polarity_t action)
 {
   if(max_interrupts <= pin) { return; }
 
   //Call event handler.
   ruuvi_interface_gpio_evt_t event;
-  if (NULL != pin_event_handlers[pin])
+
+  if(NULL != pin_event_handlers[pin])
   {
-    switch (action)
+    switch(action)
     {
-    case NRF_GPIOTE_POLARITY_LOTOHI:
-      event.slope = RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI;
-      break;
+      case NRF_GPIOTE_POLARITY_LOTOHI:
+        event.slope = RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI;
+        break;
 
-    case NRF_GPIOTE_POLARITY_HITOLO:
-      event.slope = RUUVI_INTERFACE_GPIO_SLOPE_HITOLO;
-      break;
+      case NRF_GPIOTE_POLARITY_HITOLO:
+        event.slope = RUUVI_INTERFACE_GPIO_SLOPE_HITOLO;
+        break;
 
-    default:
-      event.slope = RUUVI_INTERFACE_GPIO_SLOPE_UNKNOWN;
-      break;
+      default:
+        event.slope = RUUVI_INTERFACE_GPIO_SLOPE_UNKNOWN;
+        break;
     }
+
     event.pin = pin;
     (pin_event_handlers[pin])(event);
   }
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin, 
-                                                            const ruuvi_interface_gpio_slope_t slope, 
-                                                            const ruuvi_interface_gpio_mode_t mode, 
-                                                            const ruuvi_interface_gpio_interrupt_fp_t handler)
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
+    const ruuvi_interface_gpio_slope_t slope,
+    const ruuvi_interface_gpio_mode_t mode,
+    const ruuvi_interface_gpio_interrupt_fp_t handler)
 {
   if(max_interrupts <= pin) { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
+
   ret_code_t err_code = NRF_SUCCESS;
   nrf_gpiote_polarity_t polarity;
   nrf_gpio_pin_pull_t pull;
+
   switch(slope)
   {
     case RUUVI_INTERFACE_GPIO_SLOPE_TOGGLE:
@@ -96,33 +105,31 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
   switch(mode)
   {
     case RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL:
-       pull = NRF_GPIO_PIN_NOPULL;
-       break;
-     
-     case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP:
-       pull = NRF_GPIO_PIN_PULLUP;
-       break;
+      pull = NRF_GPIO_PIN_NOPULL;
+      break;
 
-     case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN:
-       pull = NRF_GPIO_PIN_PULLDOWN;
-       break;
+    case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP:
+      pull = NRF_GPIO_PIN_PULLUP;
+      break;
 
-     default:
-       return RUUVI_DRIVER_ERROR_INVALID_PARAM;
+    case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN:
+      pull = NRF_GPIO_PIN_PULLDOWN;
+      break;
+
+    default:
+      return RUUVI_DRIVER_ERROR_INVALID_PARAM;
   }
 
   //  high-accuracy mode consumes excess power
-  //  is_watcher is used if we track an output pin. 
+  //  is_watcher is used if we track an output pin.
   nrf_drv_gpiote_in_config_t in_config = { .is_watcher = false,  \
                                            .hi_accuracy = false, \
                                            .pull = pull,         \
                                            .sense = polarity     \
                                          };
-
   pin_event_handlers[pin] = handler;
   err_code |= nrf_drv_gpiote_in_init(pin, &in_config, in_pin_handler);
   nrf_drv_gpiote_in_event_enable(pin, true);
-
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 

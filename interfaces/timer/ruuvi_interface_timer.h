@@ -10,10 +10,11 @@
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 
-typedef enum {
+typedef enum
+{
   RUUVI_INTERFACE_TIMER_MODE_SINGLE_SHOT,
   RUUVI_INTERFACE_TIMER_MODE_REPEATED
-}ruuvi_interface_timer_mode_t;
+} ruuvi_interface_timer_mode_t;
 
 typedef void* ruuvi_interface_timer_id_t; ///< Pointer to timer data
 /**
@@ -37,7 +38,9 @@ bool ruuvi_interface_timers_is_init(void);
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if timers have not been initialized
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t const *p_timer_id, ruuvi_interface_timer_mode_t mode, ruuvi_timer_timeout_handler_t timeout_handler);
+ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t const*
+    p_timer_id, ruuvi_interface_timer_mode_t mode,
+    ruuvi_timer_timeout_handler_t timeout_handler);
 
 /**
  * Start given timer at a mode defined in ruuvi_platform_timer_create. This operation is ignored if timer is already running.
@@ -47,7 +50,8 @@ ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t co
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on start.
  */
-ruuvi_driver_status_t ruuvi_interface_timer_start (ruuvi_interface_timer_id_t timer_id, uint32_t ms);
+ruuvi_driver_status_t ruuvi_interface_timer_start(ruuvi_interface_timer_id_t timer_id,
+    uint32_t ms);
 
 /**
  * Stop a running timer.
@@ -55,6 +59,6 @@ ruuvi_driver_status_t ruuvi_interface_timer_start (ruuvi_interface_timer_id_t ti
  * @param timer_id id of timer to stop
  * returns RUUVI_DRIVER_SUCCESS on success, error code from stack on error
  */
-ruuvi_driver_status_t ruuvi_interface_timer_stop (ruuvi_interface_timer_id_t timer_id);
+ruuvi_driver_status_t ruuvi_interface_timer_stop(ruuvi_interface_timer_id_t timer_id);
 
 #endif
