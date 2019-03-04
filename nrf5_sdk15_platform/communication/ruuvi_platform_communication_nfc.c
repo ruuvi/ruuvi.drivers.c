@@ -6,8 +6,6 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
-#include "ruuvi_platform_external_includes.h"
 #if NRF5_SDK15_COMMUNICATION_NFC_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
@@ -24,7 +22,7 @@
 
 static struct
 {
-  volatile uint8_t connected;    //NFC field is active
+  volatile uint8_t connected;    // NFC field is active
   uint8_t initialized;
   volatile uint8_t rx_updated;   // New data received
   volatile uint8_t tx_updated;   // New data should be written to buffer
@@ -54,7 +52,6 @@ static void nfc_callback(void * context,
     {
       (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_CONNECTED, NULL, 0);
     }
-
     nrf5_sdk15_nfc_state.connected = true;
     break;
 
@@ -67,7 +64,10 @@ static void nfc_callback(void * context,
     break;
 
   case NFC_T4T_EVENT_NDEF_READ:
-    if (NULL != *(nrf5_sdk15_nfc_state.on_nfc_evt)) { (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0); }
+    if (NULL != *(nrf5_sdk15_nfc_state.on_nfc_evt))
+    {
+      (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0);
+    }
     break;
 
   // Update process generally sets length of field to 0 and
@@ -78,9 +78,13 @@ static void nfc_callback(void * context,
       nrf5_sdk15_nfc_state.nfc_ndef_msg_len = dataLength;
       nrf5_sdk15_nfc_state.rx_updated = true;
       // If tag is not configurable by NFC, set flag to overwrite received data.
-      if (!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true;}
-      // Do not process data in interrupt context, you should rather schedule data processing. Note: If incoming data is long, it might exceed vent max size.
-      if (NULL != *(nrf5_sdk15_nfc_state.on_nfc_evt)) { (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength); }
+      if (!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true; }
+      // Do not process data in interrupt context, you should rather schedule data processing.
+      // Note: If incoming data is long, it might exceed vent max size.
+      if (NULL != *(nrf5_sdk15_nfc_state.on_nfc_evt))
+      {
+        (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength);
+      }
     }
     break;
 
@@ -106,16 +110,16 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(ruuvi_interface_com
   if (NULL == channel)                  { return RUUVI_DRIVER_ERROR_NULL; }
   if (nrf5_sdk15_nfc_state.initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
-  /* Set up NFC */
+  // Set up NFC
   ret_code_t err_code = NRF_SUCCESS;
   err_code |= nfc_t4t_setup(nfc_callback, NULL);
 
   memset(nrf5_sdk15_nfc_state.nfc_ndef_msg, 0, sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
 
-  /* Run Read-Write mode for Type 4 Tag platform */
+  // Run Read-Write mode for Type 4 Tag platform
   err_code |= nfc_t4t_ndef_rwpayload_set(nrf5_sdk15_nfc_state.nfc_ndef_msg, sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
 
-  /* Start sensing NFC field */
+  // Start sensing NFC field
   err_code |= nfc_t4t_emulation_start();
 
   nrf5_sdk15_nfc_state.initialized = true;
@@ -152,7 +156,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
   if (!(nrf5_sdk15_nfc_state.tx_updated)) { return RUUVI_DRIVER_SUCCESS; }
   ret_code_t err_code = NRF_SUCCESS;
 
-  /* Create NFC NDEF text record description in English */
+  // Create NFC NDEF text record description in English
   uint8_t fw_code[] = {'f', 'w'}; // Firmware
   NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_fw_rec,
                                 UTF_8,
@@ -185,7 +189,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
                                nfc_tx_buf,                                        \
                                nfc_tx_length);
 
-  //Clear our record
+  // Clear our record
   nfc_ndef_msg_clear(&NFC_NDEF_MSG(nfc_ndef_msg));
   // Add new records if applicable
   if (nfc_fw_length)
@@ -276,7 +280,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set(const uint8_t* co
  */
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive(ruuvi_interface_communication_message_t* msg)
 {
-  //Input check
+  // Input check
   //ruuvi_platform_log("Getting message, state check");
   if (NULL == msg) { return RUUVI_DRIVER_ERROR_NULL; }
   // State check. Do not process data while connection is active, i.e. while
@@ -290,10 +294,10 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive(ruuvi_interface_
   if (0 == nrf5_sdk15_nfc_state.msg_index)
   {
     uint32_t desc_buf_len = sizeof(nrf5_sdk15_nfc_state.desc_buf);
-    uint32_t data_lenu32 = sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg); //Skip NFCT4T length bytes?
+    uint32_t data_lenu32 = sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg); // Skip NFCT4T length bytes?
     err_code = ndef_msg_parser(nrf5_sdk15_nfc_state.desc_buf,
                                &desc_buf_len,
-                               nrf5_sdk15_nfc_state.nfc_ndef_msg+2, //Skip NFCT4T length bytes
+                               nrf5_sdk15_nfc_state.nfc_ndef_msg+2, // Skip NFCT4T length bytes
                                &data_lenu32);
 
     //PLATFORM_LOG_INFO("Found %d messages", ((nfc_ndef_msg_desc_t*)desc_buf)->record_count);
@@ -331,5 +335,4 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive(ruuvi_interface_
   return err_code;
 }
 
-#endif
 #endif
