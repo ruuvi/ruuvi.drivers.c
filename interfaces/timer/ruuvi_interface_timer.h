@@ -38,7 +38,7 @@ bool ruuvi_interface_timers_is_init(void);
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if timers have not been initialized
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t const*
+ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t *
     p_timer_id, ruuvi_interface_timer_mode_t mode,
     ruuvi_timer_timeout_handler_t timeout_handler);
 

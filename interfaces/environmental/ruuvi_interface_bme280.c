@@ -17,6 +17,8 @@
 #include "ruuvi_interface_environmental.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_spi_bme280.h"
+#include "ruuvi_interface_i2c.h"
+#include "ruuvi_interface_i2c_bme280.h"
 #include "ruuvi_interface_yield.h"
 
 #include <string.h>
@@ -104,22 +106,30 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t*
       err_code |= BME_TO_RUUVI_ERROR(bme280_init(&dev));
 
       if(err_code != RUUVI_DRIVER_SUCCESS) { return err_code; }
-
-      err_code |= BME_TO_RUUVI_ERROR(bme280_crc_selftest(&dev));
-      err_code |= BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
-      // Setup Oversampling 1 to enable sensor
-      uint8_t dsp = RUUVI_DRIVER_SENSOR_DSP_OS;
-      uint8_t dsp_parameter = 1;
-      err_code |= ruuvi_interface_bme280_dsp_set(&dsp, &dsp_parameter);
       break;
 
     case RUUVI_DRIVER_BUS_I2C:
-      return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
+      dev.dev_id = handle;
+      dev.intf = BME280_I2C_INTF;
+      dev.read = ruuvi_interface_i2c_bme280_read;
+      dev.write = ruuvi_interface_i2c_bme280_write;
+      dev.delay_ms = bosch_delay_ms;
+      err_code |= BME_TO_RUUVI_ERROR(bme280_init(&dev));
+
+      if(err_code != RUUVI_DRIVER_SUCCESS) { return err_code; }
+      break;
 
     case RUUVI_DRIVER_BUS_NONE:
     default:
       return  RUUVI_DRIVER_ERROR_INVALID_PARAM;
   }
+
+  err_code |= BME_TO_RUUVI_ERROR(bme280_crc_selftest(&dev));
+  err_code |= BME_TO_RUUVI_ERROR(bme280_soft_reset(&dev));
+  // Setup Oversampling 1 to enable sensor
+  uint8_t dsp = RUUVI_DRIVER_SENSOR_DSP_OS;
+  uint8_t dsp_parameter = 1;
+  err_code |= ruuvi_interface_bme280_dsp_set(&dsp, &dsp_parameter);
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {

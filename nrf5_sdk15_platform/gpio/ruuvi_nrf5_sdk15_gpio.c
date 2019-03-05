@@ -21,17 +21,26 @@
 *
 */
 
-/**
- * No implementation required.
- */
+static bool m_gpio_is_init = false;
+
 ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 {
+  if(m_gpio_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
+  m_gpio_is_init = true;
   return RUUVI_DRIVER_SUCCESS;
 }
 
-/**
- *
- */
+ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void)
+{
+  
+}
+
+bool  ruuvi_interface_gpio_is_init(void)
+{
+  return m_gpio_is_init;
+}
+
 ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin,
     const ruuvi_interface_gpio_mode_t mode)
 {

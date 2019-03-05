@@ -61,6 +61,13 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.19.2 
+ * Add artistic style support
+ 
+## 3.19.1
+ * rename files from \_platform\_ to \_nrf_sdk15\_.
+ * fix ARMGCC compilation issues
+
 ## 3.19.0
  * Doxygen support started.
  * Rename yield and delay interface function to -interface, was -platform

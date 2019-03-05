@@ -133,7 +133,7 @@ bool ruuvi_platform_timers_is_init(void)
   return m_is_init;
 }
 
-ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t const*
+ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t *
     p_timer_id, const ruuvi_interface_timer_mode_t mode,
     const ruuvi_timer_timeout_handler_t timeout_handler)
 {
@@ -146,7 +146,7 @@ ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t co
                                          nrf_mode,
                                          (app_timer_timeout_handler_t)timeout_handler);
 
-  if(NRF_SUCCESS == err_code) {p_timer_id = (void*)tid;}
+  if(NRF_SUCCESS == err_code) {*p_timer_id = (void*)tid;}
 
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }

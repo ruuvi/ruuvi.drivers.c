@@ -1,57 +1,26 @@
-#ifndef RUUVI_INTERFACE_GPIO_H
-#define RUUVI_INTERFACE_GPIO_H
 #include "ruuvi_driver_error.h"
+#include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
-/**
- * @defgroup GPIO GPIO functions
- * @brief Functions for digitally reading and actuating GPIO pins.
- *
- * The GPIO functions do include interrupts, but they do not include PWM,
- * ADC or DAC functions.
- */
-/*@{*/
-/**
- * @file ruuvi_interface_gpio.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-30
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Interface for basic GPIO writes and reads
- *
- */
 
-#define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF //!< Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
-
-/**
- * GPIO modes supported by interface. If the underlying platform
- * does not support given mode, it shall return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
- * on configuration attempt.
- */
-typedef enum
+ruuvi_driver_status_t ruuvi_interface_gpio_init_test(void)
 {
-  RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,          //!< High-impedance mode, electrically disconnected.
-  RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL,    //!< Input, can be read. No pull resistors
-  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP,    //!< Input, can be read. Pulled up by internal resistor, value depends on IC.
-  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN,  //!< Input, can be read. Pulled dpwn by internal resistor, value depends on IC.
-  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD, //!< Push-pull output, can be written.
-  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE //!< Push-pull output, can be written. Higher current drive than standard.
-} ruuvi_interface_gpio_mode_t;
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  err_code = ruuvi_interface_gpio_init();
 
-/**
- * States of GPIO pins
- */
-typedef enum
-{
-  RUUVI_INTERFACE_GPIO_LOW = false, //!< GPIO electrically low
-  RUUVI_INTERFACE_GPIO_HIGH = true  //!< GPIO electrically high
-} ruuvi_interface_gpio_state_t;
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
 
-/**
- * @brief Initializes GPIO module. Call this before other GPIO functions.
- *
- * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
- */
-ruuvi_driver_status_t ruuvi_interface_gpio_init(void);
+  err_code = ruuvi_interface_gpio_init();
+
+  if(RUUVI_DRIVER_SUCCESS == err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
+
+  err_code = ruuvi_interface_gpio_uninit();
+  
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
+
+  err_code = ruuvi_interface_gpio_uninit();
+  
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
+}
 
 /**
  * @brief Configure a pin of a port into a mode.
@@ -105,4 +74,3 @@ ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin,
 ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin,
     ruuvi_interface_gpio_state_t* const p_state);
 /*@}*/
-#endif

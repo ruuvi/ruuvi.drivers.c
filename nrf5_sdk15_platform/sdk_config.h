@@ -3645,6 +3645,7 @@
 // </e>
 
 
+
 // <e> TIMER_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
 #ifndef TIMER_CONFIG_LOG_ENABLED
