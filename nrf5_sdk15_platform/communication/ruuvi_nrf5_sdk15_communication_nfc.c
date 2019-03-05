@@ -117,6 +117,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(
 
   // Set up NFC
   ret_code_t err_code = NRF_SUCCESS;
+
   err_code |= nfc_t4t_setup(nfc_callback, NULL);
   memset(nrf5_sdk15_nfc_state.nfc_ndef_msg, 0, sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
 

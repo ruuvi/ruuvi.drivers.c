@@ -48,10 +48,32 @@ typedef enum
 
 /**
  * @brief Initializes GPIO module. Call this before other GPIO functions.
+ * After initialization all GPIO pins shall be in High-Z mode.
+ * 
  *
- * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO is already initialized
  */
 ruuvi_driver_status_t ruuvi_interface_gpio_init(void);
+
+/**
+ * @brief Uninitializes GPIO module. Call this to reset GPIO to High-Z mode. 
+ * After uninitialization all GPIO pins shall be in High-Z mode. 
+ * Uninitialization can be called at any time, but behaviour is not defined
+ * if some other peripheral (i.e. SPI) is using GPIO pins. 
+ *
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return error code from stack on error
+ */
+ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void);
+
+/**
+ * @brief return true if GPIO is init, false otherwise.
+ *
+ * @return @c true if GPIO module is init
+ * @return @c false if GPIO module is not init 
+ */
+bool  ruuvi_interface_gpio_is_init(void);
 
 /**
  * @brief Configure a pin of a port into a mode.
