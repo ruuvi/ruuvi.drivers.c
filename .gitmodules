@@ -1,6 +1,8 @@
 [submodule "BME280_driver"]
 	path = BME280_driver
 	url = https://github.com/BoschSensortec/BME280_driver.git
+	ignore = untracked
 [submodule "STMems_Standard_C_drivers"]
 	path = STMems_Standard_C_drivers
 	url = https://github.com/STMicroelectronics/STMems_Standard_C_drivers
+	ignore = untracked
