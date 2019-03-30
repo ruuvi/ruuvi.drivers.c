@@ -2,9 +2,6 @@
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_yield.h"
-#include "test_acceleration.h"
-#include "test_adc.h"
-#include "test_environmental.h"
 #include "test_sensor.h"
 
 #include <float.h>
