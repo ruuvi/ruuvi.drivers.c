@@ -44,6 +44,10 @@
 #if APPLICATION_TIMER_MAX_INSTANCES > 0
   APP_TIMER_DEF(timer_0);
 #endif
+#if 0 >= APPLICATION_TIMER_MAX_INSTANCES
+  #error "No instances enabled for application timer"
+#endif
+
 static uint8_t timer_idx = 0;  ///< Counter to next timer to allocate.
 static bool m_is_init = false; ///< Flag keeping track on if module is initialized.
 
