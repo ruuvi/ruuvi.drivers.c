@@ -100,6 +100,10 @@
 /** @brief 0 is used by the softdevice, 1 is used by scheduler / timer. 2 is only option remaining */
 #define NRF5_SDK15_RTC_INSTANCE            2
 
+#ifndef APPLICATION_COMMUNICATION_BLUETOOTH_ENABLED
+  #define APPLICATION_COMMUNICATION_BLUETOOTH_ENABLED 0
+#endif
+
 /** @brief Firmware update service to enter bootloader from application */
 #define BLE_DFU_ENABLED APPLICATION_COMMUNICATION_BLUETOOTH_ENABLED
 
