@@ -1,0 +1,132 @@
+/**
+* @file application_driver_configuration.h.example
+* @author Otso Jousimaa <otso@ojousima.net>
+* @date 2019-03-30
+* @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+* @brief Configuration for ruuvi.drivers.c nrf5 sdk15 sdk_config. Platform has default configuration, 
+* you'll need to only define the overrides.
+*/
+
+/** @brief Application configuration */
+#include "application_config.h"
+
+#ifndef NRF5_SDK15_APPLICATION_CONFIG_H
+#define NRF5_SDK15_APPLICATION_CONFIG_H
+#include "app_util.h"
+
+/** @brief Compiles the log strings, disabling logging saves a lot of flash */
+#define NRF_LOG_ENABLED APPLICATION_LOG_ENABLED
+
+/** @brief Set to 0 to force logs to be processed immediately */
+#define NRF_LOG_DEFERRED 0
+
+/** @brief as logs are processed immediately, log buffer can be relatively small. Size must be at least 128 and power of 2. */
+#if ((APPLICATION_LOG_BUFFER_SIZE & (APPLICATION_LOG_BUFFER_SIZE - 1)) || (APPLICATION_LOG_BUFFER_SIZE<128))
+  #error "APPLICATION_LOG_BUFFER_SIZE must be a power of 2 and at least 128"
+#else
+  #define NRF_LOG_BUFSIZE              APPLICATION_LOG_BUFFER_SIZE
+  #define NRF_LOG_STR_PUSH_BUFFER_SIZE APPLICATION_LOG_BUFFER_SIZE
+#endif
+
+/** @brief Action when log buffer overflows. Set to 1 to overwrite oldest log. Set to 0 to clip new logs */
+#define NRF_LOG_ALLOW_OVERFLOW 0
+
+/** @brief Print application logs to Segger Real Time Terminal */
+#define NRF_LOG_BACKEND_RTT_ENABLED  APPLICATION_LOG_BACKEND_RTT_ENABLED
+
+/** @brief Print application logs to UART */
+#define NRF_LOG_BACKEND_UART_ENABLED APPLICATION_LOG_BACKEND_UART_ENABLED
+
+/** @brief Enable Type 4 Tag hardware abstraction layer */
+#define NFC_T4T_HAL_ENABLED            APPLICATION_COMMUNICATION_NFC_ENABLED
+/** @brief Enable NDEF record support */
+#define NFC_NDEF_RECORD_ENABLED        APPLICATION_COMMUNICATION_NFC_ENABLED
+/** @brief Enable NDEF message support */
+#define NFC_NDEF_MSG_ENABLED           APPLICATION_COMMUNICATION_NFC_ENABLED
+/** @brief Enable NDEF text record support */
+#define NFC_NDEF_TEXT_RECORD_ENABLED   APPLICATION_COMMUNICATION_NFC_ENABLED
+/** @brief Enable NDEF message parsing*/
+#define NFC_NDEF_MSG_PARSER_ENABLED    APPLICATION_COMMUNICATION_NFC_ENABLED
+/** @brief Enable NDEF record parsing */
+#define NFC_NDEF_RECORD_PARSER_ENABLED APPLICATION_COMMUNICATION_NFC_ENABLED
+
+/** @brief Auto retry requires initialized timer/scheduler module */ 
+#define NRF_PWR_MGMT_CONFIG_AUTO_SHUTDOWN_RETRY 0
+
+/** @brief DC/DC functions. */
+#define NRFX_POWER_ENABLED             APPLICATION_POWER_ENABLED
+/** @brief Power and clock must have equal IRQ priorities. */
+#define NRFX_POWER_CONFIG_IRQ_PRIORITY NRFX_CLOCK_CONFIG_IRQ_PRIORITY
+
+/** @brief I2C general module */
+#define I2C_ENABLED                        APPLICATION_I2C_ENABLED
+/** @brief I2C hardware block selection. Must not be shared with SPI */
+#define I2C_INSTANCE                       1
+/** @brief I2C hardware block enable. */
+#define I2C1_ENABLED                       APPLICATION_I2C_ENABLED
+/** @brief  Legacy layer of NRF SDK15 */
+#define TWI_ENABLED                        I2C_ENABLED
+/** @brief  Legacy layer of NRF SDK15 */
+#define TWI1_ENABLED                       I2C_ENABLED
+/** @brief  Legacy layer of NRF SDK15 */
+#define TWI1_USE_EASY_DMA                  I2C_ENABLED
+/** @brief  NRFX layer of NRF SDK15. TWIM implicitly enables EasyDMA */
+#define NRFX_TWIM_ENABLED                  I2C_ENABLED
+/** @brief  NRFX layer of NRF SDK15. TWIM implicitly enables EasyDMA */
+#define NRFX_TWIM1_ENABLED                 I2C_ENABLED
+/** @brief  2,3,6,7 are allowed. Lower priority is higher. Other priorities are reserved by softdevice. */
+#define I2C_IRQ_PRIORITY                   7
+
+/** @brief SPI general module */
+#define SPI_ENABLED                        APPLICATION_SPI_ENABLED
+/** @brief SPI hardware block selection. Must not be shared with I2C */
+#define SPI_INSTANCE                       0 
+/** @brief  2,3,6,7 are allowed. Lower priority is higher. Other priorities are reserved by softdevice. */
+#define SPI_IRQ_PRIORITY                   7 
+#define SPI_DEFAULT_CONFIG_IRQ_PRIORITY    SPI_IRQ_PRIORITY
+/**
+ * <0=> NRF_GPIO_PIN_NOPULL
+ * <1=> NRF_GPIO_PIN_PULLDOWN
+ * <3=> NRF_GPIO_PIN_PULLUP
+ */
+#define NRF_SPI_DRV_MISO_PULLUP_CFG        0
+/** @brief SPI hardware block enable. */
+#define SPI0_ENABLED                       APPLICATION_SPI_ENABLED
+/** @brief SPI EasyDMA.  */
+#define SPI0_USE_EASY_DMA                  0
+/** @brief  NRFX layer of NRF SDK15. */
+#define NRFX_SPI0_ENABLED                  SPI_ENABLED
+
+/** @brief 0 is used by the softdevice, 1 is used by scheduler / timer. 2 is only option remaining */
+#define NRF5_SDK15_RTC_INSTANCE            2
+
+/** @brief Firmware update service to enter bootloader from application */
+#define BLE_DFU_ENABLED APPLICATION_COMMUNICATION_BLUETOOTH_ENABLED
+
+/** @brief Device Information Service to read HW model and FW version. */
+#define BLE_DIS_ENABLED APPLICATION_COMMUNICATION_BLUETOOTH_ENABLED
+
+/** @brief Nordic UART Service. Used for 2-way communication */
+#define BLE_NUS_ENABLED APPLICATION_COMMUNICATION_BLUETOOTH_ENABLED
+
+/** @brief Each enabled service requires a fixed amount of space from the softevice. */
+#define NRF_SDH_BLE_VS_UUID_COUNT BLE_DFU_ENABLED + \
+                                  BLE_DIS_ENABLED + \
+                                  BLE_NUS_ENABLED
+
+/** @brief Minimum acceptable connection interval. Must be at least 7.5 ms */
+#define MIN_CONN_INTERVAL                MSEC_TO_UNITS(APPLICATION_GATT_CONN_INTERVAL_MIN_MS, UNIT_1_25_MS)
+
+/** @brief Maximum acceptable connection interval. Must be at most 4 seconds. */
+#define MAX_CONN_INTERVAL                MSEC_TO_UNITS((APPLICATION_GATT_CONN_INTERVAL_MAX_MS), (UNIT_1_25_MS)) 
+
+/** @brief How many connection intervals device is allowed to skip to conserve power. Do not exceed CONN_SUP_TIMEOUT */
+#define SLAVE_LATENCY                    APPLICATION_GATT_CONN_SLAVE_SKIP_INTERVALS                            
+
+/** @brief Connection supervisory timeout. Maximum 4 seconds */
+#define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS((APPLICATION_GATT_CONN_TIMEOUT_MS), (UNIT_10_MS))        
+
+/** @brief Number of flash pages to conserve for application flash storage. */
+#define FDS_VIRTUAL_PAGES APPLICATION_FLASH_DATA_PAGES_NUMBER
+
+#endif

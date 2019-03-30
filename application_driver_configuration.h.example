@@ -1,0 +1,53 @@
+/**
+* @file application_driver_configuration.h.example
+* @author Otso Jousimaa <otso@ojousima.net>
+* @date 2019-03-30
+* @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+* @brief Example on how to configure drivers from application
+*
+* This header should be placed in your application.
+* It must include appropriate definitions for enabling compilation of the modules
+* and implementation of the modules, as well as any parameters fore the modules.
+*
+* For example if your project is built on Nordic Semiconductor chips, you'll need
+* to define which _interfaces_ and _platform_ modules will be compiled in and
+* any flags which are required by the SDK of the platform.
+*
+* Let us say that you want to use nRF52832 on RuuviTag to read BME280 over I2C, using Nordic SDK15.
+* You'll need to enable BME280 interface, i.e.
+* \code{.c}#define RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED 1 \endcode
+*
+* You'll also need to enable the Nordic SDK15 implementation of I2C functions with 
+* \code{.c}#define RUUVI_NRF5_SDK15_I2C_ENABLED 1 \endcode
+*
+* Finally you'll need to configure the Nordic SDK15 with overrides to default sdk_config.h, 
+* \code{.c}
+* #define NRFX_TWI_ENABLED                   1
+* #define NRFX_TWIM_ENABLED                  0
+* #define I2C_INSTANCE                       1
+* #define I2C_IRQ_PRIORITY                   7
+* #define I2C_DEFAULT_CONFIG_IRQ_PRIORITY    I2C_IRQ_PRIORITY
+* #define NRFX_TWI1_ENABLED                  1
+* 
+* #define TWI1_USE_EASY_DMA                  0
+* #define NRFX_TWIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED 1
+* \endcode
+*
+* Regrettably it's not possible to create a simple guide on what to enable when, 
+* as the definitions might have interactions. In the above example, one has to consider
+* if SPI is also being used, and know that I2C and SPI must use separate instances. 
+*
+* Please join Ruuvi Slack at slack.ruuvi.com or ask questions at f.ruuvi.com if you need
+* advice on the project configuration.
+*/
+
+#ifndef APPLICATION_DRIVER_CONFIGURATION_H
+#define APPLICATION_DRIVER_CONFIGURATION_H
+
+/** @brief file which contains Ruuvi Platform definitions. See @ref ruuvi_platform_nrf5_sdk15_config.h.example */
+#include "ruuvi_platform_nrf5_sdk15_config.h"
+
+/** @brief file which contains Nordic SDK15 sdk_config.h overrides. See @ref nrf5_sdk15_application_config.h.example */
+#include "nrf5_sdk15_application_config.h"
+
+#endif

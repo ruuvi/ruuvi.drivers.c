@@ -1,14 +1,19 @@
 /**
- * Ruuvi error codes and error check function
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- **/
+* @file ruuvi_driver_enabled_modules.h
+* @author Otso Jousimaa <otso@ojousima.net>
+* @date 2019-03-30
+* @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+* @brief Header to enable and disable module compilation.
+*
+* Use this header to select which interfaces will be included in project and 
+* which implementation to use for each interface.
+*/
 
 #ifndef RUUVI_DRIVER_ENABLED_MODULES_H
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
-#include "application_driver_configuration.h" //<! Enable modules used by your application.
+/** @brief Enable modules used by your application. See @ref application_driver_configuration.h.example */
+#include "application_driver_configuration.h" 
 
 #ifndef RUUVI_INTERFACE_ACCELERATION_ENABLED
   #define RUUVI_INTERFACE_ACCELERATION_ENABLED 0
