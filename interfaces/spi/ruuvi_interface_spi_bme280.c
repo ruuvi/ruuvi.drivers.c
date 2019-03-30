@@ -1,5 +1,3 @@
-#include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
 /**
  * @addtogroup SPI SPI functions
  * @brief Functions for using SPI bus

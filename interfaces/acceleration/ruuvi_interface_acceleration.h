@@ -24,3 +24,4 @@ typedef struct
 } ruuvi_interface_acceleration_data_t;
 
 #endif
+#endif

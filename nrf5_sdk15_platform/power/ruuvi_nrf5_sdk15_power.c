@@ -1,5 +1,3 @@
-#include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_POWER_ENABLED
 /**
  * @file ruuvi_nrf5_sdk15_power.c
  * @author Otso Jousimaa
