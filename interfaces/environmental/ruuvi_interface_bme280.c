@@ -96,6 +96,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t*
 
   switch(bus)
   {
+    #if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_SPI_ENABLED
     case RUUVI_DRIVER_BUS_SPI:
       /* Sensor_0 interface over SPI with native chip select line */
       dev.dev_id = handle;
@@ -107,7 +108,9 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t*
 
       if(err_code != RUUVI_DRIVER_SUCCESS) { return err_code; }
       break;
+    #endif
 
+    #if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_I2C_ENABLED
     case RUUVI_DRIVER_BUS_I2C:
       dev.dev_id = handle;
       dev.intf = BME280_I2C_INTF;
@@ -118,6 +121,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t*
 
       if(err_code != RUUVI_DRIVER_SUCCESS) { return err_code; }
       break;
+    #endif
 
     case RUUVI_DRIVER_BUS_NONE:
     default:

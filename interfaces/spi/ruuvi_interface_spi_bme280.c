@@ -14,7 +14,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
+#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED && RUUVI_INTERFACE_ENVIRONMENTAL_BME280_SPI_ENABLED
 
 #include <stdint.h>
 #include <string.h>
