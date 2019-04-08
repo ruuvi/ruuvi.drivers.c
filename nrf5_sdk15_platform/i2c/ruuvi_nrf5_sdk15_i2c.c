@@ -51,7 +51,7 @@
 
 
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(I2C_INSTANCE);
-static bool i2c_is_init = false;
+static bool m_i2c_is_init = false;
 
 static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency(const ruuvi_interface_i2c_frequency_t freq)
 {
@@ -85,9 +85,14 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
   err_code = nrf_drv_twi_init(&m_twi, &twi_config, NULL, NULL);
 
   nrf_drv_twi_enable(&m_twi);
-  i2c_is_init = true;
+  m_i2c_is_init = true;
 
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
+}
+
+bool ruuvi_interface_i2c_is_init()
+{
+  return m_i2c_is_init;
 }
 
 /**
@@ -111,7 +116,7 @@ ruuvi_driver_status_t i2c_uninit(void)
  **/
 ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address, uint8_t* const p_tx, const size_t tx_len, const bool stop)
 {
-  if (!i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if (!m_i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
   if (NULL == p_tx) { return RUUVI_DRIVER_ERROR_NULL; }
   int32_t err_code = NRF_SUCCESS;
 
@@ -129,7 +134,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address, 
  **/
 ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address, uint8_t* const p_rx, const size_t rx_len)
 {
-  if (!i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if (!m_i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
   if (NULL == p_rx) { return RUUVI_DRIVER_ERROR_NULL; }
   int32_t err_code = NRF_SUCCESS;
 

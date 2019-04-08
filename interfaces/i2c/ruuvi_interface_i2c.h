@@ -42,13 +42,20 @@ typedef struct
 } ruuvi_interface_i2c_init_config_t;
 
 /**
- * @brief Initialize I2C driver with default settings
+ * @brief Initialize I2C driver with given settings
  *
  * @param[in] config Configuration of the I2C peripheral.
  * @return error code from the stack, RUUVI_DRIVER_SUCCESS if no error occurred
  **/
 ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_config_t*
     const config);
+
+/**
+ * @brief Check if i2c driver is initialized
+ *
+ * @return true if I2C is initialized, false otherwise.
+ **/
+bool ruuvi_interface_i2c_is_init();
 
 /**
  * @brief I2C read function.
