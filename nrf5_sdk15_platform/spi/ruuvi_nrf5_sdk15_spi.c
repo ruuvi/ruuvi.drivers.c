@@ -37,12 +37,14 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_SPI_ENABLED
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_SPI_ENABLED
+
 #include <stdint.h>
 #include <string.h> //memcpy
 
 #include "ruuvi_driver_error.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_yield.h"
 
@@ -51,10 +53,12 @@
 #include "nrf_gpio.h"
 
 
-static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
+static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(
+                                   SPI_INSTANCE);  /**< SPI instance. */
 static bool  spi_init_done = false;
 
-static ruuvi_driver_status_t ruuvi_to_nrf_spi_mode(const ruuvi_interface_spi_mode_t ruuvi_mode, nrf_drv_spi_mode_t* nrf_mode)
+static ruuvi_driver_status_t ruuvi_to_nrf_spi_mode(const ruuvi_interface_spi_mode_t
+    ruuvi_mode, nrf_drv_spi_mode_t* nrf_mode)
 {
   switch(ruuvi_mode)
   {
@@ -79,7 +83,8 @@ static ruuvi_driver_status_t ruuvi_to_nrf_spi_mode(const ruuvi_interface_spi_mod
   }
 }
 
-static ruuvi_driver_status_t ruuvi_to_nrf_spi_freq(const ruuvi_interface_spi_mode_t ruuvi_freq, nrf_drv_spi_frequency_t* nrf_freq)
+static ruuvi_driver_status_t ruuvi_to_nrf_spi_freq(const ruuvi_interface_spi_mode_t
+    ruuvi_freq, nrf_drv_spi_frequency_t* nrf_freq)
 {
   switch(ruuvi_freq)
   {
@@ -105,19 +110,18 @@ static ruuvi_driver_status_t ruuvi_to_nrf_spi_freq(const ruuvi_interface_spi_mod
 }
 
 
-ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_config_t* config)
+ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_config_t*
+    config)
 {
   //Return error if SPI is already init
-  if (spi_init_done) { return NRF_ERROR_INVALID_STATE; }
+  if(spi_init_done) { return NRF_ERROR_INVALID_STATE; }
 
   ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
-
   nrf_drv_spi_mode_t mode = RUUVI_INTERFACE_SPI_MODE_0;
   nrf_drv_spi_frequency_t frequency = NRF_DRV_SPI_FREQ_1M;
   status |= ruuvi_to_nrf_spi_mode(config->mode, &mode);
   status |= ruuvi_to_nrf_spi_freq(config->frequency, &frequency);
   RUUVI_DRIVER_ERROR_CHECK(status, RUUVI_DRIVER_SUCCESS);
-
   nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
   spi_config.ss_pin       = NRF_DRV_SPI_PIN_NOT_USED;
   spi_config.miso_pin     = config->miso;
@@ -128,30 +132,32 @@ ruuvi_driver_status_t ruuvi_platform_spi_init(const ruuvi_interface_spi_init_con
   spi_config.frequency    = frequency;
   spi_config.mode         = mode;
   spi_config.bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
-
   // Use blocking mode by using NULL as event handler
   ret_code_t err_code = NRF_SUCCESS;
   err_code = nrf_drv_spi_init(&spi, &spi_config, NULL, NULL);
-;
-  for (size_t ii = 0; ii < config->ss_pins_number; ii++)
+  ;
+
+  for(size_t ii = 0; ii < config->ss_pins_number; ii++)
   {
-      nrf_gpio_cfg_output(config->ss_pins[ii]);
-      nrf_gpio_pin_set(config->ss_pins[ii]);
+    nrf_gpio_cfg_output(config->ss_pins[ii]);
+    nrf_gpio_pin_set(config->ss_pins[ii]);
   }
 
   spi_init_done = true;
-  return (status | ruuvi_platform_to_ruuvi_error(&err_code));
+  return (status | ruuvi_nrf5_sdk15_to_ruuvi_error(err_code));
 }
 
-ruuvi_driver_status_t ruuvi_platform_spi_xfer_blocking(const uint8_t* tx, const size_t tx_len, uint8_t* rx, const size_t rx_len)
+ruuvi_driver_status_t ruuvi_interface_spi_xfer_blocking(const uint8_t* tx,
+    const size_t tx_len, uint8_t* rx, const size_t rx_len)
 {
   //Return error if not init or if given null pointer
-  if (!spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
-  if ((NULL == tx && 0 != tx_len) || (NULL == rx && 0 != rx_len)) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(!spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
+  if((NULL == tx && 0 != tx_len) || (NULL == rx && 0 != rx_len)) { return RUUVI_DRIVER_ERROR_NULL; }
 
   ret_code_t err_code = NRF_SUCCESS;
   err_code |= nrf_drv_spi_transfer(&spi, tx, tx_len, rx, rx_len);
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 #endif

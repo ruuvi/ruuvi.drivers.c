@@ -53,3 +53,9 @@ dkms.conf
 
 # Mac OSX files
 .DS_Store
+
+# Doxygen generated files
+doxygen
+
+# Backup files
+*.orig

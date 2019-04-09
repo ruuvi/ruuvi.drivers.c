@@ -43,11 +43,12 @@
  * License: BSD-3
  * Author: Otso Jousimaa <otso@ojousima.net>
  */
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_NRF52832_RTC_ENABLED
 
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_NRF52832_RTC_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
+#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_rtc.h"
 #include "nrf.h"
 #include "nrf_drv_rtc.h"
@@ -55,7 +56,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-const nrf_drv_rtc_t rtc = NRF_DRV_RTC_INSTANCE(NRF5_SDK15_RTC_INSTANCE); /**< RTC0 is reserved by the softdevice, use something else. */
+const nrf_drv_rtc_t rtc = NRF_DRV_RTC_INSTANCE(
+                            NRF5_SDK15_RTC_INSTANCE); /**< RTC0 is reserved by the softdevice, use something else. */
 static uint64_t ticks = 0;
 static bool m_is_init = false;
 
@@ -64,10 +66,10 @@ static bool m_is_init = false;
  */
 static void rtc_handler(nrf_drv_rtc_int_type_t int_type)
 {
-  if (int_type == NRF_DRV_RTC_INT_OVERFLOW)
+  if(int_type == NRF_DRV_RTC_INT_OVERFLOW)
   {
     // nRF RTC is 24 bits wide.
-    ticks += (1<<24);
+    ticks += (1 << 24);
   }
 }
 
@@ -76,27 +78,29 @@ static void rtc_handler(nrf_drv_rtc_int_type_t int_type)
  *
  * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
  **/
-ruuvi_driver_status_t ruuvi_platform_rtc_init(void)
+ruuvi_driver_status_t ruuvi_interface_rtc_init(void)
 {
   if(true == m_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   ret_code_t err_code = NRF_SUCCESS;
 
   // Initialize clock if not already initialized
-  if(false == nrf_drv_clock_init_check()){ err_code |= nrf_drv_clock_init(); }
+  if(false == nrf_drv_clock_init_check()) { err_code |= nrf_drv_clock_init(); }
+
   // Request LFCLK for RTC
   nrf_drv_clock_lfclk_request(NULL);
   nrf_drv_rtc_config_t config = NRF_DRV_RTC_DEFAULT_CONFIG;
   config.prescaler = 0;
   ticks = 0;
   err_code = nrf_drv_rtc_init(&rtc, &config, rtc_handler);
-
   //Power on RTC instance before clearing the counter and enabling overflow
   nrf_drv_rtc_enable(&rtc);
   nrf_drv_rtc_counter_clear(&rtc);
   nrf_drv_rtc_overflow_enable(&rtc, true);
+
   if(NRF_SUCCESS == err_code) { m_is_init = true; }
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 /**
@@ -104,7 +108,7 @@ ruuvi_driver_status_t ruuvi_platform_rtc_init(void)
   *
   * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
   **/
-ruuvi_driver_status_t ruuvi_platform_rtc_uninit(void)
+ruuvi_driver_status_t ruuvi_interface_rtc_uninit(void)
 {
   if(true == m_is_init)
   {
@@ -112,17 +116,19 @@ ruuvi_driver_status_t ruuvi_platform_rtc_uninit(void)
     nrf_drv_rtc_uninit(&rtc);
     nrf_drv_clock_lfclk_release();
   }
+
   return RUUVI_DRIVER_SUCCESS;
 }
 
 /**
   * Return number of milliseconds since RTC init, RUUVI_DRIVER_UINT64_INVALID if RTC is not running
   **/
-uint64_t ruuvi_platform_rtc_millis(void)
+uint64_t ruuvi_interface_rtc_millis(void)
 {
   if(false == m_is_init) { return RUUVI_DRIVER_UINT64_INVALID; }
+
   uint64_t ms = nrf_drv_rtc_counter_get(&rtc) + ticks;
-  return (ms*1000)/32768;
+  return (ms * 1000) / 32768;
 }
 
 #endif

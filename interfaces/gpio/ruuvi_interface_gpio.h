@@ -1,87 +1,130 @@
-/**
- * GPIO definitions
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
-
 #ifndef RUUVI_INTERFACE_GPIO_H
 #define RUUVI_INTERFACE_GPIO_H
-
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
+/**
+ * @defgroup GPIO GPIO functions
+ * @brief Functions for digitally reading and actuating GPIO pins.
+ *
+ * The GPIO functions do include interrupts, but they do not include PWM,
+ * ADC or DAC functions.
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_gpio.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-01-30
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Interface for basic GPIO writes and reads
+ *
+ */
 
-#define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF // Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
+#define RUUVI_INTERFACE_GPIO_PIN_UNUSED 0xFF //!< Use this value to signal that nothing should be done with this pin, i.e. UART CTS not used.
 
+/**
+ * GPIO modes supported by interface. If the underlying platform
+ * does not support given mode, it shall return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
+ * on configuration attempt.
+ */
 typedef enum
 {
-  RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,
-  RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL,
-  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP,
-  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN,
-  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD,
-  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE
-}ruuvi_interface_gpio_mode_t;
+  RUUVI_INTERFACE_GPIO_MODE_HIGH_Z,          //!< High-impedance mode, electrically disconnected.
+  RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL,    //!< Input, can be read. No pull resistors
+  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP,    //!< Input, can be read. Pulled up by internal resistor, value depends on IC.
+  RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN,  //!< Input, can be read. Pulled dpwn by internal resistor, value depends on IC.
+  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD, //!< Push-pull output, can be written.
+  RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE //!< Push-pull output, can be written. Higher current drive than standard.
+} ruuvi_interface_gpio_mode_t;
 
+/**
+ * States of GPIO pins
+ */
 typedef enum
 {
-  RUUVI_INTERFACE_GPIO_LOW = false,
-  RUUVI_INTERFACE_GPIO_HIGH = true
-}ruuvi_interface_gpio_state_t;
+  RUUVI_INTERFACE_GPIO_LOW = false, //!< GPIO electrically low
+  RUUVI_INTERFACE_GPIO_HIGH = true  //!< GPIO electrically high
+} ruuvi_interface_gpio_state_t;
 
 /**
- * Initializes GPIO module
+ * @brief Initializes GPIO module. Call this before other GPIO functions.
+ * After initialization all GPIO pins shall be in High-Z mode.
+ * 
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO is already initialized
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_init(void);
+ruuvi_driver_status_t ruuvi_interface_gpio_init(void);
 
 /**
- * Configure a pin of a port into a mode.
+ * @brief Uninitializes GPIO module. Call this to reset GPIO to High-Z mode. 
+ * After uninitialization all GPIO pins shall be in High-Z mode. 
+ * Uninitialization can be called at any time, but behaviour is not defined
+ * if some other peripheral (i.e. SPI) is using GPIO pins. 
+ *
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return error code from stack on error
+ */
+ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void);
+
+/**
+ * @brief return true if GPIO is init, false otherwise.
+ *
+ * @return @c true if GPIO module is init
+ * @return @c false if GPIO module is not init 
+ */
+bool  ruuvi_interface_gpio_is_init(void);
+
+/**
+ * @brief Configure a pin of a port into a mode.
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * Parameter pin:  Pin number
- * Parameter mode: mode to set the pin to.
+ * @param pin[in] Pin number. On multi-port ICs port 0 or A is first, and port 1 or B is second etc. Pin number is <tt> port_index * pins_in_port + pin_index. </tt>
+ * @param mode[in] Mode to set the pin to. See @ref ruuvi_interface_gpio_mode_t for possible values.
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode.
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_configure(uint8_t pin, ruuvi_interface_gpio_mode_t mode);
+ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin,
+    const ruuvi_interface_gpio_mode_t mode);
 
 /**
- * Toggle the state of a pin of a port.
+ * @brief Toggle the state of a pin of a port.
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * Parameter pin:  Pin number
+* @param pin[in] Pin number. On multi-port ICs port 0 or A is first, and port 1 or B is second etc. Pin number is <tt> port_index * pins_in_port + pin_index. </tt>
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output.
+ * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output (optional).
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_toggle(uint8_t pin);
+ruuvi_driver_status_t ruuvi_interface_gpio_toggle(const uint8_t pin);
 
 /**
- * Write a pin of a port into given state
+ * @brief Write a pin of a port into given state
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * Parameter pin:   Pin number
- * Parameter state: State to which the pin should be set to.
+ * @param pin[in]   Pin number. On multi-port ICs port 0 or A is first, and port 1 or B is second etc. Pin number is <tt> port_index * pins_in_port + pin_index. </tt>
+ * @param state[in] State to which the pin should be set to. See @ref ruuvi_interface_gpio_state_t for possible values
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output.
+ * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output (optional).
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_write(uint8_t pin, ruuvi_interface_gpio_state_t state);
+ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin,
+    const ruuvi_interface_gpio_state_t state);
 
 /**
- * Read state of a pin of a port into bool high
+ * @brief Read state of a pin of a port into bool high
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * Parameter pin:  Pin number
- * Parameter state: pointer to a ruuvi_interface_gpio_state_t which will be set to the state of the pin.
+ * @param pin[in]   Pin number. On multi-port ICs port 0 or A is first, and port 1 or B is second etc. Pin number is <tt> port_index * pins_in_port + pin_index. </tt>
+ * @param p_state[out] Pointer to a ruuvi_interface_gpio_state_t which will be set to the state of the pin.
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * Must return RUUVI_DRIVER_ERROR_NULL if *state is a null pointer.
- * May return RUUVI_DRIVER_ERROR_INVALID_ADDRESS if pointer is invalid for any reason.
- * May return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input.
+ * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * @return RUUVI_DRIVER_ERROR_NULL if *state is a null pointer.
+ * @return RUUVI_DRIVER_ERROR_INVALID_ADDRESS if pointer is invalid for any reason (optional).
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input (optional).
  */
-ruuvi_driver_status_t ruuvi_platform_gpio_read(uint8_t pin, ruuvi_interface_gpio_state_t* state);
-
+ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin,
+    ruuvi_interface_gpio_state_t* const p_state);
+/*@}*/
 #endif

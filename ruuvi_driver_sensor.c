@@ -2,11 +2,15 @@
 #include "ruuvi_driver_sensor.h"
 #include <stddef.h>
 
-ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config)
+ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_sensor_t*
+    sensor, ruuvi_driver_sensor_configuration_t* config)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+
   if(NULL == sensor || NULL == config) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(NULL == sensor->samplerate_set) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
   uint8_t sleep = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
   err_code |= sensor->mode_set(&sleep);
   err_code |= sensor->samplerate_set(&(config->samplerate));
@@ -17,11 +21,15 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_s
   return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t* sensor, ruuvi_driver_sensor_configuration_t* config)
+ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t*
+    sensor, ruuvi_driver_sensor_configuration_t* config)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+
   if(NULL == sensor || NULL == config) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(NULL == sensor->samplerate_set) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
   err_code |= sensor->samplerate_get(&(config->samplerate));
   err_code |= sensor->resolution_get(&(config->resolution));
   err_code |= sensor->scale_get(&(config->scale));
@@ -32,18 +40,20 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_s
 
 static ruuvi_driver_sensor_timestamp_fp millis = NULL;
 
-ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(ruuvi_driver_sensor_timestamp_fp timestamp_fp)
+ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(
+  ruuvi_driver_sensor_timestamp_fp timestamp_fp)
 {
   millis = timestamp_fp;
   return RUUVI_DRIVER_SUCCESS;
 }
 
-// Calls the timestamp function and returns it's value. returns RUUVI_DRIVER_UINT64_INVALID if timestamp function is NULL
+// Calls the timestamp function and returns it's value. returns 0 if timestamp function is NULL
 uint64_t ruuvi_driver_sensor_timestamp_get(void)
 {
   if(NULL == millis)
   {
-    return RUUVI_DRIVER_UINT64_INVALID;
+    return 0;
   }
+
   return millis();
 }

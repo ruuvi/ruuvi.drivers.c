@@ -1,12 +1,20 @@
-/**
- * Ruuvi error codes and error check function
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- **/
-
 #ifndef RUUVI_DRIVER_ERROR_H
 #define RUUVI_DRIVER_ERROR_H
+/**
+ * @defgroup Error Error reporting and handling
+ * @brief Functions and definitions for errors and error handling
+ *
+ *
+ */
+/*@{*/
+/**
+ * @file ruuvi_driver_error.h
+ * @author Otso Jousimaa
+ * @date 2019-02-17
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
+ * @brief Ruuvi error codes and error check function
+ *
+ */
 
 #include <float.h>
 #include <stdint.h>
@@ -14,7 +22,7 @@
 #define RUUVI_DRIVER_FLOAT_INVALID  FLT_MAX
 #define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
 
-#define RUUVI_DRIVER_SUCCESS               0
+#define RUUVI_DRIVER_SUCCESS               0       ///< Internal Error
 #define RUUVI_DRIVER_ERROR_INTERNAL        (1<<0)  ///< Internal Error
 #define RUUVI_DRIVER_ERROR_NO_MEM          (1<<1)  ///< No Memory for operation
 #define RUUVI_DRIVER_ERROR_NOT_FOUND       (1<<2)  ///< Not found
@@ -36,30 +44,36 @@
 #define RUUVI_DRIVER_STATUS_MORE_AVAILABLE (1<<18) ///< Driver has more data queued
 #define RUUVI_DRIVER_ERROR_FATAL           (1<<31) ///< Program should always reset after this
 
-typedef int32_t ruuvi_driver_status_t;
+typedef int32_t ruuvi_driver_status_t; ///< bitfield for representing errors
 
 /**
- * Convert error code from platform to Ruuvi error code.
- *
- * parameter error: Error code from platform
- * return: Most descriptive ruuvi_driver_status_t code of the platform error.
- **/
-ruuvi_driver_status_t ruuvi_platform_to_ruuvi_error(void* error);
-
-/**
- * Check given error code and compare it to non-fatal errors.
+ * @brief Check given error code and compare it to non-fatal errors.
  *
  * If error is considered fatal (or not non-fatal), reset the device
  * If the error is non-fatal, log an error on the console and return
+ * Resetting requires that @c APPLICATION_POWER_ENABLED evaluates to true and is implemented on platform.
+ * Logging requires that @c APPLICATION_LOG_ENABLED evaluates to true and is implemented on platform.
  *
- * parameter error: error code, might have several flags in it.
- * parameter non_fatal_mask: Signal that this error is acceptable for program flow and execution may continue.
- * parameter file: file from which function was called
- * parameter line: line from which the function was called
+ * @param[in] error error code, might have several flags in it.
+ * @param[in] non_fatal_mask Signal that this error is acceptable for program flow and execution may continue.
+ * @param[in] p_file file from which function was called
+ * @param[in] line line from which the function was called
  **/
-void ruuvi_driver_error_check(ruuvi_driver_status_t error, ruuvi_driver_status_t non_fatal_mask, const char* file, int line);
+void ruuvi_driver_error_check(const ruuvi_driver_status_t error,
+                              const ruuvi_driver_status_t non_fatal_mask, const char* p_file, const int line);
 
-// Shorthand macro for calling the error check function with current file & line
+/**
+ * @brief Shorthand macro for calling the @ref ruuvi_driver_error_check with current file & line
+ *
+ * If error is considered fatal (or not non-fatal), reset the device
+ * If the error is non-fatal, log an error on the console and return
+ * Resetting requires that @c APPLICATION_POWER_ENABLED evaluates to true and is implemented on platform.
+ * Logging requires that @c APPLICATION_LOG_ENABLED evaluates to true and is implemented on platform.
+ *
+ * @param[in] error error code, might have several flags in it.
+ * @param[in] mask Signal that this error is acceptable for program flow and execution may continue.
+ **/
 #define RUUVI_DRIVER_ERROR_CHECK(error, mask) ruuvi_driver_error_check(error, mask, __FILE__, __LINE__)
 
+/** @} */
 #endif

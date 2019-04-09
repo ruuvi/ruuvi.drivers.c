@@ -37,19 +37,12 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-/** @file
- * @defgroup nrf_dev_wdt_example_main main.c
- * @{
- * @ingroup nrf_dev_wdt_example
- * @brief WDT Example Application main file.
- *
- * This file contains the source code for a sample application using WDT.
- *
- */
-#include "ruuvi_platform_external_includes.h"
-#if NRF5_SDK15_WATCHDOG_ENABLED
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_NRF5_SDK15_WATCHDOG_ENABLED
 
 #include "ruuvi_driver_error.h"
+#include "ruuvi_nrf5_sdk15_error.h"
+#include "ruuvi_interface_log.h"
 #include "ruuvi_interface_watchdog.h"
 #include "nrf_drv_wdt.h"
 #include <stdbool.h>
@@ -61,7 +54,8 @@ nrf_drv_wdt_channel_id m_channel_id;
  */
 void wdt_event_handler(void)
 {
-    //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
+  //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
+  ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
 }
 
 /**
@@ -82,7 +76,7 @@ ruuvi_driver_status_t ruuvi_interface_watchdog_init(uint32_t interval)
   err_code = nrf_drv_wdt_init(&config, wdt_event_handler);
   err_code = nrf_drv_wdt_channel_alloc(&m_channel_id);
   nrf_drv_wdt_enable();
-  return ruuvi_platform_to_ruuvi_error(&err_code);
+  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 /**

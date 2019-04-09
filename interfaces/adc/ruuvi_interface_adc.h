@@ -17,6 +17,6 @@ typedef struct
   float adc_v;           // V
   float reserved0;       // Add unused floats to keep struct at the same size as other data formats.
   float reserved1;
-}ruuvi_interface_adc_data_t;
+} ruuvi_interface_adc_data_t;
 
 #endif

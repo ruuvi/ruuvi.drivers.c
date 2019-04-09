@@ -23,7 +23,8 @@
  *
  * Returns RUUVI_DRIVER_SUCCESS on success, error code from stack on error
  */
-ruuvi_driver_status_t ruuvi_interface_scheduler_init(size_t event_size, size_t queue_size);
+ruuvi_driver_status_t ruuvi_interface_scheduler_init(size_t event_size,
+    size_t queue_size);
 
 /**
  * Type definition for scheduler event handler.
@@ -32,7 +33,7 @@ ruuvi_driver_status_t ruuvi_interface_scheduler_init(size_t event_size, size_t q
  * parameter event_size: Size of the event data. Must be smaller than or equal to max_event_size
  *
  */
-typedef void(*ruuvi_scheduler_event_handler_t)(void *p_event_data, uint16_t event_size);
+typedef void(*ruuvi_scheduler_event_handler_t)(void* p_event_data, uint16_t event_size);
 
 /**
  *  Executes all scheduled tasks. If task schedules itself to be run immediately this will be run in a never-ending loop, without sleeping.
@@ -40,12 +41,13 @@ typedef void(*ruuvi_scheduler_event_handler_t)(void *p_event_data, uint16_t even
  *  Returns RUUVI_DRIVER_SUCCESS if queue was executed successfully.
  *  Returns error code from the stack if error occurs.
  */
-ruuvi_driver_status_t ruuvi_platform_scheduler_execute(void);
+ruuvi_driver_status_t ruuvi_interface_scheduler_execute(void);
 
 /**
  * Schedule given task to be executed on next call to ruuvi_platform_scheduler_execute
  */
-ruuvi_driver_status_t ruuvi_platform_scheduler_event_put (void const *p_event_data, uint16_t event_size, ruuvi_scheduler_event_handler_t handler);
+ruuvi_driver_status_t ruuvi_interface_scheduler_event_put(const void const* p_event_data,
+    const uint16_t event_size, const ruuvi_scheduler_event_handler_t handler);
 
 
 

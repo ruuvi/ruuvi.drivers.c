@@ -17,6 +17,6 @@ typedef struct
   float temperature_c;   // C
   float humidity_rh;     // RH-%
   float pressure_pa;     // Pa
-}ruuvi_interface_environmental_data_t;
+} ruuvi_interface_environmental_data_t;
 
 #endif
