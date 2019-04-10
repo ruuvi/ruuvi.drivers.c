@@ -132,7 +132,7 @@ ruuvi_driver_status_t ruuvi_interface_timers_init(void)
 }
 
 //return true if timers have been successfully initialized.
-bool ruuvi_platform_timers_is_init(void)
+bool ruuvi_interface_timers_is_init(void)
 {
   return m_is_init;
 }
