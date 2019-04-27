@@ -16,9 +16,8 @@
 
 /** @brief structure to configure GPIO test with input and output. These GPIOs must be physically connected on board. */
 typedef struct {
-  
-  ruuvi_interface_gpio_id_t input;
-  ruuvi_interface_gpio_id_t output;
+  ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
+  ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
 }ruuvi_driver_test_gpio_cfg_t;
 
 /** @defgroup test_driver Driver tets

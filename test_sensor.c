@@ -1,8 +1,13 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_log.h"
+#include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
 #include "test_sensor.h"
+//XXX
+#include "test_acceleration.h"
+#include "test_adc.h"
+#include "test_environmental.h"
 
 #include <float.h>
 #include <stdbool.h>
@@ -271,7 +276,8 @@ ruuvi_driver_status_t test_sensor_setup(const ruuvi_driver_sensor_init_fp init, 
   {
     RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
     failed = true;
-    // Init is test elsewhere, do not register result.
+    // Init is test elsewhere, do not register result. return to avoid calling NULL function pointers
+    return RUUVI_DRIVER_ERROR_SELFTEST;
   }
 
   // Test scale
@@ -332,7 +338,8 @@ ruuvi_driver_status_t test_sensor_modes(ruuvi_driver_sensor_init_fp init, ruuvi_
   {
     RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
     failed = true;
-    // Init is test elsewhere, do not register result.
+    // Init is test elsewhere, do not register result. Return to avoid calling NULL pointers
+    return RUUVI_DRIVER_ERROR_SELFTEST;
   }
 
   // - Sensor must be in SLEEP mode after init
@@ -528,6 +535,9 @@ ruuvi_driver_status_t test_sensor_register(bool passed)
 
 void test_sensor_run(void)
 {
+  // Sensors require RTC to function
+  ruuvi_interface_rtc_init();
+  ruuvi_driver_sensor_timestamp_function_set(ruuvi_interface_rtc_millis);
   // Give a few milliseconds between tests to flush the logs
   test_adc_run();
   ruuvi_interface_delay_ms(20);
@@ -535,6 +545,8 @@ void test_sensor_run(void)
   ruuvi_interface_delay_ms(20);
   test_acceleration_run();
   ruuvi_interface_delay_ms(20);
+  ruuvi_driver_sensor_timestamp_function_set(NULL);
+  ruuvi_interface_rtc_uninit();
 }
 #else
 // Dummy implementation

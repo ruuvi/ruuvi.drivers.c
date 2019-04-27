@@ -5,6 +5,7 @@
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_driver_error.h"
 #include "nrf_gpio.h"
+#include "nrf_drv_gpiote.h"
 #include <stdbool.h>
 
 /**
@@ -32,6 +33,15 @@ static inline uint8_t ruuvi_to_nrf_pin_map(const ruuvi_interface_gpio_id_t pin)
   return (pin.port_pin.port << 5) + pin.port_pin.pin;
 }
 
+/**
+ * @brief convert nRF GPIO to @ref ruuvi_interface_gpio_id_t.
+ */
+static inline ruuvi_interface_gpio_id_t nrf_to_ruuvi_pin(nrf_drv_gpiote_pin_t pin)
+{
+  ruuvi_interface_gpio_id_t rpin = {.pin = ((pin>>5)<<8) + (pin&0x1F)};
+  return rpin;
+}
+
 ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 {
   if(m_gpio_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
@@ -42,7 +52,15 @@ ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 
 ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void)
 {
-  return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
+  ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
+  // Number of pins is defined by nrf_gpio.h
+  for(uint8_t iii = 0; iii < NUMBER_OF_PINS; iii++)
+  {
+      ruuvi_interface_gpio_id_t pin = nrf_to_ruuvi_pin(iii);
+      status |= ruuvi_interface_gpio_configure(pin, RUUVI_INTERFACE_GPIO_MODE_HIGH_Z);
+
+  }
+  return status;
 }
 
 bool  ruuvi_interface_gpio_is_init(void)
@@ -94,7 +112,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_configure(const ruuvi_interface_gpio_
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interace_gpio_toggle(const ruuvi_interface_gpio_id_t pin)
+ruuvi_driver_status_t ruuvi_interface_gpio_toggle(const ruuvi_interface_gpio_id_t pin)
 {
   const uint8_t nrf_pin = ruuvi_to_nrf_pin_map(pin);
   nrf_gpio_pin_toggle(nrf_pin);

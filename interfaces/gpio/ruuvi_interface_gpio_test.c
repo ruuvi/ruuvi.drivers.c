@@ -2,17 +2,20 @@
 #include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
 
-ruuvi_driver_status_t ruuvi_interface_gpio_init_test(void)
+ruuvi_driver_status_t ruuvi_interface_gpio_test_init(void)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  // - Interface must return RUUVI_DRIVER_SUCCESS after first call.
   err_code = ruuvi_interface_gpio_init();
 
   if(RUUVI_DRIVER_SUCCESS != err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
 
+  // - Interface must return RUUVI_DRIVER_ERROR_INVALID_STATE when called while already initialized.
   err_code = ruuvi_interface_gpio_init();
 
   if(RUUVI_DRIVER_SUCCESS == err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
 
+  // - Interface must return RUUVI_DRIVER_SUCCESS when called after uninitialization.
   err_code = ruuvi_interface_gpio_uninit();
   
   if(RUUVI_DRIVER_SUCCESS != err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
@@ -20,57 +23,90 @@ ruuvi_driver_status_t ruuvi_interface_gpio_init_test(void)
   err_code = ruuvi_interface_gpio_uninit();
   
   if(RUUVI_DRIVER_SUCCESS != err_code) { return RUUVI_DRIVER_ERROR_SELFTEST; }
+  return RUUVI_DRIVER_SUCCESS;
+}
+
+bool ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input, const ruuvi_interface_gpio_id_t output)
+{
+ ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
+ // * - When Input is in High-Z mode, and output mode is INPUT_PULLUP, input must read as HIGH
+ ruuvi_interface_gpio_state_t state;
+ status |= ruuvi_interface_gpio_init();
+ status |= ruuvi_interface_gpio_configure(input, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL);
+ status |= ruuvi_interface_gpio_configure(output, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
+ status |= ruuvi_interface_gpio_read(input, &state);
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_HIGH != state) { return false; }
+
+ // - When Input is in High-Z mode, and output mode is INPUT_PULLDOWN, input must read as LOW
+ status |= ruuvi_interface_gpio_configure(input, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL);
+ status |= ruuvi_interface_gpio_configure(output, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN);
+ status |= ruuvi_interface_gpio_read(input, &state);
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_LOW != state) { return false; }
+
+ // - When Input is in INPUT_PULLUP mode, and output is in OUTPUT_LOW mode, input must read as LOW
+ status |= ruuvi_interface_gpio_configure(input, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
+ status |= ruuvi_interface_gpio_configure(output, RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
+ status |= ruuvi_interface_gpio_write(output, RUUVI_INTERFACE_GPIO_LOW);
+ status |= ruuvi_interface_gpio_read(input, &state);
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_LOW != state) { return false; }
+
+ // - When Input is in INPUT_PULLDOWN mode, and output is in OUTPUT_HIGH mode, input must read as HIGH
+ status |= ruuvi_interface_gpio_configure(input, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN);
+ status |= ruuvi_interface_gpio_configure(output, RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
+ status |= ruuvi_interface_gpio_write(output, RUUVI_INTERFACE_GPIO_HIGH);
+ status |= ruuvi_interface_gpio_read(input, &state);
+ status |= ruuvi_interface_gpio_uninit();
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_HIGH != state) { return false; }
+
+ return true;
 }
 
 /**
- * @brief Configure a pin of a port into a mode.
- * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
- *
- * @param pin[in] Pin number.
- * @param mode[in] Mode to set the pin to. See @ref ruuvi_interface_gpio_mode_t for possible values.
- *
- * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED if underlying platform does not support given mode.
- */
-ruuvi_driver_status_t ruuvi_interface_gpio_configure(const ruuvi_interface_gpio_id_t pin,
-    const ruuvi_interface_gpio_mode_t mode);
-
-/**
  * @brief Toggle the state of a pin of a port.
- * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * @param pin[in] Pin number.
+ * Input is in High-Z mode. Value read by it must toggle after output pin is toggled.
  *
- * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output (optional).
+ * @param input[in]  Pin used to check the state of output pin.
+ * @param output[in] Pin being toggled.
+ *
+ * @return @c true if test passes, @c false on error.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_toggle(const ruuvi_interface_gpio_id_t pin);
+bool ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t input, const ruuvi_interface_gpio_id_t output)
+{
+ ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
+ // * - When Input is in High-Z mode, and output mode is INPUT_PULLUP, input must read as HIGH
+ ruuvi_interface_gpio_state_t state;
+ status |= ruuvi_interface_gpio_init();
+ status |= ruuvi_interface_gpio_configure(input, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL);
+ status |= ruuvi_interface_gpio_configure(output, RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
+ status |= ruuvi_interface_gpio_write(output, RUUVI_INTERFACE_GPIO_LOW);
+ status |= ruuvi_interface_gpio_read(input, &state);
 
-/**
- * @brief Write a pin of a port into given state
- * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
- *
- * @param pin[in]   Pin number.
- * @param state[in] State to which the pin should be set to. See @ref ruuvi_interface_gpio_state_t for possible values
- *
- * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an output (optional).
- */
-ruuvi_driver_status_t ruuvi_interface_gpio_write(const ruuvi_interface_gpio_id_t pin,
-    const ruuvi_interface_gpio_state_t state);
+ // Verify our start state
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_LOW != state) { return false; }
 
-/**
- * @brief Read state of a pin of a port into bool high
- * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
- *
- * @param pin[in]      Pin number.
- * @param p_state[out] Pointer to a ruuvi_interface_gpio_state_t which will be set to the state of the pin.
- *
- * @return RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @return RUUVI_DRIVER_ERROR_NULL if *state is a null pointer.
- * @return RUUVI_DRIVER_ERROR_INVALID_ADDRESS if pointer is invalid for any reason (optional).
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if pin was not set as an input (optional).
- */
-ruuvi_driver_status_t ruuvi_interface_gpio_read(const ruuvi_interface_gpio_id_t pin,
-    ruuvi_interface_gpio_state_t* const p_state);
-/*@}*/
+ // Verify low-to-high
+ status |= ruuvi_interface_gpio_toggle(output);
+ status |= ruuvi_interface_gpio_read(input, &state);
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_HIGH != state) { return false; }
+
+ // Verify high-to-low
+ status |= ruuvi_interface_gpio_toggle(output);
+ status |= ruuvi_interface_gpio_read(input, &state);
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_LOW != state) { return false; }
+
+ // Verify second low-to-high (after toggle, not static set)
+ status |= ruuvi_interface_gpio_toggle(output);
+ status |= ruuvi_interface_gpio_read(input, &state);
+ status |= ruuvi_interface_gpio_uninit();
+
+ if(RUUVI_DRIVER_SUCCESS != state || RUUVI_INTERFACE_GPIO_HIGH != state) { return false; }
+
+ return true;
+}
