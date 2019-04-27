@@ -11,15 +11,10 @@
 #ifndef RUUVI_DRIVER_TEST_H
 #define RUUVI_DRIVER_TEST_H
 #include "ruuvi_interface_gpio.h"
+#include "ruuvi_interface_gpio_test.h"
 #include <stdbool.h>
 #include <stdint.h>
-
-/** @brief structure to configure GPIO test with input and output. These GPIOs must be physically connected on board. */
-typedef struct
-{
-  ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
-  ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
-} ruuvi_driver_test_gpio_cfg_t;
+#include <stdlib.h>
 
 /** @defgroup test_driver Driver tets
  *  Functions to test drivers.
@@ -71,5 +66,26 @@ void ruuvi_driver_test_gpio_cfg(const ruuvi_driver_test_gpio_cfg_t cfg);
 bool ruuvi_driver_expect_close(const float expect, const int8_t precision,
                                const float check);
 
-/** @} */ // End of group Library tests
+/**
+ * @brief Register a test as being run. 
+ * Increments counter of total tests.
+ * Read results with ruuvi_driver_test_status
+ *
+ * @param passed[in]: True if your test was successful.
+ *
+ * @return RUUVI_DRIVER_SUCCESS
+ */
+ruuvi_driver_status_t ruuvi_driver_test_register(const bool passed);
+
+/**
+ * Get total number of tests run and total number of tests passed.
+ *
+ * @param[out] total  pointer to value which will be set to the number of tests run
+ * @param[out] passed pointer to value which will be set to the number of tests passed
+ *
+ * return RUUVI_DRIVER_SUCCESS
+ */
+ruuvi_driver_status_t ruuvi_driver_test_status(size_t* const total, size_t* const passed);
+
+/** @} */ // End of group Driver tests
 #endif

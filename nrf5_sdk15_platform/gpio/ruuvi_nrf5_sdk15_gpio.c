@@ -53,13 +53,17 @@ ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void)
 {
   ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
+  if(false == m_gpio_is_init)
+  {
+    return RUUVI_DRIVER_SUCCESS;
+  }
   // Number of pins is defined by nrf_gpio.h
   for(uint8_t iii = 0; iii < NUMBER_OF_PINS; iii++)
   {
       ruuvi_interface_gpio_id_t pin = nrf_to_ruuvi_pin(iii);
       status |= ruuvi_interface_gpio_configure(pin, RUUVI_INTERFACE_GPIO_MODE_HIGH_Z);
-
   }
+  m_gpio_is_init = false;
   return status;
 }
 

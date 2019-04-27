@@ -1,72 +1,225 @@
-#ifndef RUUVI_INTERFACE_GPIO_INTERRUPT_H
-#define RUUVI_INTERFACE_GPIO_INTERRUPT_H
-/**
- * @addtogroup GPIO
- * @{
- */
-/**
- * @file ruuvi_interface_gpio_interrupt.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-02-01
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Interface for basic GPIO interrupt functions
- */
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_RUN_TESTS
 #include "ruuvi_driver_error.h"
+#include "ruuvi_driver_test.h"
 #include "ruuvi_interface_gpio.h"
-/**
- * Enumeration for GPIO slopes
- */
-typedef enum
+#include "ruuvi_interface_gpio_interrupt.h"
+#include "ruuvi_interface_gpio_test.h"
+#include <stdlib.h>
+
+/** @brief Fixed 64 interrupt table size, adjust this if some device has more than 2 ports with 32 gpios each */
+#define RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE 64
+
+static uint8_t num_int_trigs = 0;
+static ruuvi_interface_gpio_evt_t last_evt;
+
+void on_interrupt(ruuvi_interface_gpio_evt_t evt)
 {
-  RUUVI_INTERFACE_GPIO_SLOPE_HITOLO, /**<  High to low transition */
-  RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI, /**<  Low to high transition */
-  RUUVI_INTERFACE_GPIO_SLOPE_TOGGLE, /**<  Any transition */
-  RUUVI_INTERFACE_GPIO_SLOPE_UNKNOWN /**<  Error or unknown value. */
-} ruuvi_interface_gpio_slope_t;
+  num_int_trigs ++;
+  last_evt = evt;
+}
+
 
 /**
- * Event from GPIO
- */
-typedef struct
-{
-  ruuvi_interface_gpio_slope_t
-  slope; /**< @ref ruuvi_interface_gpio_slope_t slope of event */
-  uint8_t pin;                        /**< Pin of the event */
-} ruuvi_interface_gpio_evt_t;
-
-typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_evt_t);
-
-/**
- * @brief Initialize interrupt functionality to GPIO.
- * Takes address of interrupt table as a pointer to avoid tying driver into a specific board with a specific number of GPIO
- * pins and to avoid including boards repository within the driver.
+ * @brief Test GPIO interrupt initialization. 
  *
- * @param interrupt_table Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
- * @param max_interrupts Size of interrupt table.
+ *
+ * @param[in] cfg configuration of GPIO pins to test. Required to determine interrupt table size.
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
-  ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table, const uint8_t max_interrupts);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_init(const ruuvi_driver_test_gpio_cfg_t cfg)
+{
+  ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
+  const uint8_t interrupt_table_size = RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE;
+  ruuvi_interface_gpio_interrupt_fp_t interrupt_table[RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE];
+  if((cfg.input.port_pin.pin + cfg.input.port_pin.port*32) > interrupt_table_size ||
+     (cfg.output.port_pin.pin + cfg.output.port_pin.port*32) > interrupt_table_size)
+     {
+       return RUUVI_DRIVER_ERROR_NO_MEM;
+     }
+  
+  // - Initialization must return @c RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO is uninitialized
+  status |= ruuvi_interface_gpio_uninit();
+  status |= ruuvi_interface_gpio_interrupt_init(interrupt_table, interrupt_table_size);
 
-/**
- * @brief Enable interrupt on a pin.
- *
- * Underlying implementation is allowed to use same interrupt channel for all pin interrupts, i.e.
- * simultaneous interrupts might get detected as one and the priority of interrupts is undefined.
- *
- * @param pin pin to use as interrupt source
- * @param slope slope to interrupt on
- * @param mode GPIO input mode. Must be (RUUVI_INTERFACE_GPIO_)INPUT_PULLUP, INPUT_PULLDOWN or INPUT_NOPULL
- * @param handler function pointer which will be called with ruuvi_interface_gpio_evt_t as a parameter on interrupt.
- *
- * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
- * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
- */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
-    const ruuvi_interface_gpio_slope_t slope,
-    const ruuvi_interface_gpio_mode_t mode,
-    const ruuvi_interface_gpio_interrupt_fp_t handler);
+  if(RUUVI_DRIVER_ERROR_INVALID_STATE != status)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Initialization must return @c RUUVI_DRIVER_SUCCESS on first call.
+  status = ruuvi_interface_gpio_init();
+  status |= ruuvi_interface_gpio_interrupt_init(interrupt_table, interrupt_table_size);
+
+  if(RUUVI_DRIVER_SUCCESS != status)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Initialization must return @c RUUVI_DRIVER_ERROR_INVALID_STATE on second call.
+  status = ruuvi_interface_gpio_interrupt_init(interrupt_table, interrupt_table_size);
+
+  if(RUUVI_DRIVER_ERROR_INVALID_STATE != status)
+ { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Initialization must return @c RUUVI_DRIVER_SUCCESS after uninitializtion.
+  status = ruuvi_interface_gpio_interrupt_uninit();
+  status |= ruuvi_interface_gpio_interrupt_init(interrupt_table, interrupt_table_size);
+
+  if(RUUVI_DRIVER_SUCCESS != status)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Initialization must return @c RUUVI_DRIVER_ERROR_NULL if interrupt handler table is @c NULL.
+  status = ruuvi_interface_gpio_interrupt_init(NULL, interrupt_table_size);
+
+  if(RUUVI_DRIVER_ERROR_NULL != status)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  status = ruuvi_interface_gpio_interrupt_uninit();
+  return RUUVI_DRIVER_SUCCESS;
+}
+
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(const ruuvi_driver_test_gpio_cfg_t cfg)
+{
+  ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
+  const uint8_t interrupt_table_size = RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE;
+  ruuvi_interface_gpio_interrupt_fp_t interrupt_table[RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE];
+  if((cfg.input.port_pin.pin + cfg.input.port_pin.port*32) > interrupt_table_size ||
+     (cfg.output.port_pin.pin + cfg.output.port_pin.port*32) > interrupt_table_size)
+     {
+       return RUUVI_DRIVER_ERROR_NO_MEM;
+     }
+
+  // - Return RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO or GPIO_INTERRUPT are not initialized
+  ruuvi_interface_gpio_interrupt_uninit();
+  ruuvi_interface_gpio_uninit();
+
+  status |= ruuvi_interface_gpio_interrupt_enable(cfg.input, RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+
+  if(RUUVI_DRIVER_ERROR_INVALID_STATE != status)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+  
+  // - Interrupt function shall be called exactly once when input is configured as low-to-high while input is low and
+  //   input goes low-to-high, high-to-low.
+  num_int_trigs = 0;
+  status = ruuvi_interface_gpio_init();
+  status |= ruuvi_interface_gpio_interrupt_init(interrupt_table, interrupt_table_size);
+  status |= ruuvi_interface_gpio_configure(cfg.output, RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  status |= ruuvi_interface_gpio_interrupt_enable(cfg.input, RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_HIGH);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  if(RUUVI_DRIVER_SUCCESS != status || 1 != num_int_trigs)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+
+  ruuvi_driver_test_register(true);
+
+  // - Interrupt function shall not be called after interrupt has been disabled
+  status |= ruuvi_interface_gpio_interrupt_disable(cfg.input);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_HIGH);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  if(RUUVI_DRIVER_SUCCESS != status || 1 != num_int_trigs)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+
+  ruuvi_driver_test_register(true);
+
+  // - Interrupt function maybe be called once or twice when input is configured as high-to-low while input is low and
+  //   input goes low-to-high, high-to-low. i.e. Triggering during activation of 
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  num_int_trigs = 0;
+  status |= ruuvi_interface_gpio_interrupt_enable(cfg.input, RUUVI_INTERFACE_GPIO_SLOPE_HITOLO, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_HIGH);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  if(RUUVI_DRIVER_SUCCESS != status || (1 != num_int_trigs && 2 != num_int_trigs))
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Interrupt function shall be called exactly twice when input is configured as toggle while input is low and
+  //  input goes low-to-high, high-to-low.
+  status = ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  status |= ruuvi_interface_gpio_interrupt_disable(cfg.input);
+  num_int_trigs = 0;
+  status |= ruuvi_interface_gpio_interrupt_enable(cfg.input, RUUVI_INTERFACE_GPIO_SLOPE_TOGGLE, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_HIGH);
+  status |= ruuvi_interface_gpio_write(cfg.output, RUUVI_INTERFACE_GPIO_LOW);
+  if(RUUVI_DRIVER_SUCCESS != status || 2 != num_int_trigs)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Interrupt pin shall be at logic HIGH when interrupt is enabled with a pull-up and the pin is not loaded externally
+  status = ruuvi_interface_gpio_configure(cfg.output, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL);
+  status |= ruuvi_interface_gpio_interrupt_disable(cfg.input);
+  num_int_trigs = 0;
+  status |= ruuvi_interface_gpio_interrupt_enable(cfg.input, RUUVI_INTERFACE_GPIO_SLOPE_TOGGLE, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP, on_interrupt);
+  ruuvi_interface_gpio_state_t state;
+  status |= ruuvi_interface_gpio_read(cfg.output, &state);
+  if(RUUVI_DRIVER_SUCCESS != status || RUUVI_INTERFACE_GPIO_HIGH != state)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  // - Interrupt pin shall be at logic LOW when interrupt is enabled with a pull-down and the pin is not loaded externally
+  status |= ruuvi_interface_gpio_configure(cfg.output, RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL);
+  status |= ruuvi_interface_gpio_interrupt_disable(cfg.input);
+  num_int_trigs = 0;
+  status |= ruuvi_interface_gpio_interrupt_enable(cfg.input, RUUVI_INTERFACE_GPIO_SLOPE_TOGGLE, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN, on_interrupt);
+  status |= ruuvi_interface_gpio_read(cfg.output, &state);
+  if(RUUVI_DRIVER_SUCCESS != status || RUUVI_INTERFACE_GPIO_LOW != state)
+  { 
+    RUUVI_DRIVER_ERROR_CHECK(status, ~RUUVI_DRIVER_ERROR_FATAL);
+    ruuvi_driver_test_register(false);
+    return RUUVI_DRIVER_ERROR_SELFTEST; 
+  }
+  ruuvi_driver_test_register(true);
+
+  return RUUVI_DRIVER_SUCCESS;
+
+}
 
 #endif

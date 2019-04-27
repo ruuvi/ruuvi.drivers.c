@@ -16,15 +16,22 @@
 *
 */
 
+/** @brief structure to configure GPIO test with input and output. These GPIOs must be physically connected on board. */
+typedef struct
+{
+  ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
+  ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
+} ruuvi_driver_test_gpio_cfg_t;
+
 /**
  * @brief Test GPIO module initialization
  *
  * - Interface must return RUUVI_DRIVER_SUCCESS after first call.
  * - Interface must return RUUVI_DRIVER_ERROR_INVALID_STATE when called while already initialized.
  * - Interface must return RUUVI_DRIVER_SUCCESS when called after uninitialization.
- * @return @c true if test passes, @c false on error.
+ * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-bool ruuvi_interface_gpio_test_init(void);
+ruuvi_driver_status_t ruuvi_interface_gpio_test_init(void);
 
 /**
  * @brief Test configuring a pin of a port into a mode.
@@ -38,9 +45,9 @@ bool ruuvi_interface_gpio_test_init(void);
  * @param input[in]  Pin used to check the state of output pin
  * @param output[in] Pin being configured into various modes.
  *
- * @return @c true if test passes, @c false on error.
+ * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-bool ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input,
+ruuvi_driver_status_t ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input,
     const ruuvi_interface_gpio_id_t output);
 
 /**
@@ -51,9 +58,9 @@ bool ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input,
  * @param input[in]  Pin used to check the state of output pin.
  * @param output[in] Pin being toggled.
  *
- * @return @c true if test passes, @c false on error.
+ * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-bool ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t input,
+ruuvi_driver_status_t ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t input,
                                       const ruuvi_interface_gpio_id_t output);
 
 /*@}*/

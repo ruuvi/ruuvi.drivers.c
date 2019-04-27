@@ -1,72 +1,59 @@
-#ifndef RUUVI_INTERFACE_GPIO_INTERRUPT_H
-#define RUUVI_INTERFACE_GPIO_INTERRUPT_H
+#ifndef RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_H
+#define RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_H
 /**
  * @addtogroup GPIO
  * @{
  */
 /**
- * @file ruuvi_interface_gpio_interrupt.h
+ * @file ruuvi_interface_gpio_interrupt_test.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-02-01
+ * @date 2019-04-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for basic GPIO interrupt functions
  */
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
-/**
- * Enumeration for GPIO slopes
- */
-typedef enum
-{
-  RUUVI_INTERFACE_GPIO_SLOPE_HITOLO, /**<  High to low transition */
-  RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI, /**<  Low to high transition */
-  RUUVI_INTERFACE_GPIO_SLOPE_TOGGLE, /**<  Any transition */
-  RUUVI_INTERFACE_GPIO_SLOPE_UNKNOWN /**<  Error or unknown value. */
-} ruuvi_interface_gpio_slope_t;
+#include "ruuvi_interface_gpio_interrupt.h"
+#include "ruuvi_interface_gpio_test.h"
 
 /**
- * Event from GPIO
- */
-typedef struct
-{
-  ruuvi_interface_gpio_slope_t
-  slope; /**< @ref ruuvi_interface_gpio_slope_t slope of event */
-  uint8_t pin;                        /**< Pin of the event */
-} ruuvi_interface_gpio_evt_t;
-
-typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_evt_t);
-
-/**
- * @brief Initialize interrupt functionality to GPIO.
- * Takes address of interrupt table as a pointer to avoid tying driver into a specific board with a specific number of GPIO
- * pins and to avoid including boards repository within the driver.
+ * @brief Test GPIO interrupt initialization. 
  *
- * @param interrupt_table Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
- * @param max_interrupts Size of interrupt table.
+ * - Initialization must return @c RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO is uninitialized
+ * - Initialization must return @c RUUVI_DRIVER_SUCCESS on first call.
+ * - Initialization must return @c RUUVI_DRIVER_ERROR_INVALID_STATE on second call.
+ * - Initialization must return @c RUUVI_DRIVER_SUCCESS after uninitializtion.
+ * - Initialization must return @c RUUVI_DRIVER_ERROR_NULL if interrupt handler table is @c NULL.
+ *
+ * @param[in] cfg configuration of GPIO pins to test. Required to determine interrupt table size.
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
-  ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table, const uint8_t max_interrupts);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_init(const ruuvi_driver_test_gpio_cfg_t cfg);
 
 /**
- * @brief Enable interrupt on a pin.
+ * @brief Test enabling interrupt on a pin.
  *
- * Underlying implementation is allowed to use same interrupt channel for all pin interrupts, i.e.
- * simultaneous interrupts might get detected as one and the priority of interrupts is undefined.
+ * Requires basic gpio functionality to work, run gpio tests first.
+ * Behaviour is undefined if GPIO is uninitialized while GPIO interrupts are initialized.
  *
- * @param pin pin to use as interrupt source
- * @param slope slope to interrupt on
- * @param mode GPIO input mode. Must be (RUUVI_INTERFACE_GPIO_)INPUT_PULLUP, INPUT_PULLDOWN or INPUT_NOPULL
- * @param handler function pointer which will be called with ruuvi_interface_gpio_evt_t as a parameter on interrupt.
+ * - Return RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO or GPIO_INTERRUPT are not initialized
+ * - Interrupt function shall be called exactly once when input is configured as low-to-high while input is low and
+ *   input goes low-to-high, high-to-low.
+ * - Interrupt function shall not be called after interrupt has been disabled
+ * - Interrupt function shall be called exactly once when input is configured as high-to-low while input is low and
+ *   input goes low-to-high, high-to-low.
+ * - Interrupt function shall be called exactly twice when input is configured as toggle while input is low and
+ *   input goes low-to-high, high-to-low.
+ * - Interrupt pin shall be at logic HIGH when interrupt is enabled with a pull-up and the pin is not loaded externally
+ * - Interrupt pin shall be at logic LOW when interrupt is enabled with a pull-down and the pin is not loaded externally
+ *
+ * @param cfg[in] pins to use for testing interrupts
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
-    const ruuvi_interface_gpio_slope_t slope,
-    const ruuvi_interface_gpio_mode_t mode,
-    const ruuvi_interface_gpio_interrupt_fp_t handler);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(const ruuvi_driver_test_gpio_cfg_t cfg);
 
 #endif
