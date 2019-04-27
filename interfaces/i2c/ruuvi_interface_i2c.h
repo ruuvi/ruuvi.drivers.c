@@ -62,22 +62,24 @@ bool ruuvi_interface_i2c_is_init();
  *
  * Function is blocking and will not sleep while transaction is ongoing.
  *
- * @param[in] address 7-bit I2C address of the device, without R/W bit. 
+ * @param[in] address 7-bit I2C address of the device, without R/W bit.
  * @param[out] p_rx pointer to data to be received
  * @param[in] rx_len length of data to be received
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address, uint8_t* const p_rx, const size_t rx_len);
+ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
+    uint8_t* const p_rx, const size_t rx_len);
 
 /**
  * @brief I2C read function.
  *
  * Function is blocking and will not sleep while transaction is ongoing.
  *
- * @param[in] address 7-bit I2C address of the device, without R/W bit. 
+ * @param[in] address 7-bit I2C address of the device, without R/W bit.
  * @param[out] p_tx pointer to data to be transmitted
  * @param[in] tx_len length of data to be transmitted
- * @param[in] stop @c true to transmit stop condition after read, @c false to hold bus active. 
+ * @param[in] stop @c true to transmit stop condition after read, @c false to hold bus active.
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address, uint8_t* const p_tx, const size_t tx_len, const bool stop);
+ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address,
+    uint8_t* const p_tx, const size_t tx_len, const bool stop);
 /* @} */
 #endif

@@ -31,9 +31,9 @@ typedef enum
 typedef struct
 {
   /** @brief @ref ruuvi_interface_gpio_slope_t slope of event */
-  ruuvi_interface_gpio_slope_t slope; 
+  ruuvi_interface_gpio_slope_t slope;
   /**@brief Pin of the event */
-  ruuvi_interface_gpio_id_t pin;      
+  ruuvi_interface_gpio_id_t pin;
 } ruuvi_interface_gpio_evt_t;
 
 typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_evt_t);
@@ -65,7 +65,8 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const ruuvi_interface_gpio_id_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const
+    ruuvi_interface_gpio_id_t pin,
     const ruuvi_interface_gpio_slope_t slope,
     const ruuvi_interface_gpio_mode_t mode,
     const ruuvi_interface_gpio_interrupt_fp_t handler);

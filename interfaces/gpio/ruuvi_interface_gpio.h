@@ -55,18 +55,19 @@ typedef struct
 {
   uint8_t  pin;  //!< Pin number
   uint8_t  port; //!< Port of the GPIO pin
-}ruuvi_interface_gpio_port_pin_t;
+} ruuvi_interface_gpio_port_pin_t;
 
 /** @brief Shorthand for using plain GPIOs in code. */
-typedef union {
+typedef union
+{
   uint16_t pin;                             //<! Single number representing port + pin
   ruuvi_interface_gpio_port_pin_t port_pin; //!< Explicit port + pin
-}ruuvi_interface_gpio_id_t;
+} ruuvi_interface_gpio_id_t;
 
 /**
  * @brief Initializes GPIO module. Call this before other GPIO functions.
  * After initialization all GPIO pins shall be in High-Z mode.
- * 
+ *
  *
  * @return RUUVI_DRIVER_SUCCESS on success
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if GPIO is already initialized
@@ -74,10 +75,10 @@ typedef union {
 ruuvi_driver_status_t ruuvi_interface_gpio_init(void);
 
 /**
- * @brief Uninitializes GPIO module. Call this to reset GPIO to High-Z mode. 
- * After uninitialization all GPIO pins shall be in High-Z mode. 
+ * @brief Uninitializes GPIO module. Call this to reset GPIO to High-Z mode.
+ * After uninitialization all GPIO pins shall be in High-Z mode.
  * Uninitialization can be called at any time, but behaviour is not defined
- * if some other peripheral (i.e. SPI) is using GPIO pins. 
+ * if some other peripheral (i.e. SPI) is using GPIO pins.
  *
  * @return RUUVI_DRIVER_SUCCESS on success
  * @return error code from stack on error
@@ -88,7 +89,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void);
  * @brief return true if GPIO is init, false otherwise.
  *
  * @return @c true if GPIO module is init
- * @return @c false if GPIO module is not init 
+ * @return @c false if GPIO module is not init
  */
 bool  ruuvi_interface_gpio_is_init(void);
 

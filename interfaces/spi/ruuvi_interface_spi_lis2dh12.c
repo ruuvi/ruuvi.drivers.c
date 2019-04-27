@@ -26,6 +26,7 @@ int32_t ruuvi_interface_spi_lis2dh12_write(void* dev_ptr, uint8_t reg_addr,
   // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
   // multiple read / writes.
   if(len > 1) { reg_addr |= 0x40; }
+
   ruuvi_interface_gpio_id_t ss = {.pin = dev_id };
   err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_LOW);
   err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
@@ -45,6 +46,7 @@ int32_t ruuvi_interface_spi_lis2dh12_read(void* dev_ptr, uint8_t reg_addr,
   // bit 1: MS bit. When 0, does not increment the address; when 1, increments the address in
   // multiple read / writes.
   if(len > 1) { reg_addr |= 0x40; }
+
   ruuvi_interface_gpio_id_t ss = {.pin = dev_id };
   err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_LOW);
   err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
