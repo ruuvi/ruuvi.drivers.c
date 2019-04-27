@@ -61,6 +61,9 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 3.19.3
+ * Basic GPIO tests pass
+
 ## 3.19.2 
  * Add artistic style support
  
