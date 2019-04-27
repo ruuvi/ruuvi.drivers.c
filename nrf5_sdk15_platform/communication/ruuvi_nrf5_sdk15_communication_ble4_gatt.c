@@ -45,7 +45,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_STACK_ENABLED
+#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
