@@ -47,7 +47,8 @@ ruuvi_driver_status_t ruuvi_interface_gpio_test_init(void);
  *
  * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input,
+ruuvi_driver_status_t ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t
+    input,
     const ruuvi_interface_gpio_id_t output);
 
 /**
@@ -60,8 +61,9 @@ ruuvi_driver_status_t ruuvi_interface_gpio_test_configure(const ruuvi_interface_
  *
  * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t input,
-                                      const ruuvi_interface_gpio_id_t output);
+ruuvi_driver_status_t ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t
+    input,
+    const ruuvi_interface_gpio_id_t output);
 
 /*@}*/
 #endif

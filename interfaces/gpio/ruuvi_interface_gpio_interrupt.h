@@ -111,6 +111,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_disable(const ruuvi_interface_gpio_id_t pin);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_disable(const
+    ruuvi_interface_gpio_id_t pin);
 
 #endif
