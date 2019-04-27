@@ -15,10 +15,11 @@
 #include <stdint.h>
 
 /** @brief structure to configure GPIO test with input and output. These GPIOs must be physically connected on board. */
-typedef struct {
+typedef struct
+{
   ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
   ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
-}ruuvi_driver_test_gpio_cfg_t;
+} ruuvi_driver_test_gpio_cfg_t;
 
 /** @defgroup test_driver Driver tets
  *  Functions to test drivers.
@@ -68,7 +69,7 @@ void ruuvi_driver_test_gpio_cfg(const ruuvi_driver_test_gpio_cfg_t cfg);
  *
  */
 bool ruuvi_driver_expect_close(const float expect, const int8_t precision,
-                                const float check);
+                               const float check);
 
 /** @} */ // End of group Library tests
 #endif

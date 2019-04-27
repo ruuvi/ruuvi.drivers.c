@@ -5,7 +5,7 @@
 * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
 * @brief Header to enable and disable module compilation.
 *
-* Use this header to select which interfaces will be included in project and 
+* Use this header to select which interfaces will be included in project and
 * which implementation to use for each interface.
 */
 
@@ -13,7 +13,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief Enable modules used by your application. See @ref application_driver_configuration.h.example */
-#include "application_driver_configuration.h" 
+#include "application_driver_configuration.h"
 
 #ifndef RUUVI_INTERFACE_ACCELERATION_ENABLED
   #define RUUVI_INTERFACE_ACCELERATION_ENABLED 0

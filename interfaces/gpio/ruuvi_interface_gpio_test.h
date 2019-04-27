@@ -40,7 +40,8 @@ bool ruuvi_interface_gpio_test_init(void);
  *
  * @return @c true if test passes, @c false on error.
  */
-bool ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input, const ruuvi_interface_gpio_id_t output);
+bool ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input,
+    const ruuvi_interface_gpio_id_t output);
 
 /**
  * @brief Test toggling the state of a pin of a port.
@@ -52,7 +53,8 @@ bool ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t input, 
  *
  * @return @c true if test passes, @c false on error.
  */
-bool ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t input, const ruuvi_interface_gpio_id_t output);
+bool ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t input,
+                                      const ruuvi_interface_gpio_id_t output);
 
 /*@}*/
 #endif
