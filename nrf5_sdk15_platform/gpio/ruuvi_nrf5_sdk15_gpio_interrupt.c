@@ -19,6 +19,20 @@
 static ruuvi_interface_gpio_interrupt_fp_t* pin_event_handlers;
 static uint8_t max_interrupts = 0;
 
+static inline ruuvi_interface_gpio_id_t nrf_to_ruuvi_pin(nrf_drv_gpiote_pin_t pin)
+{
+  ruuvi_interface_gpio_id_t rpin = {.pin = ((pin>>5)<<8) + (pin&0x1F)};
+  return rpin;
+}
+
+/**
+ * @brief convert @ref ruuvi_interface_gpio_id_t to nRF GPIO.
+ */
+static inline uint8_t ruuvi_to_nrf_pin(const ruuvi_interface_gpio_id_t pin)
+{
+  return (pin.port_pin.port << 5) + pin.port_pin.pin;
+}
+
 ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
   ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table,
   const uint8_t interrupt_table_size)
@@ -68,17 +82,19 @@ static void in_pin_handler(const nrf_drv_gpiote_pin_t pin,
         break;
     }
 
-    event.pin = pin;
+    event.pin = nrf_to_ruuvi_pin(pin);
     (pin_event_handlers[pin])(event);
   }
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const ruuvi_interface_gpio_id_t pin,
     const ruuvi_interface_gpio_slope_t slope,
     const ruuvi_interface_gpio_mode_t mode,
     const ruuvi_interface_gpio_interrupt_fp_t handler)
 {
-  if(max_interrupts <= pin) { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
+  // nRF5 devices have 32 pins per port. Pack the port-pin representation into 8 bits for interrupt table.
+  uint8_t nrf_pin = ruuvi_to_nrf_pin(pin);
+  if(max_interrupts <= nrf_pin) { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
 
   ret_code_t err_code = NRF_SUCCESS;
   nrf_gpiote_polarity_t polarity;
@@ -127,9 +143,9 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
                                            .pull = pull,         \
                                            .sense = polarity     \
                                          };
-  pin_event_handlers[pin] = handler;
-  err_code |= nrf_drv_gpiote_in_init(pin, &in_config, in_pin_handler);
-  nrf_drv_gpiote_in_event_enable(pin, true);
+  pin_event_handlers[nrf_pin] = handler;
+  err_code |= nrf_drv_gpiote_in_init(nrf_pin, &in_config, in_pin_handler);
+  nrf_drv_gpiote_in_event_enable(nrf_pin, true);
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 

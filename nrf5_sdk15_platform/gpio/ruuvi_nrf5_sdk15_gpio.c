@@ -14,14 +14,23 @@
 /**
 * @file ruuvi_nrf5_sdk15_gpio.c
 * @author Otso Jousimaa <otso@ojousima.net>
-* @date 2019-01-31
+* @date 2019-04-27
 * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
 *
 * Implementations for basic GPIO writes and reads on nRF5 SDK15.
 *
 */
 
+/** @brief flag to keep track on if GPIO is initialized */
 static bool m_gpio_is_init = false;
+
+/**
+ * @brief convert @ref ruuvi_interface_gpio_id_t to nRF GPIO.
+ */
+static inline uint8_t ruuvi_to_nrf_pin_map(const ruuvi_interface_gpio_id_t pin)
+{
+  return (pin.port_pin.port << 5) + pin.port_pin.pin;
+}
 
 ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 {
@@ -33,7 +42,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_init(void)
 
 ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void)
 {
-  
+  return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
 
 bool  ruuvi_interface_gpio_is_init(void)
@@ -41,35 +50,36 @@ bool  ruuvi_interface_gpio_is_init(void)
   return m_gpio_is_init;
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_configure(const ruuvi_interface_gpio_id_t pin,
     const ruuvi_interface_gpio_mode_t mode)
 {
-  if(RUUVI_INTERFACE_GPIO_PIN_UNUSED == pin) { return RUUVI_DRIVER_SUCCESS; }
+  if(RUUVI_INTERFACE_GPIO_ID_UNUSED == pin.pin) { return RUUVI_DRIVER_SUCCESS; }
+  const uint8_t nrf_pin = ruuvi_to_nrf_pin_map(pin);
 
   switch(mode)
   {
     case RUUVI_INTERFACE_GPIO_MODE_HIGH_Z:
-      nrf_gpio_cfg_default(pin);
+      nrf_gpio_cfg_default(nrf_pin);
       break;
 
     case RUUVI_INTERFACE_GPIO_MODE_INPUT_NOPULL:
-      nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
+      nrf_gpio_cfg_input(nrf_pin, NRF_GPIO_PIN_NOPULL);
       break;
 
     case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP:
-      nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLUP);
+      nrf_gpio_cfg_input(nrf_pin, NRF_GPIO_PIN_PULLUP);
       break;
 
     case RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLDOWN:
-      nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLDOWN);
+      nrf_gpio_cfg_input(nrf_pin, NRF_GPIO_PIN_PULLDOWN);
       break;
 
     case RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD:
-      nrf_gpio_cfg_output(pin);
+      nrf_gpio_cfg_output(nrf_pin);
       break;
 
     case RUUVI_INTERFACE_GPIO_MODE_OUTPUT_HIGHDRIVE:
-      nrf_gpio_cfg(pin,
+      nrf_gpio_cfg(nrf_pin,
                    NRF_GPIO_PIN_DIR_OUTPUT,
                    NRF_GPIO_PIN_INPUT_DISCONNECT,
                    NRF_GPIO_PIN_NOPULL,
@@ -84,28 +94,31 @@ ruuvi_driver_status_t ruuvi_interface_gpio_configure(const uint8_t pin,
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interace_gpio_toggle(const uint8_t pin)
+ruuvi_driver_status_t ruuvi_interace_gpio_toggle(const ruuvi_interface_gpio_id_t pin)
 {
-  nrf_gpio_pin_toggle(pin);
+  const uint8_t nrf_pin = ruuvi_to_nrf_pin_map(pin);
+  nrf_gpio_pin_toggle(nrf_pin);
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_write(const uint8_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_write(const ruuvi_interface_gpio_id_t pin,
     const ruuvi_interface_gpio_state_t state)
 {
-  if(RUUVI_INTERFACE_GPIO_HIGH == state) { nrf_gpio_pin_set(pin);   }
+  const uint8_t nrf_pin = ruuvi_to_nrf_pin_map(pin);
+  if(RUUVI_INTERFACE_GPIO_HIGH == state) { nrf_gpio_pin_set(nrf_pin);   }
 
-  if(RUUVI_INTERFACE_GPIO_LOW  == state) { nrf_gpio_pin_clear(pin); }
+  if(RUUVI_INTERFACE_GPIO_LOW  == state) { nrf_gpio_pin_clear(nrf_pin); }
 
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_read(const uint8_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_read(const ruuvi_interface_gpio_id_t pin,
     ruuvi_interface_gpio_state_t* const state)
 {
   if(NULL == state) { return RUUVI_DRIVER_ERROR_NULL; }
+  const uint8_t nrf_pin = ruuvi_to_nrf_pin_map(pin);
 
-  bool high = nrf_gpio_pin_read(pin);
+  bool high = nrf_gpio_pin_read(nrf_pin);
 
   if(true == high)  { *state = RUUVI_INTERFACE_GPIO_HIGH; }
 

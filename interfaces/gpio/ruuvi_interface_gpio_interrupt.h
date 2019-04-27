@@ -26,13 +26,14 @@ typedef enum
 } ruuvi_interface_gpio_slope_t;
 
 /**
- * Event from GPIO
+ * @brief Event from GPIO
  */
 typedef struct
 {
-  ruuvi_interface_gpio_slope_t
-  slope; /**< @ref ruuvi_interface_gpio_slope_t slope of event */
-  uint8_t pin;                        /**< Pin of the event */
+  /** @brief @ref ruuvi_interface_gpio_slope_t slope of event */
+  ruuvi_interface_gpio_slope_t slope; 
+  /**@brief Pin of the event */
+  ruuvi_interface_gpio_id_t pin;      
 } ruuvi_interface_gpio_evt_t;
 
 typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_evt_t);
@@ -40,10 +41,10 @@ typedef void(*ruuvi_interface_gpio_interrupt_fp_t)(const ruuvi_interface_gpio_ev
 /**
  * @brief Initialize interrupt functionality to GPIO.
  * Takes address of interrupt table as a pointer to avoid tying driver into a specific board with a specific number of GPIO
- * pins and to avoid including boards repository within the driver.
+ * pins and to avoid including boards repository within the driver. The interrupt table must be retained in the RAM.
  *
- * @param interrupt_table Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
- * @param max_interrupts Size of interrupt table.
+ * @param interrupt_table[in] Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
+ * @param max_interrupts[in] Size of interrupt table.
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
@@ -56,15 +57,15 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
  * Underlying implementation is allowed to use same interrupt channel for all pin interrupts, i.e.
  * simultaneous interrupts might get detected as one and the priority of interrupts is undefined.
  *
- * @param pin pin to use as interrupt source
- * @param slope slope to interrupt on
- * @param mode GPIO input mode. Must be (RUUVI_INTERFACE_GPIO_)INPUT_PULLUP, INPUT_PULLDOWN or INPUT_NOPULL
- * @param handler function pointer which will be called with ruuvi_interface_gpio_evt_t as a parameter on interrupt.
+ * @param pin[in] pin to use as interrupt source
+ * @param slope[in] slope to interrupt on
+ * @param mode[in] GPIO input mode. Must be (RUUVI_INTERFACE_GPIO_)INPUT_PULLUP, INPUT_PULLDOWN or INPUT_NOPULL
+ * @param handler[ib] function pointer which will be called with ruuvi_interface_gpio_evt_t as a parameter on interrupt.
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const uint8_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const ruuvi_interface_gpio_id_t pin,
     const ruuvi_interface_gpio_slope_t slope,
     const ruuvi_interface_gpio_mode_t mode,
     const ruuvi_interface_gpio_interrupt_fp_t handler);
