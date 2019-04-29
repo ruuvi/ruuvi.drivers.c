@@ -72,7 +72,7 @@ static ruuvi_driver_status_t fds_to_ruuvi_error(ret_code_t err_code)
       return RUUVI_DRIVER_ERROR_INTERNAL;
 
     case FDS_ERR_INVALID_ARG:
-      return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+      return RUUVI_DRIVER_ERROR_INVALID_PARAM;
 
     case FDS_ERR_NULL_ARG:
       return RUUVI_DRIVER_ERROR_NULL;
