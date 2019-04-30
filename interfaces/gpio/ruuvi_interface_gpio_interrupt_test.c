@@ -237,6 +237,8 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(
   }
 
   ruuvi_driver_test_register(true);
+  status = ruuvi_interface_gpio_uninit();
+  status = ruuvi_interface_gpio_interrupt_uninit();
   return RUUVI_DRIVER_SUCCESS;
 }
 
