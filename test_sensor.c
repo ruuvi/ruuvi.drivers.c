@@ -4,10 +4,6 @@
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
 #include "test_sensor.h"
-//XXX
-#include "test_acceleration.h"
-#include "test_adc.h"
-#include "test_environmental.h"
 
 #include <float.h>
 #include <stdbool.h>
