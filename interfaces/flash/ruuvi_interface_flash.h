@@ -41,56 +41,68 @@ ruuvi_driver_status_t ruuvi_interface_flash_total_size_get(size_t* size);
  */
 ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size);
 
+/**
+ * Get total size of free flash.
+ *
+ * @param[out] size  size of useable storage in bytes.
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_NULL if size is null
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return error code from stack on other error
+ */
 ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
 
 /**
- * Set data to record in page
+ * @brief Set data to record in page
  * Automatically runs garbage collection if record cannot fit on page.
+ * Returns after data is successfully written or error has occured.
  *
- * parameter page_id: ID of a page. Can be random number.
- * parameter record_id: ID of a record. Can be a random number.
- * parameter data_size: size data to store
- * parameter data: pointer to data to store.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if data is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: RUUVI_DRIVER_ERROR_DATA_SIZE if record is too large to fit on page
- * return: RUUVI_DRIVER_ERROR_NO_MEM if this record cannot fit on page.
- * return: error code from stack on other error
+ * @param[in] page_id ID of a page. Can be random number.
+ * @param[in] record_id ID of a record. Can be a random number.
+ * @param[in] data_size size data to store
+ * @param[in] data pointer to data to store.
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_NULL if data is null
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RUUVI_DRIVER_ERROR_DATA_SIZE if record is too large to fit on page
+ * @return RUUVI_DRIVER_ERROR_NO_MEM if this record cannot fit on page.
+ * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
     const uint32_t record_id, const size_t data_size, const void* const data);
 
 /**
- * Get data from record in page
+ * @brief Get data from record in page
  *
- * parameter page_id: ID of a page. Can be random number.
- * parameter record_id: ID of a record. Can be a random number.
- * parameter data_size: size data to store
- * parameter data: pointer to data to store.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if data is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: RUUVI_DRIVER_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
- * return: error code from stack on other error
+ * Returns after data is read and ready to be used or error has occured.
+ *
+ * @param[in] page_id: ID of a page. Can be random number.
+ * @param[in] record_id: ID of a record. Can be a random number.
+ * @param[in,out] data_size input: Maximum size of data to retrieve. Output: Number of bytes retrieved.
+ * @param data[in] pointer to memory which will be filled with retrieved data
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_NULL if data is null
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RUUVI_DRIVER_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
+ * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_record_get(const uint32_t page_id,
     const uint32_t record_id, const size_t data_size, void* const data);
 
 /**
- * Run garbage collection.
+ * @brief Run garbage collection.
  *
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_INVALID_STATE if flash is not initialized
- * return: error code from stack on other error
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_INVALID_STATE if flash is not initialized
+ * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_gc_run(void);
 
 /**
  * Initialize flash
  *
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: error code from stack on other error
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_init(void);
 #endif
