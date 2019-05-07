@@ -110,7 +110,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(
   ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
   const uint8_t interrupt_table_size = RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE;
   ruuvi_interface_gpio_interrupt_fp_t
-  interrupt_table[RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE];
+  interrupt_table[RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE] = {0};
 
   if((cfg.input.port_pin.pin + cfg.input.port_pin.port * 32) > interrupt_table_size ||
       (cfg.output.port_pin.pin + cfg.output.port_pin.port * 32) > interrupt_table_size)
@@ -237,6 +237,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(
   }
 
   ruuvi_driver_test_register(true);
+  status |= ruuvi_interface_gpio_interrupt_disable(cfg.input);
   status = ruuvi_interface_gpio_uninit();
   status = ruuvi_interface_gpio_interrupt_uninit();
   return RUUVI_DRIVER_SUCCESS;

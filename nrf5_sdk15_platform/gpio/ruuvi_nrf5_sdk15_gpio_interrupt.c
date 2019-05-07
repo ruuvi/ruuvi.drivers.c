@@ -174,10 +174,10 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_disable(const ruuvi_interfa
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   uint8_t nrf_pin = ruuvi_to_nrf_pin(pin);
-  nrf_drv_gpiote_in_event_disable(nrf_pin);
-  nrf_drv_gpiote_in_uninit(nrf_pin);
-  if(NRF_SUCCESS == err_code)
+  if(NULL != pin_event_handlers && NULL != pin_event_handlers[nrf_pin])
   {
+    nrf_drv_gpiote_in_event_disable(nrf_pin);
+    nrf_drv_gpiote_in_uninit(nrf_pin);
     pin_event_handlers[nrf_pin] = NULL;
   }
   return err_code;
