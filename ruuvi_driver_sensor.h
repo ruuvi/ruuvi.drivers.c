@@ -56,7 +56,13 @@
 #define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID ///< Signal this timestamp value is erroneous
 
 // Constants for sensor configuration and status
-#define RUUVI_DRIVER_SENSOR_CFG_DEFAULT         0      ///< Default value, always valid for the sensor. 
+#define RUUVI_DRIVER_SENSOR_CFG_DEFAULT         0      ///< Default value, always valid for the sensor.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_1        0xC9   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_2        0xCA   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3        0xCB   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_4        0xCC   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_5        0xCD   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_6        0xCE   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
 #define RUUVI_DRIVER_SENSOR_ERR_INVALID         0xE0   ///< Error code, given parameter is invalid
 #define RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED 0xE1   ///< Error code, given parameter is not implemented (todo)
 #define RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED   0xE2   ///< Error code, given parameter is not supported by sensor
