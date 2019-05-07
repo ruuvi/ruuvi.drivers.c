@@ -564,21 +564,6 @@ ruuvi_driver_status_t test_sensor_register(bool passed)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-void test_sensor_run(void)
-{
-  // Sensors require RTC to function
-  ruuvi_interface_rtc_init();
-  ruuvi_driver_sensor_timestamp_function_set(ruuvi_interface_rtc_millis);
-  // Give a few milliseconds between tests to flush the logs
-  test_adc_run();
-  ruuvi_interface_delay_ms(20);
-  test_environmental_run();
-  ruuvi_interface_delay_ms(20);
-  test_acceleration_run();
-  ruuvi_interface_delay_ms(20);
-  ruuvi_driver_sensor_timestamp_function_set(NULL);
-  ruuvi_interface_rtc_uninit();
-}
 #else
 // Dummy implementation
 ruuvi_driver_status_t test_sensor_status(size_t* total, size_t* passed)
