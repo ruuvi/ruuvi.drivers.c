@@ -232,16 +232,20 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_set(uint8_t* samplerat
   VERIFY_SENSOR_SLEEPS();
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
-  if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *samplerate)   {}
-  else if(RUUVI_DRIVER_SENSOR_CFG_MIN == *samplerate)    { dev.samplerate = LIS2DH12_ODR_1Hz;   }
-  else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate)    { dev.samplerate = LIS2DH12_ODR_200Hz; }
-  else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate) { dev.samplerate = LIS2DH12_ODR_1Hz;   }
-  else if(1   == *samplerate)                            { dev.samplerate = LIS2DH12_ODR_1Hz;   }
-  else if(10  >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_10Hz;  }
-  else if(25  >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_25Hz;  }
-  else if(50  >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_50Hz;  }
-  else if(100 >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_100Hz; }
-  else if(200 >= *samplerate)                            { dev.samplerate = LIS2DH12_ODR_200Hz; }
+  if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *samplerate)     {}
+  else if(RUUVI_DRIVER_SENSOR_CFG_MIN == *samplerate)      { dev.samplerate = LIS2DH12_ODR_1Hz;   }
+  else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate)      { dev.samplerate = LIS2DH12_ODR_1kHz344_NM_HP; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate)  { dev.samplerate = LIS2DH12_ODR_1Hz;   }
+  else if(1   == *samplerate)                              { dev.samplerate = LIS2DH12_ODR_1Hz;   }
+  else if(10  >= *samplerate)                              { dev.samplerate = LIS2DH12_ODR_10Hz;  }
+  else if(25  >= *samplerate)                              { dev.samplerate = LIS2DH12_ODR_25Hz;  }
+  else if(50  >= *samplerate)                              { dev.samplerate = LIS2DH12_ODR_50Hz;  }
+  else if(100 >= *samplerate)                              { dev.samplerate = LIS2DH12_ODR_100Hz; }
+  else if(200 >= *samplerate)                              { dev.samplerate = LIS2DH12_ODR_200Hz; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_CUSTOM_1 == *samplerate) { dev.samplerate = LIS2DH12_ODR_400Hz; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_CUSTOM_2 == *samplerate) { dev.samplerate = LIS2DH12_ODR_1kHz620_LP; }
+  // This is equal to LIS2DH12_ODR_5kHz376_LP
+  else if(RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3 == *samplerate) { dev.samplerate = LIS2DH12_ODR_1kHz344_NM_HP; }
   else { *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED; err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
@@ -289,6 +293,18 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_get(uint8_t* samplerat
       *samplerate = 200;
       break;
 
+    case LIS2DH12_ODR_400Hz:
+      *samplerate = RUUVI_DRIVER_SENSOR_CFG_CUSTOM_1;
+      break;
+
+    case LIS2DH12_ODR_1kHz344_NM_HP:
+      *samplerate = RUUVI_DRIVER_SENSOR_CFG_MAX;
+      break;
+
+    case LIS2DH12_ODR_1kHz620_LP:
+      *samplerate = RUUVI_DRIVER_SENSOR_CFG_CUSTOM_2;
+      break;
+
     default:
       *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
       err_code |=  RUUVI_DRIVER_ERROR_INTERNAL;
@@ -310,7 +326,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_set(uint8_t* resolutio
   if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *resolution)    { }
   else if(RUUVI_DRIVER_SENSOR_CFG_MIN == *resolution)     { dev.resolution = LIS2DH12_LP_8bit;  }
   else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *resolution)     { dev.resolution = LIS2DH12_HR_12bit; }
-  else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *resolution) { dev.samplerate = LIS2DH12_NM_10bit; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *resolution) { dev.resolution = LIS2DH12_NM_10bit; }
   else if(8 >= *resolution)                              { dev.resolution = LIS2DH12_LP_8bit;  }
   else if(10 >= *resolution)                             { dev.resolution = LIS2DH12_NM_10bit; }
   else if(12 >= *resolution)                             { dev.resolution = LIS2DH12_HR_12bit; }
