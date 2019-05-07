@@ -63,11 +63,12 @@ static bool ruuvi_driver_test_gpio_run(const ruuvi_driver_test_print_fp printfp)
 static bool ruuvi_driver_test_gpio_interrupt_run(const ruuvi_driver_test_print_fp printfp)
 {
   printfp("GPIO interrupt tests ");
+  bool fail = false;
 
   if(gpio_test_cfg.input.pin != RUUVI_INTERFACE_GPIO_ID_UNUSED)
   {
     ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
-    bool fail = false;
+
     status |= ruuvi_interface_gpio_interrupt_test_init(gpio_test_cfg);
 
     if(RUUVI_DRIVER_SUCCESS != status)
@@ -86,8 +87,13 @@ static bool ruuvi_driver_test_gpio_interrupt_run(const ruuvi_driver_test_print_f
 
     if(RUUVI_DRIVER_SUCCESS == status) { printfp("PASSED.\r\n"); }
     else { printfp("FAILED.\r\n"); }
+    // todo: move to a separate teardown
+    ruuvi_interface_gpio_interrupt_disable(gpio_test_cfg.input);
+    ruuvi_interface_gpio_uninit();
+    ruuvi_interface_gpio_interrupt_uninit();
   }
-  else { printfp("SKIPPED.\r\n"); }  
+  else { printfp("SKIPPED.\r\n"); }
+  return !fail;
 }
 
 bool ruuvi_driver_test_all_run(const ruuvi_driver_test_print_fp printfp)
