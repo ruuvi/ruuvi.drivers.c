@@ -52,6 +52,9 @@ ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size);
  */
 ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
 
+ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t page_id,
+    const uint32_t record_id);
+
 /**
  * @brief Set data to record in page
  * Automatically runs garbage collection if record cannot fit on page.

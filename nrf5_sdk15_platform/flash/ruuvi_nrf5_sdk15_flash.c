@@ -238,6 +238,33 @@ ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size)
   return RUUVI_DRIVER_SUCCESS;
 }
 
+ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t page_id,
+    const uint32_t record_id)
+{
+  if(false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  fds_record_desc_t desc = {0};
+  fds_find_token_t  tok  = {0};
+  /* A record structure. */
+  fds_record_t const record =
+  {
+    .file_id           = page_id,
+    .key               = record_id,
+    .data.p_data       = NULL,
+    /* The length of a record is always expressed in 4-byte units (words). */
+    .data.length_words = 0
+  };
+  ret_code_t rc = fds_record_find(page_id, record_id, &desc, &tok);
+
+  if(FDS_SUCCESS == rc)
+  {
+    rc = fds_record_delete(&desc);
+  }
+
+  return fds_to_ruuvi_error(rc);
+}
+
 /**
  * Set data to record in page. Writes a new record if given record ID does not exist in page.
  * Updates record if it already exists.
@@ -372,7 +399,9 @@ ruuvi_driver_status_t ruuvi_interface_flash_gc_run(void)
 {
   if(false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
+  m_fds_processing = true;
   ret_code_t rc = fds_gc();
+  while(m_fds_processing);
   return fds_to_ruuvi_error(rc);
 }
 
@@ -390,6 +419,8 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void)
   (void) fds_register(fds_evt_handler);
   rc = fds_init();
   err_code |= fds_to_ruuvi_error(rc);
+  // Crash here in case of error to avoid looping forever
+  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
 
   // Wait for init ok
   while(!m_fds_initialized);
