@@ -11,6 +11,7 @@
 
 #include "ruuvi_boards.h"
 #include "ruuvi_driver_error.h"
+#include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_spi.h"
 
@@ -27,7 +28,8 @@ int32_t ruuvi_interface_spi_lis2dh12_write(void* dev_ptr, uint8_t reg_addr,
   // multiple read / writes.
   if(len > 1) { reg_addr |= 0x40; }
 
-  ruuvi_interface_gpio_id_t ss = {.pin = dev_id };
+  ruuvi_interface_gpio_id_t ss;
+  ss.pin = RUUVI_DRIVER_HANDLE_TO_GPIO(dev_id);
   err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_LOW);
   err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
   err_code |= ruuvi_interface_spi_xfer_blocking(reg_data, len, NULL, 0);
@@ -47,7 +49,8 @@ int32_t ruuvi_interface_spi_lis2dh12_read(void* dev_ptr, uint8_t reg_addr,
   // multiple read / writes.
   if(len > 1) { reg_addr |= 0x40; }
 
-  ruuvi_interface_gpio_id_t ss = {.pin = dev_id };
+  ruuvi_interface_gpio_id_t ss;
+  ss.pin = RUUVI_DRIVER_HANDLE_TO_GPIO(dev_id);
   err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_LOW);
   err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
   err_code |= ruuvi_interface_spi_xfer_blocking(NULL, 0, reg_data, len);

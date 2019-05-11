@@ -138,6 +138,11 @@ typedef struct ruuvi_driver_sensor_t
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor_t* const
     p_sensor, const ruuvi_driver_bus_t bus, const uint8_t handle);
 
+/** @brief convert Ruuvi GPIO into uint8_t */
+#define RUUVI_DRIVER_GPIO_TO_HANDLE(handle) ((((handle) >> 3) & 0xE0) + ((handle) & 0x1F))
+/** @brief convert uint8_t into Ruuvi GPIO */
+#define RUUVI_DRIVER_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0) << 3) + ((handle) & 0x1F))
+
 /**
  *  @bried Setup a parameter of a sensor.
  *  The function will modify the pointed data to the actual value which was written

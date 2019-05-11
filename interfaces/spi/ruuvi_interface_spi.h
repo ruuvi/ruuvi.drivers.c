@@ -1,6 +1,7 @@
 #ifndef RUUVI_INTERFACE_SPI_H
 #define RUUVI_INTERFACE_SPI_H
 #include "ruuvi_driver_error.h"
+#include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -47,11 +48,11 @@ typedef enum
  */
 typedef struct
 {
-  uint8_t mosi;                              //!< pin number of MOSI
-  uint8_t miso;                              //!< pin number of MISO
-  uint8_t sclk;                              //!< pin number of SCLK
-  uint8_t* ss_pins;                          //!< array of SPI pins, can be freed after function exits
-  uint8_t ss_pins_number;                    //!< sizeof ss_pins
+  ruuvi_interface_gpio_id_t mosi;           //!< pin number of MOSI
+  ruuvi_interface_gpio_id_t miso;           //!< pin number of MISO
+  ruuvi_interface_gpio_id_t sclk;           //!< pin number of SCLK
+  ruuvi_interface_gpio_id_t* ss_pins;       //!< array of SPI pins, can be freed after function exits
+  size_t ss_pins_number;                    //!< sizeof ss_pins
   ruuvi_interface_spi_frequency_t
   frequency; //!< Frequency of SPI Bus, see @ref ruuvi_interface_spi_frequency_t
   ruuvi_interface_spi_mode_t

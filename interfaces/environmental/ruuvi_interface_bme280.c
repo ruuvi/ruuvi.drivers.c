@@ -15,6 +15,7 @@
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_bme280.h"
 #include "ruuvi_interface_environmental.h"
+#include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_spi_bme280.h"
 #include "ruuvi_interface_i2c.h"

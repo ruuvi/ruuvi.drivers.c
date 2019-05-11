@@ -45,6 +45,7 @@
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
+#include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_yield.h"
 
@@ -56,6 +57,15 @@
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(
                                    SPI_INSTANCE);  /**< SPI instance. */
 static bool  spi_init_done = false;
+
+/**
+ * @brief convert @ref ruuvi_interface_gpio_id_t to nRF GPIO.
+ * TODO: Move to GPIO platform header
+ */
+static inline uint8_t ruuvi_to_nrf_pin_map(const ruuvi_interface_gpio_id_t pin)
+{
+  return (pin.port_pin.port << 5) + pin.port_pin.pin;
+}
 
 static ruuvi_driver_status_t ruuvi_to_nrf_spi_mode(const ruuvi_interface_spi_mode_t
     ruuvi_mode, nrf_drv_spi_mode_t* nrf_mode)
@@ -124,9 +134,9 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
   RUUVI_DRIVER_ERROR_CHECK(status, RUUVI_DRIVER_SUCCESS);
   nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
   spi_config.ss_pin       = NRF_DRV_SPI_PIN_NOT_USED;
-  spi_config.miso_pin     = config->miso;
-  spi_config.mosi_pin     = config->mosi;
-  spi_config.sck_pin      = config->sclk;
+  spi_config.miso_pin     = ruuvi_to_nrf_pin_map(config->miso);
+  spi_config.mosi_pin     = ruuvi_to_nrf_pin_map(config->mosi);
+  spi_config.sck_pin      = ruuvi_to_nrf_pin_map(config->sclk);
   spi_config.irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY;
   spi_config.orc          = 0xFF;
   spi_config.frequency    = frequency;
@@ -139,8 +149,8 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
 
   for(size_t ii = 0; ii < config->ss_pins_number; ii++)
   {
-    nrf_gpio_cfg_output(config->ss_pins[ii]);
-    nrf_gpio_pin_set(config->ss_pins[ii]);
+    ruuvi_interface_gpio_configure(config->ss_pins[ii], RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
+    ruuvi_interface_gpio_write(config->ss_pins[ii], RUUVI_INTERFACE_GPIO_HIGH);
   }
 
   spi_init_done = true;
