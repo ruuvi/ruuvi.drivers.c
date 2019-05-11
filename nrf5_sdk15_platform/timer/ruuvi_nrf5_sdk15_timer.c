@@ -137,7 +137,7 @@ bool ruuvi_interface_timers_is_init(void)
   return m_is_init;
 }
 
-ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t *
+ruuvi_driver_status_t ruuvi_interface_timer_create(ruuvi_interface_timer_id_t*
     p_timer_id, const ruuvi_interface_timer_mode_t mode,
     const ruuvi_timer_timeout_handler_t timeout_handler)
 {
@@ -160,10 +160,11 @@ ruuvi_driver_status_t ruuvi_interface_timer_start(const ruuvi_interface_timer_id
 {
   // Counters are 24 bits
   // nrf5 sdk_config.h has prescaler setting for timer, resolution can be traded for run time
-  if(APP_TIMER_TICKS(ms) >= (1<<24))
+  if(APP_TIMER_TICKS(ms) >= (1 << 24))
   {
     return RUUVI_DRIVER_ERROR_INVALID_PARAM;
   }
+
   ret_code_t err_code = app_timer_start((app_timer_id_t)timer_id, APP_TIMER_TICKS(ms),
                                         NULL);
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);

@@ -51,7 +51,8 @@ typedef struct
   ruuvi_interface_gpio_id_t mosi;           //!< pin number of MOSI
   ruuvi_interface_gpio_id_t miso;           //!< pin number of MISO
   ruuvi_interface_gpio_id_t sclk;           //!< pin number of SCLK
-  ruuvi_interface_gpio_id_t* ss_pins;       //!< array of SPI pins, can be freed after function exits
+  ruuvi_interface_gpio_id_t*
+  ss_pins;       //!< array of SPI pins, can be freed after function exits
   size_t ss_pins_number;                    //!< sizeof ss_pins
   ruuvi_interface_spi_frequency_t
   frequency; //!< Frequency of SPI Bus, see @ref ruuvi_interface_spi_frequency_t

@@ -21,7 +21,7 @@ static uint8_t max_interrupts = 0;
 
 static inline ruuvi_interface_gpio_id_t nrf_to_ruuvi_pin(nrf_drv_gpiote_pin_t pin)
 {
-  ruuvi_interface_gpio_id_t rpin = {.pin = ((pin>>5)<<8) + (pin&0x1F)};
+  ruuvi_interface_gpio_id_t rpin = {.pin = ((pin >> 5) << 8) + (pin & 0x1F)};
   return rpin;
 }
 
@@ -38,11 +38,12 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
   const uint8_t interrupt_table_size)
 {
   if(NULL == interrupt_table) { return RUUVI_DRIVER_ERROR_NULL; }
-  
+
   if(!ruuvi_interface_gpio_is_init()) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   // Check module initialization status by max interrupts
   if(0 != max_interrupts) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
   /* Driver initialization
      The GPIOTE driver is a shared resource that can be used by multiple modules in an application.
      Therefore, it can be initialized only once. If a module is using the driver,
@@ -66,7 +67,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
 ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_uninit(void)
 {
   if(0 == max_interrupts) { return RUUVI_DRIVER_SUCCESS; }
-  
+
   pin_event_handlers = NULL;
   max_interrupts = 0;
   return RUUVI_DRIVER_SUCCESS;
@@ -107,14 +108,17 @@ static void in_pin_handler(const nrf_drv_gpiote_pin_t pin,
   }
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const ruuvi_interface_gpio_id_t pin,
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const
+    ruuvi_interface_gpio_id_t pin,
     const ruuvi_interface_gpio_slope_t slope,
     const ruuvi_interface_gpio_mode_t mode,
     const ruuvi_interface_gpio_interrupt_fp_t handler)
 {
   if(!ruuvi_interface_gpio_interrupt_is_init()) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
   // nRF5 devices have 32 pins per port. Pack the port-pin representation into 8 bits for interrupt table.
   uint8_t nrf_pin = ruuvi_to_nrf_pin(pin);
+
   if(nrf_pin >= max_interrupts) { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
 
   ret_code_t err_code = NRF_SUCCESS;
@@ -170,16 +174,19 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const ruuvi_interfac
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_disable(const ruuvi_interface_gpio_id_t pin)
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_disable(const
+    ruuvi_interface_gpio_id_t pin)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   uint8_t nrf_pin = ruuvi_to_nrf_pin(pin);
+
   if(NULL != pin_event_handlers && NULL != pin_event_handlers[nrf_pin])
   {
     nrf_drv_gpiote_in_event_disable(nrf_pin);
     nrf_drv_gpiote_in_uninit(nrf_pin);
     pin_event_handlers[nrf_pin] = NULL;
   }
+
   return err_code;
 }
 

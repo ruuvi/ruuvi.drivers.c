@@ -401,7 +401,9 @@ ruuvi_driver_status_t ruuvi_interface_flash_gc_run(void)
 
   m_fds_processing = true;
   ret_code_t rc = fds_gc();
+
   while(m_fds_processing);
+
   return fds_to_ruuvi_error(rc);
 }
 

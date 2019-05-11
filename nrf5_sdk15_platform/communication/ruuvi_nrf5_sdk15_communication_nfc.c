@@ -71,6 +71,7 @@ static void nfc_callback(void* context,
 
     case NFC_T4T_EVENT_NDEF_READ:
       if(NULL != *(nrf5_sdk15_nfc_state.on_nfc_evt)) { (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0); }
+
       break;
 
     // Update process generally sets length of field to 0 and
@@ -117,15 +118,12 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(
 
   // Set up NFC
   ret_code_t err_code = NRF_SUCCESS;
-
   err_code |= nfc_t4t_setup(nfc_callback, NULL);
   memset(nrf5_sdk15_nfc_state.nfc_ndef_msg, 0, sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
-
   // Run Read-Write mode for Type 4 Tag platform
   err_code |= nfc_t4t_ndef_rwpayload_set(nrf5_sdk15_nfc_state.nfc_ndef_msg,
                                          sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
-    // Start sensing NFC field
-
+  // Start sensing NFC field
   err_code |= nfc_t4t_emulation_start();
   nrf5_sdk15_nfc_state.initialized = true;
   nrf5_sdk15_nfc_state.msg_index = 0;
@@ -158,7 +156,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
 
   // Return success if there is nothing to do
   if(!(nrf5_sdk15_nfc_state.tx_updated)) { return RUUVI_DRIVER_SUCCESS; }
-
 
   // Create NFC NDEF text record description in English
   ret_code_t err_code = NRF_SUCCESS;

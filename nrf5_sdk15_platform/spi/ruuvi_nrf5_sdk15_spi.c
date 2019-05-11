@@ -149,7 +149,8 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
 
   for(size_t ii = 0; ii < config->ss_pins_number; ii++)
   {
-    ruuvi_interface_gpio_configure(config->ss_pins[ii], RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
+    ruuvi_interface_gpio_configure(config->ss_pins[ii],
+                                   RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
     ruuvi_interface_gpio_write(config->ss_pins[ii], RUUVI_INTERFACE_GPIO_HIGH);
   }
 

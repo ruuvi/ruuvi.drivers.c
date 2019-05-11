@@ -10,7 +10,7 @@
  **/
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_ENABLED 
+#if RUUVI_NRF5_SDK15_ENABLED
 #include <stdint.h>
 #include "nrfx_power.h"
 #include "ruuvi_driver_error.h"
