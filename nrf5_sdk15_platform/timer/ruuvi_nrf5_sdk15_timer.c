@@ -2,6 +2,7 @@
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
+#include "ruuvi_interface_log.h"
 #include "ruuvi_interface_timer.h"
 
 #include "nrf_error.h"
@@ -162,6 +163,7 @@ ruuvi_driver_status_t ruuvi_interface_timer_start(const ruuvi_interface_timer_id
   // nrf5 sdk_config.h has prescaler setting for timer, resolution can be traded for run time
   if(APP_TIMER_TICKS(ms) >= (1 << 24))
   {
+    ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR, "Timer overflow, timer not started\r\n");
     return RUUVI_DRIVER_ERROR_INVALID_PARAM;
   }
 
