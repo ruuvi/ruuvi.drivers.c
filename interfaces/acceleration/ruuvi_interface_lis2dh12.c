@@ -916,7 +916,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
 
   threshold = (uint32_t)(*limit_g / divisor) + 1;
 
-  if(threshold > 0x7F) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(threshold > 0x7F) { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
 
   *limit_g = threshold * divisor;
   // Configure highpass on INTERRUPT 1
