@@ -98,6 +98,11 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error,
                             "INVALID_DATA");
         break;
 
+      case RUUVI_DRIVER_ERROR_INVALID_PARAM:
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "INVALID_PARAM");
+        break;
+
       case RUUVI_DRIVER_ERROR_DATA_SIZE:
         written += snprintf(error_string + written, space_remaining - written, "%s", "DATA_SIZE");
         break;
