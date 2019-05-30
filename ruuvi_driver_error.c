@@ -43,6 +43,7 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     index += ruuvi_interface_error_to_string(error, (message + index),
              (sizeof(message) - index));
     snprintf((message + index), (sizeof(message) - index), "\r\n");
+    ruuvi_interface_log_flush();
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR, message);
     ruuvi_interface_log_flush();
     ruuvi_interface_power_reset();
