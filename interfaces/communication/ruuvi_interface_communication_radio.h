@@ -7,6 +7,7 @@
 #ifndef RUUVI_INTERFACE_COMMUNICATION_RADIO_H
 #define RUUVI_INTERFACE_COMMUNICATION_RADIO_H
 #include "ruuvi_driver_error.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef enum
@@ -55,5 +56,12 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(
  */
 void ruuvi_interface_communication_radio_activity_callback_set(
   const ruuvi_interface_communication_radio_activity_interrupt_fp_t handler);
+
+/**
+ * @brief Check if radio is initialized
+ *
+ * @return true if radio is initialized, false otherwise.
+ */
+bool ruuvi_interface_communication_radio_is_init();
 
 #endif

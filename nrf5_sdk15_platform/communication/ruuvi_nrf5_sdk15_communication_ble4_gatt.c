@@ -511,12 +511,22 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
   ret_code_t err_code = NRF_SUCCESS;
   ruuvi_driver_status_t radio_status = RUUVI_DRIVER_SUCCESS;
 
-  if(!m_gatt_is_init)
+  if(m_gatt_is_init)
+  {
+    return RUUVI_DRIVER_ERROR_INVALID_STATE;
+  }
+
+  if(!ruuvi_interface_communication_radio_is_init())
   {
     radio_status = ruuvi_interface_communication_radio_init(
                      RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
 
-    if(RUUVI_DRIVER_SUCCESS != radio_status) { return radio_status; }
+    RUUVI_DRIVER_ERROR_CHECK(radio_status, RUUVI_DRIVER_SUCCESS);
+  }
+  else
+  {
+    ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING,
+                        "Radio is already in use by other module - beware coexistence issues\r\n");
   }
 
   // Connection param module requires timers
@@ -668,9 +678,9 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init(void)
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init();
 
 /**
- * Initialize BLE4 Device Information service
+ * @brief Initialize BLE4 Device Information service
  *
- * parameter dis: pointer to data which should be presented over DIS. Memory will be deep-copied
+ * @param[in] dis pointer to data which should be presented over DIS. Memory will be deep-copied
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(
   const ruuvi_interface_communication_ble4_gatt_dis_init_t* const dis)
@@ -691,77 +701,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init(
   // Write not allowed.
   dis_init.dis_char_rd_sec = SEC_OPEN;
   err_code = ble_dis_init(&dis_init);
-  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
-}
-
-/**
- * Start or stop advertising GATT connection.
- *
- * parameter connectable: True to start advertising connectablity false to stop advertising connectablity
- * parameter name: Name of the device to be advertised.
- * parameter company_id: Id of the manufacturer of device
- * parameter advertise_nus: True to enable advertising UUID of NUS in the scan response.
- *
- */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(
-  const bool connectable, const char* const name, const uint16_t company_id,
-  const bool advertise_nus)
-{
-  ret_code_t err_code = NRF_SUCCESS;
-
-  if(!connectable)
-  {
-    err_code |= sd_ble_gap_adv_stop(m_adv_handle);
-    return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
-  }
-
-  // Initialize advertising parameters (used when starting advertising).
-  memset(&m_adv_params, 0, sizeof(m_adv_params));
-  m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
-  m_adv_params.duration        = 0;       // Never time out.
-  m_adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
-  m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
-  m_adv_params.interval        = MSEC_TO_UNITS(
-                                   APPLICATION_CONNECTION_ADVERTISEMENT_INTERVAL, UNIT_0_625_MS);
-  // OPEN security for name
-  ble_gap_conn_sec_mode_t security;
-  uint8_t len = strlen(name);
-  security.sm = 1;
-  security.lv = 1;
-  err_code |= sd_ble_gap_device_name_set(&security, (uint8_t*)name, len);
-  memset(&m_adv_data, 0, sizeof(m_adv_data));
-  memset(&m_advertisement, 0, sizeof(m_advertisement));
-  memset(&m_scanresp, 0, sizeof(m_scanresp));
-  ble_advdata_t advdata = {0};
-  // Only valid flag
-  advdata.flags     = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
-  // Name will be read from the above GAP data
-  advdata.name_type = BLE_ADVDATA_FULL_NAME;
-  ble_advdata_manuf_data_t manufacturer_data;
-  manufacturer_data.company_identifier = company_id;
-  manufacturer_data.data.size = 0;
-  manufacturer_data.data.p_data = NULL;
-  advdata.p_manuf_specific_data = &manufacturer_data;
-  // Encode data
-  m_adv_data.adv_data.len = sizeof(m_advertisement);
-  err_code |= ble_advdata_encode(&advdata, m_advertisement, &m_adv_data.adv_data.len);
-  m_adv_data.adv_data.p_data = m_advertisement;
-
-  // Add scan response if requested
-  if(advertise_nus)
-  {
-    ble_advdata_t scanrsp = {0};
-    scanrsp.uuids_complete.uuid_cnt = 1;
-    scanrsp.uuids_complete.p_uuids = &(m_adv_uuids[0]);
-    // Encode data
-    m_adv_data.scan_rsp_data.len = sizeof(m_scanresp);
-    err_code |= ble_advdata_encode(&scanrsp, m_scanresp, &m_adv_data.scan_rsp_data.len);
-    m_adv_data.scan_rsp_data.p_data = m_scanresp;
-  }
-
-  // Configure advertisement and start
-  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
-  err_code |= sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 

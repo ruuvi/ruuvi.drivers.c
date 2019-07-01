@@ -46,7 +46,7 @@ static void on_radio_evt(bool active)
   // Call advertising event handler
   if(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT == handle)
   {
-    ruuvi_platform_communication_ble4_advertising_activity_handler(evt);
+    ruuvi_interface_communication_ble4_advertising_activity_handler(evt);
   }
 
   // Call common event handler if set
@@ -110,6 +110,11 @@ void ruuvi_interface_communication_radio_activity_callback_set(
   // Warn user if CB is not NULL and non-null pointer is set, do not overwrite previous pointer.
   if(NULL != handler && NULL != on_radio_activity_callback) { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INVALID_STATE, ~RUUVI_DRIVER_ERROR_FATAL); }
   else { on_radio_activity_callback = handler; }
+}
+
+bool ruuvi_interface_communication_radio_is_init()
+{
+  return RUUVI_INTERFACE_COMMUNICATION_RADIO_UNINIT != handle;
 }
 
 #endif
