@@ -101,11 +101,4 @@ ruuvi_driver_status_t test_sensor_register(bool passed);
  */
 ruuvi_driver_status_t test_sensor_status(size_t* total, size_t* passed);
 
-/**
- * Run all tests
- * Any errors get logged during the test.
- * Results can be read with test_sensor_status
- */
-void test_sensor_run(void);
-
 #endif
