@@ -49,8 +49,9 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
-#include "ruuvi_interface_communication_radio.h"
+#include "ruuvi_interface_communication_ble4_advertising.h"
 #include "ruuvi_interface_communication_ble4_gatt.h"
+#include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_timer.h"
 
@@ -102,11 +103,7 @@ static uint16_t m_conn_handle =
 static bool     m_gatt_is_init = false;
 static ruuvi_interface_communication_t* channel =
   NULL;  /**< Pointer to application communication interface, given at initialization */
-static ble_uuid_t m_adv_uuids[]
-=                        /**< Universally unique service identifier. */
-{
-  {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
-};
+
 
 // Advertising data for connectability
 static ble_gap_adv_params_t
@@ -249,6 +246,10 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
       err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
       ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Connected \r\n");
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      // Intentional fallthrough to GAP_EVT_TIMEOUT
+    case BLE_GAP_EVT_TIMEOUT:
+      // On connection and timeout advertising stops, notify advertisement module.
+      ruuvi_interface_communication_ble4_advertising_notify_stop();
       break;
 
     case BLE_GAP_EVT_DISCONNECTED:
@@ -268,6 +269,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
         .tx_phys = BLE_GAP_PHY_AUTO,
       };
       err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "PHY updated \r\n");
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
     }
     break;
@@ -301,7 +303,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 
     // TODO: Move to advertisement?
     case BLE_GAP_EVT_ADV_REPORT:
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "RX'd scan data\r\n");
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "RX'd scan data\r\n");
       break;
 
     default:

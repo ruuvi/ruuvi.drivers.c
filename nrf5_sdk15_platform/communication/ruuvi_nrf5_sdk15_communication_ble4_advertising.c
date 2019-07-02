@@ -21,6 +21,7 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "ble_advdata.h"
+#include "ble_nus.h"
 #include "ble_types.h"
 #include "sdk_errors.h"
 
@@ -61,6 +62,12 @@ static bool                 m_advertisement_is_init = false;
 /** @brief Flag for advertising in process **/
 static bool                 m_advertising = false;
 ruuvi_platform_ble4_advertisement_state_t m_adv_state;
+
+ /**< Universally unique service identifier of Nordic UART Service */
+static ble_uuid_t m_adv_uuids[] =                       
+{
+  {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
+};
 
 // Update BLE settings, takes effect immidiately
 static ruuvi_driver_status_t update_settings(void)
@@ -239,9 +246,9 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
   uint8_t* p_advertisement       = (advertisement_odd) ? m_advertisement0 :
                                    m_advertisement1;
   uint16_t* p_adv_len            = (advertisement_odd) ? &m_adv0_len      : &m_adv1_len;
-  uint8_t* p_scan       = (advertisement_odd) ? m_scan0 :
+  uint8_t* p_scan                = (advertisement_odd) ? m_scan0 :
                                    m_scan1;
-  uint16_t* p_scan_len            = (advertisement_odd) ? &m_scan0_len      : &m_scan1_len;
+  uint16_t* p_scan_len           = (advertisement_odd) ? &m_scan0_len     : &m_scan1_len;
   m_adv0_len = sizeof(m_advertisement0);
   m_adv1_len = sizeof(m_advertisement1);
   m_scan0_len = sizeof(m_scan0);
@@ -253,12 +260,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
   p_adv_data->adv_data.len        = *p_adv_len;
   p_adv_data->scan_rsp_data.p_data = p_scan;
   p_adv_data->scan_rsp_data.len    = *p_scan_len;
-  // Configure advertisement, do not allow parameter update if already advertising.
-  ble_gap_adv_params_t* p_adv_params = &m_adv_params;
 
-  if(true == m_advertising) { p_adv_params = NULL; }
-
-  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, p_adv_data, p_adv_params);
+  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, p_adv_data, NULL);
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
@@ -273,18 +276,23 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(
   ruuvi_interface_communication_message_t* message)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  err_code |= ruuvi_interface_communication_ble4_advertising_data_set(message->data,
-              message->data_length);
 
-  // Start advertising if it was not already started
+  if(NULL == message) { return RUUVI_DRIVER_ERROR_NULL; }
+  
+  // Advertising might be stopped by external event, such as GATT connection.
   if(false == m_advertising)
   {
-    err_code |= sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
-    m_advertising = true;
+    return RUUVI_DRIVER_ERROR_INVALID_STATE;
   }
 
-  return err_code;
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+
+  return ruuvi_interface_communication_ble4_advertising_data_set(message->data,
+                                                                 message->data_length);
+
+
+
+  
 }
 
 // Not implemented
@@ -325,61 +333,88 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_ge
   return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_advertise_connectablity(
-  const bool connectable, const char* const name,
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_response_setup
+  (const char* const name,
   const bool advertise_nus)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   
-  uint8_t len = strlen(name);
-  err_code |= sd_ble_gap_device_name_set(&m_security, (uint8_t*)name, len);
-  memset(&m_adv_data, 0, sizeof(m_adv_data));
-  memset(&m_advertisement, 0, sizeof(m_advertisement));
-  memset(&m_scanresp, 0, sizeof(m_scanresp));
-  ble_advdata_t advdata = {0};
-  // Only valid flag
-  advdata.flags     = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
-  // Name will be read from the above GAP data
-  advdata.name_type = BLE_ADVDATA_FULL_NAME;
-  ble_advdata_manuf_data_t manufacturer_data;
-  manufacturer_data.company_identifier = company_id;
-  manufacturer_data.data.size = 0;
-  manufacturer_data.data.p_data = NULL;
-  advdata.p_manuf_specific_data = &manufacturer_data;
-  // Encode data
-  m_adv_data.adv_data.len = sizeof(m_advertisement);
-  err_code |= ble_advdata_encode(&advdata, m_advertisement, &m_adv_data.adv_data.len);
-  m_adv_data.adv_data.p_data = m_advertisement;
 
-  // Add scan response if requested
-  if(advertise_nus)
+  memset(&m_scan0, 0, sizeof(m_scan0));
+  memset(&m_scan1, 0, sizeof(m_scan1));
+  ble_advdata_t scanrsp = {0};
+
+  if(NULL != name)
   {
-    ble_advdata_t scanrsp = {0};
-    scanrsp.uuids_complete.uuid_cnt = 1;
-    scanrsp.uuids_complete.p_uuids = &(m_adv_uuids[0]);
-    // Encode data
-    m_adv_data.scan_rsp_data.len = sizeof(m_scanresp);
-    err_code |= ble_advdata_encode(&scanrsp, m_scanresp, &m_adv_data.scan_rsp_data.len);
-    m_adv_data.scan_rsp_data.p_data = m_scanresp;
+    // Name will be read from the GAP data
+    scanrsp.name_type = BLE_ADVDATA_FULL_NAME;
+    uint8_t len = strlen(name);
+    err_code |= sd_ble_gap_device_name_set(&m_security, (uint8_t*)name, len);
   }
 
-  // Configure advertisement and start
-  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
-  err_code |= sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
+  // Add scan response
+  if(advertise_nus)
+  {
+    scanrsp.uuids_complete.uuid_cnt = 1;
+    scanrsp.uuids_complete.p_uuids = &(m_adv_uuids[0]);
+  }
+
+  // Encode data
+  m_adv_data.scan_rsp_data.len = sizeof(m_scan0);
+  err_code |= ble_advdata_encode(&scanrsp, m_scan0, &m_adv_data.scan_rsp_data.len);
+  err_code |= ble_advdata_encode(&scanrsp, m_scan1, &m_adv_data.scan_rsp_data.len);
+
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
 
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_mode_set(const bool scannable, const bool connectable)
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_type_set(RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE type)
 {
-  // Initialize advertising parameters (used when starting advertising).
-  memset(&m_adv_params, 0, sizeof(m_adv_params));
-  m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
-  m_adv_params.duration        = 0;       // Never time out.
-  m_adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
-  m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
-  m_adv_params.interval        = MSEC_TO_UNITS(
-                                   APPLICATION_CONNECTION_ADVERTISEMENT_INTERVAL, UNIT_0_625_MS);
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  switch(type)
+  {
+    case NONCONNECTABLE_NONSCANNABLE:
+      m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+      break;
+
+    case NONCONNECTABLE_SCANNABLE:
+      m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_SCANNABLE_UNDIRECTED;
+      break;
+
+    case CONNECTABLE_NONSCANNABLE:
+      m_adv_params.properties.type = BLE_GAP_ADV_TYPE_EXTENDED_CONNECTABLE_NONSCANNABLE_UNDIRECTED;
+      break;
+
+    case CONNECTABLE_SCANNABLE:
+      m_adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+      break;
+
+    default:
+      err_code = RUUVI_DRIVER_ERROR_INVALID_PARAM;
+  }
+  return err_code;
 }
+
+void ruuvi_interface_communication_ble4_advertising_notify_stop(void)
+{
+  m_advertising = false;
+}
+
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_start()
+{
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, NULL, &m_adv_params);
+  err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error(sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG));
+  if(RUUVI_DRIVER_SUCCESS == err_code) { m_advertising = true; }
+  return err_code;
+}
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_stop()
+{
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error(sd_ble_gap_adv_stop(RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG));
+  if(RUUVI_DRIVER_SUCCESS == err_code) { m_advertising = false; }
+  return err_code;
+}
+
 #endif

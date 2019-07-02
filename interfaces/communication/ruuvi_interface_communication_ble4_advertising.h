@@ -11,6 +11,14 @@
 #include "ruuvi_interface_communication_radio.h"
 #include <stdint.h>
 
+typedef enum 
+{
+  NONCONNECTABLE_NONSCANNABLE,
+  CONNECTABLE_NONSCANNABLE,
+  CONNECTABLE_SCANNABLE,
+  NONCONNECTABLE_SCANNABLE
+}RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE;
+
 /*
  * Initializes radio hardware, advertising module and scanning module
  *
@@ -68,9 +76,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
  * @return error code from stack in case there is  error.
  *
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_connectablity(
-  const bool connectable, const char* const name,
-  const bool advertise_nus);
 
 /**
  * Send data as manufacturer specific data payload.
@@ -104,5 +109,24 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(
  */
 void ruuvi_interface_communication_ble4_advertising_activity_handler(
   const ruuvi_interface_communication_radio_activity_evt_t evt);
+
+/**
+ * @brief Configure advertising data with a scan response. 
+ * The scan response must be separately enabled.
+ */
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_response_setup
+  (const char* const name,
+  const bool advertise_nus);
+
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_type_set(RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE type);
+
+/** @brief Notify advertising module that advertising has been stopped by external event */
+void ruuvi_interface_communication_ble4_advertising_notify_stop(void);
+
+/** @brief start advertising with previously configured settings */
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_start();
+
+/** @brief stop advertising */
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_stop();
 
 #endif
