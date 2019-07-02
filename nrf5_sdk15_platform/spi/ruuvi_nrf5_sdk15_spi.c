@@ -178,7 +178,7 @@ ruuvi_driver_status_t ruuvi_interface_spi_xfer_blocking(const uint8_t* tx,
     const size_t tx_len, uint8_t* rx, const size_t rx_len)
 {
   //Return error if not init or if given null pointer
-  if(!spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(!m_spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   if((NULL == tx && 0 != tx_len) || (NULL == rx && 0 != rx_len)) { return RUUVI_DRIVER_ERROR_NULL; }
 
