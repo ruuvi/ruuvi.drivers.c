@@ -56,7 +56,7 @@
 
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(
                                    SPI_INSTANCE);  /**< SPI instance. */
-static bool  spi_init_done = false;
+static bool  m_spi_init_done = false;
 
 /**
  * @brief convert @ref ruuvi_interface_gpio_id_t to nRF GPIO.
@@ -124,7 +124,7 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
     config)
 {
   //Return error if SPI is already init
-  if(spi_init_done) { return NRF_ERROR_INVALID_STATE; }
+  if(m_spi_init_done) { return NRF_ERROR_INVALID_STATE; }
 
   ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
   nrf_drv_spi_mode_t mode = RUUVI_INTERFACE_SPI_MODE_0;
@@ -145,7 +145,6 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
   // Use blocking mode by using NULL as event handler
   ret_code_t err_code = NRF_SUCCESS;
   err_code = nrf_drv_spi_init(&spi, &spi_config, NULL, NULL);
-  ;
 
   for(size_t ii = 0; ii < config->ss_pins_number; ii++)
   {
@@ -154,8 +153,25 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
     ruuvi_interface_gpio_write(config->ss_pins[ii], RUUVI_INTERFACE_GPIO_HIGH);
   }
 
-  spi_init_done = true;
+  m_spi_init_done = true;
   return (status | ruuvi_nrf5_sdk15_to_ruuvi_error(err_code));
+}
+
+bool ruuvi_interface_spi_is_init()
+{
+  return m_spi_init_done;
+}
+
+/**
+ * @brief Uninitialize SPI driver.
+ *
+ * @return RUUVI_DRIVER_SUCCESS
+ **/
+ruuvi_driver_status_t ruuvi_interface_spi_uninit()
+{
+  nrf_drv_spi_uninit(&spi);
+  m_spi_init_done = false;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_spi_xfer_blocking(const uint8_t* tx,

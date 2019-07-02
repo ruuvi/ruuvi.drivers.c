@@ -16,7 +16,7 @@
  * @file ruuvi_interface_spi.h
 * @brief Interface for SPI operations
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-31
+ * @date 2019-05-30
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  */
@@ -61,13 +61,35 @@ typedef struct
 } ruuvi_interface_spi_init_config_t;
 
 /**
- * @brief Initialize SPI driver with default settings
+ * @brief Initialize SPI driver with given settings
+ *
+ * This function also handles configuring the SS and SPI GPIO pins as outputs
  *
  * @param config Configuration of the SPI peripheral. Will setup given slave select pins as outputs.
- * @return error code from the stack, RUUVI_DRIVER_SUCCESS if no error occurred
+ * @return RUUVI_DRIVER_SUCCESS if no error occurred
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if SPI was already initialized
  **/
 ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_config_t*
     const config);
+
+/**
+ * @brief check if SPI interface is already initialized.
+ * 
+ * @return @c true if SPI is initialized
+ * @return @c false otherwise
+ */
+bool ruuvi_interface_spi_is_init();
+
+/**
+ * @brief Uninitialize SPI driver.
+ * 
+ * This function might not uninitialize the SPI GPIO pins, only the underlying peripheral.
+ * Uninitialized GPIOs explicitly if that is required.
+ *
+ * @return RUUVI_DRIVER_SUCCESS
+ * @warning Uninitializes the SPI peripheral, may or may not uninitialize the associated gpio pins
+ **/
+ruuvi_driver_status_t ruuvi_interface_spi_uninit();
 
 /**
  * @brief SPI transfer function.
