@@ -6,3 +6,6 @@
 	path = STMems_Standard_C_drivers
 	url = https://github.com/STMicroelectronics/STMems_Standard_C_drivers
 	ignore = untracked
+[submodule "embedded-sht"]
+	path = embedded-sht
+	url = https://github.com/Sensirion/embedded-sht.git
