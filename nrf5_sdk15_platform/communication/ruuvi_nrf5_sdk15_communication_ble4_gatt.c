@@ -52,10 +52,12 @@
 #include "ruuvi_interface_communication_ble4_advertising.h"
 #include "ruuvi_interface_communication_ble4_gatt.h"
 #include "ruuvi_interface_communication_radio.h"
+#include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_timer.h"
+#include "ruuvi_interface_power.h"
+#include "ruuvi_interface_yield.h"
 
-#include "sdk_config.h"
 #include "app_timer.h"
 #include "ble_advdata.h"
 #include "ble_types.h"
@@ -473,6 +475,7 @@ static void pm_evt_handler(pm_evt_t const* p_evt)
 }
 
 
+
 /**@brief Function for the Peer Manager initialization.
  */
 static ret_code_t peer_manager_init()
@@ -480,8 +483,14 @@ static ret_code_t peer_manager_init()
   ble_gap_sec_params_t sec_param;
   ret_code_t           err_code = NRF_SUCCESS;
   err_code |= pm_init();
-
-  if(NRF_SUCCESS != err_code) { }
+  
+  // Failed because storage cannot be initialized.
+  if(NRF_SUCCESS != err_code) { 
+    ruuvi_interface_communication_radio_uninit(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
+    ruuvi_interface_flash_purge();
+    ruuvi_interface_power_reset();
+    RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
+  }
 
   memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
   // Security parameters to be used for all security procedures.
