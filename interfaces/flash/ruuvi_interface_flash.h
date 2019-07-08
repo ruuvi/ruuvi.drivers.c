@@ -108,4 +108,16 @@ ruuvi_driver_status_t ruuvi_interface_flash_gc_run(void);
  * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_init(void);
+
+/**
+ * @brief Purge flash
+ *
+ * This function is used to "rescue" flash which cannot be initialized normally,
+ * for example after data corruption. Completely erases all data content on flash.
+ * Does not erase application files. 
+ *
+ * This function is blocking, returns once flash is cleared. 
+ */
+void ruuvi_interface_flash_purge(void);
+
 #endif
