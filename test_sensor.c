@@ -119,6 +119,7 @@ ruuvi_driver_status_t test_sensor_init(const ruuvi_driver_sensor_init_fp init,
     RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
     test_ok = false;
     failed = true;
+    return RUUVI_DRIVER_ERROR_SELFTEST;
   }
 
   test_sensor_register(test_ok);
