@@ -128,7 +128,8 @@ uint64_t ruuvi_interface_rtc_millis(void)
   if(false == m_is_init) { return RUUVI_DRIVER_UINT64_INVALID; }
 
   uint64_t ms = nrf_drv_rtc_counter_get(&rtc) + ticks;
-  return (ms * 1000) / 32768;
+  return ((ms * 1000) / 32768);
 }
+
 
 #endif
