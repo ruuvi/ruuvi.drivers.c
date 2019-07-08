@@ -44,13 +44,31 @@
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h"
+#include "ruuvi_interface_yield.h"
 
 #include "fds.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "sdk_config.h"
+#include "nrf_fstorage.h"
+#include "fds_internal_defs.h"
+#if (FDS_BACKEND == NRF_FSTORAGE_SD)
+#include "nrf_fstorage_sd.h"
+#elif (FDS_BACKEND == NRF_FSTORAGE_NVMC)
+#include "nrf_fstorage_nvmc.h"
+#else
+#error Invalid FDS backend.
+#endif
 
 #include <string.h>
+
+
+
+NRF_FSTORAGE_DEF(nrf_fstorage_t m_fs1) =
+{
+    // The flash area boundaries are set in fds_init().
+    .evt_handler = NULL,
+};
 
 static size_t m_number_of_pages = 0;
 
@@ -433,6 +451,51 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void)
   m_number_of_pages = stat.pages_available;
   err_code |= fds_to_ruuvi_error(rc);
   return err_code;
+}
+
+static uint32_t flash_end_addr(void)
+{
+    uint32_t const bootloader_addr = NRF_UICR->NRFFW[0];
+    uint32_t const page_sz         = NRF_FICR->CODEPAGESIZE;
+#ifndef NRF52810_XXAA
+    uint32_t const code_sz         = NRF_FICR->CODESIZE;
+#else
+    // Number of flash pages, necessary to emulate the NRF52810 on NRF52832.
+    uint32_t const code_sz         = 48;
+#endif
+
+    return (bootloader_addr != 0xFFFFFFFF) ? bootloader_addr : (code_sz * page_sz);
+}
+
+
+static void flash_bounds_set(void)
+{
+    uint32_t flash_size  = (FDS_PHY_PAGES * FDS_PHY_PAGE_SIZE * sizeof(uint32_t));
+    m_fs1.end_addr   = flash_end_addr();
+    m_fs1.start_addr = m_fs1.end_addr - flash_size;
+}
+
+/** Erase FDS in case of error */
+void ruuvi_interface_flash_purge(void)
+{
+	flash_bounds_set();
+
+	for (int p = 0; p < FDS_VIRTUAL_PAGES; p++)
+	{
+
+		#if   defined(NRF51)
+			int erase_unit = 1024;
+		#elif defined(NRF52_SERIES)
+			int erase_unit = 4096;
+		#endif
+
+		int page = m_fs1.start_addr/erase_unit + p; // erase unit == virtual page size
+
+		ret_code_t rc = sd_flash_page_erase(page);
+                ruuvi_interface_delay_ms(200);
+                RUUVI_DRIVER_ERROR_CHECK(rc, RUUVI_DRIVER_SUCCESS);
+	}
+		
 }
 
 #endif
