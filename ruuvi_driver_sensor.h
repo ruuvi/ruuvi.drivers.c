@@ -10,7 +10,7 @@
 /**
  * @file ruuvi_driver_sensor.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-02-17
+ * @date 2019-07-10
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Ruuvi sensor interface
  *
@@ -51,6 +51,9 @@
  */
 
 #include "ruuvi_driver_error.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define RUUVI_DRIVER_SENSOR_INVALID_VALUE    RUUVI_DRIVER_FLOAT_INVALID  ///< Signal this float sensor is erroneous
 #define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID ///< Signal this timestamp value is erroneous
@@ -193,6 +196,48 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_configuration_fp)(
   ruuvi_driver_sensor_configuration_t* const p_configuration);
 
 /**
+* @brief Read First-in-first-out (FIFO) buffer
+* Reads up to num_elements data points from FIFO and populates pointer data with them
+*
+* @param[in, out] num_elements Input: number of elements in data. Output: Number of elements placed in data
+* @param[out] data array of ruuvi_interface_acceleration_data_t with num_elements slots.
+* @return RUUVI_DRIVER_SUCCESS on success
+* @return RUUVI_DRIVER_ERROR_NULL if either parameter is NULL
+* @return RUUVI_DRIVER_ERROR_INVALID_STATE if FIFO is not in use
+* @return error code from stack on error.
+*/
+typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_fifo_read_fp)(size_t* num_elements,
+    ruuvi_driver_sensor_data_t* data);
+
+/**
+* @brief Enable FIFO or FIFO interrupt full interrupt on sensor.
+* FIFO interrup Triggers as ACTIVE HIGH interrupt once FIFO is filled. 
+*
+* @param[in] enable True to enable interrupt, false to disable interrupt
+* @return RUUVI_DRIVER_SUCCESS on success, error code from stack otherwise.
+**/
+typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_fifo_enable_fp)(const bool enable);
+
+/**
+* @brief Enable level interrupt on sensor.
+* Triggers as ACTIVE HIGH interrupt while detected data is above threshold.
+* Trigger is symmetric, i.e. thershold is valid for above positive or below negative of given value.
+* On accelerometer data is high-passed to filter out gravity.
+* Axes are examined individually, compound data won't trigger the interrupt.
+*
+* @param[in] enable  True to enable interrupt, false to disable interrupt
+* @param[in] limit_g: Desired acceleration to trigger the interrupt.
+*                    Is considered as "at least", the acceleration is rounded up to next value.
+*                    Is written with value that was set to interrupt
+* @return RUUVI_DRIVER_SUCCESS on success
+* @return RUUVI_DRIVER_INVALID_STATE if data limit is higher than maximum scale
+* @return error code from stack on error.
+*
+*/
+typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_level_interrupt_use_fp)(const bool enable,
+    float* limit_g);
+
+/**
  * @brief Return number of milliseconds since the start of RTC.
  *
  * @return milliseconds since start of RTC.
@@ -228,6 +273,10 @@ typedef struct ruuvi_driver_sensor_t
   ruuvi_driver_configuration_fp
   configuration_get; ///< @ref ruuvi_driver_configuration_fp Only gets value, input value has no effect.
   ruuvi_driver_sensor_data_fp   data_get;          ///< @ref ruuvi_driver_sensor_data_fp
+  ruuvi_driver_sensor_fifo_enable_fp fifo_enable;
+  ruuvi_driver_sensor_fifo_enable_fp fifo_interrupt_enable;
+  ruuvi_driver_sensor_fifo_read_fp   fifo_read;
+  ruuvi_driver_sensor_level_interrupt_use_fp level_interrupt_set;
 } ruuvi_driver_sensor_t;
 
 /**
@@ -241,6 +290,17 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_set(const ruuvi_driver_s
  */
 ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_sensor_t*
     sensor, ruuvi_driver_sensor_configuration_t* config);
+
+/**
+ * @brief Dummy implementations of FIFO and LEVEL functions for sensors which don't
+ * implement them.  
+ *
+ * All functions return @ref RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED
+ */
+ruuvi_driver_status_t ruuvi_driver_dummy_fifo_enable(const bool enable);
+ruuvi_driver_status_t ruuvi_driver_dummy_fifo_interrupt_enable(const bool enable);
+ruuvi_driver_status_t ruuvi_driver_dummy_fifo_read(size_t* num_elements, ruuvi_driver_sensor_data_t* data);
+ruuvi_driver_status_t ruuvi_driver_dummy_level_interrupt_set(const bool enable, float* limit_g);
 
 /**
  * @brief Setup timestamping

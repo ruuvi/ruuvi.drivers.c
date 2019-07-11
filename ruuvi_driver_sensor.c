@@ -57,3 +57,23 @@ uint64_t ruuvi_driver_sensor_timestamp_get(void)
 
   return millis();
 }
+
+ruuvi_driver_status_t ruuvi_driver_dummy_fifo_enable(const bool enable)
+{
+  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+}
+
+ruuvi_driver_status_t ruuvi_driver_dummy_fifo_interrupt_enable(const bool enable)
+{
+  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+}
+
+ruuvi_driver_status_t ruuvi_driver_dummy_fifo_read(size_t* num_elements, ruuvi_driver_sensor_data_t* data)
+{
+  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+}
+
+ruuvi_driver_status_t ruuvi_driver_dummy_level_interrupt_set(const bool enable, float* limit_g)
+{
+  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+}
