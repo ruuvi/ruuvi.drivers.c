@@ -1,7 +1,7 @@
 /**
  * @file ruuvi_driver_test.h
  * @author Otso Jousimaa
- * @date 2019-04-27
+ * @date 2019-07-10
  * @brief Functions for testing drivers
  * @copyright Copyright 2019 Ruuvi Innovations.
  *   This project is released under the BSD-3-Clause License.
