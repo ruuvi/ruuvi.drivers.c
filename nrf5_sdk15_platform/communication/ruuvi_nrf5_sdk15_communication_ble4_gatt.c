@@ -312,14 +312,14 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
        ble_gap_evt_phy_update_t const * p_phy_evt = &p_ble_evt->evt.gap_evt.params.phy_update;
        if (p_phy_evt->status == BLE_HCI_STATUS_CODE_LMP_ERROR_TRANSACTION_COLLISION)
        {
-         ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "LL transaction collision during PHY update.");
+         ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "LL transaction collision during PHY update.\r\n");
          break;
        }
        ble_gap_phys_t evt_phys = {0};
        evt_phys.tx_phys = p_phy_evt->tx_phy;
        evt_phys.rx_phys = p_phy_evt->rx_phy;
        char msg[128];
-       snprintf(msg, sizeof(msg), "PHY update %s. PHY set to %s.",
+       snprintf(msg, sizeof(msg), "PHY update %s. PHY set to %s.\r\n",
                                   (p_phy_evt->status == BLE_HCI_STATUS_CODE_SUCCESS) ?
                                   "accepted" : "rejected",
                                   phy_str(evt_phys));
