@@ -65,10 +65,24 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init(
   // Configure the BLE stack using the default settings.
   // Fetch the start address of the application RAM.
   uint32_t ram_start = 0;
+
   err_code |= nrf_sdh_ble_default_cfg_set(RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG, &ram_start);
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
+  // Define large enough GATT queue
+  ble_cfg_t conn_cfg = { 0 };
+  conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
+  conn_cfg.conn_cfg.params.gatts_conn_cfg.hvn_tx_queue_size    = 20;
+  err_code |= sd_ble_cfg_set(BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
+
   // Enable BLE stack.
   err_code |= nrf_sdh_ble_enable(&ram_start);
+  /*
+  static ble_opt_t  opt = {0};
+  opt.common_opt.conn_evt_ext.enable = true;
+  err_code |= sd_ble_opt_set(BLE_COMMON_OPT_CONN_EVT_EXT, &opt);
+  */
+
+
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
   // Initialize radio interrupts
   err_code |= ble_radio_notification_init(RUUVI_NRF5_SDK15_RADIO_IRQ_PRIORITY,
