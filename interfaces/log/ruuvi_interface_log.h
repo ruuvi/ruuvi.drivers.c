@@ -62,6 +62,20 @@ void ruuvi_interface_log(const ruuvi_interface_log_severity_t severity,
                          const char* const message);
 
 /**
+ * @brief Queues bytes to be logged out as a hex string
+ *
+ * May block or may return as soon as data is in buffer being transferred out
+ *
+ * @param severity severity of the log message
+ * @param bytes raw bytes to log
+ * @param byte:length length of bytes to log.
+ *
+ */
+void ruuvi_interface_log_hex(const ruuvi_interface_log_severity_t severity,
+                             const uint8_t* const bytes,
+                             size_t byte_length);
+
+/**
  * @brief Write text description of error message into given string pointer and null-terminate it.
  * The string will be cut if it cannot fit into given space.
  *

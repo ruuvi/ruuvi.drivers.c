@@ -264,5 +264,25 @@ void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity
                      configuration_value_to_string(configuration->mode));
   ruuvi_interface_log(level, msg);
 }
+
+void ruuvi_interface_log_hex(const ruuvi_interface_log_severity_t severity,
+                             const uint8_t* const bytes,
+                             size_t byte_length)
+{
+  char msg[APPLICATION_LOG_BUFFER_SIZE] =  { 0 };
+  size_t index = 0;
+  for(size_t ii = 0; ii < byte_length; ii++)
+  {
+    index += snprintf(msg + index, sizeof(msg) - index, "%02X", bytes[ii]);
+    if(ii < byte_length + 1)
+    {
+     index += snprintf(msg + index, sizeof(msg) - index, ":");
+    }
+    if(index >= sizeof(msg)) { return; }
+  }
+  ruuvi_interface_log(severity, msg);
+
+}
+
 /** @} */
 #endif
