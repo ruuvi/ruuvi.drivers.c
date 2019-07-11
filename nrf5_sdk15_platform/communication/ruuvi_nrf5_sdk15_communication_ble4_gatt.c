@@ -116,6 +116,36 @@ static uint8_t                m_advertisement[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
 static uint8_t                m_scanresp[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
 static ble_gap_adv_data_t     m_adv_data = {0};
 
+/** @brief print PHY enum as string */
+static char const * phy_str(ble_gap_phys_t phys)
+{
+    static char const * str[] =
+    {
+        "1 Mbps",
+        "2 Mbps",
+        "Coded",
+        "Unknown"
+    };
+
+    switch (phys.tx_phys)
+    {
+        case BLE_GAP_PHY_1MBPS:
+            return str[0];
+
+        case BLE_GAP_PHY_2MBPS:
+        case BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS:
+        case BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS | BLE_GAP_PHY_CODED:
+            return str[1];
+
+        case BLE_GAP_PHY_CODED:
+            return str[2];
+
+        default:
+            return str[3];
+    }
+}
+
+
 /**@brief Function for the GAP initialization.
  *
  * @details This function will set up all the necessary GAP (Generic Access Profile) parameters of
@@ -240,6 +270,11 @@ static void nus_data_handler(ble_nus_evt_t* p_evt)
 static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 {
   uint32_t err_code;
+  ble_gap_phys_t const phys =
+  {
+    .rx_phys = BLE_GAP_PHY_2MBPS,
+    .tx_phys = BLE_GAP_PHY_2MBPS,
+  };
 
   switch(p_ble_evt->header.evt_id)
   {
@@ -248,6 +283,9 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
       err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
       ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Connected \r\n");
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
+      // Request 2MBPS connection
+      err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Requested 2MBPS connection\r\n");
       // Intentional fallthrough to GAP_EVT_TIMEOUT
     case BLE_GAP_EVT_TIMEOUT:
       // On connection and timeout advertising stops, notify advertisement module.
@@ -264,17 +302,30 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
       break;
 
     case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-    {
-      ble_gap_phys_t const phys =
-      {
-        .rx_phys = BLE_GAP_PHY_AUTO,
-        .tx_phys = BLE_GAP_PHY_AUTO,
-      };
       err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "PHY updated \r\n");
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "PHY update requested \r\n");
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
-    }
-    break;
+      break;
+
+    case BLE_GAP_EVT_PHY_UPDATE:
+    {
+       ble_gap_evt_phy_update_t const * p_phy_evt = &p_ble_evt->evt.gap_evt.params.phy_update;
+       if (p_phy_evt->status == BLE_HCI_STATUS_CODE_LMP_ERROR_TRANSACTION_COLLISION)
+       {
+         ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "LL transaction collision during PHY update.");
+         break;
+       }
+       ble_gap_phys_t evt_phys = {0};
+       evt_phys.tx_phys = p_phy_evt->tx_phy;
+       evt_phys.rx_phys = p_phy_evt->rx_phy;
+       char msg[128];
+       snprintf(msg, sizeof(msg), "PHY update %s. PHY set to %s.",
+                                  (p_phy_evt->status == BLE_HCI_STATUS_CODE_SUCCESS) ?
+                                  "accepted" : "rejected",
+                                  phy_str(evt_phys));
+      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, msg);
+    } break;
+
 
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
       // Pairing not supported

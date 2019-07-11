@@ -76,12 +76,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init(
 
   // Enable BLE stack.
   err_code |= nrf_sdh_ble_enable(&ram_start);
-  /*
+  
+  // Enable connection event extension for faster data rate
   static ble_opt_t  opt = {0};
   opt.common_opt.conn_evt_ext.enable = true;
   err_code |= sd_ble_opt_set(BLE_COMMON_OPT_CONN_EVT_EXT, &opt);
-  */
-
 
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
   // Initialize radio interrupts
