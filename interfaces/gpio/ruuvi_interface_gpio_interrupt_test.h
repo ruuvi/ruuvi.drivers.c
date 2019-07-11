@@ -17,6 +17,9 @@
 #include "ruuvi_interface_gpio_interrupt.h"
 #include "ruuvi_interface_gpio_test.h"
 
+/** @brief Fixed 64 interrupt table size, adjust this if some device has more than 2 ports with 32 gpios each */
+#define RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE 64
+
 /**
  * @brief Test GPIO interrupt initialization.
  *

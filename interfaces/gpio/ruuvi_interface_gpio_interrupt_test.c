@@ -4,11 +4,9 @@
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_interrupt.h"
+#include "ruuvi_interface_gpio_interrupt_test.h"
 #include "ruuvi_interface_gpio_test.h"
 #include <stdlib.h>
-
-/** @brief Fixed 64 interrupt table size, adjust this if some device has more than 2 ports with 32 gpios each */
-#define RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE 64
 
 static uint8_t num_int_trigs = 0;
 static ruuvi_interface_gpio_evt_t last_evt;
