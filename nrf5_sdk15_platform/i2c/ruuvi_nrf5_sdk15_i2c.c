@@ -81,8 +81,9 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
     .sda                = config->sda,
     .frequency          = frequency,
     .interrupt_priority = I2C_IRQ_PRIORITY,
-    .clear_bus_init     = false
+    .clear_bus_init     = true
   };
+
   err_code = nrf_drv_twi_init(&m_twi, &twi_config, NULL, NULL);
   nrf_drv_twi_enable(&m_twi);
   m_i2c_is_init = true;
