@@ -9,3 +9,4 @@
 [submodule "embedded-sht"]
 	path = embedded-sht
 	url = https://github.com/Sensirion/embedded-sht.git
+        ignore = untracked
