@@ -48,6 +48,7 @@
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_yield.h"
+#include "ruuvi_nrf5_sdk15_gpio.h"
 
 #include "nrf_drv_spi.h"
 #include "app_util_platform.h"
@@ -57,15 +58,6 @@
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(
                                    SPI_INSTANCE);  /**< SPI instance. */
 static bool  m_spi_init_done = false;
-
-/**
- * @brief convert @ref ruuvi_interface_gpio_id_t to nRF GPIO.
- * TODO: Move to GPIO platform header
- */
-static inline uint8_t ruuvi_to_nrf_pin_map(const ruuvi_interface_gpio_id_t pin)
-{
-  return (pin.port_pin.port << 5) + pin.port_pin.pin;
-}
 
 static ruuvi_driver_status_t ruuvi_to_nrf_spi_mode(const ruuvi_interface_spi_mode_t
     ruuvi_mode, nrf_drv_spi_mode_t* nrf_mode)

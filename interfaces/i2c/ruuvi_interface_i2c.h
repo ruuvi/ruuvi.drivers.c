@@ -1,6 +1,7 @@
 #ifndef RUUVI_INTERFACE_I2C_H
 #define RUUVI_INTERFACE_I2C_H
 #include "ruuvi_driver_error.h"
+#include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -35,8 +36,8 @@ typedef enum
  */
 typedef struct
 {
-  uint8_t sda;                              //!< pin number of SDA
-  uint8_t scl;                              //!< pin number of SCL
+  ruuvi_interface_gpio_id_t sda;   //!< pin number of SDA
+  ruuvi_interface_gpio_id_t scl;   //!< pin number of SCL
   ruuvi_interface_i2c_frequency_t
   frequency; //!< Frequency of I2C Bus, see @ref ruuvi_interface_i2c_frequency_t
 } ruuvi_interface_i2c_init_config_t;
