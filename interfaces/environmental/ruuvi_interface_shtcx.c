@@ -62,14 +62,14 @@ static bool m_is_init;
  */
 static ruuvi_driver_status_t SHTCX_TO_RUUVI_ERROR(int16_t rslt)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  if(STATUS_OK == rslt)                 { return RUUVI_DRIVER_SUCCESS; }
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_ERROR_INTERNAL;
 
   if(STATUS_UNKNOWN_DEVICE == rslt)     { err_code = RUUVI_DRIVER_ERROR_NOT_FOUND; }
   else if(STATUS_ERR_BAD_DATA == rslt)  { err_code = RUUVI_DRIVER_ERROR_INVALID_DATA; }
   else if(STATUS_CRC_FAIL == rslt)      { err_code = RUUVI_DRIVER_ERROR_INVALID_DATA; }
   else if(STATUS_WAKEUP_FAILED == rslt) { err_code = RUUVI_DRIVER_ERROR_INTERNAL; }
   else if(STATUS_SLEEP_FAILED == rslt)  { err_code = RUUVI_DRIVER_ERROR_INTERNAL; }
-  //else if(STATUS_OK == rslt) { return RUUVI_DRIVER_SUCCESS; }
 
   return err_code;
 }
