@@ -51,12 +51,13 @@
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 
-#define TIMEOUT_US_PER_BYTE 100 //!< How many microseconds a tx can be pending. Increased for larger transmissions.
+
 
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
-static bool m_tx_in_progress     = false;
-static ret_code_t xfer_status    = NRF_SUCCESS;
+static volatile bool m_tx_in_progress     = false;
+static volatile ret_code_t xfer_status    = NRF_SUCCESS;
+static uint16_t timeout_us_per_byte       = 400;
 
 static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency(const
     ruuvi_interface_i2c_frequency_t freq)
@@ -75,6 +76,23 @@ static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency(const
   }
 }
 
+static void byte_timeout_set(const
+    ruuvi_interface_i2c_frequency_t freq)
+{
+  switch(freq)
+  {
+    case RUUVI_INTERFACE_I2C_FREQUENCY_100k:
+      timeout_us_per_byte = 400;
+
+    case RUUVI_INTERFACE_I2C_FREQUENCY_250k:
+      timeout_us_per_byte = 200;
+
+    case RUUVI_INTERFACE_I2C_FREQUENCY_400k:
+    default:
+      timeout_us_per_byte = 100;
+  }
+}
+
 static void on_complete(nrf_drv_twi_evt_t const *p_event, void *p_context)
 {
   m_tx_in_progress = false;
@@ -88,6 +106,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
 {
   ret_code_t err_code;
   nrf_drv_twi_frequency_t frequency = ruuvi_to_nrf_frequency(config->frequency);
+  byte_timeout_set(config->frequency);
   const nrf_drv_twi_config_t twi_config =
   {
     .scl                = ruuvi_to_nrf_pin_map(config->scl),
@@ -152,12 +171,12 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address,
   m_tx_in_progress = true;
   err_code |= nrf_drv_twi_tx(&m_twi, address, p_tx, tx_len, !stop);
   uint32_t timeout = 0;
-  while(m_tx_in_progress && timeout < (TIMEOUT_US_PER_BYTE * tx_len))
+  while(m_tx_in_progress && timeout < (timeout_us_per_byte * tx_len))
   {
     timeout++;
     ruuvi_interface_delay_us(1);
   }
-  if(timeout >= (TIMEOUT_US_PER_BYTE * tx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
+  if(timeout >= (timeout_us_per_byte * tx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
   err_code |= xfer_status;
   xfer_status = NRF_SUCCESS;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
@@ -182,12 +201,12 @@ ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
   m_tx_in_progress = true;
   err_code |= nrf_drv_twi_rx(&m_twi, address, p_rx, rx_len);
   uint32_t timeout = 0;
-  while(m_tx_in_progress && timeout < (TIMEOUT_US_PER_BYTE * rx_len))
+  while(m_tx_in_progress && timeout < (timeout_us_per_byte * rx_len))
   {
     timeout++;
     ruuvi_interface_delay_us(1);
   }
-  if(timeout >= (TIMEOUT_US_PER_BYTE * rx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
+  if(timeout >= (timeout_us_per_byte * rx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
   err_code |= xfer_status;
   xfer_status = NRF_SUCCESS;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
