@@ -629,10 +629,11 @@ static ruuvi_driver_status_t test_sensor_fifo_enable(const ruuvi_driver_sensor_t
   DUT->fifo_enable(true);
   ruuvi_driver_sensor_configuration_t config = {0};
   config.samplerate = RUUVI_DRIVER_SENSOR_CFG_MAX;
+  config.mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
   DUT->configuration_set(DUT, &config);
   ruuvi_interface_delay_ms(100);
   size_t num_samples = 32;
-  ruuvi_driver_sensor_data_t data[32];
+  ruuvi_driver_sensor_data_t data[32] = { 0 };
   bool valid_data = false;
   DUT->fifo_read(&num_samples, data);
 
@@ -645,7 +646,11 @@ static ruuvi_driver_status_t test_sensor_fifo_enable(const ruuvi_driver_sensor_t
   value_has_changed(&old, &(data[0]));
   for(size_t iii = 1; iii < num_samples; iii++)
   {
-    if(value_has_changed(&old,  &(data[iii]))) { valid_data = true; }
+    if(value_has_changed(&old,  &(data[iii]))) 
+    { 
+      valid_data = true;
+      break;
+    }
   }
 
   test_sensor_register(valid_data);
