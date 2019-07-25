@@ -17,9 +17,13 @@
  *
  */
 
+#include <stdbool.h>
+
 #define RUUVI_INTERFACE_ATOMIC_FLAG_INIT 0 //!< Initial value for atomic flag
 
 typedef volatile uint32_t ruuvi_interface_atomic_t; //!< define atomic type - not portable to 8-bit.
+/** @brief Pointer to atomic flag, void* for compatibility with other underlying data types than u32. */
+typedef volatile void* const ruuvi_interface_atomic_ptr; 
 
 /**
  * @brief atomic flag check and set/clear function
@@ -44,7 +48,7 @@ typedef volatile uint32_t ruuvi_interface_atomic_t; //!< define atomic type - no
  * @param[in] set true to set flag, false to clear flag.
  * @return    true if operation was successful
  */
-bool ruuvi_interface_atomic_flag(ruuvi_interface_atomic_t* const flag, const bool set);
+bool ruuvi_interface_atomic_flag(ruuvi_interface_atomic_ptr flag, const bool set);
 
 /*@}*/
 
