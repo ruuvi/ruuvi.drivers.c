@@ -599,17 +599,11 @@ static ruuvi_driver_status_t test_sensor_interrupts_setup(ruuvi_driver_sensor_t*
   
   memset(DUT, 0, sizeof(ruuvi_driver_sensor_t));
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  bool failed = false;
-  bool test_ok = true;
   err_code = init(DUT, bus, handle);
 
-  if(RUUVI_DRIVER_SUCCESS != err_code)
-  {
-    RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
-    failed = true;
-    // Init is test elsewhere, do not register result. Return to avoid calling NULL pointers
-    return RUUVI_DRIVER_ERROR_SELFTEST;
-  }
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
+
+  return  err_code;
 }
 
 /** @brief Uninitialize GPIOs and sensor after tests 

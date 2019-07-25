@@ -285,14 +285,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send(
     return RUUVI_DRIVER_ERROR_INVALID_STATE;
   }
 
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-
   return ruuvi_interface_communication_ble4_advertising_data_set(message->data,
                                                                  message->data_length);
-
-
-
-  
 }
 
 // Not implemented

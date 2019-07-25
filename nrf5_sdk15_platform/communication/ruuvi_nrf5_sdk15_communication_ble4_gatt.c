@@ -106,16 +106,6 @@ static bool     m_gatt_is_init = false;
 static ruuvi_interface_communication_t* channel =
   NULL;  /**< Pointer to application communication interface, given at initialization */
 
-
-// Advertising data for connectability
-static ble_gap_adv_params_t
-m_adv_params;              /**< Parameters to be passed to the stack when starting advertising. */
-static uint8_t                m_adv_handle =
-  BLE_GAP_ADV_SET_HANDLE_NOT_SET; /**< Advertising handle used to identify an advertising set. */
-static uint8_t                m_advertisement[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
-static uint8_t                m_scanresp[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
-static ble_gap_adv_data_t     m_adv_data = {0};
-
 /** @brief print PHY enum as string */
 static char const * phy_str(ble_gap_phys_t phys)
 {

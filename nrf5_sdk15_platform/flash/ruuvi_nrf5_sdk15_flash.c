@@ -261,18 +261,8 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t page_id
 {
   if(false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   fds_record_desc_t desc = {0};
   fds_find_token_t  tok  = {0};
-  /* A record structure. */
-  fds_record_t const record =
-  {
-    .file_id           = page_id,
-    .key               = record_id,
-    .data.p_data       = NULL,
-    /* The length of a record is always expressed in 4-byte units (words). */
-    .data.length_words = 0
-  };
   ret_code_t rc = fds_record_find(page_id, record_id, &desc, &tok);
 
   if(FDS_SUCCESS == rc)
