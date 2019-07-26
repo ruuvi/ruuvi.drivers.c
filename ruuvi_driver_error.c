@@ -23,6 +23,8 @@
 void ruuvi_driver_error_check(ruuvi_driver_status_t error,
                               ruuvi_driver_status_t non_fatal_mask, const char* file, int line)
 {
+  // Do nothing on success
+  if(RUUVI_DRIVER_SUCCESS == error) { return; }
   char message[APPLICATION_LOG_BUFFER_SIZE];
   size_t index = 0;
   // Cut out the full path
@@ -58,6 +60,5 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, message);
   }
 
-  // Do nothing on success
 }
 /** @} */
