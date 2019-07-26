@@ -20,6 +20,19 @@
 
 #include "ruuvi_driver_error.h"
 
+/** Function which gets called when entering / exiting sleep, configured by application. 
+ *
+ * @param[in] active true if device is going to be active, false otherwise.
+ *
+ */
+typedef void(*ruuvi_interface_yield_state_ind_fp_t)(const bool active);
+
+/**
+ * Configure sleep indication function. 
+ *
+ * @param[in] indication function to call when entering/exiting sleep, NULL to disable
+ */
+void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t const indication);
 
 /**
  * @brief Initializes yielding functions.
