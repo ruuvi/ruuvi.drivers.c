@@ -9,7 +9,7 @@
 /**
  * @file ruuvi_interface_yield.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-30
+ * @date 2019-07-26
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for yielding execution or delaying for a given time.
@@ -32,6 +32,16 @@
 ruuvi_driver_status_t ruuvi_interface_yield_init(void);
 
 /**
+ * @brief Initializes yielding functions.
+ *
+ * Enables using timer + RTC to shutdown the device for millisecond-sleeps. 
+ * @param[in] enable true to enable low-power mode, false to disable.
+ * 
+ * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
+ */
+ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable);
+
+/**
   * @brief Function which will release execution.
   *
   * The program execution will not continue until some external event
@@ -46,7 +56,9 @@ ruuvi_driver_status_t ruuvi_interface_yield(void);
   * @brief Delay a given number of milliseconds.
   *
   * This function is meant for rough timing and is not quaranteed to be exact in any manner
-  * If you need exact timing use timers or for example PWM peripheral.
+  * If you need exact timing use timers or for example PWM peripheral. This 
+  * function is affected by low-power delay enable, which uses sleep mode and timer to 
+  * return out of sleep. 
   *
   * @param time number of milliseconds to delay.
   * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
@@ -60,6 +72,7 @@ ruuvi_driver_status_t ruuvi_interface_delay_ms(uint32_t time);
   *
   * This function is meant for rough timing and is not quaranteed to be exact in any manner
   * If you need exact timing use timers or for example PWM peripheral.
+  * This function does not use low-power mode to maintain better precision on timing. 
   *
   * @param time number of microseconds to delay.
   * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.

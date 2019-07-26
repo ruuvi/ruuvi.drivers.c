@@ -13,11 +13,17 @@
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_log.h"
+#include "ruuvi_interface_rtc.h"
+#include "ruuvi_interface_timer.h"
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_driver_error.h"
 #include "nrf_delay.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_error.h"
+
+static bool m_lp = false;                       //!< low-power mode enabled flag
+static volatile bool m_wakeup = false;          //!< wakeup flag
+static ruuvi_interface_timer_id_t wakeup_timer; //!< timer ID for wakeup
 
 // Function handles and clears exception flags in FPSCR register and at the stack.
 // During interrupt, handler execution FPU registers might be copied to the stack
@@ -44,6 +50,14 @@ void FPU_IRQHandler(void)
   *fpscr = *fpscr & ~(0x0000009F);
 }
 
+/*
+ * Set a flag to wake up
+ */
+static void wakeup_handler(void* p_context)
+{
+  m_wakeup = true;
+}
+
 /**
  *
  */
@@ -53,8 +67,19 @@ ruuvi_driver_status_t ruuvi_interface_yield_init(void)
   NVIC_ClearPendingIRQ(FPU_IRQn);
   NVIC_EnableIRQ(FPU_IRQn);
   ret_code_t err_code = nrf_pwr_mgmt_init();
+  // Timer can be allocated even if timer functions are not initialized yet.
+  ruuvi_interface_timer_create(&wakeup_timer, RUUVI_INTERFACE_TIMER_MODE_SINGLE_SHOT, wakeup_handler);
+  m_lp = false;
+  m_wakeup = false;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
+
+ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
+{
+  m_lp = enable;
+}
+
+
 
 ruuvi_driver_status_t ruuvi_interface_yield(void)
 {
@@ -64,8 +89,22 @@ ruuvi_driver_status_t ruuvi_interface_yield(void)
 
 ruuvi_driver_status_t ruuvi_interface_delay_ms(uint32_t time)
 {
-  nrf_delay_ms(time);
-  return RUUVI_DRIVER_SUCCESS;
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  if(m_lp)
+  {
+    m_wakeup = false;
+    err_code |= ruuvi_interface_timer_start(wakeup_timer, time);
+    while(RUUVI_DRIVER_SUCCESS == err_code && !m_wakeup )
+    {
+      err_code |= ruuvi_interface_yield();
+    }
+  } 
+  else 
+  {
+    nrf_delay_ms(time);
+  }
+
+  return err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_delay_us(uint32_t time)
