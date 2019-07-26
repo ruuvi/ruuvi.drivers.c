@@ -121,16 +121,4 @@ int8_t sensirion_i2c_write(uint8_t address, const uint8_t *data,
   return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
 }
 
-/**
- * Sleep for a given number of microseconds. The function should delay the
- * execution for at least the given time, but may also sleep longer.
- *
- * Despite the unit, a <10 millisecond precision is sufficient.
- *
- * @param useconds the sleep time in microseconds
- */
-void sensirion_sleep_usec(uint32_t useconds) {
-    ruuvi_interface_delay_us(useconds);
-}
-
 #endif

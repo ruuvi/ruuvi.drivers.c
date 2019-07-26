@@ -323,7 +323,21 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(void* data)
   return err_code;
 }
 
-
+/**
+ * @brief Implement sleep function for SHTC driver. 
+ *
+ * Sleep for a given number of microseconds. The function should delay the
+ * execution for at least the given time, but may also sleep longer.
+ *
+ * Despite the unit, a millisecond precision is sufficient.
+ * The function sleeps given number of milliseconds, rounded up, 
+ * to benefit from low-power sleep in millisecond delay.
+ *
+ * @param useconds the sleep time in microseconds
+ */
+void sensirion_sleep_usec(uint32_t useconds) {
+    ruuvi_interface_delay_ms((useconds/1000) + 1);
+}
 
 
 
