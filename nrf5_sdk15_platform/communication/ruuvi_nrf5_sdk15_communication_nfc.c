@@ -159,7 +159,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
 
   // Create NFC NDEF text record description in English
   ret_code_t err_code = NRF_SUCCESS;
-  uint8_t fw_code[] = {'f', 'w'}; // Firmware
+  uint8_t fw_code[] = {'s', 'w'}; // Firmware
   NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_fw_rec,
                                 UTF_8,
                                 fw_code,
@@ -180,21 +180,20 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
                                 sizeof(id_code),
                                 nfc_id_buf,
                                 nfc_id_length);
-  NFC_NDEF_RECORD_BIN_DATA_DEF(nfc_bin_rec,                                       \
-                               TNF_MEDIA_TYPE,                                    \
-                               NULL, 0,                                           \
-                               NULL,                                              \
-                               0,                                                 \
-                               nfc_tx_buf,                                        \
-                               nfc_tx_length);
+  uint8_t data_code[] = {'d', 'a'}; // ID
+  NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_bin_rec,                              \
+                                UTF_8,                                    \
+                                data_code, sizeof(data_code),             \
+                                nfc_tx_buf,                                        \
+                                nfc_tx_length);
   // Clear our record
   nfc_ndef_msg_clear(&NFC_NDEF_MSG(nfc_ndef_msg));
 
   // Add new records if applicable
-  if(nfc_fw_length)
+  if(nfc_id_length)
   {
     err_code |= nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_ndef_msg),
-                                        &NFC_NDEF_TEXT_RECORD_DESC(nfc_fw_rec));
+                                        &NFC_NDEF_TEXT_RECORD_DESC(nfc_id_rec));
   }
 
   if(nfc_addr_length)
@@ -203,16 +202,17 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
                                         &NFC_NDEF_TEXT_RECORD_DESC(nfc_addr_rec));
   }
 
-  if(nfc_id_length)
+
+  if(nfc_fw_length)
   {
     err_code |= nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_ndef_msg),
-                                        &NFC_NDEF_TEXT_RECORD_DESC(nfc_id_rec));
+                                        &NFC_NDEF_TEXT_RECORD_DESC(nfc_fw_rec));
   }
 
   if(nfc_tx_length)
   {
     err_code |= nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_ndef_msg),
-                                        &NFC_NDEF_RECORD_BIN_DATA(nfc_bin_rec));
+                                        &NFC_NDEF_TEXT_RECORD_DESC(nfc_bin_rec));
   }
 
   // Encode data to NFC buffer. NFC will transmit the buffer, i.e. data is updated immediately.
