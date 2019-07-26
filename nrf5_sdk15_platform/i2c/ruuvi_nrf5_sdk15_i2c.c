@@ -168,9 +168,12 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address,
   if(m_tx_in_progress) { return RUUVI_DRIVER_ERROR_BUSY; }
 
   int32_t err_code = NRF_SUCCESS;
+  // Size optimization breaks the DMA-callback structure somehow. This
+  // disables the size optimization. 
+  uint8_t volatile * do_not_optimize_this_please = p_tx;
   m_tx_in_progress = true;
   err_code |= nrf_drv_twi_tx(&m_twi, address, p_tx, tx_len, !stop);
-  uint32_t timeout = 0;
+  volatile uint32_t timeout = 0;
   while(m_tx_in_progress && timeout < (timeout_us_per_byte * tx_len))
   {
     timeout++;
@@ -179,6 +182,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address,
   if(timeout >= (timeout_us_per_byte * tx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
   err_code |= xfer_status;
   xfer_status = NRF_SUCCESS;
+  timeout += do_not_optimize_this_please[0];
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
@@ -198,9 +202,12 @@ ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
   if(NULL == p_rx) { return RUUVI_DRIVER_ERROR_NULL; }
 
   int32_t err_code = NRF_SUCCESS;
+  // Size optimization breaks the DMA-callback structure somehow. This
+  // disables the size optimization. 
+  uint8_t volatile * do_not_optimize_this_please = p_rx;
   m_tx_in_progress = true;
   err_code |= nrf_drv_twi_rx(&m_twi, address, p_rx, rx_len);
-  uint32_t timeout = 0;
+  volatile uint32_t timeout = 0;
   while(m_tx_in_progress && timeout < (timeout_us_per_byte * rx_len))
   {
     timeout++;
@@ -209,6 +216,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
   if(timeout >= (timeout_us_per_byte * rx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
   err_code |= xfer_status;
   xfer_status = NRF_SUCCESS;
+  timeout += do_not_optimize_this_please[0];
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
