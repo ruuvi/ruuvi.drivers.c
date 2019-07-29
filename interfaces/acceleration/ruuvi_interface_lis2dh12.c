@@ -181,21 +181,25 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
-    acceleration_sensor->init              = ruuvi_interface_lis2dh12_init;
-    acceleration_sensor->uninit            = ruuvi_interface_lis2dh12_uninit;
-    acceleration_sensor->samplerate_set    = ruuvi_interface_lis2dh12_samplerate_set;
-    acceleration_sensor->samplerate_get    = ruuvi_interface_lis2dh12_samplerate_get;
-    acceleration_sensor->resolution_set    = ruuvi_interface_lis2dh12_resolution_set;
-    acceleration_sensor->resolution_get    = ruuvi_interface_lis2dh12_resolution_get;
-    acceleration_sensor->scale_set         = ruuvi_interface_lis2dh12_scale_set;
-    acceleration_sensor->scale_get         = ruuvi_interface_lis2dh12_scale_get;
-    acceleration_sensor->dsp_set           = ruuvi_interface_lis2dh12_dsp_set;
-    acceleration_sensor->dsp_get           = ruuvi_interface_lis2dh12_dsp_get;
-    acceleration_sensor->mode_set          = ruuvi_interface_lis2dh12_mode_set;
-    acceleration_sensor->mode_get          = ruuvi_interface_lis2dh12_mode_get;
-    acceleration_sensor->data_get          = ruuvi_interface_lis2dh12_data_get;
-    acceleration_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
-    acceleration_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+    acceleration_sensor->init                  = ruuvi_interface_lis2dh12_init;
+    acceleration_sensor->uninit                = ruuvi_interface_lis2dh12_uninit;
+    acceleration_sensor->samplerate_set        = ruuvi_interface_lis2dh12_samplerate_set;
+    acceleration_sensor->samplerate_get        = ruuvi_interface_lis2dh12_samplerate_get;
+    acceleration_sensor->resolution_set        = ruuvi_interface_lis2dh12_resolution_set;
+    acceleration_sensor->resolution_get        = ruuvi_interface_lis2dh12_resolution_get;
+    acceleration_sensor->scale_set             = ruuvi_interface_lis2dh12_scale_set;
+    acceleration_sensor->scale_get             = ruuvi_interface_lis2dh12_scale_get;
+    acceleration_sensor->dsp_set               = ruuvi_interface_lis2dh12_dsp_set;
+    acceleration_sensor->dsp_get               = ruuvi_interface_lis2dh12_dsp_get;
+    acceleration_sensor->mode_set              = ruuvi_interface_lis2dh12_mode_set;
+    acceleration_sensor->mode_get              = ruuvi_interface_lis2dh12_mode_get;
+    acceleration_sensor->data_get              = ruuvi_interface_lis2dh12_data_get;
+    acceleration_sensor->configuration_set     = ruuvi_driver_sensor_configuration_set;
+    acceleration_sensor->configuration_get     = ruuvi_driver_sensor_configuration_get;
+    acceleration_sensor->fifo_enable           = ruuvi_interface_lis2dh12_fifo_use;
+    acceleration_sensor->fifo_interrupt_enable = ruuvi_interface_lis2dh12_fifo_interrupt_use;
+    acceleration_sensor->fifo_read             = ruuvi_interface_lis2dh12_fifo_read;
+    acceleration_sensor->level_interrupt_set   = ruuvi_interface_lis2dh12_activity_interrupt_use;
     dev.tsample = RUUVI_DRIVER_UINT64_INVALID;
   }
 
@@ -777,10 +781,11 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use(const bool enable)
 
 //TODO * return: RUUVI_DRIVER_INVALID_STATE if FIFO is not in use
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
-    ruuvi_interface_acceleration_data_t* data)
+    ruuvi_driver_sensor_data_t* p_data)
 {
-  if(NULL == num_elements || NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(NULL == num_elements || NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
+  ruuvi_interface_acceleration_data_t* data = (ruuvi_interface_acceleration_data_t*)p_data;
   uint8_t elements = 0;
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_fifo_data_level_get(&(dev.ctx), &elements);

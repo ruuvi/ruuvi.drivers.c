@@ -59,7 +59,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use(const bool enable);
 * return: error code from stack on error.
 */
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
-    ruuvi_interface_acceleration_data_t* data);
+    ruuvi_driver_sensor_data_t* data);
 
 /**
 * Enable FIFO full interrupt on LIS2DH12.
