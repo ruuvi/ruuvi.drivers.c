@@ -19,7 +19,8 @@ typedef enum
   RUUVI_INTERFACE_ADC_AIN5,
   RUUVI_INTERFACE_ADC_AIN6,
   RUUVI_INTERFACE_ADC_AIN7,
-  RUUVI_INTERFACE_ADC_AINVDD
+  RUUVI_INTERFACE_ADC_AINVDD,
+  RUUVI_INTERFACE_ADC_AINGND,
 } ruuvi_interface_adc_channel_t;
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor,
