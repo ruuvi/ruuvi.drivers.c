@@ -11,7 +11,7 @@
 /**
  * @file ruuvi_interface_i2c_bme280.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @brief SPI read/write functions for Bosch BME280.
+ * @brief I2C read/write functions for Bosch BME280.
  * @date 2019-03-04
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
