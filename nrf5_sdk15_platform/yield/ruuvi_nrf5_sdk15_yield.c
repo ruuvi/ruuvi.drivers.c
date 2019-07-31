@@ -87,6 +87,10 @@ ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
   {
     m_lp = enable;
   }
+  else 
+  {
+    m_lp = false;
+  }
   return timer_status;
 }
 
