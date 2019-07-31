@@ -19,6 +19,7 @@
  */
 
 #include "ruuvi_driver_error.h"
+#include <stdbool.h>
 
 /** Function which gets called when entering / exiting sleep, configured by application. 
  *
