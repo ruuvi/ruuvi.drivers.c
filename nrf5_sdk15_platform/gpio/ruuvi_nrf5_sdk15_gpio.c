@@ -153,5 +153,5 @@ ruuvi_driver_status_t ruuvi_interface_gpio_read(const ruuvi_interface_gpio_id_t 
 
   return RUUVI_DRIVER_SUCCESS;
 }
-
+/*@}*/
 #endif

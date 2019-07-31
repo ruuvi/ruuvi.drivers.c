@@ -114,4 +114,6 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_enable(const
 ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_disable(const
     ruuvi_interface_gpio_id_t pin);
 
+/*@}*/
+
 #endif

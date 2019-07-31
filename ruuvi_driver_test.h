@@ -1,3 +1,5 @@
+#ifndef RUUVI_DRIVER_TEST_H
+#define RUUVI_DRIVER_TEST_H
 /**
  * @file ruuvi_driver_test.h
  * @author Otso Jousimaa
@@ -8,8 +10,6 @@
  *
  * Run tests for drivers.
  */
-#ifndef RUUVI_DRIVER_TEST_H
-#define RUUVI_DRIVER_TEST_H
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_test.h"
 #include <stdbool.h>
@@ -48,7 +48,7 @@ void ruuvi_driver_test_gpio_cfg(const ruuvi_driver_test_gpio_cfg_t cfg);
  *
  * Check if two floats are close to another, down to precision.
  * Example
- * @code
+ * @code{.c}
  * float expect = 0.12f;
  * float check  = 0.127f;
  * int8_t precision = 2;
@@ -57,6 +57,7 @@ void ruuvi_driver_test_gpio_cfg(const ruuvi_driver_test_gpio_cfg_t cfg);
  * check  = 127f;
  * precision = -1;
  * ruuvi_library_expect_close(expect, precision, check); // true
+ * @endcode
  *
  * @param expect[in] Expected value.
  * @param precision[in] Number of decimals which must match.

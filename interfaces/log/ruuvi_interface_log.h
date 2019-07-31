@@ -96,5 +96,5 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error, char* error_
  */
 void ruuvi_interface_log_sensor_configuration(const ruuvi_interface_log_severity_t level,
     const ruuvi_driver_sensor_configuration_t* const configuration, const char* unit);
-
+/*@}*/
 #endif

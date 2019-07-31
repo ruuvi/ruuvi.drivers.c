@@ -60,5 +60,5 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_init(
  */
 ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(
   const ruuvi_driver_test_gpio_cfg_t cfg);
-
+/*@}*/
 #endif

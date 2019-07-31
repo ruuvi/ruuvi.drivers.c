@@ -1,3 +1,5 @@
+#include "ruuvi_driver_enabled_modules.h"
+#if (RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED && RUUVI_INTERFACE_ENVIRONMENTAL_BME280_SPI_ENABLED) || DOXYGEN
 /**
  * @addtogroup SPI SPI functions
  * @brief Functions for using SPI bus
@@ -5,17 +7,13 @@
  */
 /*@{*/
 /**
- * @file ruuvi_interface_spi.c
+ * @file ruuvi_interface_spi_bme280.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2019-01-31
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Implementation for SPI operations
  *
  */
-
-#include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED && RUUVI_INTERFACE_ENVIRONMENTAL_BME280_SPI_ENABLED
-
 #include <stdint.h>
 #include <string.h>
 
@@ -52,5 +50,5 @@ int8_t ruuvi_interface_spi_bme280_read(uint8_t dev_id, uint8_t reg_addr,
   err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_HIGH);
   return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
-
+/*@}*/
 #endif
