@@ -62,7 +62,7 @@
 
 #include <string.h>
 
-
+#define LOG_LEVEL RUUVI_INTERFACE_LOG_DEBUG
 
 NRF_FSTORAGE_DEF(nrf_fstorage_t m_fs1) =
 {
@@ -144,7 +144,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
       if(p_evt->result == FDS_SUCCESS)
       {
         m_fds_initialized = true;
-        ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "FDS init\r\n");
+        ruuvi_interface_log(LOG_LEVEL, "FDS init\r\n");
       }
 
       break;
@@ -153,7 +153,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
     {
       if(p_evt->result == FDS_SUCCESS)
       {
-        ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record written\r\n");
+        ruuvi_interface_log(LOG_LEVEL, "Record written\r\n");
         m_fds_processing = false;
       }
     }
@@ -163,7 +163,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
     {
       if(p_evt->result == FDS_SUCCESS)
       {
-        ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record updated\r\n");
+        ruuvi_interface_log(LOG_LEVEL, "Record updated\r\n");
         m_fds_processing = false;
       }
     }
@@ -173,7 +173,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
     {
       if(p_evt->result == FDS_SUCCESS)
       {
-        ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record deleted\r\n");
+        ruuvi_interface_log(LOG_LEVEL, "Record deleted\r\n");
         m_fds_processing = false;
       }
     }
@@ -183,7 +183,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
     {
       if(p_evt->result == FDS_SUCCESS)
       {
-        ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "File deleted\r\n");
+        ruuvi_interface_log(LOG_LEVEL, "File deleted\r\n");
         m_fds_processing = false;
       }
     }
@@ -193,7 +193,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
     {
       if(p_evt->result == FDS_SUCCESS)
       {
-        ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Garbage collected\r\n");
+        ruuvi_interface_log(LOG_LEVEL, "Garbage collected\r\n");
         m_fds_processing = false;
       }
     }
