@@ -311,6 +311,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_se
   else if(*dbm <= -4) { tx_power = -4; }
   else if(*dbm <= 0) { tx_power = 0; }
   else if(*dbm <= 4) { tx_power = 4; }
+  else if(*dbm <= 8) { tx_power = 8; }
   else { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
 
   err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV,
