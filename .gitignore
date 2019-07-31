@@ -56,6 +56,7 @@ dkms.conf
 
 # Doxygen generated files
 doxygen
+doxygen.error
 
 # Backup files
 *.orig
