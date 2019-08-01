@@ -43,6 +43,7 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_log.h"
+#include "ruuvi_interface_power.h"
 #include "ruuvi_interface_watchdog.h"
 #include "nrf_drv_wdt.h"
 #include <stdbool.h>
@@ -56,6 +57,8 @@ void wdt_event_handler(void)
 {
   //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
   ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
+  // Try to enter bootloader
+  ruuvi_interface_power_enter_bootloader();
 }
 
 /**
