@@ -275,7 +275,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
       // Request 2MBPS connection - Fails on Mac osx / web bluetooth
       // err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Requested 2MBPS connection\r\n");
+      // ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Requested 2MBPS connection\r\n");
       // Intentional fallthrough to GAP_EVT_TIMEOUT
     case BLE_GAP_EVT_TIMEOUT:
       // On connection and timeout advertising stops, notify advertisement module.
