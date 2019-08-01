@@ -77,5 +77,12 @@ void ruuvi_driver_error_check(const ruuvi_driver_status_t error,
  **/
 #define RUUVI_DRIVER_ERROR_CHECK(error, mask) ruuvi_driver_error_check(error, mask, __FILE__, __LINE__)
 
+/*
+ * @brief reset global error flags and return their value.
+ *
+ * @return errors occured after last call to this function.
+ */
+ruuvi_driver_status_t ruuvi_driver_errors_clear();
+
 /** @} */
 #endif

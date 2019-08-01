@@ -19,12 +19,15 @@
 #include <stdio.h>
 #include <string.h>
 
+/** Store all occured errors until errors are checked by application here */
+static ruuvi_driver_status_t m_errors = RUUVI_DRIVER_SUCCESS;
 
 void ruuvi_driver_error_check(ruuvi_driver_status_t error,
                               ruuvi_driver_status_t non_fatal_mask, const char* file, int line)
 {
   // Do nothing on success
   if(RUUVI_DRIVER_SUCCESS == error) { return; }
+  m_errors |= error;
   char message[APPLICATION_LOG_BUFFER_SIZE];
   size_t index = 0;
   // Cut out the full path
@@ -60,5 +63,17 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, message);
   }
 
+}
+
+/*
+ * @brief reset global error flags and return their value.
+ *
+ * @return errors occured after last call to this function.
+ */
+ruuvi_driver_status_t ruuvi_driver_errors_clear()
+{
+  ruuvi_driver_status_t errors = m_errors;
+  m_errors = RUUVI_DRIVER_SUCCESS;
+  return errors;
 }
 /** @} */
