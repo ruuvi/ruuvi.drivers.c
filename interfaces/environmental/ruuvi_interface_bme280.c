@@ -191,9 +191,9 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_set(uint8_t* samplerate)
   else if(*samplerate <= 16)                          { dev.settings.standby_time = BME280_STANDBY_TIME_62_5_MS; }
   else if(*samplerate <= 50)                          { dev.settings.standby_time = BME280_STANDBY_TIME_20_MS; }
   else if(*samplerate <= 100)                         { dev.settings.standby_time = BME280_STANDBY_TIME_10_MS; }
-  else if(*samplerate <= 200)                         { dev.settings.standby_time = BME280_STANDBY_TIME_1_MS; }
+  else if(*samplerate <= 200)                         { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
   else if(RUUVI_DRIVER_SENSOR_CFG_MIN == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-  else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_1_MS; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
   else if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *samplerate) {} // do nothing
   else { *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED; err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
 
@@ -221,7 +221,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_samplerate_get(uint8_t* samplerate)
   else if(BME280_STANDBY_TIME_62_5_MS == dev.settings.standby_time) { *samplerate = 16;  }
   else if(BME280_STANDBY_TIME_20_MS == dev.settings.standby_time)   { *samplerate = 50;  }
   else if(BME280_STANDBY_TIME_10_MS == dev.settings.standby_time)   { *samplerate = 100;  }
-  else if(BME280_STANDBY_TIME_1_MS == dev.settings.standby_time)    { *samplerate = 200; }
+  else if(BME280_STANDBY_TIME_0_5_MS == dev.settings.standby_time)    { *samplerate = 200; }
 
   return err_code;
 }
