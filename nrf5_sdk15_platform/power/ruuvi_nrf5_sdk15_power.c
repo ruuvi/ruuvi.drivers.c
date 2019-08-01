@@ -1,7 +1,7 @@
 /**
  * @file ruuvi_nrf5_sdk15_power.c
  * @author Otso Jousimaa
- * @date 2019-01-31
+ * @date 2019-08-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Power handling functions, such as enabling internal regulators.
  *
@@ -12,7 +12,10 @@
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_NRF5_SDK15_ENABLED
 #include <stdint.h>
+#include "nrf_bootloader_info.h"
 #include "nrfx_power.h"
+#include "nrf_soc.h"
+#include "nrf_sdh.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_power.h"
@@ -55,6 +58,24 @@ ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const
 void ruuvi_interface_power_reset(void)
 {
   NVIC_SystemReset();
+}
+
+void ruuvi_interface_power_enter_bootloader(void)
+{
+  if(nrf_sdh_is_enabled())
+  {
+    sd_power_gpregret_clr(0, 0xffffffff);
+
+    sd_power_gpregret_set(0, BOOTLOADER_DFU_START);
+
+     sd_nvic_SystemReset();
+  }
+  else 
+  {
+    NRF_POWER->GPREGRET = BOOTLOADER_DFU_START;
+    NVIC_SystemReset();
+  }
+
 }
 
 #endif

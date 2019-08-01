@@ -7,7 +7,7 @@
 /**
  * @file ruuvi_interface_power.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-31
+ * @date 2019-08-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for controlling CPU-integrated regulators and system power modes.
@@ -46,9 +46,19 @@ ruuvi_driver_status_t ruuvi_interface_power_regulators_enable(const
  * This function attempts to reset and restart the program as closely as possible to a power cycle.
  *
  * @warning This functions affects only the CPU, any peripheral sensors must be reset separately.
- * @warning Some registers might retain their values across softresets.
+ * @warning Some registers might retain their values across soft resets.
  */
 void ruuvi_interface_power_reset(void);
+
+/**
+ * @brief Enter bootloader
+ *
+ * This function attempts to enter bootloader. It's main purpose is to provide a wireless recovery 
+ * mechanism on fatal error.
+ *
+ * @warning Behaviour is undefined if bootloader is not onboard.
+ */
+void ruuvi_interface_power_enter_bootloader(void);
 
 
 #endif
