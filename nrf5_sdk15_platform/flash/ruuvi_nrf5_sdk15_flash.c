@@ -429,8 +429,8 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void)
   (void) fds_register(fds_evt_handler);
   rc = fds_init();
   err_code |= fds_to_ruuvi_error(rc);
-  // Crash here in case of error to avoid looping forever
-  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
+
+  if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
 
   // Wait for init ok
   while(!m_fds_initialized);
