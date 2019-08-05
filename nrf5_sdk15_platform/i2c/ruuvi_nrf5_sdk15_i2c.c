@@ -120,7 +120,8 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
   ruuvi_interface_gpio_configure(config->scl, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
   ruuvi_interface_gpio_configure(config->sda, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
   ruuvi_interface_gpio_state_t state_scl, state_sda;
-  ruuvi_interface_gpio_read(config->scl, &state_sda);
+  ruuvi_interface_delay_us(10);
+  ruuvi_interface_gpio_read(config->sda, &state_sda);
   ruuvi_interface_gpio_read(config->scl, &state_scl);
   if(RUUVI_INTERFACE_GPIO_HIGH != state_sda ||
      RUUVI_INTERFACE_GPIO_HIGH != state_scl)
