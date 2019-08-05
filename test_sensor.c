@@ -660,7 +660,7 @@ static ruuvi_driver_status_t test_sensor_fifo_enable(const ruuvi_driver_sensor_t
  *  - FIFO full interrupt must not trigger if FIFO is read at fast enough interval
  *  - FIFO full interrupt must not 
  */
-ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp const init,
+ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp init,
                                         const ruuvi_driver_bus_t bus, const uint8_t handle, 
                                         const bool interactive, 
                                         const ruuvi_interface_gpio_id_t fifo_pin,

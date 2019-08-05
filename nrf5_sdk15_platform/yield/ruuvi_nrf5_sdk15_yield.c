@@ -139,7 +139,7 @@ ruuvi_driver_status_t ruuvi_interface_delay_us(uint32_t time)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t const indication)
+void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t indication)
 {
   m_ind = indication;
 }
