@@ -26,6 +26,7 @@ static volatile bool m_wakeup = false;             //!< wakeup flag
 static ruuvi_interface_timer_id_t wakeup_timer;    //!< timer ID for wakeup
 static ruuvi_interface_yield_state_ind_fp_t m_ind; //!< State indication function
 
+#ifdef FLOAT_ABI_HARD
 // Function handles and clears exception flags in FPSCR register and at the stack.
 // During interrupt, handler execution FPU registers might be copied to the stack
 // (see lazy stacking option) and it is necessary to clear data at the stack
@@ -50,6 +51,16 @@ void FPU_IRQHandler(void)
   // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.
   *fpscr = *fpscr & ~(0x0000009F);
 }
+static void fpu_init(void)
+{
+  NVIC_SetPriority(FPU_IRQn, APP_IRQ_PRIORITY_LOW);
+  NVIC_ClearPendingIRQ(FPU_IRQn);
+  NVIC_EnableIRQ(FPU_IRQn);
+}
+#else
+static void fpu_init(void)
+{}
+#endif
 
 /*
  * Set a flag to wake up
@@ -64,9 +75,7 @@ static void wakeup_handler(void* p_context)
  */
 ruuvi_driver_status_t ruuvi_interface_yield_init(void)
 {
-  NVIC_SetPriority(FPU_IRQn, APP_IRQ_PRIORITY_LOW);
-  NVIC_ClearPendingIRQ(FPU_IRQn);
-  NVIC_EnableIRQ(FPU_IRQn);
+  fpu_init();
   ret_code_t err_code = nrf_pwr_mgmt_init();
   m_lp = false;
   m_wakeup = false;
