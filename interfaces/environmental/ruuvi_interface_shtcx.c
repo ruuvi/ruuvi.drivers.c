@@ -257,7 +257,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_mode_set(uint8_t* mode)
     // Enter sleep after measurement
     m_autorefresh = false;
     *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-    m_tsample = ruuvi_interface_rtc_millis();
+    m_tsample = ruuvi_driver_sensor_timestamp_get();
 
     return SHTCX_TO_RUUVI_ERROR(shtc1_measure_blocking_read(&m_temperature, &m_humidity));
     
@@ -305,7 +305,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(void* data)
     err_code |= SHTCX_TO_RUUVI_ERROR(shtc1_measure()); 
     */
     err_code |= SHTCX_TO_RUUVI_ERROR(shtc1_measure_blocking_read(&m_temperature, &m_humidity));
-    m_tsample = ruuvi_interface_rtc_millis();
+    m_tsample = ruuvi_driver_sensor_timestamp_get();
   }
 
   environmental->timestamp_ms  = RUUVI_DRIVER_UINT64_INVALID;
