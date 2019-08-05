@@ -33,7 +33,7 @@ typedef void(*ruuvi_interface_yield_state_ind_fp_t)(const bool active);
  *
  * @param[in] indication function to call when entering/exiting sleep, NULL to disable
  */
-void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t const indication);
+void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t indication);
 
 /**
  * @brief Initializes yielding functions.

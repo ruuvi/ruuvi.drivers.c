@@ -103,7 +103,7 @@ ruuvi_driver_status_t test_sensor_modes(ruuvi_driver_sensor_init_fp init,
  *
  * @return @c RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
-ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp const init,
+ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp init,
                                         const ruuvi_driver_bus_t bus, const uint8_t handle, 
                                         const bool interactive, 
                                         const ruuvi_interface_gpio_id_t fifo_pin,

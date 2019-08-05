@@ -310,7 +310,7 @@ ruuvi_driver_status_t ruuvi_driver_dummy_level_interrupt_set(const bool enable, 
  * @return RUUVI_DRIVER_SUCCESS
  */
 ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(
-  const ruuvi_driver_sensor_timestamp_fp const timestamp_fp);
+  const ruuvi_driver_sensor_timestamp_fp  timestamp_fp);
 
 /**
  * @brief Calls the timestamp function and returns its value.
