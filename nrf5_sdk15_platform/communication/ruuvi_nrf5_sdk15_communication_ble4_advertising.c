@@ -49,7 +49,6 @@ static ble_gap_adv_data_t m_adv_data;
 
 static ble_gap_conn_sec_mode_t m_security;
 
-// TODO: Define somewhere else. SDK_APPLICATION_CONFIG?
 #define DEFAULT_ADV_INTERVAL_MS 1010
 #define MIN_ADV_INTERVAL_MS     100
 #define MAX_ADV_INTERVAL_MS     10000
@@ -61,7 +60,7 @@ static uint8_t              m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
 static bool                 m_advertisement_is_init = false;
 /** @brief Flag for advertising in process **/
 static bool                 m_advertising = false;
-ruuvi_platform_ble4_advertisement_state_t m_adv_state;
+static ruuvi_platform_ble4_advertisement_state_t m_adv_state;
 
  /**< Universally unique service identifier of Nordic UART Service */
 static ble_uuid_t m_adv_uuids[] =                       
@@ -120,7 +119,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval
   m_adv_state.advertisement_interval_ms = ms;
   m_adv_params.interval = MSEC_TO_UNITS(m_adv_state.advertisement_interval_ms,
                                         UNIT_0_625_MS);
-  return update_settings();
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval_get(
@@ -175,6 +174,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_init(
   memset(&m_advertisement1, 0, sizeof(m_advertisement1));
   m_adv0_len = 0;
   m_adv1_len = 0;
+  err_code |= update_settings();
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
@@ -407,7 +407,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_start()
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_stop()
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error(sd_ble_gap_adv_stop(RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG));
+  err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error(sd_ble_gap_adv_stop(m_adv_handle));
   if(RUUVI_DRIVER_SUCCESS == err_code) { m_advertising = false; }
   return err_code;
 }

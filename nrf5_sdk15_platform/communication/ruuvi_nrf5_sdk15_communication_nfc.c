@@ -85,7 +85,7 @@ static void nfc_callback(void* context,
         // If tag is not configurable by NFC, set flag to overwrite received data.
         if(!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true;}
 
-        // Do not process data in interrupt context, you should rather schedule data processing. Note: If incoming data is long, it might exceed vent max size.
+        // Do not process data in interrupt context, you should rather schedule data processing. Note: If incoming data is long, it might exceed max size.
         if(NULL != *(nrf5_sdk15_nfc_state.on_nfc_evt)) { (*(nrf5_sdk15_nfc_state.on_nfc_evt))(RUUVI_INTERFACE_COMMUNICATION_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength); }
       }
 
@@ -216,10 +216,14 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
   }
 
   // Encode data to NFC buffer. NFC will transmit the buffer, i.e. data is updated immediately.
+  err_code |= nfc_t4t_emulation_stop();
   uint32_t msg_len = sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg);
   err_code |= nfc_ndef_msg_encode(&NFC_NDEF_MSG(nfc_ndef_msg),
                                   nrf5_sdk15_nfc_state.nfc_ndef_msg,
                                   &msg_len);
+  err_code |= nfc_t4t_ndef_rwpayload_set(nrf5_sdk15_nfc_state.nfc_ndef_msg,
+                                         sizeof(nrf5_sdk15_nfc_state.nfc_ndef_msg));
+  err_code |= nfc_t4t_emulation_start();
   // TX Data processed, set update status to false
   nrf5_sdk15_nfc_state.tx_updated = false;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
@@ -235,8 +239,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(
   nfc_tx_length = message->data_length;
   memcpy(nfc_tx_buf, message->data, nfc_tx_length);
   nrf5_sdk15_nfc_state.tx_updated = true;
-  ruuvi_interface_communication_nfc_data_set();
-  return RUUVI_DRIVER_SUCCESS;
+  return ruuvi_interface_communication_nfc_data_set();
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(
