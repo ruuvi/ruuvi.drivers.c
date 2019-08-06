@@ -582,7 +582,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
   }
 
   // Connection param module requires timers
-  if(!ruuvi_interface_timers_is_init())
+  if(!ruuvi_interface_timer_is_init())
   {
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR,
                         "NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");

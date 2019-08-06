@@ -23,10 +23,10 @@ typedef void* ruuvi_interface_timer_id_t; ///< Pointer to timer data
 typedef void(*ruuvi_timer_timeout_handler_t)(void* p_context);
 
 // Calls whatever initialization is required by application timers
-ruuvi_driver_status_t ruuvi_interface_timers_init(void);
+ruuvi_driver_status_t ruuvi_interface_timer_init(void);
 
 //return true if timers have been successfully initialized.
-bool ruuvi_interface_timers_is_init(void);
+bool ruuvi_interface_timer_is_init(void);
 
 /* Function for creating a timer instance
  *

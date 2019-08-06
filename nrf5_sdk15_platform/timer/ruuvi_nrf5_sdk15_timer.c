@@ -115,7 +115,7 @@ static app_timer_id_t get_timer_id(void)
   }
 }
 
-ruuvi_driver_status_t ruuvi_interface_timers_init(void)
+ruuvi_driver_status_t ruuvi_interface_timer_init(void)
 {
   if(m_is_init) { return RUUVI_DRIVER_SUCCESS; }
 
@@ -133,7 +133,7 @@ ruuvi_driver_status_t ruuvi_interface_timers_init(void)
 }
 
 //return true if timers have been successfully initialized.
-bool ruuvi_interface_timers_is_init(void)
+bool ruuvi_interface_timer_is_init(void)
 {
   return m_is_init;
 }
