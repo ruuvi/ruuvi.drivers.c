@@ -11,7 +11,7 @@ static ruuvi_interface_timer_id_t counter_timer;    //!< timer ID for counter
 static volatile uint64_t m_dummy;                   //!< mark volatile in case someone busyloops with RTC
 static void counter_handler(void* p_context)
 {
-  uint64_t mask = ~((uint64_t)DUMMY_RTC_INTERVAL);
+  uint64_t mask = ~((uint64_t)DUMMY_RTC_INTERVAL-1);
   m_dummy &= mask;
   m_dummy += DUMMY_RTC_INTERVAL;
 }
