@@ -47,7 +47,8 @@ static struct
   // operating mode, handle
   uint8_t mode, handle;
 
-  uint64_t tsample; // Time of last sample in single mode.
+  // Time of last sample in single mode.
+  uint64_t tsample; 
 
   // device control structure
   lis2dh12_ctx_t ctx;

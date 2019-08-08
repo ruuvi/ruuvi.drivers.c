@@ -38,7 +38,7 @@ PROJECT_NAME           = ruuvi.drivers.c
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 3.22.0
+PROJECT_NUMBER         = 3.24.0
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -899,7 +899,8 @@ RECURSIVE              = YES
 
 EXCLUDE                = BME280_driver \
                          embedded-sht \
-                         STMems_Standard_C_drivers
+                         STMems_Standard_C_drivers \
+                         nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

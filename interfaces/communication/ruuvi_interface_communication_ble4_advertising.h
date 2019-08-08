@@ -62,22 +62,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
   const uint8_t* data, const uint8_t data_length);
 
 /**
- * @brief Start or stop advertising GATT connection.
- *
- * This function configures flags of BLE advertisement as connectable. 
- * It does not start advertising itself. 
- * Data goes to the scan response. 
- * Power can be saved by setting name as NULL and advertise_nus as false as the scan responses are not required.
- * 
- * @param[in] connectable True to start advertising connectablity. False to stop advertising connectablity
- * @param[in] name Name of the device to be advertised. Can be at most 10 bytes + trailing NULL.
- * @param[in] advertise_nus True to enable advertising UUID of NUS in the scan response.
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return error code from stack in case there is  error.
- *
- */
-
-/**
  * Send data as manufacturer specific data payload.
  * If no new data is placed to the buffer, last message sent will be repeated.
  *

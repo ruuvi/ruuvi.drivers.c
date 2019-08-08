@@ -100,6 +100,6 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool ena
 */
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool enable,
     float* limit_g);
-
+/*@}*/
 #endif
 #endif

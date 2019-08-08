@@ -60,5 +60,5 @@ void ruuvi_interface_power_reset(void);
  */
 void ruuvi_interface_power_enter_bootloader(void);
 
-
+/*@}*/
 #endif

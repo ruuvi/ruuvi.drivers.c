@@ -74,6 +74,9 @@ coverage and Doxygen support.
 ## Upcoming refactors
  - Add unit to sensor configuration fields, e.g. `resolution`-> `resolution_bits`
  - Rewrite BLE advertising module
+ - Add default configuration value to header of each sensor
+ - Add a function to return sensor name to each sensor
+ - Add dummy initialization for sensor struct.
 
 ## Upcoming implementations
  - TMP117 driver
