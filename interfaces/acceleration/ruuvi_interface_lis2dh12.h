@@ -1,14 +1,7 @@
-/**
- *  Ruuvi sensor abstraction functions for LIS2DH12
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
-
 #ifndef RUUVI_INTERFACE_LIS2DH12_H
 #define RUUVI_INTERFACE_LIS2DH12_H
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED
+#if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED || DOXYGEN
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
@@ -16,10 +9,30 @@
 #include <stddef.h>
 #include <stddef.h>
 
-// Counts of self-test change in 10 bit resolution 2 G scale, datasheet.
+/**
+ * @addtogroup Acceleration Acceleration sensing
+ *
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_lis2dh12.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-08-07
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Platform-independent interface for LIS2DH12.
+ * Uses floating points and implementation uses STM STMems_standard_c_drivers.
+ *
+ *
+ */
+
+/** @brief Minimum counts of self-test change in 10 bit resolution 2 G scale, datasheet.*/
 #define RUUVI_INTERFACE_LIS2DH12_SELFTEST_DIFF_MIN 17
+/** @brief Maximum counts of self-test change in 10 bit resolution 2 G scale, datasheet.*/
 #define RUUVI_INTERFACE_LIS2DH12_SELFTEST_DIFF_MAX 360
+/** @brief Scale used on "default" setting. */
 #define RUUVI_INTERFACE_LIS2DH12_DEFAULT_SCALE 2
+/** @brief Resolution used on "default" setting. */
 #define RUUVI_INTERFACE_LIS2DH12_DEFAULT_RESOLUTION 10
 
 ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*

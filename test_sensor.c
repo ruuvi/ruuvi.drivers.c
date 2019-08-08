@@ -348,11 +348,12 @@ ruuvi_driver_status_t test_sensor_setup(const ruuvi_driver_sensor_init_fp init,
 }
 
 /** @brief copy new value into old value and return true if new is different from original old value*/
-static inline bool value_has_changed(ruuvi_driver_sensor_data_t* old, const ruuvi_driver_sensor_data_t* const new_d)
+static inline bool value_has_changed(ruuvi_driver_sensor_data_t* old,
+                                     const ruuvi_driver_sensor_data_t* const new_d)
 {
-  bool change = ( old->value0 != new_d->value0 || 
-                  old->value1 != new_d->value2 || 
-                  old->value2 != new_d->value2);
+  bool change = (old->value0 != new_d->value0 ||
+                 old->value1 != new_d->value2 ||
+                 old->value2 != new_d->value2);
   memcpy(old, new_d, sizeof(ruuvi_driver_sensor_data_t));
   return change;
 }
@@ -541,7 +542,7 @@ ruuvi_driver_status_t test_sensor_modes(ruuvi_driver_sensor_init_fp init,
       }
     }
 
-    if(value_has_changed(&old_data, &new_data)){ break; }
+    if(value_has_changed(&old_data, &new_data)) { break; }
   }
 
   if(MAX_RETRIES == retries)
@@ -574,44 +575,43 @@ static void on_level(const ruuvi_interface_gpio_evt_t evt)
   level_int = true;
 }
 
-/** @brief prepare GPIOs and initialize sensor for tests 
- * 
+/** @brief prepare GPIOs and initialize sensor for tests
+ *
  *  @param[out] DUT Sensor to configure
  *  @param[in]  init function to initialize sensor
  *  @param[out] interrupt_table Table of function pointers to configure with interrupts
  *  @param[in]  fifo_pin Pin to register FIFO interrupts
  *  @param[in]  levelo_pin Pin to register level interrupts
  *  @return RUUVI_DRIVER_SUCCESS on successful initialization.
- *  @return RUUVI_DRIVER_ERROR_SELFTEST if initialization fails. 
+ *  @return RUUVI_DRIVER_ERROR_SELFTEST if initialization fails.
  */
 static ruuvi_driver_status_t test_sensor_interrupts_setup(ruuvi_driver_sensor_t* DUT,
-                                                          ruuvi_driver_sensor_init_fp const init,
-                                                          const ruuvi_driver_bus_t bus, const uint8_t handle,
-                                                          ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table, 
-                                                          const ruuvi_interface_gpio_id_t fifo_pin,
-                                                          const ruuvi_interface_gpio_id_t level_pin)
+    ruuvi_driver_sensor_init_fp const init,
+    const ruuvi_driver_bus_t bus, const uint8_t handle,
+    ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table,
+    const ruuvi_interface_gpio_id_t fifo_pin,
+    const ruuvi_interface_gpio_id_t level_pin)
 {
-  ruuvi_interface_gpio_interrupt_init(interrupt_table, RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE);
-  ruuvi_interface_gpio_interrupt_enable(fifo_pin, RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP, on_fifo);
-  ruuvi_interface_gpio_interrupt_enable(level_pin, RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP, on_level);
-
+  ruuvi_interface_gpio_interrupt_init(interrupt_table,
+                                      RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE);
+  ruuvi_interface_gpio_interrupt_enable(fifo_pin, RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI,
+                                        RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP, on_fifo);
+  ruuvi_interface_gpio_interrupt_enable(level_pin, RUUVI_INTERFACE_GPIO_SLOPE_LOTOHI,
+                                        RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP, on_level);
   // - Sensor must return RUUVI_DRIVER_SUCCESS on first init.
-  
   memset(DUT, 0, sizeof(ruuvi_driver_sensor_t));
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code = init(DUT, bus, handle);
-
   RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
-
   return  err_code;
 }
 
-/** @brief Uninitialize GPIOs and sensor after tests 
+/** @brief Uninitialize GPIOs and sensor after tests
   *  @param[out] DUT Sensor to configure
   */
 static void test_sensor_interrupts_teardown(ruuvi_driver_sensor_t* const DUT,
-                                            ruuvi_driver_sensor_init_fp const init,
-                                            const ruuvi_driver_bus_t bus, const uint8_t handle)
+    ruuvi_driver_sensor_init_fp const init,
+    const ruuvi_driver_bus_t bus, const uint8_t handle)
 {
   DUT->uninit(DUT, bus, handle);
   ruuvi_interface_gpio_interrupt_uninit();
@@ -635,13 +635,15 @@ static ruuvi_driver_status_t test_sensor_fifo_enable(const ruuvi_driver_sensor_t
   {
     return RUUVI_DRIVER_ERROR_SELFTEST;
   }
+
   // Initialize has changed with data
   ruuvi_driver_sensor_data_t old;
   value_has_changed(&old, &(data[0]));
+
   for(size_t iii = 1; iii < num_samples; iii++)
   {
-    if(value_has_changed(&old,  &(data[iii]))) 
-    { 
+    if(value_has_changed(&old,  &(data[iii])))
+    {
       valid_data = true;
       break;
     }
@@ -649,7 +651,7 @@ static ruuvi_driver_status_t test_sensor_fifo_enable(const ruuvi_driver_sensor_t
 
   test_sensor_register(valid_data);
   return (valid_data) ? RUUVI_DRIVER_SUCCESS : RUUVI_DRIVER_ERROR_SELFTEST;
-} 
+}
 
 
 /**
@@ -658,18 +660,21 @@ static ruuvi_driver_status_t test_sensor_fifo_enable(const ruuvi_driver_sensor_t
  *  - FIFO full interrupt must trigger after some time when in FIFO mode
  *  - FIFO full interrupt must trigger again after FIFO has been read and filled again
  *  - FIFO full interrupt must not trigger if FIFO is read at fast enough interval
- *  - FIFO full interrupt must not 
+ *  - FIFO full interrupt must not
  */
 ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp init,
-                                        const ruuvi_driver_bus_t bus, const uint8_t handle, 
-                                        const bool interactive, 
-                                        const ruuvi_interface_gpio_id_t fifo_pin,
-                                        const ruuvi_interface_gpio_id_t level_pin)
+    const ruuvi_driver_bus_t bus, const uint8_t handle,
+    const bool interactive,
+    const ruuvi_interface_gpio_id_t fifo_pin,
+    const ruuvi_interface_gpio_id_t level_pin)
 {
-  ruuvi_interface_gpio_interrupt_fp_t interrupt_table[RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE];
+  ruuvi_interface_gpio_interrupt_fp_t
+  interrupt_table[RUUVI_INTERFACE_GPIO_INTERRUPT_TEST_TABLE_SIZE];
   ruuvi_driver_sensor_t DUT;
   ruuvi_driver_status_t status;
-  status = test_sensor_interrupts_setup(&DUT, init, bus, handle, interrupt_table, fifo_pin, level_pin);
+  status = test_sensor_interrupts_setup(&DUT, init, bus, handle, interrupt_table, fifo_pin,
+                                        level_pin);
+
   if(RUUVI_DRIVER_SUCCESS == status)
   {
     status |= test_sensor_fifo_enable(&DUT);

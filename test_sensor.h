@@ -92,7 +92,7 @@ ruuvi_driver_status_t test_sensor_modes(ruuvi_driver_sensor_init_fp init,
  *  - FIFO full interrupt must trigger after some time when in FIFO mode
  *  - FIFO full interrupt must trigger again after FIFO has been read and filled again
  *  - FIFO full interrupt must not trigger if FIFO is read at fast enough interval
- *  - FIFO full interrupt must not 
+ *  - FIFO full interrupt must not
  *
  * @param[in] init   Function pointer to sensor initialization
  * @param[in] bus    Bus of the sensor, RUUVI_DRIVER_BUS_NONE, _I2C, _UART or _SPI
@@ -104,10 +104,10 @@ ruuvi_driver_status_t test_sensor_modes(ruuvi_driver_sensor_init_fp init,
  * @return @c RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
 ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp init,
-                                        const ruuvi_driver_bus_t bus, const uint8_t handle, 
-                                        const bool interactive, 
-                                        const ruuvi_interface_gpio_id_t fifo_pin,
-                                        const ruuvi_interface_gpio_id_t level_pin);
+    const ruuvi_driver_bus_t bus, const uint8_t handle,
+    const bool interactive,
+    const ruuvi_interface_gpio_id_t fifo_pin,
+    const ruuvi_interface_gpio_id_t level_pin);
 
 /**
  * Register a test as being run. Increments counter of total tests.

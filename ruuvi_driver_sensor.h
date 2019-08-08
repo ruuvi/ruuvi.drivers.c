@@ -83,49 +83,50 @@
 #define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<3) ///< Oversample sensor values. Parameter: Number of samples
 
 /**
- * All sensors must implement configuration function which accepts this struct.
+ * @brief All sensors must implement configuration functions which accepts this struct.
  */
 typedef struct __attribute__((packed, aligned(4)))
 {
-  uint8_t samplerate;
-  uint8_t resolution;
-  uint8_t scale;
-  uint8_t dsp_function;
-  uint8_t dsp_parameter;
-  uint8_t mode;
-  uint8_t reserved0;
-  uint8_t reserved1;
+  uint8_t samplerate;     //!< Samplerate, in Hz
+  uint8_t resolution;     //!< Resolution, in bits
+  uint8_t scale;          //!< Scale, in relevant Si-unit
+  uint8_t dsp_function;   //!< DSP function, one of @c RUUVI_DRIVER_SENSOR_DSP_*
+  uint8_t dsp_parameter;  //!< Parameter to DSP functions
+  uint8_t mode;           //!< Mode, RUUVI_DRIVER_SENSOR_SLEEP, _SINGLE, _CONTINOUS
+  uint8_t reserved0;      //!< Reserved for future use
+  uint8_t reserved1;      //!< Reserved for future use
 }
 ruuvi_driver_sensor_configuration_t;
 
 /**
- * Type of bus sensor uses.
+ * @brief Type of bus sensor uses.
  */
 typedef enum
 {
-  RUUVI_DRIVER_BUS_NONE = 0,
-  RUUVI_DRIVER_BUS_SPI  = 1,
-  RUUVI_DRIVER_BUS_I2C  = 2,
-  RUUVI_DRIVER_BUS_UART = 3
+  RUUVI_DRIVER_BUS_NONE = 0, //!< No bus, internal to IC
+  RUUVI_DRIVER_BUS_SPI  = 1, //!< SPI bus
+  RUUVI_DRIVER_BUS_I2C  = 2, //!< I2C bus
+  RUUVI_DRIVER_BUS_UART = 3  //!< UART bus
 } ruuvi_driver_bus_t;
 
 /**
- * Generic sensor data struct, used with ruuvi_driver_sensor_data_fp in tests.
+ * @brief Generic sensor data struct. 
+ * Used with ruuvi_driver_sensor_data_fp in tests.
  * It's strongly recommended to match this format in all sensor data formats.
  */
 typedef struct ruuvi_driver_sensor_data_t
 {
-  uint64_t timestamp;
-  float value0;
-  float value1;
-  float value2;
+  uint64_t timestamp; //!< Timestamp of the event, @ref ruuvi_driver_sensor_timestamp_get
+  float value0;       //!< First value of sensor
+  float value1;       //!< Second value of sensor
+  float value2;       //!< Third value of sensor 
 } ruuvi_driver_sensor_data_t;
 
-typedef struct ruuvi_driver_sensor_t
-  ruuvi_driver_sensor_t; ///< forward declaration *and* typedef
+/** @brief Forward declare type definition of sensor structure */
+typedef struct ruuvi_driver_sensor_t ruuvi_driver_sensor_t; 
 
 /**
- * @brief Initialize and uninitialize snesot
+ * @brief Initialize and uninitialize sensor.
  * Init and uninit will setup sensor with function pointers.
  * The sensor wil be initialized to lowest power state possible
  *
@@ -134,9 +135,11 @@ typedef struct ruuvi_driver_sensor_t
  * @param[in] handle for the sensor, for example I2C address or SPI chip select pin
  * @return @c RUUVI_DRIVER_SUCCESS on success
  * @return @c RUUVI_DRIVER_ERROR_NULL if p_sensor is NULL
- * @return @c RUUVI_DRIVER_ERROR_NOT_FOUND if there is no response from sensor or if ID of a sensor read over bus does not match expected value
+ * @return @c RUUVI_DRIVER_ERROR_NOT_FOUND if there is no response from sensor or if ID of
+ *            a sensor read over bus does not match expected value
  * @return @c RUUVI_DRIVER_ERROR_SELFTEST if sensor is found but it does not pass selftest
- * @return @c RUUVI_DRIVER_ERROR_INVALID_STATE if trying to initialize sensor which already has been initialized.
+ * @return @c RUUVI_DRIVER_ERROR_INVALID_STATE if trying to initialize sensor which 
+ *            already has been initialized.
  **/
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor_t* const
     p_sensor, const ruuvi_driver_bus_t bus, const uint8_t handle);
@@ -147,7 +150,7 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor
 #define RUUVI_DRIVER_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0) << 3) + ((handle) & 0x1F))
 
 /**
- *  @bried Setup a parameter of a sensor.
+ *  @brief Setup a parameter of a sensor.
  *  The function will modify the pointed data to the actual value which was written
  *
  *  @param[in,out] parameter value to write to sensor configuration. Actual value written to sensor as output
@@ -159,13 +162,19 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_setup_fp)(uint8_t* parameter);
 
 /**
- * @bried Configure sensor digital signal processing.
+ * @brief Configure sensor digital signal processing.
  * Takes DSP function and a DSP parameter as input, configured value or error code as output.
  * Modifies input parameters to actual values written on the sensor.
  * DSP functions are run on the sensor HW, not in the platform FW.
  *
  * @param[in,out] dsp_function. DSP function to run on sensor. Can be a combination of several functions.
  * @param[in,out] dsp_parameter. Parameter to DSP function(s)
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_NULL if either parameter is NULL
+ * @return RUUVI_DRIVER_ERROR_NOT_SUPPORTED if sensor doesn't support given DSP
+ * @return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED if sensor supports given DSP, but
+ *         driver does not implement it
+ * @return RUUVI_DRIVER_ERROR_INVALID_PARAM if parameter is invalid for any reason.
  **/
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_dsp_fp)(uint8_t* dsp_function,
     uint8_t* dsp_parameter);
@@ -180,16 +189,18 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_dsp_fp)(uint8_t* dsp_functio
  * @return RUUVI_DRIVER_SUCCESS on success
  * @return RUUVI_DRIVER_ERROR_NULL if p_data is @c NULL.
  *
- * @warning if sensor data is not valid for any reason, data is populated with RUUVI_DRIVER_FLOAT_INVALID.
+ * @warning if sensor data is not valid for any reason, data is populated with 
+ *          @c RUUVI_DRIVER_FLOAT_INVALID.
  */
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_data_fp)(void* p_data);
 
 /**
- * @brief Convenience function to write/read entire configuration in one call
+ * @brief Convenience function to write/read entire configuration in one call.
  * Modifies input parameters to actual values written on the sensor.
  *
  * @param[in] p_sensor sensor to configure
- * @param[in,out] p_configuration Input: desired configuration. Output: configuration written to sensot.
+ * @param[in,out] p_configuration Input: desired configuration. Output: 
+ *                configuration written to sensot.
  **/
 typedef ruuvi_driver_status_t (*ruuvi_driver_configuration_fp)(
   const ruuvi_driver_sensor_t* const p_sensor,
@@ -199,7 +210,8 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_configuration_fp)(
 * @brief Read First-in-first-out (FIFO) buffer
 * Reads up to num_elements data points from FIFO and populates pointer data with them
 *
-* @param[in, out] num_elements Input: number of elements in data. Output: Number of elements placed in data
+* @param[in, out] num_elements Input: number of elements in data. 
+                               Output: Number of elements placed in data
 * @param[out] data array of ruuvi_interface_acceleration_data_t with num_elements slots.
 * @return RUUVI_DRIVER_SUCCESS on success
 * @return RUUVI_DRIVER_ERROR_NULL if either parameter is NULL
@@ -211,7 +223,9 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_fifo_read_fp)(size_t* num_el
 
 /**
 * @brief Enable FIFO or FIFO interrupt full interrupt on sensor.
-* FIFO interrup Triggers as ACTIVE HIGH interrupt once FIFO is filled. 
+* FIFO interrupt Triggers as ACTIVE HIGH interrupt once FIFO is filled. 
+* It is responsibility of application to know the routing of GPIO pins and
+* configure the GPIO to register interrupts.
 *
 * @param[in] enable True to enable interrupt, false to disable interrupt
 * @return RUUVI_DRIVER_SUCCESS on success, error code from stack otherwise.
@@ -221,14 +235,18 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_fifo_enable_fp)(const bool e
 /**
 * @brief Enable level interrupt on sensor.
 * Triggers as ACTIVE HIGH interrupt while detected data is above threshold.
-* Trigger is symmetric, i.e. thershold is valid for above positive or below negative of given value.
+* Trigger is symmetric, i.e. thershold is valid for above positive or below negative 
+* of given value.
 * On accelerometer data is high-passed to filter out gravity.
 * Axes are examined individually, compound data won't trigger the interrupt.
+* It is responsibility of application to know the GPIO routing and register
+* GPIO interrupts. 
 *
 * @param[in] enable  True to enable interrupt, false to disable interrupt
-* @param[in] limit_g: Desired acceleration to trigger the interrupt.
-*                    Is considered as "at least", the acceleration is rounded up to next value.
-*                    Is written with value that was set to interrupt
+* @param[in,out] limit_g: Input: Desired acceleration to trigger the interrupt.
+*                         Is considered as "at least", the acceleration is rounded up to 
+*                         next value.
+*                         Output: written with value that was set to interrupt
 * @return RUUVI_DRIVER_SUCCESS on success
 * @return RUUVI_DRIVER_INVALID_STATE if data limit is higher than maximum scale
 * @return error code from stack on error.
@@ -246,36 +264,49 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_level_interrupt_use_fp)(cons
 typedef uint64_t (*ruuvi_driver_sensor_timestamp_fp)(void);
 
 /**
- * Interface to sensor.
- * Some sensors can implement additional functions, such as interrupts or FIFO reads.
+ * @brief Interface to sensor.
+ * Some sensors can implement additional functions.
  * The additional functions are defined in the interface of the sensor.
  */
 typedef struct ruuvi_driver_sensor_t
 {
-  ruuvi_driver_sensor_init_fp   init;              ///< @ref ruuvi_driver_sensor_init_fp
-  ruuvi_driver_sensor_init_fp   uninit;            ///< @ref ruuvi_driver_sensor_init_fp
-  ruuvi_driver_sensor_setup_fp  samplerate_set;    ///< @ref ruuvi_driver_sensor_setup_fp
-  ruuvi_driver_sensor_setup_fp
-  samplerate_get;    ///< @ref ruuvi_driver_sensor_setup_fp Only gets value, input value has no effect.
-  ruuvi_driver_sensor_setup_fp  resolution_set;    ///< @ref ruuvi_driver_sensor_setup_fp
-  ruuvi_driver_sensor_setup_fp
-  resolution_get;    ///< @ref ruuvi_driver_sensor_setup_fp Only gets value, input value has no effect.
-  ruuvi_driver_sensor_setup_fp  scale_set;         ///< @ref ruuvi_driver_sensor_setup_fp
-  ruuvi_driver_sensor_setup_fp
-  scale_get;         ///< @ref ruuvi_driver_sensor_setup_fp Only gets value, input value has no effect.
-  ruuvi_driver_sensor_setup_fp  mode_set;          ///< @ref ruuvi_driver_sensor_setup_fp
-  ruuvi_driver_sensor_setup_fp
-  mode_get;          ///< @ref ruuvi_driver_sensor_setup_fp Only gets value, input value has no effect.
-  ruuvi_driver_sensor_dsp_fp    dsp_set;           ///< @ref ruuvi_driver_sensor_dsp_fp
-  ruuvi_driver_sensor_dsp_fp
-  dsp_get;           ///< @ref ruuvi_driver_sensor_dsp_fp Only gets value, input value has no effect.
-  ruuvi_driver_configuration_fp configuration_set; ///< @ref ruuvi_driver_configuration_fp
-  ruuvi_driver_configuration_fp
-  configuration_get; ///< @ref ruuvi_driver_configuration_fp Only gets value, input value has no effect.
-  ruuvi_driver_sensor_data_fp   data_get;          ///< @ref ruuvi_driver_sensor_data_fp
+  /** @brief @ref ruuvi_driver_sensor_init_fp */
+  ruuvi_driver_sensor_init_fp   init;  
+  /** @brief @ref ruuvi_driver_sensor_init_fp */            
+  ruuvi_driver_sensor_init_fp   uninit;            
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp samplerate_set; 
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp samplerate_get;
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp resolution_set;
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp resolution_get;
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp scale_set;
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp scale_get;
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp mode_set;
+  /** @brief @ref ruuvi_driver_sensor_setup_fp */
+  ruuvi_driver_sensor_setup_fp mode_get;
+  /** @brief @ref ruuvi_driver_sensor_dsp_fp */
+  ruuvi_driver_sensor_dsp_fp   dsp_set;
+  /** @brief @ref ruuvi_driver_sensor_dsp_fp */
+  ruuvi_driver_sensor_dsp_fp   dsp_get;
+  /** @brief @ref ruuvi_driver_configuration_fp */
+  ruuvi_driver_configuration_fp configuration_set;
+  /** @brief @ref ruuvi_driver_configuration_fp */
+  ruuvi_driver_configuration_fp configuration_get;
+  /** @brief @ref ruuvi_driver_sensor_data_fp */
+  ruuvi_driver_sensor_data_fp   data_get;        
+  /** @brief @®ef ruuvi_driver_sensor_fifo_enable_fp */
   ruuvi_driver_sensor_fifo_enable_fp fifo_enable;
+  /** @brief @®ef ruuvi_driver_sensor_level_interrupt_use_fp */
   ruuvi_driver_sensor_fifo_enable_fp fifo_interrupt_enable;
+  /** @brief @®ef ruuvi_driver_sensor_level_interrupt_use_fp */
   ruuvi_driver_sensor_fifo_read_fp   fifo_read;
+  /** @brief @®ef ruuvi_driver_sensor_level_interrupt_use_fp */
   ruuvi_driver_sensor_level_interrupt_use_fp level_interrupt_set;
 } ruuvi_driver_sensor_t;
 
@@ -292,14 +323,42 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_s
     sensor, ruuvi_driver_sensor_configuration_t* config);
 
 /**
- * @brief Dummy implementations of FIFO and LEVEL functions for sensors which don't
- * implement them.  
+ * @brief Dummy implementations of FIFO function for sensors which don't implement them.
  *
- * All functions return @ref RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED
+ * Only reason to have this function is to avoid NULL pointer errors.   
+ *
+ * @param[in] enable no effect
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
  */
 ruuvi_driver_status_t ruuvi_driver_dummy_fifo_enable(const bool enable);
+/**
+ * @brief Dummy implementations of FIFO function for sensors which don't implement them.
+ *
+ * Only reason to have this function is to avoid NULL pointer errors.   
+ *
+ * @param[in] enable no effect
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
+ */
 ruuvi_driver_status_t ruuvi_driver_dummy_fifo_interrupt_enable(const bool enable);
+/**
+ * @brief Dummy implementations of FIFO function for sensors which don't implement them.
+ *
+ * Only reason to have this function is to avoid NULL pointer errors.   
+ *
+ * @param[in] num_elements no effect
+ * @param[in] data no effect
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
+ */
 ruuvi_driver_status_t ruuvi_driver_dummy_fifo_read(size_t* num_elements, ruuvi_driver_sensor_data_t* data);
+/**
+ * @brief Dummy implementation of level function for sensors which don't implement them.
+ *
+ * Only reason to have this function is to avoid NULL pointer errors.   
+ *
+ * @param[in] enable no effect
+ * @param[im] limit_g no effect
+ * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
+ */
 ruuvi_driver_status_t ruuvi_driver_dummy_level_interrupt_set(const bool enable, float* limit_g);
 
 /**

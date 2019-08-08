@@ -199,7 +199,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
     acceleration_sensor->fifo_enable           = ruuvi_interface_lis2dh12_fifo_use;
     acceleration_sensor->fifo_interrupt_enable = ruuvi_interface_lis2dh12_fifo_interrupt_use;
     acceleration_sensor->fifo_read             = ruuvi_interface_lis2dh12_fifo_read;
-    acceleration_sensor->level_interrupt_set   = ruuvi_interface_lis2dh12_activity_interrupt_use;
+    acceleration_sensor->level_interrupt_set   =
+      ruuvi_interface_lis2dh12_activity_interrupt_use;
     dev.tsample = RUUVI_DRIVER_UINT64_INVALID;
   }
 
