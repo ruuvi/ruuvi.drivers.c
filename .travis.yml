@@ -12,6 +12,9 @@ addons:
 script:
   - doxygen Doxyfile
 
+before_deploy:
+  - sed -i '/doxygen/d' .gitignore
+
 deploy:
   provider: pages
   skip_cleanup: true
