@@ -10,7 +10,7 @@
 #include <stddef.h>
 
 /**
- * @addtogroup Acceleration Acceleration sensing
+ * @addtogroup Acceleration
  *
  */
 /*@{*/

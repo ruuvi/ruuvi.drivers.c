@@ -1,14 +1,22 @@
-/**
- *  Define adc sensor abstraction functions for onboard MCU
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
-
 #ifndef RUUVI_INTERFACE_ADC_MCU_H
 #define RUUVI_INTERFACE_ADC_MCU_H
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
-
+/**
+ * @addtogroup ADC
+ *
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_adc_mcu.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-08-07
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @brief Interface for controlling ADC onboard MCU
+ *
+ *
+ */
+/* Analog input channels of device */
 typedef enum
 {
   RUUVI_INTERFACE_ADC_AIN0,
@@ -38,5 +46,5 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_dsp_get(uint8_t* dsp, uint8_t* par
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_set(uint8_t*);
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_get(uint8_t*);
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(void* data);
-
+/*@}*/
 #endif
