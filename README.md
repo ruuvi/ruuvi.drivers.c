@@ -1,4 +1,4 @@
-# ruuvi.drivers.c {#mainpage}
+# ruuvi.drivers.c
 Ruuvi embedded drivers used across various platforms. Generally you should not use this 
 repository as-is, but rather as a submodule included in your project.
 Repository is under active development (alpha), expect breaking changes.

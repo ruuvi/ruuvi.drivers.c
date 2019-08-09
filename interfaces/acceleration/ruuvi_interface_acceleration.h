@@ -20,8 +20,8 @@
 #if RUUVI_INTERFACE_ACCELERATION_ENABLED || DOXYGEN
 #include "ruuvi_driver_error.h"
 
-#define RUUVI_INTERFACE_ACCELERATION_INVALID           RUUVI_DRIVER_FLOAT_INVALID
-#define RUUVI_INTERFACE_ACCELERATION_INTERRUPT_DISABLE RUUVI_DRIVER_FLOAT_INVALID
+/** @brief Signal that this value is invalid for any reason */
+#define RUUVI_INTERFACE_ACCELERATION_INVALID RUUVI_DRIVER_FLOAT_INVALID 
 
 /** @brief data structure for acceleration sample */
 typedef struct

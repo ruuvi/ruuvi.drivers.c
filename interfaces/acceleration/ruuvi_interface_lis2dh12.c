@@ -1,13 +1,5 @@
-/**
- * LIS2DH12 interface.
- * Requires STM lis2dh12 driver, available on GitHub under unknown locense.
- * Requires "application_config.h", will only get compiled if LIS2DH12_ACCELERATION is defined
- * Requires "boards.h" for slave select pin
- * Requires floats enabled in application
- */
-
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED
+#if RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED || DOXYGEN
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_acceleration.h"
@@ -20,38 +12,46 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Macro for checking that sensor is in sleep mode before configuration
+/**
+ * @addtogroup LIS2DH12
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_lis2dh12.c
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-08-08
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Implementation for LIS2DH12 basic usage. The implementation supports
+ * different resolutions, samplerates, high-passing, activity interrupt
+ * and FIFO. 
+ *
+ * Requires STM lis2dh12 driver, available on GitHub under BSD-3 license.
+ * Requires "application_config.h", will only get compiled if LIS2DH12_ACCELERATION is defined.
+ * Requires floats enabled in application.
+ *
+ */
+
+/** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
           uint8_t MACRO_MODE = 0; \
           ruuvi_interface_lis2dh12_mode_get(&MACRO_MODE); \
           if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
           } while(0)
 
-/*!
+/**
  * @brief lis2dh12 sensor settings structure.
  */
 static struct
 {
-  // resolution
-  lis2dh12_op_md_t resolution;
-
-  // scale
-  lis2dh12_fs_t scale;
-
-  // data rate
-  lis2dh12_odr_t samplerate;
-
-  // self-test
-  lis2dh12_st_t selftest;
-
-  // operating mode, handle
-  uint8_t mode, handle;
-
-  // Time of last sample in single mode.
-  uint64_t tsample; 
-
-  // device control structure
-  lis2dh12_ctx_t ctx;
+  lis2dh12_op_md_t resolution; //!< Resolution, bits. 8, 10, or 12. 
+  lis2dh12_fs_t scale;         //!< Scale, gravities. 2, 4, 8 or 16.
+  lis2dh12_odr_t samplerate;   //!< Sample rate, 1 ... 200, or custom values for higher.
+  lis2dh12_st_t selftest;      //!< Self-test enabled, positive, negative or disabled.
+  uint8_t mode;                //!< Operating mode. Sleep, single or continuous.
+  uint8_t handle;              //!< Device handle, SPI GPIO pin or I2C address.
+  uint64_t tsample;            //!< Time of sample, @ref ruuvi_driver_sensor_timestamp_get
+  lis2dh12_ctx_t ctx;          //!< Driver control structure
 } dev = {0};
 
 // Check that self-test values differ enough
@@ -936,5 +936,5 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool
   err_code |= lis2dh12_pin_int2_config_set(&(dev.ctx), &ctrl6);
   return err_code;
 }
-
+/*@}*/
 #endif
