@@ -337,6 +337,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_se
                                      m_adv_handle,
                                      tx_power
                                     );
+  *dbm = tx_power;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
