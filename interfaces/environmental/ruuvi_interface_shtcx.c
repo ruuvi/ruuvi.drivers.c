@@ -1,13 +1,3 @@
-/**
- * SHTCX interface.
- * Requires Sensirion SHTCx, available under BSD-3 on GitHub.
- * Will only get compiled if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED is defined as true
- * Requires BME280_FLOAT_ENABLE defined in makefile.
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
-
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ENVIRONMENTAL_SHTCX_ENABLED || DOXYGEN
 // Ruuvi headers
@@ -26,7 +16,24 @@
 // Sensirion driver.
 #include "shtc1.h"
 
-// Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
+/**
+ * @defgroup Environmental Environmental sensing
+ * @brief Interface and implementations for different, temperature, humidity and 
+ *        barometric pressure sensors. 
+ */
+/*@{*/
+
+/**
+ * @file ruuvi_interface_shtcx.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-08-10
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Environmental dataformat definition
+ *
+ */
+
+/** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
             if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
                RUUVI_DRIVER_SENSOR_CFG_MIN       == param ||\
@@ -35,7 +42,7 @@
              ) return RUUVI_DRIVER_SUCCESS;\
            } while(0)
 
-// Macro for checking that sensor is in sleep mode before configuration
+/** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
           uint8_t MACRO_MODE = 0; \
           ruuvi_interface_shtcx_mode_get(&MACRO_MODE); \
@@ -43,24 +50,27 @@
           } while(0)
 
 
-/** State variables **/
-static uint64_t m_tsample;
-static bool m_autorefresh;
-static int32_t m_temperature;
-static int32_t m_humidity;
-static bool m_is_init;
 
-#define STATUS_OK 0
-#define STATUS_ERR_BAD_DATA (-1)
-#define STATUS_CRC_FAIL (-2)
-#define STATUS_UNKNOWN_DEVICE (-3)
-#define STATUS_WAKEUP_FAILED (-4)
-#define STATUS_SLEEP_FAILED (-5)
+static uint64_t m_tsample;           //!< Timestamp of sample
+static bool m_autorefresh;           //!< Flag to refresh data on data_get
+static int32_t m_temperature;        //!< last measured temperature
+static int32_t m_humidity;           //!< last measured humidity
+static bool m_is_init;               //!< flag, is sensor init
+
+#define STATUS_OK 0                  //!< SHTC driver ok
+#define STATUS_ERR_BAD_DATA (-1)     //!< SHTC driver data invald
+#define STATUS_CRC_FAIL (-2)         //!< SHTC driver CRC error
+#define STATUS_UNKNOWN_DEVICE (-3)   //!< Invalid WHOAMI
+#define STATUS_WAKEUP_FAILED (-4)    //!< Device didn't wake up
+#define STATUS_SLEEP_FAILED (-5)     //!< Device didn't go to sleep
 
 /**
- * Convert error from SHTCX driver to appropriate NRF ERROR
+ * @brief Convert error from SHTCX driver to appropriate NRF ERROR
+ *
+ * @param[in] rslt error code from SHTCX driver
+ * @return    Ruuvi error code corresponding to SHTCX error code
  */
-static ruuvi_driver_status_t SHTCX_TO_RUUVI_ERROR(int16_t rslt)
+static ruuvi_driver_status_t SHTCX_TO_RUUVI_ERROR(const int16_t rslt)
 {
   if(STATUS_OK == rslt)                 { return RUUVI_DRIVER_SUCCESS; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_ERROR_INTERNAL;
@@ -74,7 +84,6 @@ static ruuvi_driver_status_t SHTCX_TO_RUUVI_ERROR(int16_t rslt)
   return err_code;
 }
 
-/** Initialize SHTCx into low-power mode **/
 ruuvi_driver_status_t ruuvi_interface_shtcx_init(ruuvi_driver_sensor_t*
     environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
 {
@@ -333,7 +342,8 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(void* data)
  * The function sleeps given number of milliseconds, rounded up, 
  * to benefit from low-power sleep in millisecond delay.
  *
- * @param useconds the sleep time in microseconds
+ * @param[in] useconds the sleep time in microseconds
+ * @note      sensirion interface signature isn't const, can't be const here.
  */
 void sensirion_sleep_usec(uint32_t useconds) {
   if(useconds < 1000)

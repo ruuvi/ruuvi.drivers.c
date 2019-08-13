@@ -1,15 +1,5 @@
-/**
- * BME280 interface.
- * Requires Bosch BME280_driver, available under BSD-3 on GitHub.
- * Will only get compiled if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED is defined as true
- * Requires BME280_FLOAT_ENABLE defined in makefile.
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
-
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED
+#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED || DOXYGEN
 // Ruuvi headers
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -32,7 +22,23 @@
   #error "Please #define BME280_FLOAT_ENABLE in makefile CFLAGS"
 #endif
 
-// Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
+/**
+ * @addtogroup BME280
+ */
+/*@{*/
+/**
+ * @file ruuvi_interface_bme280.c
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-08-08
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Requires Bosch BME280_driver, available under BSD-3 on GitHub.
+ * Will only get compiled if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED is defined as true
+ * Requires BME280_FLOAT_ENABLE defined in makefile or otherwise passed to preprocessor
+ *
+ */
+
+/** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
             if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
                RUUVI_DRIVER_SENSOR_CFG_MIN       == param ||\
@@ -41,7 +47,7 @@
              ) return RUUVI_DRIVER_SUCCESS;\
            } while(0)
 
-// Macro for checking that sensor is in sleep mode before configuration
+/** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
           uint8_t MACRO_MODE = 0; \
           ruuvi_interface_bme280_mode_get(&MACRO_MODE); \
@@ -578,8 +584,5 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(void* data)
 
   return err_code;
 }
-
-
-
-
+/*@}*/
 #endif

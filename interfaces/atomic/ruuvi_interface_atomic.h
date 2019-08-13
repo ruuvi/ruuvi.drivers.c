@@ -13,23 +13,24 @@
  * @date 2019-07-23
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Interface for basic atomic operations
+ * Interface for basic atomic operations.
  *
  */
 
 #include <stdbool.h>
 
-#define RUUVI_INTERFACE_ATOMIC_FLAG_INIT 0 //!< Initial value for atomic flag
+#define RUUVI_INTERFACE_ATOMIC_FLAG_INIT 0 //!< Initial value for atomic flag.
 
 typedef volatile uint32_t ruuvi_interface_atomic_t; //!< define atomic type - not portable to 8-bit.
 /** @brief Pointer to atomic flag, void* for compatibility with other underlying data types than u32. */
 typedef volatile void* const ruuvi_interface_atomic_ptr; 
 
 /**
- * @brief atomic flag check and set/clear function
+ * @brief Atomic flag check and set/clear function.
  *
  * Uses whatever mechanism underlying platform provides to check and set
- * or clear flag. Used to implement mutex, check-and-set flag to reserve
+ * or clear flag. When implementing mutex, check-and-set flag to reserve a mutex and
+ * check-and-clear to free it. 
  *
  * Generally used like this:
  * \code{.c}
@@ -44,9 +45,9 @@ typedef volatile void* const ruuvi_interface_atomic_ptr;
  * program will deadlock in the busyloop. Likewise failure to release the lock will
  * cause deadlock in the next execution, fail immediately.
  *
- * @param[in] flag uint32_t address of bitfield to check
+ * @param[in] flag uint32_t address of bitfield to check.
  * @param[in] set true to set flag, false to clear flag.
- * @return    true if operation was successful
+ * @return    @c true if operation was successful. @c false otherwise.
  */
 bool ruuvi_interface_atomic_flag(ruuvi_interface_atomic_ptr flag, const bool set);
 
