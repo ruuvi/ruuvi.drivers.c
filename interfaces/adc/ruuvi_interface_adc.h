@@ -25,7 +25,7 @@ typedef struct
 {
   uint64_t timestamp_ms; // ms since boot
   float adc_v;           // V
-  float reserved0;       // Add unused floats to keep struct at the same size as other data formats.
+  float adc_ratiometric; // -1 ... 1, ratio of ADC value to reference voltage. 
   float reserved1;
 } ruuvi_interface_adc_data_t;
 
