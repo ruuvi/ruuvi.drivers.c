@@ -35,7 +35,7 @@
  *  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
  *  ruuvi_driver_bus_t bus = RUUVI_DRIVER_BUS_NONE;
  *  uint8_t handle = 0;
- *  ruuvi_driver_sensor_init_fp init = ruuvi_interface_bme280_init;
+ *  ruuvi_driver_sensor_init_fp init = ruuvi_interface_shtcx_init;
  *  bus = RUUVI_DRIVER_BUS_I2C;
  *  handle = RUUVI_BOARD_RUUVI_BOARD_SHTCX_I2C_ADDRESS;
  *  err_code = test_sensor_init(init, bus, handle);
