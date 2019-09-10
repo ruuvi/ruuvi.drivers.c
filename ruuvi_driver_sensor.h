@@ -106,7 +106,8 @@ typedef enum
   RUUVI_DRIVER_BUS_NONE = 0, //!< No bus, internal to IC
   RUUVI_DRIVER_BUS_SPI  = 1, //!< SPI bus
   RUUVI_DRIVER_BUS_I2C  = 2, //!< I2C bus
-  RUUVI_DRIVER_BUS_UART = 3  //!< UART bus
+  RUUVI_DRIVER_BUS_UART = 3, //!< UART bus
+  RUUVI_DRIVER_BUS_PDM  = 4  //!< PDM bus
 } ruuvi_driver_bus_t;
 
 /**
