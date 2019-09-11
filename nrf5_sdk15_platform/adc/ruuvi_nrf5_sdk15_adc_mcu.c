@@ -611,6 +611,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_complex_sample(const ruuvi_interface_a
   };
 
   nrf_saadc_channel_init(0, &ch_config);
+  return err_code;
 }
 
 #endif
