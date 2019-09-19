@@ -21,7 +21,6 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "ble_advdata.h"
-#include "ble_nus.h"
 #include "ble_types.h"
 #include "sdk_errors.h"
 
@@ -64,11 +63,15 @@ static bool                 m_advertising = false;
 static ruuvi_platform_ble4_advertisement_state_t m_adv_state;
 
  /**< Universally unique service identifier of Nordic UART Service */
+#if RUUVI_INTERFACE_COMMUNICATION_GATT_ENABLED
+#include "ble_nus.h"
 static ble_uuid_t m_adv_uuids[] =                       
 {
   {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
 };
-
+#else
+static ble_uuid_t m_adv_uuids[] = {};
+#endif
 // Update BLE settings, takes effect immidiately
 static ruuvi_driver_status_t update_settings(void)
 {
@@ -104,7 +107,7 @@ void ruuvi_interface_communication_ble4_advertising_activity_handler(
   // After activity - assume that all activity is related to advertisement tx
   if(RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER == evt)
   {
-    if(NULL != m_adv_state.channel->on_evt)
+    if((NULL != m_adv_state.channel)  && (NULL != m_adv_state.channel->on_evt))
     {
       // TODO: Add information about sent advertisement
       m_adv_state.channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0);
