@@ -51,7 +51,9 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     ruuvi_interface_log_flush();
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR, message);
     ruuvi_interface_log_flush();
+    #if RUUVI_INTERFACE_POWER_ENABLED
     ruuvi_interface_power_enter_bootloader();
+    #endif
   }
   // Log non-fatal errors
   else if(RUUVI_DRIVER_SUCCESS != error)

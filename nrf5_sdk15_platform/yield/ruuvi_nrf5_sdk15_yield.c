@@ -83,6 +83,7 @@ ruuvi_driver_status_t ruuvi_interface_yield_init(void)
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
+#if RUUVI_NRF5_SDK15_TIMER_ENABLED
 ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
 {
   // Timer can be allocated after timer has initialized
@@ -102,7 +103,13 @@ ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
   }
   return timer_status;
 }
-
+#else
+// Return error if timers are not enabled.
+ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
+{
+  return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+}
+#endif
 
 
 ruuvi_driver_status_t ruuvi_interface_yield(void)
@@ -116,6 +123,7 @@ ruuvi_driver_status_t ruuvi_interface_yield(void)
 ruuvi_driver_status_t ruuvi_interface_delay_ms(uint32_t time)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  #if RUUVI_NRF5_SDK15_TIMER_ENABLED
   if(m_lp)
   {
     m_wakeup = false;
@@ -125,6 +133,9 @@ ruuvi_driver_status_t ruuvi_interface_delay_ms(uint32_t time)
       err_code |= ruuvi_interface_yield();
     }
   } 
+  #else
+  if(0) {}
+  #endif
   else 
   {
     nrf_delay_ms(time);
