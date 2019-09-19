@@ -13,17 +13,18 @@
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_log.h"
-#include "ruuvi_interface_rtc.h"
-#include "ruuvi_interface_timer.h"
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_driver_error.h"
 #include "nrf_delay.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_error.h"
+#if RUUVI_INTERFACE_TIMER_ENABLED
+#include "ruuvi_interface_timer.h"
+static ruuvi_interface_timer_id_t wakeup_timer;    //!< timer ID for wakeup
+#endif
 
 static bool m_lp = false;                          //!< low-power mode enabled flag
 static volatile bool m_wakeup = false;             //!< wakeup flag
-static ruuvi_interface_timer_id_t wakeup_timer;    //!< timer ID for wakeup
 static ruuvi_interface_yield_state_ind_fp_t m_ind; //!< State indication function
 
 #ifdef FLOAT_ABI_HARD
