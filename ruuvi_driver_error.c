@@ -14,7 +14,10 @@
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_log.h"
+
+#if RUUVI_INTERFACE_POWER_ENABLED
 #include "ruuvi_interface_power.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
