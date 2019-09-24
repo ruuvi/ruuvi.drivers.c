@@ -69,8 +69,6 @@ static ble_uuid_t m_adv_uuids[] =
 {
   {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
 };
-#else
-static ble_uuid_t m_adv_uuids[] = {};
 #endif
 // Update BLE settings, takes effect immidiately
 static ruuvi_driver_status_t update_settings(void)
