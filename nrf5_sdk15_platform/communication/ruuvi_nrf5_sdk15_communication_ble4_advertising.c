@@ -63,7 +63,7 @@ static bool                 m_advertising = false;
 static ruuvi_platform_ble4_advertisement_state_t m_adv_state;
 
  /**< Universally unique service identifier of Nordic UART Service */
-#if RUUVI_INTERFACE_COMMUNICATION_GATT_ENABLED
+#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_ENABLED
 #include "ble_nus.h"
 static ble_uuid_t m_adv_uuids[] =                       
 {

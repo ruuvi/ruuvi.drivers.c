@@ -15,7 +15,7 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_log.h"
 
-#if RUUVI_INTERFACE_POWER_ENABLED
+#if APPLICATION_POWER_ENABLED
 #include "ruuvi_interface_power.h"
 #endif
 
@@ -54,7 +54,7 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     ruuvi_interface_log_flush();
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR, message);
     ruuvi_interface_log_flush();
-    #if RUUVI_INTERFACE_POWER_ENABLED
+    #if APPLICATION_POWER_ENABLED
     ruuvi_interface_power_enter_bootloader();
     #endif
   }
