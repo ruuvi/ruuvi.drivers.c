@@ -372,9 +372,15 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_respon
   // Add scan response
   if(advertise_nus)
   {
+    #if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_ENABLED
     scanrsp.uuids_complete.uuid_cnt = 1;
     scanrsp.uuids_complete.p_uuids = &(m_adv_uuids[0]);
+    #else
+    err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+    #endif
   }
+
+  
 
   // Encode data
   m_adv_data.scan_rsp_data.len = sizeof(m_scan0);
