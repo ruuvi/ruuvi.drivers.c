@@ -18,7 +18,7 @@
 #include "nrf_delay.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_error.h"
-#if RUUVI_INTERFACE_TIMER_ENABLED
+#if RUUVI_NRF5_SDK15_TIMER_ENABLED
 #include "ruuvi_interface_timer.h"
 static ruuvi_interface_timer_id_t wakeup_timer;    //!< timer ID for wakeup
 #endif
