@@ -654,9 +654,6 @@ static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_send(
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
-/**
- *
- */
 static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_read(
   ruuvi_interface_communication_message_t* const message)
 {
