@@ -379,12 +379,12 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(const uint32_t window_interval_ms, const uint32_t window_size_ms)
 {
-
+  return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_get(uint32_t* window_interval_ms, uint32_t* window_size_ms)
 {
-
+  return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_start(void)
@@ -533,7 +533,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send_raw(ui
   ble_gap_adv_data_t* p_adv_data = &m_adv_data;
   uint8_t* p_advertisement       = (advertisement_odd) ? m_advertisement0 :
                                    m_advertisement1;
-  uint16_t* p_adv_len            = (advertisement_odd) ? &m_adv0_len      : &m_adv1_len;
   advertisement_odd = !advertisement_odd;
   // Copy data
   memcpy(p_advertisement, data, data_length);
