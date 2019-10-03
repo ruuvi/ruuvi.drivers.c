@@ -331,8 +331,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
   uint16_t* p_scan_len           = (advertisement_odd) ? &m_scan0_len     : &m_scan1_len;
   m_adv0_len = sizeof(m_advertisement0);
   m_adv1_len = sizeof(m_advertisement1);
-  m_scan0_len = sizeof(m_scan0);
-  m_scan1_len = sizeof(m_scan1);
   advertisement_odd = !advertisement_odd;
   // Encode data
   err_code |= ble_advdata_encode(&advdata, p_advertisement, p_adv_len);
@@ -471,6 +469,9 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_respon
   m_adv_data.scan_rsp_data.len = sizeof(m_scan0);
   err_code |= ble_advdata_encode(&scanrsp, m_scan0, &m_adv_data.scan_rsp_data.len);
   err_code |= ble_advdata_encode(&scanrsp, m_scan1, &m_adv_data.scan_rsp_data.len);
+  // Store encoded length
+  m_scan0_len = m_adv_data.scan_rsp_data.len;
+  m_scan1_len = m_adv_data.scan_rsp_data.len;
 
   if(NRF_SUCCESS == err_code) { m_scannable = true; }
 
