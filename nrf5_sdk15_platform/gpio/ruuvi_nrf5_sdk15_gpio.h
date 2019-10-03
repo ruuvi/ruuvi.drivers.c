@@ -1,11 +1,11 @@
-#ifndef  RUUVI_NRF5_SDK15_GPIO_H
+#ifndef RUUVI_NRF5_SDK15_GPIO_H
 #define RUUVI_NRF5_SDK15_GPIO_H
 /**
  * @addtogroup GPIO
  * @{
  */
 /**
-* @file ruuvi_nrf5_sdk15_gpio.c
+* @file ruuvi_nrf5_sdk15_gpio.h
 * @author Otso Jousimaa <otso@ojousima.net>
 * @date 2019-04-27
 * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
