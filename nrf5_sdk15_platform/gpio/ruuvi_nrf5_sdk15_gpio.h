@@ -1,5 +1,6 @@
 #ifndef RUUVI_NRF5_SDK15_GPIO_H
 #define RUUVI_NRF5_SDK15_GPIO_H
+#include "ruuvi_interface_gpio.h"
 /**
  * @addtogroup GPIO
  * @{
