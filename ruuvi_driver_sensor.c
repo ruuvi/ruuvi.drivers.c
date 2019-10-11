@@ -63,7 +63,7 @@ uint64_t ruuvi_driver_sensor_timestamp_get(void)
 
 bool ruuvi_driver_sensor_is_init(const ruuvi_driver_sensor_t* const sensor)
 {
-  return (!strcmp(sensor->name, m_init_name));
+  return (strcmp(sensor->name, m_init_name));
 }
 
 static ruuvi_driver_status_t ruuvi_driver_fifo_enable_ni(const bool enable)
