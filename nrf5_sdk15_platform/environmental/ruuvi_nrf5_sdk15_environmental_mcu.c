@@ -77,6 +77,7 @@ static bool autorefresh  = false;
 static bool sensor_is_init = false;
 static float temperature;
 static uint64_t tsample;
+static const char m_tmp_name[] = "nRF5TMP"; //!< Human-readable name
 
 static void nrf52832_temperature_sample(void)
 {
@@ -120,6 +121,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
 
   if(true == sensor_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
+  ruuvi_driver_sensor_initialize(environmental_sensor);
+
   // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
   nrf_temp_init();
   temperature = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
@@ -144,6 +147,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
   environmental_sensor->data_get          = ruuvi_interface_environmental_mcu_data_get;
   environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
   environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+  environmental_sensor->name              = m_tmp_name;
   sensor_is_init = true;
   return RUUVI_DRIVER_SUCCESS;
 }
@@ -155,7 +159,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(
 
   sensor_is_init = false;
   autorefresh = false;
-  memset(environmental_sensor, 0, sizeof(ruuvi_driver_sensor_t));
+  ruuvi_driver_sensor_uninitialize(environmental_sensor);
   temperature = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
   tsample     = RUUVI_DRIVER_UINT64_INVALID;
   return RUUVI_DRIVER_SUCCESS;

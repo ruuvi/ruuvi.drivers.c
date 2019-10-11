@@ -51,11 +51,12 @@
 
 
 
-static uint64_t m_tsample;           //!< Timestamp of sample
-static bool m_autorefresh;           //!< Flag to refresh data on data_get
-static int32_t m_temperature;        //!< last measured temperature
-static int32_t m_humidity;           //!< last measured humidity
-static bool m_is_init;               //!< flag, is sensor init
+static uint64_t m_tsample;           //!< Timestamp of sample.
+static bool m_autorefresh;           //!< Flag to refresh data on data_get.
+static int32_t m_temperature;        //!< Last measured temperature.
+static int32_t m_humidity;           //!< Last measured humidity.
+static bool m_is_init;               //!< Flag, is sensor init.
+static const char m_sensor_name[] = "SHTCX"; //!< Human-readable name of the sensor. 
 
 #define STATUS_OK 0                  //!< SHTC driver ok
 #define STATUS_ERR_BAD_DATA (-1)     //!< SHTC driver data invald
@@ -90,6 +91,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_init(ruuvi_driver_sensor_t*
   if(NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
   if(m_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
+  ruuvi_driver_sensor_initialize(environmental_sensor);
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   size_t retries = 0;
 
@@ -126,6 +128,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_init(ruuvi_driver_sensor_t*
     environmental_sensor->data_get          = ruuvi_interface_shtcx_data_get;
     environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
     environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+    environmental_sensor->name              = m_sensor_name;
     m_tsample = RUUVI_DRIVER_UINT64_INVALID;
     m_is_init = true;
   }
@@ -141,7 +144,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_uninit(ruuvi_driver_sensor_t* sensor
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   shtc1_enable_low_power_mode(1);
 
-  memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
+  ruuvi_driver_sensor_uninitialize(sensor);
   m_tsample = RUUVI_DRIVER_UINT64_INVALID;
   m_temperature = RUUVI_DRIVER_INT32_INVALID;
   m_humidity = RUUVI_DRIVER_INT32_INVALID;

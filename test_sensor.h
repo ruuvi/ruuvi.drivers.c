@@ -21,8 +21,10 @@
  * - Sensor must return RUUVI_DRIVER_SUCCESS on first init.
  * - None of the sensor function pointers may be NULL after init
  * - Sensor should return RUUVI_DRIVER_ERROR_INVALID_STATE when initializing sensor which is already init. May return other error if check for it triggers first.
+ *   - Sensor structure must be not be altered in failed init.
+ *   - This also means that a sensor is "locked" until first successful initializer uninitializes.
  * - Sensor must return RUUVI_DRIVER_SUCCESS on first uninit
- * - All of sensor function pointers must be NULL after uninit
+ * - All of sensor function pointers must return RUUVI_DRIVER_ERROR_NOT_INITIALIZED after uninit
  * - Sensor configuration is not defined after init, however the sensor must be in lowest-power state available.
  * - Sensor mode_get must return RUUVI_DRIVER_SENSOR_CFG_SLEEP after init.
  * - Sensor configuration is not defined after uninit, however the sensor must be in lowest-power state available.
@@ -115,7 +117,8 @@ ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp i
  *
  * @param[in] passed: True if your test was successful.
  *
- * return RUUVI_DRIVER_SUCCESS
+ * @return RUUVI_DRIVER_SUCCESS if test was passed.
+ * @return RUUVI_DRIVER_ERROR_SELFTEST if test was failed.
  */
 ruuvi_driver_status_t test_sensor_register(bool passed);
 
@@ -125,7 +128,8 @@ ruuvi_driver_status_t test_sensor_register(bool passed);
  * @param[in] total:   pointer to value which will be set to the number of tests run
  * @param[in] passed: pointer to value which will be set to the number of tests passed
  *
- * return RUUVI_DRIVER_SUCCESS
+ * @return RUUVI_DRIVER_SUCCESS if total tests equal passed tests
+ * @return RUUVI_DRIVER_ERROR_SELFTEST if 
  */
 ruuvi_driver_status_t test_sensor_status(size_t* total, size_t* passed);
 

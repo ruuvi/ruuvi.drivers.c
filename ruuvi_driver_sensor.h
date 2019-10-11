@@ -10,13 +10,17 @@
 /**
  * @file ruuvi_driver_sensor.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-07-10
+ * @date 2019-10-10
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
- * @brief Ruuvi sensor interface
+ * @brief Ruuvi sensor interface <b>Lifecycle: Beta</b>
+ *
+ *  
  *
  * Common interface to all Ruuvi Sensors
  * Every sensor must implement these functions:
+ * - return name
  * - init
+ * - uninit
  * - samplerate_set
  * - samplerate_get
  * - dsp_set
@@ -31,8 +35,10 @@
  *
  * If function does not make sense for the sensor, it will return error code.
  *
- * INIT, UNINT: Init will prepare sensor for use, reset, run self-test and place it in low-power mode. Additionally function pointers will be set up by init.
- *              Uninit will release any resources used by sensor. Uninit NULLs the sensor function pointers.
+ * Return name: Return a pointer to a constant 8-byte long string which represensts sensor, e.g. LIS2DH12\0 or BME280\0\0
+ *
+ * INIT, UNINT: Init will prepare sensor for use, reset the sensor, run self-test and place it in low-power mode. Additionally function pointers will be set up by init.
+ *              Uninit will release any resources used by sensor
  *
  * Samplerate: Applicable on continuous mode, how often sensor takes samples. Hz
  *
@@ -55,8 +61,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define RUUVI_DRIVER_SENSOR_INVALID_VALUE    RUUVI_DRIVER_FLOAT_INVALID  ///< Signal this float sensor is erroneous
-#define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID ///< Signal this timestamp value is erroneous
+#define RUUVI_DRIVER_SENSOR_INVALID_VALUE    RUUVI_DRIVER_FLOAT_INVALID  //!< Signal this sensor value is erroneous
+#define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID //!< Signal this timestamp value is erroneous
 
 // Constants for sensor configuration and status
 #define RUUVI_DRIVER_SENSOR_CFG_DEFAULT         0      ///< Default value, always valid for the sensor.
@@ -81,6 +87,11 @@
 #define RUUVI_DRIVER_SENSOR_DSP_LOW_PASS        (1<<1) ///< Low pass sensor values Parameter: coefficient
 #define RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS       (1<<2) ///< High pass sensor values Parameter: coefficient
 #define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<3) ///< Oversample sensor values. Parameter: Number of samples
+
+/** @brief convert Ruuvi GPIO into uint8_t */
+#define RUUVI_DRIVER_GPIO_TO_HANDLE(handle) ((((handle) >> 3) & 0xE0) + ((handle) & 0x1F))
+/** @brief convert uint8_t into Ruuvi GPIO */
+#define RUUVI_DRIVER_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0) << 3) + ((handle) & 0x1F))
 
 /**
  * @brief All sensors must implement configuration functions which accepts this struct.
@@ -107,7 +118,8 @@ typedef enum
   RUUVI_DRIVER_BUS_SPI  = 1, //!< SPI bus
   RUUVI_DRIVER_BUS_I2C  = 2, //!< I2C bus
   RUUVI_DRIVER_BUS_UART = 3, //!< UART bus
-  RUUVI_DRIVER_BUS_PDM  = 4  //!< PDM bus
+  RUUVI_DRIVER_BUS_PDM  = 4, //!< PDM bus
+  RUUVI_DRIVER_BUS_FAIL = 5  //!< Test behaviour on invalid bus with this value.
 } ruuvi_driver_bus_t;
 
 /**
@@ -129,7 +141,7 @@ typedef struct ruuvi_driver_sensor_t ruuvi_driver_sensor_t;
 /**
  * @brief Initialize and uninitialize sensor.
  * Init and uninit will setup sensor with function pointers.
- * The sensor wil be initialized to lowest power state possible
+ * The sensor wil be initialized to lowest power state possible.
  *
  * @param[in,out] p_sensor pointer to sensor structure
  * @param[in] bus bus to use, i.r. I2C or SPI
@@ -144,11 +156,6 @@ typedef struct ruuvi_driver_sensor_t ruuvi_driver_sensor_t;
  **/
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_init_fp)(ruuvi_driver_sensor_t* const
     p_sensor, const ruuvi_driver_bus_t bus, const uint8_t handle);
-
-/** @brief convert Ruuvi GPIO into uint8_t */
-#define RUUVI_DRIVER_GPIO_TO_HANDLE(handle) ((((handle) >> 3) & 0xE0) + ((handle) & 0x1F))
-/** @brief convert uint8_t into Ruuvi GPIO */
-#define RUUVI_DRIVER_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0) << 3) + ((handle) & 0x1F))
 
 /**
  *  @brief Setup a parameter of a sensor.
@@ -271,6 +278,8 @@ typedef uint64_t (*ruuvi_driver_sensor_timestamp_fp)(void);
  */
 typedef struct ruuvi_driver_sensor_t
 {
+  /** @brief sensor human-readable name. Should be at most 8 bytes long. */
+  const char* name;  
   /** @brief @ref ruuvi_driver_sensor_init_fp */
   ruuvi_driver_sensor_init_fp   init;  
   /** @brief @ref ruuvi_driver_sensor_init_fp */            
@@ -324,45 +333,6 @@ ruuvi_driver_status_t ruuvi_driver_sensor_configuration_get(const ruuvi_driver_s
     sensor, ruuvi_driver_sensor_configuration_t* config);
 
 /**
- * @brief Dummy implementations of FIFO function for sensors which don't implement them.
- *
- * Only reason to have this function is to avoid NULL pointer errors.   
- *
- * @param[in] enable no effect
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
- */
-ruuvi_driver_status_t ruuvi_driver_dummy_fifo_enable(const bool enable);
-/**
- * @brief Dummy implementations of FIFO function for sensors which don't implement them.
- *
- * Only reason to have this function is to avoid NULL pointer errors.   
- *
- * @param[in] enable no effect
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
- */
-ruuvi_driver_status_t ruuvi_driver_dummy_fifo_interrupt_enable(const bool enable);
-/**
- * @brief Dummy implementations of FIFO function for sensors which don't implement them.
- *
- * Only reason to have this function is to avoid NULL pointer errors.   
- *
- * @param[in] num_elements no effect
- * @param[in] data no effect
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
- */
-ruuvi_driver_status_t ruuvi_driver_dummy_fifo_read(size_t* num_elements, ruuvi_driver_sensor_data_t* data);
-/**
- * @brief Dummy implementation of level function for sensors which don't implement them.
- *
- * Only reason to have this function is to avoid NULL pointer errors.   
- *
- * @param[in] enable no effect
- * @param[im] limit_g no effect
- * @return @ref RUUVI_DRIVER_ERROR_NOT_SUPPORTED
- */
-ruuvi_driver_status_t ruuvi_driver_dummy_level_interrupt_set(const bool enable, float* limit_g);
-
-/**
  * @brief Setup timestamping
  * Set to @c NULL to disable timestamps.
  *
@@ -378,5 +348,28 @@ ruuvi_driver_status_t ruuvi_driver_sensor_timestamp_function_set(
  * @return RUUVI_DRIVER_UINT64_INVALID if timestamp function is NULL
  */
 uint64_t ruuvi_driver_sensor_timestamp_get(void);
+
+/**
+ * @brief Initialize sensor struct with non-null pointers which return RUUVI_DRIVER_ERROR_NOT_INITIALIZED
+ *
+ * @param[out] p_sensor pointer to sensor struct to initialize.
+ */
+void ruuvi_driver_sensor_initialize(ruuvi_driver_sensor_t* const p_sensor);
+
+/**
+ * @brief Mark sensor as uninitialized by calling the generic initialization. 
+ *
+ * @param[out] p_sensor pointer to sensor struct to uninitialize.
+ */
+void ruuvi_driver_sensor_uninitialize(ruuvi_driver_sensor_t* const p_sensor);
+
+/**
+ * @brief Check if given sensor structure is already initialized. 
+ *
+ * @param[in] sensor Sensor interface to check.
+ * @return true if structure is initialized, false otherwise.
+ */
+bool ruuvi_driver_sensor_is_init(const ruuvi_driver_sensor_t* const sensor);
+
 /*@}*/
 #endif

@@ -17,12 +17,13 @@
  */
 
 #include <float.h>
+#include <math.h>
 #include <stdint.h>
 
-#define RUUVI_DRIVER_FLOAT_INVALID  FLT_MAX
-#define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX
-#define RUUVI_DRIVER_INT64_INVALID  INT64_MAX
-#define RUUVI_DRIVER_INT32_INVALID  INT32_MAX
+#define RUUVI_DRIVER_FLOAT_INVALID  NAN            //!< Signal that value should not be used.
+#define RUUVI_DRIVER_UINT64_INVALID UINT64_MAX     //!< Signal that value should not be used.
+#define RUUVI_DRIVER_INT64_INVALID  INT64_MIN      //!< Signal that value should not be used.
+#define RUUVI_DRIVER_INT32_INVALID  INT32_MIN      //!< Signal that value should not be used.
 
 #define RUUVI_DRIVER_SUCCESS               0       ///< Internal Error
 #define RUUVI_DRIVER_ERROR_INTERNAL        (1<<0)  ///< Internal Error
@@ -44,6 +45,7 @@
 #define RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED (1<<16) ///< Not implemented yet
 #define RUUVI_DRIVER_ERROR_SELFTEST        (1<<17) ///< Self-test fail
 #define RUUVI_DRIVER_STATUS_MORE_AVAILABLE (1<<18) ///< Driver has more data queued
+#define RUUVI_DRIVER_ERROR_NOT_INITIALIZED (1<<19) ///< Driver is not initialized.
 #define RUUVI_DRIVER_ERROR_FATAL           (1<<31) ///< Program should always reset after this
 
 typedef int32_t ruuvi_driver_status_t; ///< bitfield for representing errors

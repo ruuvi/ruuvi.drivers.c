@@ -58,6 +58,7 @@
 /** State variables **/
 static struct bme280_dev dev = {0};
 static uint64_t tsample;
+static const char m_sensor_name[] = "BME280";
 
 /**
  * Convert error from BME280 driver to appropriate NRF ERROR
@@ -99,6 +100,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t*
   // dev is NULL at boot, if function pointers have been set sensor is initialized
   if(NULL != dev.write) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
+  ruuvi_driver_sensor_initialize(environmental_sensor);
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
   switch(bus)
@@ -162,6 +164,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_init(ruuvi_driver_sensor_t*
     environmental_sensor->data_get          = ruuvi_interface_bme280_data_get;
     environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
     environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+    environmental_sensor->name              = m_sensor_name;
     tsample = RUUVI_DRIVER_UINT64_INVALID;
   }
 
@@ -177,7 +180,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_uninit(ruuvi_driver_sensor_t* senso
 
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
 
-  memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
+  ruuvi_driver_sensor_uninitialize(sensor);
   memset(&dev, 0, sizeof(dev));
   tsample = RUUVI_DRIVER_UINT64_INVALID;
   return err_code;

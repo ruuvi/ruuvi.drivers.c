@@ -19,7 +19,7 @@
 /**
  * @file ruuvi_interface_lis2dh12.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-08-08
+ * @date 2019-10-11
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Implementation for LIS2DH12 basic usage. The implementation supports
@@ -66,6 +66,8 @@ static struct
   stmdev_ctx_t ctx;            //!< Driver control structure
 } dev = {0};
 
+static const char m_acc_name[] = "LIS2DH12";
+
 // Check that self-test values differ enough
 static ruuvi_driver_status_t lis2dh12_verify_selftest_difference(axis3bit16_t* new,
     axis3bit16_t* old)
@@ -96,6 +98,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
 
   if(NULL != dev.ctx.write_reg) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
+  ruuvi_driver_sensor_initialize(acceleration_sensor);
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   // Initialize mems driver interface
   stmdev_ctx_t* dev_ctx = &(dev.ctx);
@@ -214,6 +217,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
     acceleration_sensor->fifo_read             = ruuvi_interface_lis2dh12_fifo_read;
     acceleration_sensor->level_interrupt_set   =
       ruuvi_interface_lis2dh12_activity_interrupt_use;
+    acceleration_sensor->name                  = m_acc_name;
     dev.tsample = RUUVI_DRIVER_UINT64_INVALID;
   }
 
@@ -229,8 +233,9 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t* sen
 {
   if(NULL == sensor) { return RUUVI_DRIVER_ERROR_NULL; }
 
+  ruuvi_driver_sensor_uninitialize(sensor);
+
   dev.samplerate = LIS2DH12_POWER_DOWN;
-  memset(sensor, 0, sizeof(ruuvi_driver_sensor_t));
   //LIS2DH12 function returns SPI write result which is ruuvi_driver_status_t
   ruuvi_driver_status_t err_code = lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
   memset(&dev, 0, sizeof(dev));

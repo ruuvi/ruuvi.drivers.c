@@ -87,6 +87,8 @@ static uint64_t adc_tsample;             // Time when sample was taken
 static nrf_drv_saadc_config_t adc_config =
   NRF_DRV_SAADC_DEFAULT_CONFIG; // Structure for ADC configuration
 
+static const char m_adc_name[] = "nRF5ADC"; //!< Human-readable name
+
 static float raw_adc_to_volts(nrf_saadc_value_t adc)
 {
   // Get ADC max value into counts
@@ -260,11 +262,12 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   if(NULL == adc_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
 
   if(RUUVI_DRIVER_BUS_NONE != bus) { return RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
-
-  // Support only one instance for now
+  
+  // Support only one instance.
   if(adc_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
-  // Initialize ADC
+  // Initialize ADC structure
+  ruuvi_driver_sensor_initialize(adc_sensor);
   nrf_drv_saadc_config_t adc_default = NRF_DRV_SAADC_DEFAULT_CONFIG;
   memcpy(&adc_config, &adc_default, sizeof(adc_config));
   ret_code_t err_code = nrf_drv_saadc_init(&adc_config, saadc_event_handler);
@@ -293,6 +296,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   adc_sensor->data_get          = ruuvi_interface_adc_mcu_data_get;
   adc_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
   adc_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+  adc_sensor->name              = m_adc_name;
   adc_volts = RUUVI_INTERFACE_ADC_INVALID;
   adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
@@ -303,7 +307,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_
 {
   if(NULL == adc_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
 
-  memset(adc_sensor, 0, sizeof(ruuvi_driver_sensor_t));
+  ruuvi_driver_sensor_uninitialize(adc_sensor);
   nrf_drv_saadc_uninit();
   adc_is_init = false;
   autorefresh = false;
