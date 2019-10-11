@@ -293,8 +293,9 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
     const uint32_t record_id, const size_t data_size, const void* const data)
 {
   if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
-
   if(false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  /* Wait for process to complete */
+  if(m_fds_processing) { return RUUVI_DRIVER_ERROR_BUSY; }
 
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   fds_record_desc_t desc = {0};
@@ -323,9 +324,6 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
       m_fds_processing = false;
       return err_code;
     }
-
-    /* Wait for process to complete */
-    while(m_fds_processing);
   }
   // If record was not found
   else
@@ -341,9 +339,6 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
       m_fds_processing = false;
       return err_code;
     }
-
-    /* Wait for process to complete */
-    while(m_fds_processing);
   }
 
   return err_code;
@@ -366,8 +361,8 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_get(const uint32_t page_id,
     const uint32_t record_id, const size_t data_size, void* const data)
 {
   if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
-
   if(false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(m_fds_processing) { return RUUVI_DRIVER_ERROR_BUSY; }
 
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   fds_record_desc_t desc = {0};
@@ -406,11 +401,10 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_get(const uint32_t page_id,
 ruuvi_driver_status_t ruuvi_interface_flash_gc_run(void)
 {
   if(false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(m_fds_processing) { return RUUVI_DRIVER_ERROR_BUSY; }
 
   m_fds_processing = true;
   ret_code_t rc = fds_gc();
-
-  while(m_fds_processing);
 
   return fds_to_ruuvi_error(rc);
 }
@@ -465,7 +459,7 @@ static void flash_bounds_set(void)
     m_fs1.start_addr = m_fs1.end_addr - flash_size;
 }
 
-/** Erase FDS in case of error */
+/** Erase FDS */
 void ruuvi_interface_flash_purge(void)
 {
 	flash_bounds_set();
@@ -487,5 +481,11 @@ void ruuvi_interface_flash_purge(void)
 	}
 		
 }
+
+bool ruuvi_interface_flash_is_busy()
+{
+  return m_fds_processing;
+}
+
 
 #endif
