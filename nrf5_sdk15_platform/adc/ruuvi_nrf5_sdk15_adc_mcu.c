@@ -299,6 +299,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   adc_sensor->name              = m_adc_name;
   adc_volts = RUUVI_INTERFACE_ADC_INVALID;
   adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
+  autorefresh = false;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
@@ -563,7 +564,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(void* data)
   adc->reserved1       = RUUVI_INTERFACE_ADC_INVALID;
   adc->adc_v           = RUUVI_INTERFACE_ADC_INVALID;
 
-  if(RUUVI_INTERFACE_ADC_INVALID != adc_volts)
+  if(!isnan(adc_volts))
   {
     // autorefresh / continuous mode  updates tsample.
     adc->timestamp_ms  = adc_tsample;
