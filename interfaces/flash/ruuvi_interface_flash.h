@@ -1,5 +1,18 @@
+#ifndef  RUUVI_INTERFACE_FLASH_H
+#define  RUUVI_INTERFACE_FLASH_H
+
 /**
- * Interface functions to persistent flash storage.
+ * @defgroup Flash Flash storage
+ * @brief Interface and implementations for storing data into flash in a persistent manner. 
+ *
+ */
+ /*@{*/
+/**
+ * @file ruuvi_interface_flash.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-10-11
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @brief Interface functions to persistent flash storage.
  *
  * Flash is stored to pages which are ideally of same size as the underlying physical write/erase unit.
  * Each page may contain N records. Underlying driver is allowed to arrange pages and records in any manner
@@ -7,42 +20,37 @@
  * Underlying driver is allowed to trigger garbage collection on write, which makes runtime of operation
  * undeterministic.
  *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
  */
-#ifndef  RUUVI_INTERFACE_FLASH_H
-#define  RUUVI_INTERFACE_FLASH_H
 
 #include "ruuvi_driver_error.h"
 
 #include <stddef.h>
 
 /**
- * Get total size of usable flash, excluding any overhead bytes
+ * @brief Get total size of usable flash, excluding any overhead bytes
  *
- * parameter size: size of useable storage in bytes.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if size is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: error code from stack on other error
+ * @param[out] size Size of useable storage in bytes.
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_NULL if size is null
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_total_size_get(size_t* size);
 
 /**
- * Get size of usable page, excluding any overhead bytes
+ * @brief Get size of usable page, excluding any overhead bytes
  * If returned value is N, a record of N bytes must fit in one page
- * and 2 records of size (N/2)-1 etc.
  *
- * parameter size: size of useable storage in bytes.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if size is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: error code from stack on other error
+ * @param[out] size Size of useable storage in bytes.
+ * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RUUVI_DRIVER_ERROR_NULL if size is null
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return error code from stack on other error
  */
 ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size);
 
 /**
- * Get total size of free flash.
+ * @brief Get total size of free flash.
  *
  * @param[out] size  size of useable storage in bytes.
  * @return RUUVI_DRIVER_SUCCESS on success
@@ -52,7 +60,22 @@ ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size);
  */
 ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
 
-ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t page_id,
+/**
+ * @brief mark a record for deletion. 
+ * 
+ * Note that this only marks the record as freed
+ * and does not physically overwrite the flash.
+ * The function only starts the operation and returns immediately.
+ *
+ * @param[in] file_id ID of file which contains the record.
+ * @param[in] record_id ID of record to delete.
+ *
+ * @return RUUVI_DRIVER_SUCCESS if deletion was queued
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RUUVI_DRIVER_ERROR_BUSY if another operation was ongoing
+ * @return RUUVI_DRIVER_ERROR_NOT_FOUND if give record was not found. 
+ */
+ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t file_id,
     const uint32_t record_id);
 
 /**
@@ -120,4 +143,12 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void);
  */
 void ruuvi_interface_flash_purge(void);
 
+/**
+ * @brief Check if flash is busy
+ *
+ * @return True if flash is running an operation.
+ * @return False if flash is idle.
+ */
+bool ruuvi_interface_flash_is_busy();
+/*@}*/
 #endif
