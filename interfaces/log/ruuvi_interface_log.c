@@ -141,6 +141,10 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error,
         written += snprintf(error_string + written, space_remaining - written, "%s", "SELFTEST");
         break;
 
+      case RUUVI_DRIVER_ERROR_NOT_ACKNOWLEDGED:
+        written += snprintf(error_string + written, space_remaining - written, "%s", "NOT ACKNOWLEDGED");
+        break;
+
       case RUUVI_DRIVER_ERROR_FATAL:
         written += snprintf(error_string + written, space_remaining - written, "%s", "FATAL");
         break;

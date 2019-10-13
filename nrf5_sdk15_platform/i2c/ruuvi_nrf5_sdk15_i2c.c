@@ -96,9 +96,9 @@ static void byte_timeout_set(const
 static void on_complete(nrf_drv_twi_evt_t const *p_event, void *p_context)
 {
   m_tx_in_progress = false;
-  if(p_event->type == NRF_DRV_TWI_EVT_ADDRESS_NACK) { xfer_status |= NRF_ERROR_DRV_TWI_ERR_ANACK; }
-  if(p_event->type == NRF_DRV_TWI_EVT_DATA_NACK) { xfer_status |= NRF_ERROR_DRV_TWI_ERR_DNACK; }
-  if(p_event->type != NRF_DRV_TWI_EVT_DONE) { xfer_status |= NRF_ERROR_INTERNAL; }
+  if(p_event->type == NRF_DRV_TWI_EVT_ADDRESS_NACK) { xfer_status |= NRF_ERROR_NOT_FOUND; }
+  else if(p_event->type == NRF_DRV_TWI_EVT_DATA_NACK) { xfer_status |= NRF_ERROR_DRV_TWI_ERR_DNACK; }
+  else if(p_event->type != NRF_DRV_TWI_EVT_DONE) { xfer_status |= NRF_ERROR_INTERNAL; }
 }
 
 ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_config_t*
