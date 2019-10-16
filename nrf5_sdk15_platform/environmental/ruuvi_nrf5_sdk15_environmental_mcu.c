@@ -125,8 +125,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
 
   // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
   nrf_temp_init();
-  temperature = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
   tsample     = RUUVI_DRIVER_UINT64_INVALID;
+  temperature = RUUVI_DRIVER_FLOAT_INVALID;
   // Setup function pointers
   environmental_sensor->init              = ruuvi_interface_environmental_mcu_init;
   environmental_sensor->uninit            = ruuvi_interface_environmental_mcu_uninit;
@@ -148,6 +148,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
   environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
   environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
   environmental_sensor->name              = m_tmp_name;
+  environmental_sensor->provides.datas.temperature_c = 1;
   sensor_is_init = true;
   return RUUVI_DRIVER_SUCCESS;
 }
@@ -160,7 +161,6 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit(
   sensor_is_init = false;
   autorefresh = false;
   ruuvi_driver_sensor_uninitialize(environmental_sensor);
-  temperature = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
   tsample     = RUUVI_DRIVER_UINT64_INVALID;
   return RUUVI_DRIVER_SUCCESS;
 }
@@ -327,24 +327,26 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_get(uint8_t* mode)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(void* data)
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(ruuvi_driver_sensor_data_t* const p_data)
 {
-  if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
-
-  ruuvi_interface_environmental_data_t* environmental =
-    (ruuvi_interface_environmental_data_t*) data;
+  if(NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
   if(autorefresh) { nrf52832_temperature_sample(); }
 
-  environmental->timestamp_ms  = RUUVI_DRIVER_UINT64_INVALID;
-  environmental->temperature_c = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-  environmental->pressure_pa   = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-  environmental->humidity_rh   = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-
-  if(RUUVI_INTERFACE_ENVIRONMENTAL_INVALID != temperature)
+  if(!isnan(temperature))
   {
-    environmental->timestamp_ms  = tsample;
-    environmental->temperature_c = temperature;
+    ruuvi_driver_sensor_data_t d_environmental;
+    ruuvi_driver_sensor_data_fields_t env_fields = {.bitfield = 0};
+    float env_values[1];
+    env_values[1] = temperature;
+    env_fields.datas.temperature_c = 1;
+    d_environmental.data = env_values;
+    d_environmental.valid  = env_fields;
+    d_environmental.fields = env_fields;
+    ruuvi_driver_sensor_data_populate(p_data,
+                                      &d_environmental,
+                                      p_data->fields);
+    p_data->timestamp_ms = tsample;
   }
 
   return RUUVI_DRIVER_SUCCESS;

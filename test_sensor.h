@@ -68,7 +68,7 @@ ruuvi_driver_status_t test_sensor_setup(const ruuvi_driver_sensor_init_fp init,
  * - Sensor must return all values as INVALID if sensor is read before first sample
  * - Sensor must be in SLEEP mode after mode has been set to SINGLE
  * - Sensor must have new data after setting mode to SINGLE returns
- * - Sensor must same values, including timestamp, on successive calls to DATA_GET after SINGLE sample
+ * - Sensor must have same values, including timestamp, on successive calls to DATA_GET after SINGLE sample
  * - Sensor must stay in CONTINUOUS mode after being set to continuous
  * - Sensor must return RUUVI_DRIVER_ERROR_INVALID_STATE if set to SINGLE while in continuous mode  and remain in continuous mode
  * - Sensor must return RUUVI_DRIVER_ERROR_NULL if null mode is passed as a parameter
@@ -76,14 +76,14 @@ ruuvi_driver_status_t test_sensor_setup(const ruuvi_driver_sensor_init_fp init,
  *   * Sensor is allowed to buffer data in CONTINUOUS mode.
  *   * if data is buffered and more samples are available, sensor must return RUUVI_DRIVER_STATUS_MORE_AVAILABLE
  *
- * @param[in] init   Function pointer to sensor initialization
- * @param[in] bus    Bus of the sensor, RUUVI_DRIVER_BUS_NONE, _I2C, _UART or _SPI
- * @param[in] handle Handle of the sensor, such as SPI GPIO pin, I2C address or ADC channel.
+ * @param[in] init     Function pointer to sensor initialization
+ * @param[in] bus      Bus of the sensor, RUUVI_DRIVER_BUS_NONE, _I2C, _UART or _SPI
+ * @param[in] handle   Handle of the sensor, such as SPI GPIO pin, I2C address or ADC channel.
  *
  * @return @c RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
-ruuvi_driver_status_t test_sensor_modes(ruuvi_driver_sensor_init_fp init,
-                                        ruuvi_driver_bus_t bus, uint8_t handle);
+ruuvi_driver_status_t test_sensor_modes(const ruuvi_driver_sensor_init_fp init,
+                                        const ruuvi_driver_bus_t bus, const uint8_t handle);
 
 /**
  * @brief Test that sensor interrupts work as expected

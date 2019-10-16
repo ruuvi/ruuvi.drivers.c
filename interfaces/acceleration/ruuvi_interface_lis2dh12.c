@@ -144,8 +144,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
   // Set full scale to 2G for self-test
   dev.scale = LIS2DH12_2g;
   lis2dh12_full_scale_set(dev_ctx, dev.scale);
-  // (Don't) Enable temperature sensor
-  //lis2dh12_temperature_meas_set(&dev_ctx, LIS2DH12_TEMP_ENABLE);
+  // Enable temperature sensor
+  lis2dh12_temperature_meas_set(dev_ctx, LIS2DH12_TEMP_ENABLE);
   // Set device in 10 bit mode
   dev.resolution = LIS2DH12_NM_10bit;
   lis2dh12_operating_mode_set(dev_ctx, dev.resolution);
@@ -218,6 +218,10 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
     acceleration_sensor->level_interrupt_set   =
       ruuvi_interface_lis2dh12_activity_interrupt_use;
     acceleration_sensor->name                  = m_acc_name;
+    acceleration_sensor->provides.datas.acceleration_x_g = 1;
+    acceleration_sensor->provides.datas.acceleration_y_g = 1;
+    acceleration_sensor->provides.datas.acceleration_z_g = 1;
+    acceleration_sensor->provides.datas.temperature_c = 1;
     dev.tsample = RUUVI_DRIVER_UINT64_INVALID;
   }
 
@@ -640,6 +644,40 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_get(uint8_t* mode)
 }
 
 /**
+ * Convert raw value to temperature in celcius-
+ *
+ * parameter raw: Input. Raw values from LIS2DH12-
+ * parameter acceleration: Output. Temperature values in C.
+ *
+ */
+static ruuvi_driver_status_t rawToC(const uint8_t* const raw_temperature,
+                                    float* temperature)
+{
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  int16_t lsb = raw_temperature[0]<<8 | raw_temperature[1];
+  switch(dev.resolution)
+  {
+    case LIS2DH12_LP_8bit:
+      *temperature = lis2dh12_from_lsb_lp_to_celsius(lsb);
+      break;
+
+    case LIS2DH12_NM_10bit:
+      *temperature = lis2dh12_from_lsb_nm_to_celsius(lsb);
+      break;
+
+    case LIS2DH12_HR_12bit:
+      *temperature = lis2dh12_from_lsb_hr_to_celsius(lsb);
+      break;
+
+    default:
+      *temperature = RUUVI_DRIVER_FLOAT_INVALID;
+      err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
+      break;
+  }
+  return err_code;
+}
+
+/**
  * Convert raw value to acceleration in mg
  *
  * parameter raw: Input. Raw values from LIS2DH12
@@ -671,7 +709,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
             break;
 
           default:
-            acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
+            acceleration[ii] = RUUVI_DRIVER_FLOAT_INVALID;
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
@@ -694,7 +732,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
             break;
 
           default:
-            acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
+            acceleration[ii] = RUUVI_DRIVER_FLOAT_INVALID;
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
@@ -717,7 +755,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
             break;
 
           default:
-            acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
+            acceleration[ii] = RUUVI_DRIVER_FLOAT_INVALID;
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
@@ -740,7 +778,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
             break;
 
           default:
-            acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
+            acceleration[ii] = RUUVI_DRIVER_FLOAT_INVALID;
             err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
             break;
         }
@@ -748,7 +786,7 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
         break;
 
       default:
-        acceleration[ii] = RUUVI_INTERFACE_ACCELERATION_INVALID;
+        acceleration[ii] = RUUVI_DRIVER_FLOAT_INVALID;
         err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
         break;
     }
@@ -757,38 +795,51 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
   return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(void* data)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data_t* const data)
 {
   if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
 
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   axis3bit16_t raw_acceleration;
+  uint8_t raw_temperature[2];
   memset(raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
   err_code |= lis2dh12_acceleration_raw_get(&(dev.ctx), raw_acceleration.u8bit);
-  ruuvi_interface_acceleration_data_t* p_acceleration =
-    (ruuvi_interface_acceleration_data_t*)data;
-  float acceleration[3] = {0};
-  p_acceleration->timestamp_ms = RUUVI_DRIVER_UINT64_INVALID;
-  p_acceleration->x_g = RUUVI_INTERFACE_ACCELERATION_INVALID;
-  p_acceleration->y_g = RUUVI_INTERFACE_ACCELERATION_INVALID;
-  p_acceleration->z_g = RUUVI_INTERFACE_ACCELERATION_INVALID;
+  err_code |= lis2dh12_temperature_raw_get(&(dev.ctx), raw_temperature);
+  
   // Compensate data with resolution, scale
+  float acceleration[3];
+  float temperature;
   err_code |= rawToMg(&raw_acceleration, acceleration);
+  err_code |= rawToC(raw_temperature, &temperature);
   uint8_t mode;
   err_code |= ruuvi_interface_lis2dh12_mode_get(&mode);
 
-  if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == mode)           {  p_acceleration->timestamp_ms   = dev.tsample; }
-  else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) {  p_acceleration->timestamp_ms   = ruuvi_driver_sensor_timestamp_get(); }
+  if(RUUVI_DRIVER_SENSOR_CFG_SLEEP == mode)           {  data->timestamp_ms   = dev.tsample; }
+  else if(RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == mode) {  data->timestamp_ms   = ruuvi_driver_sensor_timestamp_get(); }
   else { RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INTERNAL, ~RUUVI_DRIVER_ERROR_FATAL); }
 
   // If we have valid data, return it.
-  if(RUUVI_DRIVER_UINT64_INVALID != p_acceleration->timestamp_ms
+  if(RUUVI_DRIVER_UINT64_INVALID != data->timestamp_ms
       && RUUVI_DRIVER_SUCCESS == err_code)
   {
+    ruuvi_driver_sensor_data_t d_acceleration;
+    ruuvi_driver_sensor_data_fields_t acc_fields = {.bitfield = 0};
+    acc_fields.datas.acceleration_x_g = 1;
+    acc_fields.datas.acceleration_y_g = 1;
+    acc_fields.datas.acceleration_z_g = 1;
+    acc_fields.datas.temperature_c = 1;
     //Convert mG to G
-    p_acceleration->x_g = acceleration[0] / 1000.0;
-    p_acceleration->y_g = acceleration[1] / 1000.0;
-    p_acceleration->z_g = acceleration[2] / 1000.0;
+    float values[4];
+    values[0] = acceleration[0] / 1000.0;
+    values[1] = acceleration[1] / 1000.0;
+    values[2] = acceleration[2] / 1000.0;
+    values[3] = temperature;
+    d_acceleration.data = acceleration;
+    d_acceleration.valid  = acc_fields;
+    d_acceleration.fields = acc_fields;
+    ruuvi_driver_sensor_data_populate(data,
+                                      &d_acceleration,
+                                      data->fields);
   }
 
   return err_code;
@@ -812,7 +863,6 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
 {
   if(NULL == num_elements || NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
-  ruuvi_interface_acceleration_data_t* data = (ruuvi_interface_acceleration_data_t*)p_data;
   uint8_t elements = 0;
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   err_code |= lis2dh12_fifo_data_level_get(&(dev.ctx), &elements);
@@ -845,10 +895,21 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
     err_code |= lis2dh12_acceleration_raw_get(&(dev.ctx), raw_acceleration.u8bit);
     // Compensate data with resolution, scale
     err_code |= rawToMg(&raw_acceleration, acceleration);
-    data[ii].timestamp_ms = now - ((elements - ii - 1) * interval);
-    data[ii].x_g = acceleration[0] / 1000;
-    data[ii].y_g = acceleration[1] / 1000;
-    data[ii].z_g = acceleration[2] / 1000;
+    ruuvi_driver_sensor_data_t d_acceleration;
+    ruuvi_driver_sensor_data_fields_t acc_fields = {.bitfield = 0};
+    acc_fields.datas.acceleration_x_g = 1;
+    acc_fields.datas.acceleration_y_g = 1;
+    acc_fields.datas.acceleration_z_g = 1;
+    //Convert mG to G
+    acceleration[0] = acceleration[0] / 1000.0;
+    acceleration[1] = acceleration[1] / 1000.0;
+    acceleration[2] = acceleration[2] / 1000.0;
+    d_acceleration.data = acceleration;
+    d_acceleration.valid  = acc_fields;
+    d_acceleration.fields = acc_fields;
+    ruuvi_driver_sensor_data_populate(&(p_data[ii]),
+                                      &d_acceleration,
+                                      p_data[ii].fields);
   }
 
   *num_elements = elements;

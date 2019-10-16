@@ -86,7 +86,7 @@ static ruuvi_driver_status_t ruuvi_driver_level_interrupt_set_ni(const bool enab
   return RUUVI_DRIVER_ERROR_NOT_INITIALIZED;
 }
 
-static ruuvi_driver_status_t ruuvi_driver_data_get_ni(void* const data)
+static ruuvi_driver_status_t ruuvi_driver_data_get_ni(ruuvi_driver_sensor_data_t* const data)
 {
   return RUUVI_DRIVER_ERROR_NOT_INITIALIZED;
 }
@@ -141,9 +141,68 @@ void ruuvi_driver_sensor_initialize(ruuvi_driver_sensor_t* const p_sensor)
   p_sensor->samplerate_set        = ruuvi_driver_setup_ni;
   p_sensor->scale_get             = ruuvi_driver_setup_ni;
   p_sensor->scale_set             = ruuvi_driver_setup_ni;
+  memset(&(p_sensor->provides), 0, sizeof(p_sensor->provides));
 }
 
 void ruuvi_driver_sensor_uninitialize(ruuvi_driver_sensor_t* const p_sensor)
 {
+  // Reset sensor to initial values. 
   ruuvi_driver_sensor_initialize(p_sensor);
+}
+
+static inline uint8_t get_index_of_field(const ruuvi_driver_sensor_data_t* const target, 
+                                  const ruuvi_driver_sensor_data_fields_t field)
+{
+  // Null bits higher than target
+  uint32_t mask = (1 << (32 - __builtin_clz(field.bitfield))) - 1;
+  // Count set bits in nulled bitfield to find index.
+  return __builtin_popcount(target->fields.bitfield & mask) - 1;
+}
+
+float ruuvi_driver_sensor_data_parse(const ruuvi_driver_sensor_data_t* const provided,
+                                     const ruuvi_driver_sensor_data_fields_t requested)
+{
+  // If there isn't valid requested data, return value "invalid".
+  if(!(provided->valid.bitfield & requested.bitfield)) { return RUUVI_DRIVER_FLOAT_INVALID; }
+  // If trying to get more than one field, return value "invalid".
+  if(1 != __builtin_popcount(requested.bitfield)) { return RUUVI_DRIVER_FLOAT_INVALID; }
+  // Return requested value
+  return provided->data[get_index_of_field(provided, requested)];
+}
+
+void ruuvi_driver_sensor_data_set(ruuvi_driver_sensor_data_t* const target,
+                                  const ruuvi_driver_sensor_data_fields_t field,
+                                  const float value)
+{
+  // If there isn't valid requested data, return
+  if(!(target->fields.bitfield & field.bitfield)) { return; }
+  // If trying to set more than one field, return.
+  if(1 != __builtin_popcount(field.bitfield)) { return; }
+  // Set value to appropriate index
+  target->data[get_index_of_field(target, field)] = value;
+  // Mark data as valid
+  target->valid.bitfield |= field.bitfield;
+}
+
+void ruuvi_driver_sensor_data_populate(ruuvi_driver_sensor_data_t* const target,
+                                       const ruuvi_driver_sensor_data_t* const provided,
+                                       const ruuvi_driver_sensor_data_fields_t requested)
+{
+  if(NULL == target || NULL == provided) { return; } 
+  // Compare provided data to requested data.
+  ruuvi_driver_sensor_data_fields_t available = {.bitfield = (provided->valid).bitfield & requested.bitfield};
+  // We have the available, requested fields. Fill the target struct with those
+  while(available.bitfield)
+  {
+    // read rightmost field
+    ruuvi_driver_sensor_data_fields_t next = {.bitfield = (1 << __builtin_ctz(available.bitfield)) };
+    float value = ruuvi_driver_sensor_data_parse(provided, next);
+    ruuvi_driver_sensor_data_set(target, next, value);
+    available.bitfield &= (available.bitfield-1); // set rightmost bit of available to 0
+  }
+}
+
+inline uint8_t ruuvi_driver_sensor_data_fieldcount(const ruuvi_driver_sensor_data_t* const target)
+{
+  return __builtin_popcount(target->fields.bitfield);
 }

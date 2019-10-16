@@ -129,6 +129,8 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_init(ruuvi_driver_sensor_t*
     environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
     environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
     environmental_sensor->name              = m_sensor_name;
+    environmental_sensor->provides.datas.temperature_c = 1;
+    environmental_sensor->provides.datas.humidity_rh = 1;
     m_tsample = RUUVI_DRIVER_UINT64_INVALID;
     m_is_init = true;
   }
@@ -301,16 +303,14 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_mode_get(uint8_t* mode)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(void* data)
+ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(ruuvi_driver_sensor_data_t* const p_data)
 {
-  if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
-  ruuvi_interface_environmental_data_t* environmental =
-    (ruuvi_interface_environmental_data_t*) data;
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   if(m_autorefresh) 
   { 
-    /* XXX Sensor sleep clears measured values, blocking read required.
+    /* Sensor sleep clears measured values, blocking read required.
     // read sensor values
     err_code |= SHTCX_TO_RUUVI_ERROR(shtc1_read(&m_temperature, &m_humidity));
     // Start next measurement
@@ -320,16 +320,22 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(void* data)
     m_tsample = ruuvi_driver_sensor_timestamp_get();
   }
 
-  environmental->timestamp_ms  = RUUVI_DRIVER_UINT64_INVALID;
-  environmental->temperature_c = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-  environmental->pressure_pa   = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-  environmental->humidity_rh   = RUUVI_INTERFACE_ENVIRONMENTAL_INVALID;
-
   if(RUUVI_DRIVER_SUCCESS == err_code && RUUVI_DRIVER_UINT64_INVALID != m_tsample)
   {
-    environmental->timestamp_ms  = m_tsample;
-    environmental->temperature_c = m_temperature/1000.0f;
-    environmental->humidity_rh   = m_humidity/1000.0f;
+    ruuvi_driver_sensor_data_t d_environmental;
+    ruuvi_driver_sensor_data_fields_t env_fields = {.bitfield = 0};
+    float env_values[2];
+    env_values[0] = m_humidity/1000.0f;
+    env_values[1] = m_temperature/1000.0f;
+    env_fields.datas.humidity_rh = 1;
+    env_fields.datas.temperature_c = 1;
+    d_environmental.data = env_values;
+    d_environmental.valid  = env_fields;
+    d_environmental.fields = env_fields;
+    ruuvi_driver_sensor_data_populate(p_data,
+                                      &d_environmental,
+                                      p_data->fields);
+    p_data->timestamp_ms = m_tsample;
   }
 
   return err_code;

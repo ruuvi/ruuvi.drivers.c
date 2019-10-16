@@ -65,28 +65,28 @@
 #define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID //!< Signal this timestamp value is erroneous
 
 // Constants for sensor configuration and status
-#define RUUVI_DRIVER_SENSOR_CFG_DEFAULT         0      ///< Default value, always valid for the sensor.
-#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_1        0xC9   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_2        0xCA   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3        0xCB   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_4        0xCC   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_5        0xCD   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_6        0xCE   ///< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RUUVI_DRIVER_SENSOR_ERR_INVALID         0xE0   ///< Error code, given parameter is invalid
-#define RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED 0xE1   ///< Error code, given parameter is not implemented (todo)
-#define RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED   0xE2   ///< Error code, given parameter is not supported by sensor
-#define RUUVI_DRIVER_SENSOR_CFG_MIN             0xF0   ///< Configure smallest supported and implemented value
-#define RUUVI_DRIVER_SENSOR_CFG_MAX             0xF1   ///< Configure largest supported and implemented value
-#define RUUVI_DRIVER_SENSOR_CFG_SLEEP           0xF2   ///< Sensor should go to sleep immediately
-#define RUUVI_DRIVER_SENSOR_CFG_SINGLE          0xF3   ///< Sensor should go to sleep after single measurement
-#define RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS      0xF4   ///< Sensor will keep sampling at defined sample rate
-#define RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE       0xFF   ///< Do not change configured value
+#define RUUVI_DRIVER_SENSOR_CFG_DEFAULT         0      //!< Default value, always valid for the sensor.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_1        0xC9   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_2        0xCA   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3        0xCB   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_4        0xCC   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_5        0xCD   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_CFG_CUSTOM_6        0xCE   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RUUVI_DRIVER_SENSOR_ERR_INVALID         0xE0   //!< Error code, given parameter is invalid
+#define RUUVI_DRIVER_SENSOR_ERR_NOT_IMPLEMENTED 0xE1   //!< Error code, given parameter is not implemented (todo)
+#define RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED   0xE2   //!< Error code, given parameter is not supported by sensor
+#define RUUVI_DRIVER_SENSOR_CFG_MIN             0xF0   //!< Configure smallest supported and implemented value
+#define RUUVI_DRIVER_SENSOR_CFG_MAX             0xF1   //!< Configure largest supported and implemented value
+#define RUUVI_DRIVER_SENSOR_CFG_SLEEP           0xF2   //!< Sensor should go to sleep immediately
+#define RUUVI_DRIVER_SENSOR_CFG_SINGLE          0xF3   //!< Sensor should go to sleep after single measurement
+#define RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS      0xF4   //!< Sensor will keep sampling at defined sample rate
+#define RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE       0xFF   //!< Do not change configured value
 
 // DSP functions, complemented by DSP parameter
-#define RUUVI_DRIVER_SENSOR_DSP_LAST            0      ///< Return last value from sesnor. Parameter: No effect. Use default
-#define RUUVI_DRIVER_SENSOR_DSP_LOW_PASS        (1<<1) ///< Low pass sensor values Parameter: coefficient
-#define RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS       (1<<2) ///< High pass sensor values Parameter: coefficient
-#define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<3) ///< Oversample sensor values. Parameter: Number of samples
+#define RUUVI_DRIVER_SENSOR_DSP_LAST            0      //!< Return last value from sesnor. Parameter: No effect. Use default
+#define RUUVI_DRIVER_SENSOR_DSP_LOW_PASS        (1<<1) //!< Low pass sensor values Parameter: coefficient
+#define RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS       (1<<2) //!< High pass sensor values Parameter: coefficient
+#define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<3) //!< Oversample sensor values. Parameter: Number of samples
 
 /** @brief convert Ruuvi GPIO into uint8_t */
 #define RUUVI_DRIVER_GPIO_TO_HANDLE(handle) ((((handle) >> 3) & 0xE0) + ((handle) & 0x1F))
@@ -123,16 +123,47 @@ typedef enum
 } ruuvi_driver_bus_t;
 
 /**
+ * @brief Bitfield to describe related sensor data
+ */
+typedef struct{
+  unsigned int acceleration_x_g : 1; //!< Acceleration along X-axis, gravities.
+  unsigned int acceleration_y_g : 1; //!< Acceleration along Y-axis, gravities.
+  unsigned int acceleration_z_g : 1; //!< Acceleration along Z-axis, gravities.
+  unsigned int co2_ppm : 1;          //!< CO2, Parts per million.
+  unsigned int gyro_x_dps : 1;       //!< Rotation along X-axis, degrees per second.
+  unsigned int gyro_y_dps : 1;       //!< Rotation along Y-axis, degrees per second.
+  unsigned int gyro_z_dps : 1;       //!< Rotation along Z-axis, degrees per second.
+  unsigned int humidity_rh :1;       //!< Relative humidity, %.
+  unsigned int luminosity  :1;       //!< Light level, dimensionless. Comparable only between identical devices.
+  unsigned int magnetometer_x_g : 1; //!< Magnetic flux along X-axis, Gauss.
+  unsigned int magnetometer_y_g : 1; //!< Magnetic flux along Y-axis, Gauss.
+  unsigned int magnetometer_z_g : 1; //!< Magnetic flux along Z-axis, Gauss.
+  unsigned int pm_1_ugm3 : 1;        //!< Ultra-fine particulate matter, microgram per m^3.
+  unsigned int pm_2_ugm3 : 1;        //!< Fine particulate matter, microgram per m^3.
+  unsigned int pm_4_ugm3 : 1;        //!< Medium particulate matter, microgram per m^3.
+  unsigned int pm_10_ugm3 : 1;       //!< Coarse particulate matter, microgram per m^3.
+  unsigned int pressure_pa :1;       //!< Pressure, pascals
+  unsigned int spl_dbz : 1;          //!< Unweighted sound pressure level.
+  unsigned int temperature_c :1;     //!< Temperature, celcius
+  unsigned int voc_ppm : 1;          //!< Volatile organic compounds, parts per million.
+  unsigned int voltage_v : 1;        //!< Voltage, volts. 
+  unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
+}ruuvi_driver_sensor_data_bitfield_t;
+
+typedef union{
+  unsigned int bitfield;
+  ruuvi_driver_sensor_data_bitfield_t datas;
+}ruuvi_driver_sensor_data_fields_t;
+
+/**
  * @brief Generic sensor data struct. 
- * Used with ruuvi_driver_sensor_data_fp in tests.
- * It's strongly recommended to match this format in all sensor data formats.
  */
 typedef struct ruuvi_driver_sensor_data_t
 {
-  uint64_t timestamp; //!< Timestamp of the event, @ref ruuvi_driver_sensor_timestamp_get
-  float value0;       //!< First value of sensor
-  float value1;       //!< Second value of sensor
-  float value2;       //!< Third value of sensor 
+  uint64_t timestamp_ms;                    //!< Timestamp of the event, @ref ruuvi_driver_sensor_timestamp_get.
+  ruuvi_driver_sensor_data_fields_t fields; //!< Description of datafields which may be contained in this sample.
+  ruuvi_driver_sensor_data_fields_t valid;  //!< Listing of valid data in this sample. 
+  float* data;                              //!< Data of sensor. 
 } ruuvi_driver_sensor_data_t;
 
 /** @brief Forward declare type definition of sensor structure */
@@ -200,7 +231,7 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_dsp_fp)(uint8_t* dsp_functio
  * @warning if sensor data is not valid for any reason, data is populated with 
  *          @c RUUVI_DRIVER_FLOAT_INVALID.
  */
-typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_data_fp)(void* p_data);
+typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_data_fp)(ruuvi_driver_sensor_data_t* const p_data);
 
 /**
  * @brief Convenience function to write/read entire configuration in one call.
@@ -227,7 +258,7 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_configuration_fp)(
 * @return error code from stack on error.
 */
 typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_fifo_read_fp)(size_t* num_elements,
-    ruuvi_driver_sensor_data_t* data);
+    ruuvi_driver_sensor_data_t* const data);
 
 /**
 * @brief Enable FIFO or FIFO interrupt full interrupt on sensor.
@@ -279,7 +310,9 @@ typedef uint64_t (*ruuvi_driver_sensor_timestamp_fp)(void);
 typedef struct ruuvi_driver_sensor_t
 {
   /** @brief sensor human-readable name. Should be at most 8 bytes long. */
-  const char* name;  
+  const char* name;
+  /** @brief Description of data fields the sensor is able to provide. */
+  ruuvi_driver_sensor_data_fields_t provides;
   /** @brief @ref ruuvi_driver_sensor_init_fp */
   ruuvi_driver_sensor_init_fp   init;  
   /** @brief @ref ruuvi_driver_sensor_init_fp */            
@@ -371,5 +404,44 @@ void ruuvi_driver_sensor_uninitialize(ruuvi_driver_sensor_t* const p_sensor);
  */
 bool ruuvi_driver_sensor_is_init(const ruuvi_driver_sensor_t* const sensor);
 
+/** 
+ * @brief Populate given target data with data provided by sensor as requested. 
+ *
+ * This function looks up the appropriate assigments on each data field in given target
+ * and populates it with provided data if caller requested the field to be populated.
+ * Populated fields are marked as valid. 
+ *
+ * @param[out] target Data to be populated.
+ * @param[in]  provided Data provided by sensor.
+ * @param[in]  requested Fields to be filled if possible. 
+ */
+void ruuvi_driver_sensor_data_populate(ruuvi_driver_sensor_data_t* const target,
+                                       const ruuvi_driver_sensor_data_t* const provided,
+                                       const ruuvi_driver_sensor_data_fields_t requested);
+
+/** 
+ * @brief Parse data from provided struct
+ *
+ * This function looks up the appropriate assigments on each data field in given target
+ * and populates it with provided data if caller requested the field to be populated.
+ *
+ * @param[out] target Data to be populated.
+ * @param[in]  provided Data provided by sensor.
+ * @param[in]  requested Data to be parsed if possible
+ * @return     sensor value if found, RUUVI_DRIVER_FLOAT_INVALID if the provided data didn't have a valid value. 
+ */
+float ruuvi_driver_sensor_data_parse(const ruuvi_driver_sensor_data_t* const provided,
+                                     const const ruuvi_driver_sensor_data_fields_t requested);
+
+/** 
+ * @brief count number of floats required fot this data structure
+ *
+ * This function looks up the appropriate assigments on each data field in given target
+ * and populates it with provided data if caller requested the field to be populated.
+ *
+ * @param[in]  target Structure to count number of fields from.
+ * @return     Number of floats required to store the sensor data. 
+ */
+uint8_t ruuvi_driver_sensor_data_fieldcount(const ruuvi_driver_sensor_data_t* const target);
 /*@}*/
 #endif

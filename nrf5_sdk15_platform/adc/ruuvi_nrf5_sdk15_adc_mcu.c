@@ -297,6 +297,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   adc_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
   adc_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
   adc_sensor->name              = m_adc_name;
+  adc_sensor->provides.datas.voltage_v = 1;
   adc_volts = RUUVI_INTERFACE_ADC_INVALID;
   adc_tsample = RUUVI_DRIVER_UINT64_INVALID;
   autorefresh = false;
@@ -551,24 +552,28 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_get(uint8_t* mode)
 }
 
 
-ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(void* data)
+ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(ruuvi_driver_sensor_data_t* const p_data)
 {
-  if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
-
-  ruuvi_interface_adc_data_t* adc = (ruuvi_interface_adc_data_t*) data;
+  if(NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
   if(autorefresh) { nrf52832_adc_sample(); }
 
-  adc->timestamp_ms    = RUUVI_DRIVER_UINT64_INVALID;
-  adc->adc_ratiometric = RUUVI_INTERFACE_ADC_INVALID;
-  adc->reserved1       = RUUVI_INTERFACE_ADC_INVALID;
-  adc->adc_v           = RUUVI_INTERFACE_ADC_INVALID;
+  p_data->timestamp_ms    = RUUVI_DRIVER_UINT64_INVALID;
 
   if(!isnan(adc_volts))
   {
-    // autorefresh / continuous mode  updates tsample.
-    adc->timestamp_ms  = adc_tsample;
-    adc->adc_v         = adc_volts;
+    ruuvi_driver_sensor_data_t d_adc;
+    ruuvi_driver_sensor_data_fields_t adc_fields = {.bitfield = 0};
+    float adc_values[1];
+    adc_values[0] = adc_volts;
+    adc_fields.datas.voltage_v = 1;
+    d_adc.data = adc_values;
+    d_adc.valid  = adc_fields;
+    d_adc.fields = adc_fields;
+    ruuvi_driver_sensor_data_populate(p_data,
+                                      &d_adc,
+                                      p_data->fields);
+    p_data->timestamp_ms = adc_tsample;
   }
 
   return RUUVI_DRIVER_SUCCESS;
