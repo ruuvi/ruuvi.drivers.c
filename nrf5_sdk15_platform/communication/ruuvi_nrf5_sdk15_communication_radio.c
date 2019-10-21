@@ -116,7 +116,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(
   uint8_t handle = RUUVI_INTERFACE_COMMUNICATION_RADIO_UNINIT;
   ble_gap_addr_t addr;
   addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
-  // Initialize radio to gett address if necessary.
+  // Initialize radio to get address if necessary.
   if(!ruuvi_interface_communication_radio_is_init())
   {
     handle = RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT;
