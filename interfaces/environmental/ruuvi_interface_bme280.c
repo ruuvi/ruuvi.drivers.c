@@ -588,6 +588,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_data_get(ruuvi_driver_sensor_data_t
     env_fields.datas.temperature_c = 1;
     d_environmental.data = env_values;
     d_environmental.fields = env_fields;
+    d_environmental.valid  = env_fields;
     ruuvi_driver_sensor_data_populate(p_data,
                                       &d_environmental,
                                       p_data->fields);
