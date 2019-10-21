@@ -528,6 +528,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_stop()
   return err_code;
 }
 
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_ongoing(void)
+{
+  return m_advertising;
+}
+
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send_raw(uint8_t* data, size_t data_length)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
