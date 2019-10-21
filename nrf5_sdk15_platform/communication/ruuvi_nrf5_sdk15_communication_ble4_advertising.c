@@ -347,8 +347,10 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
     p_adv_data->scan_rsp_data.p_data = NULL;
     p_adv_data->scan_rsp_data.len    = 0;
   }
-
-  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, p_adv_data, NULL);
+  if(m_advertising)
+  {
+    err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, p_adv_data, NULL);
+  }
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
@@ -515,7 +517,8 @@ void ruuvi_interface_communication_ble4_advertising_notify_stop(void)
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_start()
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, NULL, &m_adv_params);
+  ble_gap_adv_data_t* p_adv_data = &m_adv_data;
+  err_code |= sd_ble_gap_adv_set_configure(&m_adv_handle, p_adv_data, &m_adv_params);
   err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error(sd_ble_gap_adv_start(m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG));
   if(RUUVI_DRIVER_SUCCESS == err_code) { m_advertising = true; }
   return err_code;
