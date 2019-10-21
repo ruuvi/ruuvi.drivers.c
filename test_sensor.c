@@ -156,6 +156,7 @@ ruuvi_driver_status_t test_sensor_init(const ruuvi_driver_sensor_init_fp init,
 
   // - Sensor must return RUUVI_DRIVER_SUCCESS on first init.
   err_code |= test_sensor_register(initialize_sensor_once(&DUT, init, bus, handle));
+  RETURN_ON_ERROR(err_code);
   // - None of the sensor function pointers may be NULL after init
   err_code |= test_sensor_register(validate_sensor_setup(&DUT));
   // - Sensor must return RUUVI_DRIVER_SUCCESS on first uninit
