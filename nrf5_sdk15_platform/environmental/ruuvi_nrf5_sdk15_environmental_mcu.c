@@ -89,7 +89,7 @@ static void nrf52832_temperature_sample(void)
   // If Nordic softdevice is enabled, we cannot use temperature peripheral directly
   if(sd_enabled)
   {
-    temperature = sd_temp_get(&raw_temp) / 4.0f;
+    sd_temp_get(&raw_temp);
   }
 
   // If SD is not enabled, call the peripheral directly.
@@ -106,11 +106,12 @@ static void nrf52832_temperature_sample(void)
 
     NRF_TEMP->EVENTS_DATARDY = 0;
     /**@note Workaround for PAN_028 rev2.0A anomaly 29 - TEMP: Stop task clears the TEMP register. */
-    temperature = (nrf_temp_read() / 4.0f);
+    raw_temp = nrf_temp_read();
     /**@note Workaround for PAN_028 rev2.0A anomaly 30 - TEMP: Temp module analog front end does not power down when DATARDY event occurs. */
     NRF_TEMP->TASKS_STOP = 1; /** Stop the temperature measurement. */
   }
 
+  temperature = raw_temp / 4.0f;
   tsample = ruuvi_driver_sensor_timestamp_get();
 }
 
