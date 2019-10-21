@@ -431,7 +431,7 @@ void ruuvi_driver_sensor_data_populate(ruuvi_driver_sensor_data_t* const target,
  * @return     sensor value if found, RUUVI_DRIVER_FLOAT_INVALID if the provided data didn't have a valid value. 
  */
 float ruuvi_driver_sensor_data_parse(const ruuvi_driver_sensor_data_t* const provided,
-                                     const const ruuvi_driver_sensor_data_fields_t requested);
+                                     const ruuvi_driver_sensor_data_fields_t requested);
 
 /** 
  * @brief count number of floats required fot this data structure
