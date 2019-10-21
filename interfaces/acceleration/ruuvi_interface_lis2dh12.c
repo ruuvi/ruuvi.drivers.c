@@ -823,18 +823,18 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data
       && RUUVI_DRIVER_SUCCESS == err_code)
   {
     ruuvi_driver_sensor_data_t d_acceleration;
+    float values[4];
     ruuvi_driver_sensor_data_fields_t acc_fields = {.bitfield = 0};
+    d_acceleration.data = values;
     acc_fields.datas.acceleration_x_g = 1;
     acc_fields.datas.acceleration_y_g = 1;
     acc_fields.datas.acceleration_z_g = 1;
     acc_fields.datas.temperature_c = 1;
-    //Convert mG to G
-    float values[4];
+    //Convert mG to G.
     values[0] = acceleration[0] / 1000.0;
     values[1] = acceleration[1] / 1000.0;
     values[2] = acceleration[2] / 1000.0;
     values[3] = temperature;
-    d_acceleration.data = acceleration;
     d_acceleration.valid  = acc_fields;
     d_acceleration.fields = acc_fields;
     ruuvi_driver_sensor_data_populate(data,
@@ -880,12 +880,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
   if(elements > *num_elements) { elements = *num_elements; }
 
   // get current time
-  uint64_t now = ruuvi_driver_sensor_timestamp_get();
-  // Get samplerate
-  uint8_t rate;
-  ruuvi_interface_lis2dh12_samplerate_get(&rate);
-  // Calculate sample interval
-  uint32_t interval = 1000 / rate;
+  p_data->timestamp_ms = ruuvi_driver_sensor_timestamp_get();
+
   // Read all elements
   axis3bit16_t raw_acceleration;
   float acceleration[3];
