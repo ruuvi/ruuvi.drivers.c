@@ -81,11 +81,6 @@ static ruuvi_driver_status_t ruuvi_driver_fifo_read_ni(size_t* num_elements, ruu
   return RUUVI_DRIVER_ERROR_NOT_INITIALIZED;
 }
 
-static ruuvi_driver_status_t ruuvi_driver_level_interrupt_set_ni(const bool enable, float* limit_g)
-{
-  return RUUVI_DRIVER_ERROR_NOT_INITIALIZED;
-}
-
 static ruuvi_driver_status_t ruuvi_driver_data_get_ni(ruuvi_driver_sensor_data_t* const data)
 {
   return RUUVI_DRIVER_ERROR_NOT_INITIALIZED;
