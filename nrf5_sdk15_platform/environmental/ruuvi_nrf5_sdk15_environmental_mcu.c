@@ -338,7 +338,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(ruuvi_driver_se
     ruuvi_driver_sensor_data_t d_environmental;
     ruuvi_driver_sensor_data_fields_t env_fields = {.bitfield = 0};
     float env_values[1];
-    env_values[1] = temperature;
+    env_values[0] = temperature;
     env_fields.datas.temperature_c = 1;
     d_environmental.data = env_values;
     d_environmental.valid  = env_fields;
