@@ -135,7 +135,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
   uint8_t enable_axes = 0x07;
   lis2dh12_write_reg(dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
   // Disable Block Data Update, allow values to update even if old is not read
-  lis2dh12_block_data_update_set(dev_ctx, PROPERTY_DISABLE);
+  lis2dh12_block_data_update_set(dev_ctx, PROPERTY_ENABLE);
   // Disable filtering
   lis2dh12_high_pass_on_outputs_set(dev_ctx, PROPERTY_DISABLE);
   // Set Output Data Rate for self-test
@@ -644,7 +644,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_get(uint8_t* mode)
 }
 
 /**
- * Convert raw value to temperature in celcius-
+ * Convert raw value to temperature in celcius
  *
  * parameter raw: Input. Raw values from LIS2DH12-
  * parameter acceleration: Output. Temperature values in C.
@@ -654,7 +654,7 @@ static ruuvi_driver_status_t rawToC(const uint8_t* const raw_temperature,
                                     float* temperature)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  int16_t lsb = raw_temperature[0]<<8 | raw_temperature[1];
+  int16_t lsb = raw_temperature[1]<<8 | raw_temperature[0];
   switch(dev.resolution)
   {
     case LIS2DH12_LP_8bit:
