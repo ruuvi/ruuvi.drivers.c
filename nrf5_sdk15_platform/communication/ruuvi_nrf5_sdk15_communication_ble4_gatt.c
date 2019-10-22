@@ -262,8 +262,11 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
   uint32_t err_code;
   ble_gap_phys_t const phys =
   {
-    .rx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS,
-    .tx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS
+    //.rx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS,
+    //.tx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS
+
+    .rx_phys = BLE_GAP_PHY_1MBPS,
+    .tx_phys = BLE_GAP_PHY_1MBPS
   };
 
   switch(p_ble_evt->header.evt_id)
