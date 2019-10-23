@@ -8,7 +8,7 @@
  * @file ruuvi_interface_i2c_tmp117.h
  * @author Otso Jousimaa <otso@ojousima.net>
  * @brief I2C read/write functions for TI TMP117.
- * @date 2019-07-29
+ * @date 2019-10-23
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  */
@@ -21,14 +21,12 @@
  *
  * @param[in] dev_id @ref I2C interface handle, i.e. I2C addess of TMP117
  * @param[in] reg_addr TMP117 register address to write.
- * @param[in] p_reg_data pointer to data to be written.
- * @param[in] len length of data to be written.
+ * @param[in] reg_val 16-bit value to be written
  * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if p_data is null
  * @return RUUVI_DRIVER_ERROR_TIMEOUT if device does not respond on bus
  **/
-int8_t ruuvi_interface_i2c_bme280_write(uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t* p_reg_data, uint16_t len);
+ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_write(const uint8_t dev_id, const uint8_t reg_addr, 
+                                                       const uint16_t reg_val)
 
 /**
  * @brief I2C Read function for TMP117
@@ -37,14 +35,12 @@ int8_t ruuvi_interface_i2c_bme280_write(uint8_t dev_id, uint8_t reg_addr,
  *
  * @param[in] dev_id @ref I2C interface handle, i.e. I2C addess of TMP117.
  * @param[in] reg_addr TMP117 register address to read.
- * @param[in] p_reg_data pointer to data to be received.
- * @param[in] len length of data to be received.
+ * @param[in] reg_val pointer to 16-bit data to be received.
  * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if p_data is null
  * @return RUUVI_DRIVER_ERROR_TIMEOUT if device does not respond on bus
  **/
-int8_t ruuvi_interface_i2c_bme280_read(uint8_t dev_id, uint8_t reg_addr,
-                                       uint8_t* reg_data, uint16_t len);
+ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_read(const uint8_t dev_id, const uint8_t reg_addr,
+                                                      uint16_t* const reg_val)
 
 /*@}*/
 #endif
