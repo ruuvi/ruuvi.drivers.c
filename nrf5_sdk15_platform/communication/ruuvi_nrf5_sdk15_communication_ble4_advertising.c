@@ -52,6 +52,7 @@ static uint8_t  m_scan0[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
 static uint16_t m_scan0_len;
 static uint8_t  m_scan1[BLE_GAP_ADV_SET_DATA_SIZE_MAX];
 static uint16_t m_scan1_len;
+static int8_t   m_tx_power = 0;
 
 static bool advertisement_odd = false;
 static bool m_scannable = false;
@@ -407,25 +408,25 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_stop(v
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_set(
   int8_t* dbm)
 {
-  int8_t  tx_power = 0;
+  
   ret_code_t err_code = NRF_SUCCESS;
 
-  if(*dbm <= -40) { tx_power = -40; }
-  else if(*dbm <= -20) { tx_power = -20; }
-  else if(*dbm <= -16) { tx_power = -16; }
-  else if(*dbm <= -12) { tx_power = -12; }
-  else if(*dbm <= -8) { tx_power = -8; }
-  else if(*dbm <= -4) { tx_power = -4; }
-  else if(*dbm <= 0) { tx_power = 0; }
-  else if(*dbm <= 4) { tx_power = 4; }
-  else if(*dbm <= 8) { tx_power = 8; }
+  if(*dbm <= -40) { m_tx_power = -40; }
+  else if(*dbm <= -20) { m_tx_power = -20; }
+  else if(*dbm <= -16) { m_tx_power = -16; }
+  else if(*dbm <= -12) { m_tx_power = -12; }
+  else if(*dbm <= -8) { m_tx_power = -8; }
+  else if(*dbm <= -4) { m_tx_power = -4; }
+  else if(*dbm <= 0) { m_tx_power = 0; }
+  else if(*dbm <= 4) { m_tx_power = 4; }
+  else if(*dbm <= 8) { m_tx_power = 8; }
   else { return RUUVI_DRIVER_ERROR_INVALID_PARAM; }
 
   err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV,
                                      m_adv_handle,
-                                     tx_power
+                                     m_tx_power
                                     );
-  *dbm = tx_power;
+  if(RUUVI_DRIVER_SUCCESS == err_code) { *dbm = m_tx_power; }
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
 }
 
@@ -433,7 +434,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_se
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_power_get(
   int8_t* dbm)
 {
-  return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
+  *dbm = m_tx_power;
+  return RUUVI_DRIVER_SUCCESS;
 }
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_response_setup
