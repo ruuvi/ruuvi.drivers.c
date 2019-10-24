@@ -112,6 +112,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_init(ruuvi_driver_sensor_t*
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
     // Sensirion driver delays high-power mode time in any case.
+    // Explicitly entering low-power mode has no effect.
     shtc1_enable_low_power_mode(0);
     environmental_sensor->init              = ruuvi_interface_shtcx_init;
     environmental_sensor->uninit            = ruuvi_interface_shtcx_uninit;
