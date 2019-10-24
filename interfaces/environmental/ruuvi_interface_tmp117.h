@@ -42,3 +42,33 @@ ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 #define TMP117_VALUE_MODE_CONT   (0x03 << TMP117_POS_MODE)
 
 #define TMP117_VALUE_TEMP_NA     0x8000
+
+/** @brief @ref ruuvi_driver_sensor_init_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_init(ruuvi_driver_sensor_t*
+    environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
+/** @brief @ref ruuvi_driver_sensor_init_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_uninit(ruuvi_driver_sensor_t*
+    environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_set(uint8_t* samplerate);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_get(uint8_t* samplerate);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_resolution_set(uint8_t* resolution);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_resolution_get(uint8_t* resolution);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_scale_set(uint8_t* scale);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_scale_get(uint8_t* scale);
+/** @brief @ref ruuvi_driver_sensor_dsp_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_set(uint8_t* dsp, uint8_t* parameter);
+/** @brief @ref ruuvi_driver_sensor_dsp_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_get(uint8_t* dsp, uint8_t* parameter);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_mode_set(uint8_t*);
+/** @brief @ref ruuvi_driver_sensor_setup_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_mode_get(uint8_t*);
+/** @brief @ref ruuvi_driver_sensor_data_fp */
+ruuvi_driver_status_t ruuvi_interface_tmp117_data_get(ruuvi_driver_sensor_data_t* const  data);
+/*@}*/
