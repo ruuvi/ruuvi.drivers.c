@@ -96,6 +96,14 @@
 #define SEC_PARAM_MIN_KEY_SIZE           7                                          /**< Minimum encryption key size. */
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
+#ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
+  #define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RUUVI_INTERFACE_LOG_INFO
+#endif 
+#define LOG(msg) ruuvi_interface_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
+#define LOGD(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, msg)
+#define LOGW(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, msg)
+#define LOGHEX(msg, len) ruuvi_interface_log_hex(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg, len)
+
 NRF_BLE_GATT_DEF(m_gatt);                                /**< GATT module instance. */
 NRF_BLE_QWR_DEF(
   m_qwr);                                  /**< Context for the Queued Write module.*/
@@ -233,14 +241,17 @@ static void nus_data_handler(ble_nus_evt_t* p_evt)
       break;
 
     case BLE_NUS_EVT_COMM_STARTED:
+      LOG("NUS Started\r\n");
       channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_CONNECTED, NULL, 0);
       break;
 
     case BLE_NUS_EVT_COMM_STOPPED:
+      LOG("NUS Finished\r\n");
       channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED, NULL, 0);
       break;
 
     case BLE_NUS_EVT_TX_RDY:
+      LOG("NUS TX Done\r\n");
       channel->on_evt(RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0);
       break;
 
@@ -274,7 +285,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
     case BLE_GAP_EVT_CONNECTED:
       m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
       err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Connected \r\n");
+      LOG("BLE Connected \r\n");
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
       // Request 2MBPS connection - Fails on Mac osx / web bluetooth
       // err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
@@ -286,7 +297,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
       break;
 
     case BLE_GAP_EVT_DISCONNECTED:
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, "Disconnected \r\n");
+      LOG("BLE Disonnected \r\n");
       // ble_nus.c does not call NUS callback on disconnect, call it here.
       ble_nus_evt_t evt = { 0 };
       evt.type = BLE_NUS_EVT_COMM_STOPPED;
@@ -296,7 +307,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 
     case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
       err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "PHY update requested \r\n");
+      LOG("BLE PHY update requested \r\n");
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
       break;
 
@@ -305,7 +316,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
        ble_gap_evt_phy_update_t const * p_phy_evt = &p_ble_evt->evt.gap_evt.params.phy_update;
        if (p_phy_evt->status == BLE_HCI_STATUS_CODE_LMP_ERROR_TRANSACTION_COLLISION)
        {
-         ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, "LL transaction collision during PHY update.\r\n");
+         LOGW("BLE LL transaction collision during PHY update.\r\n");
          break;
        }
        ble_gap_phys_t evt_phys = {0};
@@ -316,12 +327,13 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
                                   (p_phy_evt->status == BLE_HCI_STATUS_CODE_SUCCESS) ?
                                   "accepted" : "rejected",
                                   phy_str(evt_phys));
-      ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, msg);
+      LOG(msg);
     } break;
 
 
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
       // Pairing not supported
+      LOG("BLE security parameters requested - denying \r\n");
       err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
                                              NULL, NULL);
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
@@ -329,12 +341,14 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 
     case BLE_GATTS_EVT_SYS_ATTR_MISSING:
       // No system attributes have been stored.
+      LOG("BLE System attributes missing\r\n");
       err_code = sd_ble_gatts_sys_attr_set(m_conn_handle, NULL, 0, 0);
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
       break;
 
     case BLE_GATTC_EVT_TIMEOUT:
       // Disconnect on GATT Client timeout event.
+      LOG("BLE GATT Client timeout\r\n");
       err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
                                        BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
@@ -342,6 +356,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 
     case BLE_GATTS_EVT_TIMEOUT:
       // Disconnect on GATT Server timeout event.
+      LOG("BLE GATT Server timeout\r\n");
       err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
                                        BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
       RUUVI_DRIVER_ERROR_CHECK(ruuvi_nrf5_sdk15_to_ruuvi_error(err_code), RUUVI_DRIVER_SUCCESS);
@@ -354,6 +369,7 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 
     default:
       // No implementation needed.
+      LOG("BLE Unknown event\r\n");
       break;
   }
 }
@@ -365,8 +381,7 @@ static void gatt_evt_handler(nrf_ble_gatt_t* p_gatt, nrf_ble_gatt_evt_t const* p
       && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
   {
     //m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-    ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING,
-                        "Changing MTU size is not supported\r\n");
+    LOGW("Changing MTU size is not supported\r\n");
   }
 }
 
