@@ -97,7 +97,7 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
-  #define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RUUVI_INTERFACE_LOG_INFO
+  #define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RUUVI_INTERFACE_LOG_DEBUG
 #endif 
 #define LOG(msg) ruuvi_interface_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
 #define LOGD(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, msg)
@@ -273,11 +273,8 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
   uint32_t err_code;
   ble_gap_phys_t const phys =
   {
-    //.rx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS,
-    //.tx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS
-
-    .rx_phys = BLE_GAP_PHY_1MBPS,
-    .tx_phys = BLE_GAP_PHY_1MBPS
+    .rx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS,
+    .tx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS
   };
 
   switch(p_ble_evt->header.evt_id)
@@ -290,9 +287,12 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
       // Request 2MBPS connection - Fails on Mac osx / web bluetooth
       // err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
       // ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Requested 2MBPS connection\r\n");
-      // Intentional fallthrough to GAP_EVT_TIMEOUT
+      ruuvi_interface_communication_ble4_advertising_notify_stop();
+      break;
+
     case BLE_GAP_EVT_TIMEOUT:
       // On connection and timeout advertising stops, notify advertisement module.
+      LOG("BLE GAP timeout \r\n");
       ruuvi_interface_communication_ble4_advertising_notify_stop();
       break;
 
@@ -365,6 +365,10 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
     // TODO: Move to advertisement?
     case BLE_GAP_EVT_ADV_REPORT:
       ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "RX'd scan data\r\n");
+      break;
+
+    case BLE_GATTS_EVT_HVN_TX_COMPLETE:
+      LOG("BLE Notification sent\r\n");
       break;
 
     default:
