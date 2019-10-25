@@ -278,7 +278,7 @@ void ruuvi_interface_log_hex(const ruuvi_interface_log_severity_t severity,
   for(size_t ii = 0; ii < byte_length; ii++)
   {
     index += snprintf(msg + index, sizeof(msg) - index, "%02X", bytes[ii]);
-    if(ii < byte_length)
+    if(ii < (byte_length-1))
     {
      index += snprintf(msg + index, sizeof(msg) - index, ":");
     }
