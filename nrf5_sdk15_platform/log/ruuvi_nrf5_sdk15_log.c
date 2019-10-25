@@ -40,7 +40,9 @@ ruuvi_driver_status_t ruuvi_interface_log_init(const ruuvi_interface_log_severit
 ruuvi_driver_status_t ruuvi_interface_log_flush(void)
 {
   NRF_LOG_FLUSH();
-  ruuvi_interface_delay_ms(5);
+  // Use microsecond delay to avoid getting stuck in timer loop if
+  // logs are flushed in interrupt context.
+  ruuvi_interface_delay_us(5000);
   return RUUVI_DRIVER_SUCCESS;
 }
 
