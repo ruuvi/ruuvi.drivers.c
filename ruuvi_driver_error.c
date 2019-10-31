@@ -25,6 +25,9 @@
 /** Store all occured errors until errors are checked by application here */
 static ruuvi_driver_status_t m_errors = RUUVI_DRIVER_SUCCESS;
 
+/** Application callback on errors **/
+static ruuvi_driver_error_cb m_cb;
+
 void ruuvi_driver_error_check(ruuvi_driver_status_t error,
                               ruuvi_driver_status_t non_fatal_mask, const char* file, int line)
 {
@@ -33,6 +36,7 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
   m_errors |= error;
   char message[APPLICATION_LOG_BUFFER_SIZE];
   size_t index = 0;
+  bool fatal = ~non_fatal_mask & error;
   // Cut out the full path
   const char* filename = strrchr(file, '/');
 
@@ -45,7 +49,7 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
   else { filename++; }
 
   // Reset on fatal error
-  if(~non_fatal_mask & error)
+  if(fatal)
   {
     index += snprintf(message, sizeof(message), "%s:%d FATAL: ", filename, line);
     index += ruuvi_interface_error_to_string(error, (message + index),
@@ -54,9 +58,6 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     ruuvi_interface_log_flush();
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_ERROR, message);
     ruuvi_interface_log_flush();
-    #if APPLICATION_POWER_ENABLED
-    ruuvi_interface_power_enter_bootloader();
-    #endif
   }
   // Log non-fatal errors
   else if(RUUVI_DRIVER_SUCCESS != error)
@@ -67,7 +68,11 @@ void ruuvi_driver_error_check(ruuvi_driver_status_t error,
     snprintf((message + index), (sizeof(message) - index), "\r\n");
     ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, message);
   }
-
+  // Call error callback
+  if(RUUVI_DRIVER_SUCCESS != error && NULL != m_cb) 
+  {
+    m_cb(error, fatal, filename, line);
+  }
 }
 
 /*
@@ -81,4 +86,10 @@ ruuvi_driver_status_t ruuvi_driver_errors_clear()
   m_errors = RUUVI_DRIVER_SUCCESS;
   return errors;
 }
+
+void ruuvi_driver_error_cb_set(ruuvi_driver_error_cb cb)
+{
+  m_cb = cb;
+}
+
 /** @} */

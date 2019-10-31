@@ -18,6 +18,7 @@
 
 #include <float.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #define RUUVI_DRIVER_FLOAT_INVALID  NAN            //!< Signal that value should not be used.
@@ -86,6 +87,27 @@ void ruuvi_driver_error_check(const ruuvi_driver_status_t error,
  * @return errors occured after last call to this function.
  */
 ruuvi_driver_status_t ruuvi_driver_errors_clear();
+
+/* @brief Application callback on error 
+ *
+ * If this callback is set, it will get called on error. 
+ *
+ * @param[in] error Type of error
+ * @param[in] fatal True if error is considered non-recoverable
+ * @param[in] file  Pointer to name of file where error occured
+ * @param[in] line  line where error occured
+ */
+typedef void (*ruuvi_driver_error_cb)(const ruuvi_driver_status_t error,
+                                      const bool fatal, 
+                                      const char* file, 
+                                      const int line);
+
+/**
+ * @brief Configure application callback for errors
+ *
+ * @param[in] cb Callback on error, NULL to clear callback
+ */
+void ruuvi_driver_error_cb_set(ruuvi_driver_error_cb cb);
 
 /** @} */
 #endif

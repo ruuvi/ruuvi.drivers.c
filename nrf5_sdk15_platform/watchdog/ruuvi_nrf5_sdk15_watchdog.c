@@ -57,8 +57,7 @@ void wdt_event_handler(void)
 {
   //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
   ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
-  // Try to enter bootloader
-  ruuvi_interface_power_enter_bootloader();
+  while(1);
 }
 
 /**

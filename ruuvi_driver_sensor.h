@@ -18,7 +18,6 @@
  *
  * Common interface to all Ruuvi Sensors
  * Every sensor must implement these functions:
- * - return name
  * - init
  * - uninit
  * - samplerate_set
