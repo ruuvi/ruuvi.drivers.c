@@ -1,7 +1,11 @@
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_tmp117.h"
 #include "ruuvi_interface_i2c_tmp117.h"
+#include "ruuvi_interface_yield.h"
+
+#if (RUUVI_INTERFACE_ENVIRONMENTAL_TMP117_ENABLED || DOXYGEN)
 
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
@@ -18,6 +22,7 @@ static uint16_t ms_per_cc;
 static float    m_temperature;
 static uint64_t m_timestamp;
 static const char m_sensor_name[] = "TMP117";
+static bool m_continuous = false;
 
 static ruuvi_driver_status_t tmp117_soft_reset(void)
 {
@@ -44,25 +49,25 @@ static ruuvi_driver_status_t tmp117_oversampling_set(const uint8_t num_os)
   {
     case 1:
       reg_val |= TMP117_VALUE_OS_1;
-      if(16 < ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+      if(16 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 16;
       break;
       
     case 8:
       reg_val |= TMP117_VALUE_OS_8;
-      if(125 < ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+      if(125 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 125;
       break;
 
     case 32:
       reg_val |= TMP117_VALUE_OS_32;
-      if(500 < ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+      if(500 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 500;
       break;
 
     case 64:
       reg_val |= TMP117_VALUE_OS_64;
-      if(1000 < ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+      if(1000 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 1000;
       break;
 
@@ -156,6 +161,7 @@ static ruuvi_driver_status_t tmp117_sample(void)
   reg_val &= ~TMP117_MASK_MODE;
   reg_val |= TMP117_VALUE_MODE_SINGLE;
   err_code |= ruuvi_interface_i2c_tmp117_write(m_address, TMP117_REG_CONFIGURATION, reg_val);
+  m_timestamp = ruuvi_driver_sensor_timestamp_get();
   return  err_code;
 }
 
@@ -228,8 +234,9 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_init(ruuvi_driver_sensor_t*
     m_timestamp = RUUVI_DRIVER_UINT64_INVALID;
     m_temperature = NAN;
     ms_per_cc = 1000;
-    ms_per_sample = 1000;
-    tmp117_sleep();
+    ms_per_sample = 16;
+    m_continuous = false;
+    err_code |= tmp117_sleep();
   }
 
   return err_code;
@@ -247,12 +254,19 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_uninit(ruuvi_driver_sensor_t* senso
   m_timestamp = RUUVI_DRIVER_UINT64_INVALID;
   m_temperature = NAN;
   m_address = 0;
+  m_continuous = false;
   return err_code;
 }
 
 
 ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_set(uint8_t* samplerate)
 {
+  if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(m_continuous) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == * samplerate) 
+  { 
+    return ruuvi_interface_tmp117_samplerate_get(samplerate);
+  }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
   if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate ||
@@ -276,7 +290,8 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_set(uint8_t* samplerate)
     *samplerate = 8;
     err_code |= tmp117_samplerate_set(TMP117_VALUE_CC_125_MS);
   }
-  else if(64 >= *samplerate) 
+  else if(64 >= *samplerate ||
+  RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate) 
   { 
     *samplerate = 64;
     err_code |= tmp117_samplerate_set(TMP117_VALUE_CC_16_MS);
@@ -289,15 +304,19 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_set(uint8_t* samplerate)
   {
     err_code |= tmp117_samplerate_set(TMP117_VALUE_CC_8000_MS);
   }
-  else if (RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3 == *samplerate)
+  else if (RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3 == *samplerate ||
+           RUUVI_DRIVER_SENSOR_CFG_MIN == *samplerate)
   {
+    *samplerate = RUUVI_DRIVER_SENSOR_CFG_CUSTOM_3;
     err_code |= tmp117_samplerate_set(TMP117_VALUE_CC_16000_MS);
   }
+  else { err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
   return  err_code;
 }
 
 ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_get(uint8_t* samplerate)
 {
+  if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   uint16_t reg_val;
   err_code = ruuvi_interface_i2c_tmp117_read(m_address, TMP117_REG_CONFIGURATION, &reg_val);
@@ -345,6 +364,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_get(uint8_t* samplerate)
 ruuvi_driver_status_t ruuvi_interface_tmp117_resolution_set(uint8_t* resolution)
 {
   if(NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(m_continuous) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   uint8_t original = *resolution;
   *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
@@ -363,6 +383,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_resolution_get(uint8_t* resolution)
 ruuvi_driver_status_t ruuvi_interface_tmp117_scale_set(uint8_t* scale)
 {
   if(NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(m_continuous) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   uint8_t original = *scale;
   *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
@@ -380,6 +401,12 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_scale_get(uint8_t* scale)
 
 ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_set(uint8_t* dsp, uint8_t* parameter)
 {
+  if(NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
+  if(m_continuous) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == * dsp) 
+  { 
+    return ruuvi_interface_tmp117_dsp_get(dsp, parameter);
+  }
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   if(RUUVI_DRIVER_SENSOR_DSP_LAST == *dsp ||
      RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *dsp)
@@ -417,6 +444,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_set(uint8_t* dsp, uint8_t* para
 
 ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_get(uint8_t* dsp, uint8_t* parameter)
 {
+  if(NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
   uint16_t reg_val;
   ruuvi_driver_status_t err_code;
   err_code = ruuvi_interface_i2c_tmp117_read(m_address, TMP117_REG_CONFIGURATION, &reg_val);
@@ -445,3 +473,69 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_get(uint8_t* dsp, uint8_t* para
   }
 }
 
+
+ruuvi_driver_status_t ruuvi_interface_tmp117_mode_set(uint8_t* mode)
+{
+  if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  switch(*mode)
+  {
+    case RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS:
+      err_code |= tmp117_continuous();
+      m_continuous = true;
+      break;
+
+    case RUUVI_DRIVER_SENSOR_CFG_SINGLE:
+      if(m_continuous) 
+      { 
+        *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
+        return RUUVI_DRIVER_ERROR_INVALID_STATE; 
+      }
+      err_code |= tmp117_sample();
+      ruuvi_interface_delay_ms(ms_per_sample);
+      *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
+      break;
+
+    case RUUVI_DRIVER_SENSOR_CFG_SLEEP:
+      err_code |= tmp117_sleep();
+      m_continuous = false;
+      break;
+
+    default:
+      err_code |= RUUVI_DRIVER_ERROR_INVALID_PARAM;
+  }
+  return err_code;
+}
+
+ruuvi_driver_status_t ruuvi_interface_tmp117_mode_get(uint8_t* mode)
+{
+  if(NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+  *mode = m_continuous ? RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS : RUUVI_DRIVER_SENSOR_CFG_SLEEP;
+  return RUUVI_DRIVER_SUCCESS;
+}
+
+ruuvi_driver_status_t ruuvi_interface_tmp117_data_get(ruuvi_driver_sensor_data_t* const  data)
+{
+  if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
+
+  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+  if(m_continuous) 
+  { 
+    m_temperature = tmp117_read();
+    m_timestamp = ruuvi_driver_sensor_timestamp_get();
+  }
+
+  if(RUUVI_DRIVER_SUCCESS == err_code && RUUVI_DRIVER_UINT64_INVALID != m_timestamp)
+  {
+    ruuvi_driver_sensor_data_fields_t env_fields = {.bitfield = 0};
+    env_fields.datas.temperature_c = 1;
+    ruuvi_driver_sensor_data_set(data,
+                                 env_fields,
+                                 m_temperature);
+    data->timestamp_ms = m_timestamp;
+  }
+
+  return err_code;
+}
+
+#endif
