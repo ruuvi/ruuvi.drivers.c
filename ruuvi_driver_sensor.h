@@ -433,7 +433,7 @@ float ruuvi_driver_sensor_data_parse(const ruuvi_driver_sensor_data_t* const pro
                                      const ruuvi_driver_sensor_data_fields_t requested);
 
 /** 
- * @brief count number of floats required fot this data structure
+ * @brief count number of floats required for this data structure
  *
  * This function looks up the appropriate assigments on each data field in given target
  * and populates it with provided data if caller requested the field to be populated.
@@ -442,5 +442,20 @@ float ruuvi_driver_sensor_data_parse(const ruuvi_driver_sensor_data_t* const pro
  * @return     Number of floats required to store the sensor data. 
  */
 uint8_t ruuvi_driver_sensor_data_fieldcount(const ruuvi_driver_sensor_data_t* const target);
+
+/** 
+ * @brief Set a desired value to target data.
+ *
+ * This function looks up the appropriate assigments on each data field in given target
+ * and populates it with provided data. DOes nothing if there is no appropriate slot
+ * in target data.
+ *
+ * @param[in]  target 
+ * @param[in]  field  Quantity to set, exactly one must be set to true. 
+ * @param[in]  value  Value of quantity
+ */
+void ruuvi_driver_sensor_data_set(ruuvi_driver_sensor_data_t* const target,
+                                  const ruuvi_driver_sensor_data_fields_t field,
+                                  const float value);
 /*@}*/
 #endif

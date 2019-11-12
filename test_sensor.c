@@ -577,25 +577,35 @@ ruuvi_driver_status_t test_sensor_modes(const ruuvi_driver_sensor_init_fp init,
   memset(&DUT, 0, sizeof(DUT));
   initialize_sensor_once(&DUT, init, bus, handle);
   // - Sensor must be in SLEEP mode after init
-  err_code |= test_sensor_register(sensor_sleeps_after_init(&DUT));
+  err_code = test_sensor_register(sensor_sleeps_after_init(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must return all values as INVALID if sensor is read before first sample
-  err_code |= test_sensor_register(sensor_returns_invalid_before_sampling(&DUT));
+  err_code = test_sensor_register(sensor_returns_invalid_before_sampling(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must be in SLEEP mode after mode has been set to SINGLE
-  err_code |= test_sensor_register(sensor_returns_to_sleep(&DUT));
+  err_code = test_sensor_register(sensor_returns_to_sleep(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must have new data after setting mode to SINGLE returns
-  err_code |= test_sensor_register(sensor_returns_valid_data(&DUT));
+  err_code = test_sensor_register(sensor_returns_valid_data(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must have same values, including timestamp, on successive calls to DATA_GET after SINGLE sample
-  err_code |= test_sensor_register(single_sample_stays_valid(&DUT));
+  err_code = test_sensor_register(single_sample_stays_valid(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must stay in CONTINUOUS mode after being set to continuous.
-  err_code |= test_sensor_register(sensor_remains_continuous(&DUT));
+  err_code = test_sensor_register(sensor_remains_continuous(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must return RUUVI_DRIVER_ERROR_INVALID_STATE if set to SINGLE while in continuous mode and remain in continuous mode
-  err_code |= test_sensor_register(sensor_rejects_single_on_continuous(&DUT));
+  err_code = test_sensor_register(sensor_rejects_single_on_continuous(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // - Sensor must return RUUVI_DRIVER_ERROR_NULL if null mode is passed as a parameter
-  err_code |= test_sensor_register(sensor_mode_cannot_be_null(&DUT));
+  err_code = test_sensor_register(sensor_mode_cannot_be_null(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // Sensor must return updated data in CONTINUOUS mode, at least timestamp has to be updated after two ms wait.
-  err_code |= test_sensor_register(sensor_returns_continuous_data(&DUT));
+  err_code = test_sensor_register(sensor_returns_continuous_data(&DUT));
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
   // Uninitialise sensor after test
-  err_code |= DUT.uninit(&DUT, bus, handle);
+  err_code = DUT.uninit(&DUT, bus, handle);
+  RUUVI_DRIVER_ERROR_CHECK(err_code, ~RUUVI_DRIVER_ERROR_FATAL);
 
   return err_code;
 }
