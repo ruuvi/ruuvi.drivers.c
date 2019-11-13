@@ -9,7 +9,8 @@
 [submodule "embedded-sht"]
 	path = embedded-sht
 	url = https://github.com/Sensirion/embedded-sht.git
-        ignore = untracked
+  ignore = untracked
 [submodule "nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c"]
 	path = nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c
 	url = https://github.com/ruuvi/ruuvi.nrf_sdk15_3_overrides.c.git
+	ignore = untracked
