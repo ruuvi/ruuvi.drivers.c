@@ -47,25 +47,25 @@ static ruuvi_driver_status_t tmp117_oversampling_set(const uint8_t num_os)
   reg_val &= ~TMP117_MASK_OS;
   switch(num_os)
   {
-    case 1:
+    case TMP117_VALUE_OS_1:
       reg_val |= TMP117_VALUE_OS_1;
       if(16 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 16;
       break;
       
-    case 8:
+    case TMP117_VALUE_OS_8:
       reg_val |= TMP117_VALUE_OS_8;
       if(125 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 125;
       break;
 
-    case 32:
+    case TMP117_VALUE_OS_32:
       reg_val |= TMP117_VALUE_OS_32;
       if(500 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 500;
       break;
 
-    case 64:
+    case TMP117_VALUE_OS_64:
       reg_val |= TMP117_VALUE_OS_64;
       if(1000 > ms_per_cc) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
       ms_per_sample = 1000;
@@ -263,7 +263,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_samplerate_set(uint8_t* samplerate)
 {
   if(NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
   if(m_continuous) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
-  if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == * samplerate) 
+  if(RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *samplerate) 
   { 
     return ruuvi_interface_tmp117_samplerate_get(samplerate);
   }
