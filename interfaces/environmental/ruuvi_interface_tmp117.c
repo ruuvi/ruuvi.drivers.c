@@ -13,7 +13,7 @@
 /*@{*/
 
 /**
- * @file ruuvi_interface_tmp117.h
+ * @file ruuvi_interface_tmp117.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2019-11-13
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
