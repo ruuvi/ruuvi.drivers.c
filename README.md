@@ -75,11 +75,11 @@ coverage and Doxygen support.
  - Add unit to sensor configuration fields, e.g. `resolution`-> `resolution_bits`
  - Rewrite BLE advertising module
  - Add default configuration value to header of each sensor
- - Add a function to return sensor name to each sensor
- - Add dummy initialization for sensor struct.
+ - ~~Add a function to return sensor name to each sensor~~
+ - ~~Add dummy initialization for sensor struct.~~
 
 ## Upcoming implementations
- - TMP117 driver
+ - ~~TMP117 driver~~
  - Support more ADC inputs, differential ADC inputs.
 
 # Licenses
@@ -92,69 +92,3 @@ for example Nordic semiconductor platform files follow Nordic SDK License.
 All contributions are welcome, from typographical fixes to feedback on design and naming schemes.
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
-# Changelog - relative to ruuvi.firmware.c
-## 3.19.3
- * Basic GPIO tests pass
-
-## 3.19.2 
- * Add artistic style support
- 
-## 3.19.1
- * rename files from \_platform\_ to \_nrf_sdk15\_.
- * fix ARMGCC compilation issues
-
-## 3.19.0
- * Doxygen support started.
- * Rename yield and delay interface function to -interface, was -platform
-
-## 3.18.0
- * Add Flash storage
-
-## 3.17.0
- * Add NFC
-
-## 3.16.0
- * Add BLE GATT connection
-
-## 3.15.0
- * Add watchdog
-
-## 3.14.0
- * Add FIFO and threshold interrupt support to LIS2DH12 
- * Fix bugs found by unit tests
-
-## 3.13.0
- * Skip 3.12
- * Add callbacks to radio activity
-
-## 3.11.0
- * Add Timer and scheduler
- * Fix bug in BME280 sample rate setter
-
-## 3.10.0
-  * Add NFC read functionality
-
-## 3.9.0
-  * Add BLE advertising functionality
-
-## 3.8.0
- * Add RTC support and timestamping
- * Fix issues in sensor interface implementations
-
-## 3.7.0
- * Add battery voltage measurement with nRF52 ADC
-
-## 3.6.0
- * ADD LIS2DH12 support
-
-## 3.5.0
- * Add SPI driver, BME280 support, nRF52 temperature sensing support
-
-## 3.4.0
- * Add interrupts to GPIO
-
-## 3.2.0
- * Adds logging and error code handling
-
-## 3.1.1
- * Clear up files not presented in Ruuvi Blog at the time of writing. Add GPIO and yield.
