@@ -375,6 +375,6 @@ void sensirion_sleep_usec(uint32_t useconds)
   }
 }
 
-
+/*@}*/
 
 #endif
