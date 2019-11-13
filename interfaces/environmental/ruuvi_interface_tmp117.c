@@ -8,7 +8,7 @@
 #if (RUUVI_INTERFACE_ENVIRONMENTAL_TMP117_ENABLED || DOXYGEN)
 
 /**
- * @addtogroup Environmental
+ * @addtogroup TMP117
  */
 /*@{*/
 

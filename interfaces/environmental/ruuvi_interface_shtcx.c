@@ -17,7 +17,7 @@
 #include "shtc1.h"
 
 /**
- * @addtogroup Environmental
+ * @addtogroup SHTCX
  */
 /*@{*/
 

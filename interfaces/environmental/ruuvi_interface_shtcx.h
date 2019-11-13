@@ -8,7 +8,7 @@
  */
 /*@{*/
 /**
- * @defgroup SHTCX SHTCX Inteface
+ * @defgroup SHTCX SHTCX Interface
  * @brief Implement @ref ruuvi_driver_sensor_t functions on SHTCX
  *
  * The implementation supports taking single-samples and a pseudo-continuous mode

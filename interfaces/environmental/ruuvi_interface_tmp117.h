@@ -4,7 +4,17 @@
  * @addtogroup Environmental
  */
 /*@{*/
-
+/**
+ * @defgroup TMP117 TMP117 Interface
+ * @brief Implement @ref ruuvi_driver_sensor_t functions on TMP117
+ *
+ * The implementation supports taking single-samples and a continuous mode
+ */
+/*@}*/
+/**
+ * @addtogroup TMP117
+ */
+/*@{*/
 /**
  * @file ruuvi_interface_tmp117.h
  * @author Otso Jousimaa <otso@ojousima.net>
