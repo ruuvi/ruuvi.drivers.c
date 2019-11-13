@@ -259,6 +259,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_init(ruuvi_driver_sensor_t*
 
   if(RUUVI_DRIVER_SUCCESS == err_code)
   {
+    err_code |= tmp117_soft_reset();
     environmental_sensor->init              = ruuvi_interface_tmp117_init;
     environmental_sensor->uninit            = ruuvi_interface_tmp117_uninit;
     environmental_sensor->samplerate_set    = ruuvi_interface_tmp117_samplerate_set;
@@ -531,6 +532,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_dsp_get(uint8_t* dsp, uint8_t* para
       *parameter = 64;
       break;
   }
+  return err_code;
 }
 
 
