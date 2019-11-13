@@ -24,7 +24,7 @@
  *
  * Implementation for LIS2DH12 basic usage. The implementation supports
  * different resolutions, samplerates, high-passing, activity interrupt
- * and FIFO. 
+ * and FIFO.
  *
  * Requires STM lis2dh12 driver, available on GitHub under BSD-3 license.
  * Requires "application_config.h", will only get compiled if LIS2DH12_ACCELERATION is defined.
@@ -40,13 +40,15 @@
           } while(0)
 
 /** @brief Representation of 3*2 bytes buffer as 3*int16_t */
-typedef union{
+typedef union
+{
   int16_t i16bit[3]; //!< Integer values
   uint8_t u8bit[6];  //!< Buffer
 } axis3bit16_t;
 
 /** @brief Representation of 2 bytes buffer as int16_t */
-typedef union{
+typedef union
+{
   int16_t i16bit;   //!< Integer value
   uint8_t u8bit[2]; //!< Buffer
 } axis1bit16_t;
@@ -56,7 +58,7 @@ typedef union{
  */
 static struct
 {
-  lis2dh12_op_md_t resolution; //!< Resolution, bits. 8, 10, or 12. 
+  lis2dh12_op_md_t resolution; //!< Resolution, bits. 8, 10, or 12.
   lis2dh12_fs_t scale;         //!< Scale, gravities. 2, 4, 8 or 16.
   lis2dh12_odr_t samplerate;   //!< Sample rate, 1 ... 200, or custom values for higher.
   lis2dh12_st_t selftest;      //!< Self-test enabled, positive, negative or disabled.
@@ -238,7 +240,6 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t* sen
   if(NULL == sensor) { return RUUVI_DRIVER_ERROR_NULL; }
 
   ruuvi_driver_sensor_uninitialize(sensor);
-
   dev.samplerate = LIS2DH12_POWER_DOWN;
   //LIS2DH12 function returns SPI write result which is ruuvi_driver_status_t
   ruuvi_driver_status_t err_code = lis2dh12_data_rate_set(&(dev.ctx), dev.samplerate);
@@ -464,7 +465,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_get(uint8_t* scale)
   return err_code;
 }
 
-/* 
+/*
  http://www.st.com/content/ccc/resource/technical/document/application_note/60/52/bd/69/28/f4/48/2b/DM00165265.pdf/files/DM00165265.pdf/jcr:content/translations/en.DM00165265.pdf
  CTRL2 DCF [1:0] HP cutoff frequency [Hz]
  00 ODR/50
@@ -654,7 +655,8 @@ static ruuvi_driver_status_t rawToC(const uint8_t* const raw_temperature,
                                     float* temperature)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  int16_t lsb = raw_temperature[1]<<8 | raw_temperature[0];
+  int16_t lsb = raw_temperature[1] << 8 | raw_temperature[0];
+
   switch(dev.resolution)
   {
     case LIS2DH12_LP_8bit:
@@ -674,6 +676,7 @@ static ruuvi_driver_status_t rawToC(const uint8_t* const raw_temperature,
       err_code |= RUUVI_DRIVER_ERROR_INTERNAL;
       break;
   }
+
   return err_code;
 }
 
@@ -795,7 +798,8 @@ static ruuvi_driver_status_t rawToMg(const axis3bit16_t* raw_acceleration,
   return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data_t* const data)
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data_t* const
+    data)
 {
   if(NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
 
@@ -805,7 +809,6 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data
   memset(raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
   err_code |= lis2dh12_acceleration_raw_get(&(dev.ctx), raw_acceleration.u8bit);
   err_code |= lis2dh12_temperature_raw_get(&(dev.ctx), raw_temperature);
-  
   // Compensate data with resolution, scale
   float acceleration[3];
   float temperature;
@@ -881,7 +884,6 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
 
   // get current time
   p_data->timestamp_ms = ruuvi_driver_sensor_timestamp_get();
-
   // Read all elements
   axis3bit16_t raw_acceleration;
   float acceleration[3];

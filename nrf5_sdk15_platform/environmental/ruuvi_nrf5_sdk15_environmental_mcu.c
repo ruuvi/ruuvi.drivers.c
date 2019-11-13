@@ -123,7 +123,6 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init(ruuvi_driver_sensor
   if(true == sensor_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   ruuvi_driver_sensor_initialize(environmental_sensor);
-
   // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
   nrf_temp_init();
   tsample     = RUUVI_DRIVER_UINT64_INVALID;
@@ -328,7 +327,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_get(uint8_t* mode)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(ruuvi_driver_sensor_data_t* const p_data)
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(
+  ruuvi_driver_sensor_data_t* const p_data)
 {
   if(NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 

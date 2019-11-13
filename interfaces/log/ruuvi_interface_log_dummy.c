@@ -11,7 +11,7 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for printing out logging.
- * This implementation disregards all and returns success. 
+ * This implementation disregards all and returns success.
  *
  */
 #if !(APPLICATION_LOG_ENABLED)

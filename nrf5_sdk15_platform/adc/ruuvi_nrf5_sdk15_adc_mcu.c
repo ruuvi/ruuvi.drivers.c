@@ -218,43 +218,45 @@ static ruuvi_driver_status_t reinit_adc(void)
 static nrf_saadc_oversample_t uint_to_nrf_os(uint8_t* const parameter)
 {
   nrf_saadc_oversample_t oversample = NRF_SAADC_OVERSAMPLE_DISABLED;
+
   if(2 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_2X;
-      *parameter = 2;
-    }
-    else if(4 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_4X;
-      *parameter = 4;
-    }
-    else if(8 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_8X;
-      *parameter = 8;
-    }
-    else if(16 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_16X;
-      *parameter = 16;
-    }
-    else if(32 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_32X;
-      *parameter = 32;
-    }
-    else if(64 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_64X;
-      *parameter = 64;
-    }
-    else if(128 >= *parameter)
-    {
-      oversample = NRF_SAADC_OVERSAMPLE_128X;
-      *parameter = 128;
-    }
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_2X;
+    *parameter = 2;
+  }
+  else if(4 >= *parameter)
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_4X;
+    *parameter = 4;
+  }
+  else if(8 >= *parameter)
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_8X;
+    *parameter = 8;
+  }
+  else if(16 >= *parameter)
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_16X;
+    *parameter = 16;
+  }
+  else if(32 >= *parameter)
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_32X;
+    *parameter = 32;
+  }
+  else if(64 >= *parameter)
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_64X;
+    *parameter = 64;
+  }
+  else if(128 >= *parameter)
+  {
+    oversample = NRF_SAADC_OVERSAMPLE_128X;
+    *parameter = 128;
+  }
+
   return oversample;
-} 
+}
 
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor,
     ruuvi_driver_bus_t bus, uint8_t handle)
@@ -262,7 +264,7 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_se
   if(NULL == adc_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
 
   if(RUUVI_DRIVER_BUS_NONE != bus) { return RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
-  
+
   // Support only one instance.
   if(adc_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
@@ -552,7 +554,8 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_mode_get(uint8_t* mode)
 }
 
 
-ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(ruuvi_driver_sensor_data_t* const p_data)
+ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(ruuvi_driver_sensor_data_t* const
+    p_data)
 {
   if(NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
@@ -582,21 +585,23 @@ ruuvi_driver_status_t ruuvi_interface_adc_mcu_data_get(ruuvi_driver_sensor_data_
 /**
  * @brief take complex sample
  *
- * This function fills the need for more complex sampling, such as using differential 
- * measurement, different reference voltages and oversampling. 
- * Initializes the ADC before sampling and uninitializes the ADC after sampling. 
+ * This function fills the need for more complex sampling, such as using differential
+ * measurement, different reference voltages and oversampling.
+ * Initializes the ADC before sampling and uninitializes the ADC after sampling.
  *
  * @param[in]  sample definition of the sample to take
- * @param[out] data value of sample in volts and as a ratio to reference. 
+ * @param[out] data value of sample in volts and as a ratio to reference.
  * @return RUUVI_DRIVER_SUCCESS on success
  * @return RUUVI_DRIVER_ERROR_NULL if either parameter is NULL
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if ADC is already initialized
  * @return RUUVI_DRIVER_ERROR_INVALID_PARAMETER if configuration is invalid in any manner
- * @return error code from stack on other error. 
+ * @return error code from stack on other error.
  */
-ruuvi_driver_status_t ruuvi_interface_adc_complex_sample(const ruuvi_interface_adc_sample_t* const sample, ruuvi_interface_adc_data_t* const data)
+ruuvi_driver_status_t ruuvi_interface_adc_complex_sample(const
+    ruuvi_interface_adc_sample_t* const sample, ruuvi_interface_adc_data_t* const data)
 {
   if(NULL == data || NULL == sample) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(true == adc_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
   // Initialize ADC
@@ -606,20 +611,19 @@ ruuvi_driver_status_t ruuvi_interface_adc_complex_sample(const ruuvi_interface_a
   adc_config.oversample = uint_to_nrf_os(&os);
   adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT;
   ret_code_t err_code = nrf_drv_saadc_init(&adc_config, saadc_event_handler);
-
   // Initialize given channel. Only one ADC channel is supported at a time
-  nrf_saadc_channel_config_t ch_config = 
-  {                                                                  \
+  nrf_saadc_channel_config_t ch_config =
+  {
+    \
     .resistor_p = NRF_SAADC_RESISTOR_DISABLED,                       \
     .resistor_n = NRF_SAADC_RESISTOR_DISABLED,                       \
     .gain       = NRF_SAADC_GAIN1_6,                                 \
     .reference  = NRF_SAADC_REFERENCE_INTERNAL,                      \
     .acq_time   = NRF_SAADC_ACQTIME_10US,                            \
-    .mode       = (RUUVI_INTERFACE_ADC_AINGND == (sample->negative)) ? NRF_SAADC_MODE_SINGLE_ENDED : NRF_SAADC_MODE_DIFFERENTIAL,\
+    .mode       = (RUUVI_INTERFACE_ADC_AINGND == (sample->negative)) ? NRF_SAADC_MODE_SINGLE_ENDED : NRF_SAADC_MODE_DIFFERENTIAL, \
     .pin_p      = ruuvi_to_nrf_adc_channel(sample->positive),        \
-    .pin_n      = ruuvi_to_nrf_adc_channel(sample->negative)         
+    .pin_n      = ruuvi_to_nrf_adc_channel(sample->negative)
   };
-
   nrf_saadc_channel_init(0, &ch_config);
   return err_code;
 }

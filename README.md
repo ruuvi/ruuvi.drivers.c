@@ -63,7 +63,13 @@ All sensors have `ruuvi_interface_sensor_init(ruuvi_driver_sensor_t*, ruuvi_driv
 Run `doxygen`
 
 ## Formatting code
-Run `astyle --project=.astylerc ./target_file`
+Run `astyle --project=.astylerc ./target_file`. To format the entire project,
+```
+astyle --project=.astylerc --recursive "./interfaces/*.c"
+astyle --project=.astylerc --recursive "./interfaces/*.h"
+astyle --project=.astylerc --recursive "./nrf5_sdk15_platform/*.c"
+astyle --project=.astylerc --recursive "./nrf5_sdk15_platform/*.h"
+```
 
 # Progress
 The repository is under active development and major refactors are to be expected.

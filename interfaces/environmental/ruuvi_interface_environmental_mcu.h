@@ -24,7 +24,7 @@
  * @date 2019-08-10
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Interface for 
+ * Interface for
  *
  * Testing the interface with @ref test_sensor.h
  *
@@ -75,6 +75,7 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_set(uint8_t*);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_get(uint8_t*);
 /** @brief @ref ruuvi_driver_sensor_data_fp */
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(ruuvi_driver_sensor_data_t* const data);
+ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get(
+  ruuvi_driver_sensor_data_t* const data);
 /*@}*/
 #endif

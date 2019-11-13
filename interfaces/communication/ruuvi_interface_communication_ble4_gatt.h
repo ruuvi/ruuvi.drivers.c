@@ -22,7 +22,7 @@ typedef struct
 } ruuvi_interface_communication_ble4_gatt_dis_init_t;
 
 /**
- * @brief Initializes GATT stack. 
+ * @brief Initializes GATT stack.
  * Uses default values from sdk_config.h, these can be overridden in nrf5_sdk15_application_config.h
  *
  * @return RUUVI_DRIVER_SUCCESS on success

@@ -4,7 +4,7 @@
  * @date 2019-09-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Commmon definitions and functions for all radio operations. 
+ * Commmon definitions and functions for all radio operations.
  *
  */
 
@@ -36,7 +36,7 @@ static ruuvi_interface_communication_radio_activity_interrupt_fp_t
 on_radio_activity_callback = NULL;
 
 /**
- * @brief Task to run on radio activity 
+ * @brief Task to run on radio activity
  * Calls event handlers of radio modules and a common radio event handler.
  * This function is in interrupt context, avoid long processing or using peripherals.
  * Schedule any long tasks in application callbacks.
@@ -48,7 +48,6 @@ static void on_radio_evt(bool active)
   // Convert to Ruuvi enum
   ruuvi_interface_communication_radio_activity_evt_t evt = active ?
       RUUVI_INTERFACE_COMMUNICATION_RADIO_BEFORE : RUUVI_INTERFACE_COMMUNICATION_RADIO_AFTER;
-
   // Call module event handlers
   ruuvi_interface_communication_ble4_advertising_activity_handler(evt);
   //ruuvi_interface_communication_ble4_gatt_activity_handler(evt); - TODO
@@ -69,7 +68,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init(
   // Configure the BLE stack using the default settings.
   // Fetch the start address of the application RAM.
   uint32_t ram_start = 0;
-
   err_code |= nrf_sdh_ble_default_cfg_set(RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG, &ram_start);
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
   // TODO - find the correct way to define large enough GATT queue for extended GATT event.
@@ -77,15 +75,12 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_init(
   conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
   conn_cfg.conn_cfg.params.gatts_conn_cfg.hvn_tx_queue_size    = 20;
   err_code |= sd_ble_cfg_set(BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
-
   // Enable BLE stack.
   err_code |= nrf_sdh_ble_enable(&ram_start);
-  
   // Enable connection event extension for faster data rate
   static ble_opt_t  opt = {0};
   opt.common_opt.conn_evt_ext.enable = true;
   err_code |= sd_ble_opt_set(BLE_COMMON_OPT_CONN_EVT_EXT, &opt);
-
   RUUVI_DRIVER_ERROR_CHECK(err_code, NRF_SUCCESS);
   // Initialize radio interrupts
   err_code |= ble_radio_notification_init(RUUVI_NRF5_SDK15_RADIO_IRQ_PRIORITY,
@@ -116,12 +111,14 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(
   uint8_t handle = RUUVI_INTERFACE_COMMUNICATION_RADIO_UNINIT;
   ble_gap_addr_t addr;
   addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
+
   // Initialize radio to get address if necessary.
   if(!ruuvi_interface_communication_radio_is_init())
   {
     handle = RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT;
     err_code |= ruuvi_interface_communication_radio_init(handle);
   }
+
   status |= sd_ble_gap_addr_get(&addr);
   mac |= (uint64_t)(addr.addr[5]) << 40;
   mac |= (uint64_t)(addr.addr[4]) << 32;
@@ -130,11 +127,13 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(
   mac |= (uint64_t)(addr.addr[1]) << 8;
   mac |= (uint64_t)(addr.addr[0]) << 0;
   *address = mac;
+
   // Uninitialize radio if it was init here.
   if(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT == handle)
   {
     err_code |= ruuvi_interface_communication_radio_uninit(handle);
   }
+
   return ruuvi_nrf5_sdk15_to_ruuvi_error(status) | err_code;
 }
 

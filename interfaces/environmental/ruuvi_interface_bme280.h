@@ -12,7 +12,7 @@
  * @brief Implement @ref ruuvi_driver_sensor_t functions on BME280
  *
  * The implementation supports
- * different samplerates, low-pass filtering and oversampling. 
+ * different samplerates, low-pass filtering and oversampling.
  */
 /*@}*/
 /**
@@ -80,6 +80,7 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_set(uint8_t*);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
 ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t*);
 /** @brief @ref ruuvi_driver_sensor_data_fp */
-ruuvi_driver_status_t ruuvi_interface_bme280_data_get(ruuvi_driver_sensor_data_t* const  data);
+ruuvi_driver_status_t ruuvi_interface_bme280_data_get(ruuvi_driver_sensor_data_t* const
+    data);
 /*@}*/
 #endif

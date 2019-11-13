@@ -6,7 +6,7 @@
  * @date 2019-09-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Commmon definitions and functions for all radio operations. 
+ * Commmon definitions and functions for all radio operations.
  *
  */
 
@@ -35,10 +35,10 @@ typedef enum
 } ruuvi_interface_communication_radio_user_t;
 
 /**
- *  @brief Type of radio activity interrupt. 
+ *  @brief Type of radio activity interrupt.
  *  This is common to all radio modules, i,e, the callback gets called for every radio action.
  *
- *  @param[in] evt Type of radio event 
+ *  @param[in] evt Type of radio event
  */
 typedef void(*ruuvi_interface_communication_radio_activity_interrupt_fp_t)(
   const ruuvi_interface_communication_radio_activity_evt_t evt);
@@ -50,7 +50,7 @@ typedef void(*ruuvi_interface_communication_radio_activity_interrupt_fp_t)(
  *  @param[in] handle User ID for radio.
  *  @return    RUUVI_DRIVER_SUCCESS on success
  *  @return    RUUVI_DRIVER_ERROR_INVALID_STATE if radio is already initialized.
- *  @note      it's possible to use radio even if the radio is conserved by other user, but there may be concurrency issues. 
+ *  @note      it's possible to use radio even if the radio is conserved by other user, but there may be concurrency issues.
  */
 ruuvi_driver_status_t ruuvi_interface_communication_radio_init(
   const ruuvi_interface_communication_radio_user_t handle);
@@ -81,7 +81,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(
   uint64_t* const address);
 
 /**
- * Configures maximum 64-bit unique address of the device to the radio. 
+ * Configures maximum 64-bit unique address of the device to the radio.
  * The address is identifier of the device on radio network,
  * such as BLE MAC address.
  *
@@ -91,7 +91,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_get(
  * @return RUUVI_DRIVER_ERROR_NOT_SUPPORTED if address cannot be configured on given platform.
  * @return RUUVI_DRIVER_ERROR_INVALID_ADDR if the address does not match protocol rules and cannot or is not converted automatically.
  * @return RUUVI_DRIVER_ERRO_BUSY if radio stack is doing some other operation, try later.
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if radio is in state where address is required, such as advertising, connected or scanning. 
+ * @return RUUVI_DRIVER_ERROR_INVALID_STATE if radio is in state where address is required, such as advertising, connected or scanning.
  * @note   The implementation is allowed to enforce protocol rules, for example BLE MAC will be masked with 0x00 00 [0b11xx]X XX XX XX XX XX XX and sent LSB first.
  */
 ruuvi_driver_status_t ruuvi_interface_communication_radio_address_set(
@@ -101,7 +101,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_radio_address_set(
  * @brief Setup radio activity interrupt
  *
  * This function allows driver to notify application on all radio activity. Calling this function
- * will not start the callbacks, callbacks are started on radio initialization. 
+ * will not start the callbacks, callbacks are started on radio initialization.
  * @param[in] handler Function to call on radio event. Set to @c NULL to disable radio-level callback, however module-level callbacks (advertising, GATT etc) will be called.
  */
 void ruuvi_interface_communication_radio_activity_callback_set(

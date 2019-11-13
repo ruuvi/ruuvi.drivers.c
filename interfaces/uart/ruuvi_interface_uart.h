@@ -41,7 +41,7 @@ typedef struct
   ruuvi_interface_gpio_id_t rts;    //!< pin number of RTS.
   ruuvi_interface_uart_baud_t baud; //!< Baud rate, see @ref ruuvi_interface_uart_baud_t.
   bool parity;                      //!< True -> parity bit enabled. False -> disabled.
-  bool hwfc;                        //!< True -> Hardware flow control enabled. False -> disabled. 
+  bool hwfc;                        //!< True -> Hardware flow control enabled. False -> disabled.
 } ruuvi_interface_uart_init_config_t;
 
 /**
@@ -63,7 +63,7 @@ ruuvi_driver_status_t ruuvi_interface_uart_init(const ruuvi_interface_uart_init_
 
 /**
  * @brief check if UART interface is already initialized.
- * 
+ *
  * @return @c true if UART is initialized
  * @return @c false otherwise
  */
@@ -71,7 +71,7 @@ bool ruuvi_interface_uart_is_init();
 
 /**
  * @brief Uninitialize UART driver.
- * 
+ *
  * This function might not uninitialize the UART GPIO pins, only the underlying peripheral.
  * Uninitialized GPIOs explicitly if that is required.
  *
@@ -82,9 +82,9 @@ ruuvi_driver_status_t ruuvi_interface_uart_uninit();
 
 /**
  * @brief UART write function.
- * Function is blocking and will not sleep while transaction is ongoing. 
+ * Function is blocking and will not sleep while transaction is ongoing.
  *
- * @param p_tx pointer to data to be sent. Must be in RAM. 
+ * @param p_tx pointer to data to be sent. Must be in RAM.
  * @param tx_len length of data to be sent.
  * @return RUUVI_DRIVER_SUCCSS when data was sent.
  * @return RUUVI_DRIVER_ERROR_NULL if p_tx is NULL.
@@ -95,7 +95,7 @@ ruuvi_driver_status_t ruuvi_interface_uart_send_blocking(const uint8_t* const p_
     const size_t tx_len);
 
 /**
- * @brief Configure a callback to be called once data is received. 
+ * @brief Configure a callback to be called once data is received.
  */
 //void ruuvi_interface_uart_rx_cb_set(const ruuvi_interface_uart_cb_t cb);
 /* @} */

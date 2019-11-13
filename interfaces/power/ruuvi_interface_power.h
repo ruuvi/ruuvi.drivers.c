@@ -53,7 +53,7 @@ void ruuvi_interface_power_reset(void);
 /**
  * @brief Enter bootloader
  *
- * This function attempts to enter bootloader. It's main purpose is to provide a wireless recovery 
+ * This function attempts to enter bootloader. It's main purpose is to provide a wireless recovery
  * mechanism on fatal error.
  *
  * @warning Behaviour is undefined if bootloader is not onboard.

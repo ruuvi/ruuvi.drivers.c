@@ -19,8 +19,8 @@
 #include "nrf_pwr_mgmt.h"
 #include "nrf_error.h"
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
-#include "ruuvi_interface_timer.h"
-static ruuvi_interface_timer_id_t wakeup_timer;    //!< timer ID for wakeup
+  #include "ruuvi_interface_timer.h"
+  static ruuvi_interface_timer_id_t wakeup_timer;    //!< timer ID for wakeup
 #endif
 
 static bool m_lp = false;                          //!< low-power mode enabled flag
@@ -89,19 +89,22 @@ ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
 {
   // Timer can be allocated after timer has initialized
   ruuvi_driver_status_t timer_status = RUUVI_DRIVER_SUCCESS;
+
   if(NULL == wakeup_timer)
   {
-    timer_status = ruuvi_interface_timer_create(&wakeup_timer, RUUVI_INTERFACE_TIMER_MODE_SINGLE_SHOT, wakeup_handler);
+    timer_status = ruuvi_interface_timer_create(&wakeup_timer,
+                   RUUVI_INTERFACE_TIMER_MODE_SINGLE_SHOT, wakeup_handler);
   }
-  
+
   if(timer_status == RUUVI_DRIVER_SUCCESS)
   {
     m_lp = enable;
   }
-  else 
+  else
   {
     m_lp = false;
   }
+
   return timer_status;
 }
 #else
@@ -116,8 +119,11 @@ ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable)
 ruuvi_driver_status_t ruuvi_interface_yield(void)
 {
   if(NULL != m_ind) { m_ind(false); }
+
   nrf_pwr_mgmt_run();
+
   if(NULL != m_ind) { m_ind(true); }
+
   return RUUVI_DRIVER_SUCCESS;
 }
 
@@ -125,19 +131,24 @@ ruuvi_driver_status_t ruuvi_interface_delay_ms(uint32_t time)
 {
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
   #if RUUVI_NRF5_SDK15_TIMER_ENABLED
+
   if(m_lp)
   {
     m_wakeup = false;
     err_code |= ruuvi_interface_timer_start(wakeup_timer, time);
-    while(RUUVI_DRIVER_SUCCESS == err_code && !m_wakeup )
+
+    while(RUUVI_DRIVER_SUCCESS == err_code && !m_wakeup)
     {
       err_code |= ruuvi_interface_yield();
     }
-  } 
+  }
+
   #else
+
   if(0) {}
+
   #endif
-  else 
+  else
   {
     nrf_delay_ms(time);
   }
@@ -151,7 +162,8 @@ ruuvi_driver_status_t ruuvi_interface_delay_us(uint32_t time)
   return RUUVI_DRIVER_SUCCESS;
 }
 
-void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t indication)
+void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t
+    indication)
 {
   m_ind = indication;
 }

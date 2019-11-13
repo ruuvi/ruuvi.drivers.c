@@ -52,10 +52,10 @@ ruuvi_driver_status_t ruuvi_nrf5_sdk15_to_ruuvi_error(const ret_code_t err_code)
   if(NRF_ERROR_RESOURCES == err_code)      { return RUUVI_DRIVER_ERROR_RESOURCES; }
 
   if(NRF_ERROR_DRV_TWI_ERR_DNACK == err_code ||
-     NRF_ERROR_DRV_TWI_ERR_ANACK == err_code )      
-   { 
-     return RUUVI_DRIVER_ERROR_NOT_ACKNOWLEDGED; 
-   }
+      NRF_ERROR_DRV_TWI_ERR_ANACK == err_code)
+  {
+    return RUUVI_DRIVER_ERROR_NOT_ACKNOWLEDGED;
+  }
 
   if(NRF_ERROR_RESOURCES == err_code)      { return RUUVI_DRIVER_ERROR_RESOURCES; }
 

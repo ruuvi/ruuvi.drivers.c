@@ -142,7 +142,8 @@ size_t ruuvi_interface_error_to_string(ruuvi_driver_status_t error,
         break;
 
       case RUUVI_DRIVER_ERROR_NOT_ACKNOWLEDGED:
-        written += snprintf(error_string + written, space_remaining - written, "%s", "NOT ACKNOWLEDGED");
+        written += snprintf(error_string + written, space_remaining - written, "%s",
+                            "NOT ACKNOWLEDGED");
         break;
 
       case RUUVI_DRIVER_ERROR_FATAL:
@@ -275,17 +276,20 @@ void ruuvi_interface_log_hex(const ruuvi_interface_log_severity_t severity,
 {
   char msg[APPLICATION_LOG_BUFFER_SIZE] =  { 0 };
   size_t index = 0;
+
   for(size_t ii = 0; ii < byte_length; ii++)
   {
     index += snprintf(msg + index, sizeof(msg) - index, "%02X", bytes[ii]);
-    if(ii < (byte_length-1))
+
+    if(ii < (byte_length - 1))
     {
-     index += snprintf(msg + index, sizeof(msg) - index, ":");
+      index += snprintf(msg + index, sizeof(msg) - index, ":");
     }
+
     if(index >= sizeof(msg)) { return; }
   }
-  ruuvi_interface_log(severity, msg);
 
+  ruuvi_interface_log(severity, msg);
 }
 
 /** @} */

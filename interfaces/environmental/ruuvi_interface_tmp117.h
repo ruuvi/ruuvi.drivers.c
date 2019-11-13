@@ -81,5 +81,6 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_mode_set(uint8_t*);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
 ruuvi_driver_status_t ruuvi_interface_tmp117_mode_get(uint8_t*);
 /** @brief @ref ruuvi_driver_sensor_data_fp */
-ruuvi_driver_status_t ruuvi_interface_tmp117_data_get(ruuvi_driver_sensor_data_t* const  data);
+ruuvi_driver_status_t ruuvi_interface_tmp117_data_get(ruuvi_driver_sensor_data_t* const
+    data);
 /*@}*/

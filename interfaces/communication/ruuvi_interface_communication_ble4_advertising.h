@@ -17,28 +17,29 @@
 #include <stdint.h>
 
 /** @brief Alloved advertisement types */
-typedef enum 
+typedef enum
 {
   NONCONNECTABLE_NONSCANNABLE, //!< Nonconnectable, nonscannable
   CONNECTABLE_NONSCANNABLE,    //!< Connectable, nonscannable
   CONNECTABLE_SCANNABLE,       //!< Connectable, scannable
   NONCONNECTABLE_SCANNABLE     //!< Nonconnectable, scannable
-}RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE;
+} RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE;
 
-/** @brief Advertisement report from scanner 
+/** @brief Advertisement report from scanner
  *
  */
- typedef struct {
-   uint8_t addr[6];  //<! MAC address, MSB first
-   int8_t rssi;      //!< RSSI of advertisement
-   uint8_t data[31]; //!< Full payload of the advertisement
-   size_t data_len;  //!< Length of received data
- }ruuvi_interface_communication_ble4_scan_t; 
+typedef struct
+{
+  uint8_t addr[6];  //<! MAC address, MSB first
+  int8_t rssi;      //!< RSSI of advertisement
+  uint8_t data[31]; //!< Full payload of the advertisement
+  size_t data_len;  //!< Length of received data
+} ruuvi_interface_communication_ble4_scan_t;
 
 /*
  * @brief Initialize radio hardware, advertising module and scanning module.
  *
- * @return RUUVI_DIRVER_SUCCESS on success, 
+ * @return RUUVI_DIRVER_SUCCESS on success,
  * @return RUUVI_DIRVER_ERROR_INVALID_STATE if radio is already initialized
  *
  * @note This function calls ruuvi_interface_communication_radio_init internally, calling separate radio initialization is not required.
@@ -61,7 +62,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_uninit(
  * @brief Setter for broadcast advertisement interval.
  *
  * @param[in] ms Milliseconds, random delay of 0 - 10 ms will be added to the interval on every TX to avoid collisions. min 100 ms, max 10 000 ms.
- * @return RUUVI_DRIVER_SUCCESS on success, 
+ * @return RUUVI_DRIVER_SUCCESS on success,
  * @return RUUVI_DRIVER_ERROR_INVALID_PARAM if the parameter is outside allowed range
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval_set(
@@ -71,7 +72,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval
  * @brief Getter for broadcast advertisement interval
  *
  * @param[out] ms Milliseconds between transmission, without the random delay.
- * @return RUUVI_DRIVER_SUCCESS on success. 
+ * @return RUUVI_DRIVER_SUCCESS on success.
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if advertisement module is not initialized.
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval_get(
@@ -86,18 +87,18 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_tx_interval
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_manufacturer_id_set(
   const uint16_t id);
 
-/** 
+/**
  * @brief Set manufacturer specific data to advertise.
  * Clears previous data, but scan response is retained. The data is placed to primary advertisement.
  * This function can be called while advertising, but it does not quarantee that advertisement will be sent.
  * Calling this function twice in a row will result in first advertisement being immediately discarded.
- * 
+ *
  * @param[in] data to advertise
  * @param[in] data_length length of data ot advertise, maximum 24 bytes.
  * @return RUUVI_DRIVER_SUCCESS on success.
  * @return RUUVI_DRIVER_ERROR_NULL if data is NULL
  * @return RUUVI_DRIVER_ERROR_INVALID_LENGTH if data_length is over 24 bytes
- * @return error code from stack on other error. 
+ * @return error code from stack on other error.
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_data_set(
   const uint8_t* data, const uint8_t data_length);
@@ -124,29 +125,31 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_receive(
   ruuvi_interface_communication_message_t* message);
 
 /** @brief setup scan window interval and window size.
- *  
- *  The scan window interval must be larger or equivalent to window size. 
+ *
+ *  The scan window interval must be larger or equivalent to window size.
  *  Example: Interval 1000 ms, window size 100 ms. The scanning will scan 100 ms at channel 37, wait 900 ms, scan 100 ms at channel 38,
- *  wait 900 ms, scan 100 ms at channel 39 and terminate. 
- * 
+ *  wait 900 ms, scan 100 ms at channel 39 and terminate.
+ *
  *  @param[in] window_interval_ms interval of the window.
  *  @param[in] window_size_ms     window size within interval.
  *  @return RUUVI_DRIVER_SUCCESS  on success
  *  @return RUUVI_DRIVER_ERROR_INVALID_STATE if scan is ongoing
  *  @return RUUVI_DRIVER_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(const uint32_t window_interval_ms, const uint32_t window_size_ms);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_set(
+  const uint32_t window_interval_ms, const uint32_t window_size_ms);
 
 /** @brief get scan window interval and window size.
- *  
- * 
+ *
+ *
  *  @param[out] window_interval_ms interval of the window.
  *  @param[out] window_size_ms     window size within interval.
  *  @return RUUVI_DRIVER_SUCCESS  on success
  *  @return RUUVI_DRIVER_ERROR_NULL if either pointer is NULL
  *  @return RUUVI_DRIVER_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_get(uint32_t* window_interval_ms, uint32_t* window_size_ms);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_rx_interval_get(
+  uint32_t* window_interval_ms, uint32_t* window_size_ms);
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_start(void);
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_stop(void);
@@ -161,14 +164,15 @@ void ruuvi_interface_communication_ble4_advertising_activity_handler(
   const ruuvi_interface_communication_radio_activity_evt_t evt);
 
 /**
- * @brief Configure advertising data with a scan response. 
+ * @brief Configure advertising data with a scan response.
  * The scan response must be separately enabled.
  */
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_scan_response_setup
-  (const char* const name,
-  const bool advertise_nus);
+(const char* const name,
+ const bool advertise_nus);
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_type_set(RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE type);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_type_set(
+  RUUVI_INTERFACE_COMMUNICATION_BLE4_ADVERTISING_TYPE type);
 
 /** @brief Notify advertising module that advertising has been stopped by external event */
 void ruuvi_interface_communication_ble4_advertising_notify_stop(void);
@@ -180,7 +184,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_start();
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_stop();
 
 /** @brief send one raw packet */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send_raw(uint8_t* data, size_t data_length);
+ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_send_raw(
+  uint8_t* data, size_t data_length);
 
 ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_ongoing(void);
 

@@ -98,7 +98,7 @@
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
   #define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RUUVI_INTERFACE_LOG_DEBUG
-#endif 
+#endif
 #define LOG(msg) ruuvi_interface_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
 #define LOGD(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, msg)
 #define LOGW(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, msg)
@@ -115,32 +115,32 @@ static ruuvi_interface_communication_t* channel =
   NULL;  /**< Pointer to application communication interface, given at initialization */
 
 /** @brief print PHY enum as string */
-static char const * phy_str(ble_gap_phys_t phys)
+static char const* phy_str(ble_gap_phys_t phys)
 {
-    static char const * str[] =
-    {
-        "1 Mbps",
-        "2 Mbps",
-        "Coded",
-        "Unknown"
-    };
+  static char const* str[] =
+  {
+    "1 Mbps",
+    "2 Mbps",
+    "Coded",
+    "Unknown"
+  };
 
-    switch (phys.tx_phys)
-    {
-        case BLE_GAP_PHY_1MBPS:
-            return str[0];
+  switch(phys.tx_phys)
+  {
+    case BLE_GAP_PHY_1MBPS:
+      return str[0];
 
-        case BLE_GAP_PHY_2MBPS:
-        case BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS:
-        case BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS | BLE_GAP_PHY_CODED:
-            return str[1];
+    case BLE_GAP_PHY_2MBPS:
+    case BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS:
+    case BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS | BLE_GAP_PHY_CODED:
+      return str[1];
 
-        case BLE_GAP_PHY_CODED:
-            return str[2];
+    case BLE_GAP_PHY_CODED:
+      return str[2];
 
-        default:
-            return str[3];
-    }
+    default:
+      return str[3];
+  }
 }
 
 
@@ -313,23 +313,25 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 
     case BLE_GAP_EVT_PHY_UPDATE:
     {
-       ble_gap_evt_phy_update_t const * p_phy_evt = &p_ble_evt->evt.gap_evt.params.phy_update;
-       if (p_phy_evt->status == BLE_HCI_STATUS_CODE_LMP_ERROR_TRANSACTION_COLLISION)
-       {
-         LOGW("BLE LL transaction collision during PHY update.\r\n");
-         break;
-       }
-       ble_gap_phys_t evt_phys = {0};
-       evt_phys.tx_phys = p_phy_evt->tx_phy;
-       evt_phys.rx_phys = p_phy_evt->rx_phy;
-       char msg[128];
-       snprintf(msg, sizeof(msg), "PHY update %s. PHY set to %s.\r\n",
-                                  (p_phy_evt->status == BLE_HCI_STATUS_CODE_SUCCESS) ?
-                                  "accepted" : "rejected",
-                                  phy_str(evt_phys));
-      LOG(msg);
-    } break;
+      ble_gap_evt_phy_update_t const* p_phy_evt = &p_ble_evt->evt.gap_evt.params.phy_update;
 
+      if(p_phy_evt->status == BLE_HCI_STATUS_CODE_LMP_ERROR_TRANSACTION_COLLISION)
+      {
+        LOGW("BLE LL transaction collision during PHY update.\r\n");
+        break;
+      }
+
+      ble_gap_phys_t evt_phys = {0};
+      evt_phys.tx_phys = p_phy_evt->tx_phy;
+      evt_phys.rx_phys = p_phy_evt->rx_phy;
+      char msg[128];
+      snprintf(msg, sizeof(msg), "PHY update %s. PHY set to %s.\r\n",
+               (p_phy_evt->status == BLE_HCI_STATUS_CODE_SUCCESS) ?
+               "accepted" : "rejected",
+               phy_str(evt_phys));
+      LOG(msg);
+    }
+    break;
 
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
       // Pairing not supported
@@ -546,10 +548,12 @@ static ret_code_t peer_manager_init()
   ble_gap_sec_params_t sec_param;
   ret_code_t           err_code = NRF_SUCCESS;
   err_code |= pm_init();
-  
+
   // Failed because storage cannot be initialized.
-  if(NRF_SUCCESS != err_code) { 
-    ruuvi_interface_communication_radio_uninit(RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
+  if(NRF_SUCCESS != err_code)
+  {
+    ruuvi_interface_communication_radio_uninit(
+      RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
     ruuvi_interface_flash_purge();
     ruuvi_interface_power_reset();
     RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS);
@@ -594,7 +598,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init(void)
   {
     radio_status = ruuvi_interface_communication_radio_init(
                      RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
-
     RUUVI_DRIVER_ERROR_CHECK(radio_status, RUUVI_DRIVER_SUCCESS);
   }
   else

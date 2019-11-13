@@ -74,7 +74,7 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
 
 /**
  * @brief check if SPI interface is already initialized.
- * 
+ *
  * @return @c true if SPI is initialized
  * @return @c false otherwise
  */
@@ -82,7 +82,7 @@ bool ruuvi_interface_spi_is_init();
 
 /**
  * @brief Uninitialize SPI driver.
- * 
+ *
  * This function might not uninitialize the SPI GPIO pins, only the underlying peripheral.
  * Uninitialized GPIOs explicitly if that is required.
  *

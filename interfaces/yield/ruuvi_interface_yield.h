@@ -21,7 +21,7 @@
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 
-/** Function which gets called when entering / exiting sleep, configured by application. 
+/** Function which gets called when entering / exiting sleep, configured by application.
  *
  * @param[in] active true if device is going to be active, false otherwise.
  *
@@ -29,11 +29,12 @@
 typedef void(*ruuvi_interface_yield_state_ind_fp_t)(const bool active);
 
 /**
- * Configure sleep indication function. 
+ * Configure sleep indication function.
  *
  * @param[in] indication function to call when entering/exiting sleep, NULL to disable
  */
-void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t indication);
+void ruuvi_interface_yield_indication_set(const ruuvi_interface_yield_state_ind_fp_t
+    indication);
 
 /**
  * @brief Initializes yielding functions.
@@ -48,9 +49,9 @@ ruuvi_driver_status_t ruuvi_interface_yield_init(void);
 /**
  * @brief Initializes yielding functions.
  *
- * Enables using timer + RTC to shutdown the device for millisecond-sleeps. 
+ * Enables using timer + RTC to shutdown the device for millisecond-sleeps.
  * @param[in] enable true to enable low-power mode, false to disable.
- * 
+ *
  * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
  */
 ruuvi_driver_status_t ruuvi_interface_yield_low_power_enable(const bool enable);
@@ -70,9 +71,9 @@ ruuvi_driver_status_t ruuvi_interface_yield(void);
   * @brief Delay a given number of milliseconds.
   *
   * This function is meant for rough timing and is not quaranteed to be exact in any manner
-  * If you need exact timing use timers or for example PWM peripheral. This 
-  * function is affected by low-power delay enable, which uses sleep mode and timer to 
-  * return out of sleep. 
+  * If you need exact timing use timers or for example PWM peripheral. This
+  * function is affected by low-power delay enable, which uses sleep mode and timer to
+  * return out of sleep.
   *
   * @param time number of milliseconds to delay.
   * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
@@ -86,7 +87,7 @@ ruuvi_driver_status_t ruuvi_interface_delay_ms(uint32_t time);
   *
   * This function is meant for rough timing and is not quaranteed to be exact in any manner
   * If you need exact timing use timers or for example PWM peripheral.
-  * This function does not use low-power mode to maintain better precision on timing. 
+  * This function does not use low-power mode to maintain better precision on timing.
   *
   * @param time number of microseconds to delay.
   * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.

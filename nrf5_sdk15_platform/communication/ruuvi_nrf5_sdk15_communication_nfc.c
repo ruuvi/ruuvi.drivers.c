@@ -202,7 +202,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void)
                                         &NFC_NDEF_TEXT_RECORD_DESC(nfc_addr_rec));
   }
 
-
   if(nfc_fw_length)
   {
     err_code |= nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_ndef_msg),

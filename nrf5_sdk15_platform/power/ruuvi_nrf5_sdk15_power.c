@@ -65,17 +65,14 @@ void ruuvi_interface_power_enter_bootloader(void)
   if(nrf_sdh_is_enabled())
   {
     sd_power_gpregret_clr(0, 0xffffffff);
-
     sd_power_gpregret_set(0, BOOTLOADER_DFU_START);
-
-     sd_nvic_SystemReset();
+    sd_nvic_SystemReset();
   }
-  else 
+  else
   {
     NRF_POWER->GPREGRET = BOOTLOADER_DFU_START;
     NVIC_SystemReset();
   }
-
 }
 
 #endif

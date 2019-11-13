@@ -555,12 +555,15 @@ ruuvi_driver_status_t ruuvi_interface_bme280_mode_get(uint8_t* mode)
 }
 
 
-ruuvi_driver_status_t ruuvi_interface_bme280_data_get(ruuvi_driver_sensor_data_t* const p_data)
+ruuvi_driver_status_t ruuvi_interface_bme280_data_get(ruuvi_driver_sensor_data_t* const
+    p_data)
 {
   if(NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
 
   struct bme280_data comp_data;
+
   ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+
   err_code = BME_TO_RUUVI_ERROR(bme280_get_sensor_data(BME280_ALL, &comp_data, &dev));
 
   if(RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }

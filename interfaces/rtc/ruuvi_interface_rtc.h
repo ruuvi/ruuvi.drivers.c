@@ -1,6 +1,6 @@
 /**
  * @defgroup RTC RTC functions
- * @brief Functions for using Real-time clock onboard device. 
+ * @brief Functions for using Real-time clock onboard device.
  *
  */
 /*@{*/
@@ -33,7 +33,7 @@ ruuvi_driver_status_t ruuvi_interface_rtc_init(void);
 ruuvi_driver_status_t ruuvi_interface_rtc_uninit(void);
 
 /**
- * @brief Get milliseconds since init. 
+ * @brief Get milliseconds since init.
  *
  * @return number of milliseconds since RTC init.
  * @return @c RUUVI_DRIVER_UINT64_INVALID if RTC is not running

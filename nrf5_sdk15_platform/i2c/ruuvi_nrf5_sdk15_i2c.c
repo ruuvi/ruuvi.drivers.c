@@ -77,7 +77,7 @@ static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency(const
 }
 
 static void byte_timeout_set(const
-    ruuvi_interface_i2c_frequency_t freq)
+                             ruuvi_interface_i2c_frequency_t freq)
 {
   switch(freq)
   {
@@ -93,9 +93,10 @@ static void byte_timeout_set(const
   }
 }
 
-static void on_complete(nrf_drv_twi_evt_t const *p_event, void *p_context)
+static void on_complete(nrf_drv_twi_evt_t const* p_event, void* p_context)
 {
   m_tx_in_progress = false;
+
   if(p_event->type == NRF_DRV_TWI_EVT_ADDRESS_NACK) { xfer_status |= NRF_ERROR_NOT_FOUND; }
   else if(p_event->type == NRF_DRV_TWI_EVT_DATA_NACK) { xfer_status |= NRF_ERROR_DRV_TWI_ERR_DNACK; }
   else if(p_event->type != NRF_DRV_TWI_EVT_DONE) { xfer_status |= NRF_ERROR_INTERNAL; }
@@ -114,8 +115,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
     .frequency          = frequency,
     .interrupt_priority = I2C_IRQ_PRIORITY,
     .clear_bus_init     = true
-  }; 
-
+  };
   // Verify that lines can be pulled up
   ruuvi_interface_gpio_configure(config->scl, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
   ruuvi_interface_gpio_configure(config->sda, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
@@ -123,15 +123,15 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
   ruuvi_interface_delay_us(10);
   ruuvi_interface_gpio_read(config->sda, &state_sda);
   ruuvi_interface_gpio_read(config->scl, &state_scl);
+
   if(RUUVI_INTERFACE_GPIO_HIGH != state_sda ||
-     RUUVI_INTERFACE_GPIO_HIGH != state_scl)
+      RUUVI_INTERFACE_GPIO_HIGH != state_scl)
   {
     return RUUVI_DRIVER_ERROR_INTERNAL;
   }
 
   err_code = nrf_drv_twi_init(&m_twi, &twi_config, on_complete, NULL);
   nrf_drv_twi_enable(&m_twi);
-
   m_i2c_is_init = true;
   m_tx_in_progress = false;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
@@ -165,19 +165,24 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address,
     uint8_t* const p_tx, const size_t tx_len, const bool stop)
 {
   if(!m_i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+
   if(NULL == p_tx) { return RUUVI_DRIVER_ERROR_NULL; }
+
   if(m_tx_in_progress) { return RUUVI_DRIVER_ERROR_BUSY; }
 
   int32_t err_code = NRF_SUCCESS;
   m_tx_in_progress = true;
   err_code |= nrf_drv_twi_tx(&m_twi, address, p_tx, tx_len, !stop);
   volatile uint32_t timeout = 0;
+
   while(m_tx_in_progress && timeout < (timeout_us_per_byte * tx_len))
   {
     timeout++;
     ruuvi_interface_delay_us(1);
   }
+
   if(timeout >= (timeout_us_per_byte * tx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
+
   err_code |= xfer_status;
   xfer_status = NRF_SUCCESS;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
@@ -202,12 +207,15 @@ ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
   m_tx_in_progress = true;
   err_code |= nrf_drv_twi_rx(&m_twi, address, p_rx, rx_len);
   volatile uint32_t timeout = 0;
+
   while(m_tx_in_progress && timeout < (timeout_us_per_byte * rx_len))
   {
     timeout++;
     ruuvi_interface_delay_us(1);
   }
+
   if(timeout >= (timeout_us_per_byte * rx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
+
   err_code |= xfer_status;
   xfer_status = NRF_SUCCESS;
   return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);

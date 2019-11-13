@@ -3,10 +3,10 @@
 
 /**
  * @defgroup Flash Flash storage
- * @brief Interface and implementations for storing data into flash in a persistent manner. 
+ * @brief Interface and implementations for storing data into flash in a persistent manner.
  *
  */
- /*@{*/
+/*@{*/
 /**
  * @file ruuvi_interface_flash.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -61,8 +61,8 @@ ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size);
 ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
 
 /**
- * @brief mark a record for deletion. 
- * 
+ * @brief mark a record for deletion.
+ *
  * Note that this only marks the record as freed
  * and does not physically overwrite the flash.
  * The function only starts the operation and returns immediately.
@@ -73,7 +73,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
  * @return RUUVI_DRIVER_SUCCESS if deletion was queued
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
  * @return RUUVI_DRIVER_ERROR_BUSY if another operation was ongoing
- * @return RUUVI_DRIVER_ERROR_NOT_FOUND if give record was not found. 
+ * @return RUUVI_DRIVER_ERROR_NOT_FOUND if give record was not found.
  */
 ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t file_id,
     const uint32_t record_id);
@@ -137,9 +137,9 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void);
  *
  * This function is used to "rescue" flash which cannot be initialized normally,
  * for example after data corruption. Completely erases all data content on flash.
- * Does not erase application files. 
+ * Does not erase application files.
  *
- * This function is blocking, returns once flash is cleared. 
+ * This function is blocking, returns once flash is cleared.
  */
 void ruuvi_interface_flash_purge(void);
 
