@@ -1,5 +1,5 @@
 /**
- * @file ruuvi_interface_communication_radio.c
+ * @file ruuvi_nrf5_sdk15_communication_radio.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2019-09-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.

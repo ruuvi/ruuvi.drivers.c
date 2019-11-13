@@ -17,9 +17,7 @@
 #include "shtc1.h"
 
 /**
- * @defgroup Environmental Environmental sensing
- * @brief Interface and implementations for different, temperature, humidity and
- *        barometric pressure sensors.
+ * @addtogroup Environmental
  */
 /*@{*/
 
@@ -29,7 +27,7 @@
  * @date 2019-08-10
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Environmental dataformat definition
+ * SHTC temperature and humidity sensor driver.
  *
  */
 

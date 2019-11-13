@@ -7,6 +7,21 @@
 
 #if (RUUVI_INTERFACE_ENVIRONMENTAL_TMP117_ENABLED || DOXYGEN)
 
+/**
+ * @addtogroup Environmental
+ */
+/*@{*/
+
+/**
+ * @file ruuvi_interface_tmp117.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-11-13
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * TMP117 temperature sensor driver.
+ *
+ */
+
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
             if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
@@ -589,5 +604,5 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_data_get(ruuvi_driver_sensor_data_t
 
   return err_code;
 }
-
+/*@}*/
 #endif

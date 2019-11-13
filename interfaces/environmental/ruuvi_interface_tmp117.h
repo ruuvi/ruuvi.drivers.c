@@ -1,3 +1,20 @@
+#ifndef RUUVI_INTERFACE_TMP117_H
+#define RUUVI_INTERFACE_TMP117_H
+/**
+ * @addtogroup Environmental
+ */
+/*@{*/
+
+/**
+ * @file ruuvi_interface_tmp117.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-11-13
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * TMP117 temperature sensor driver.
+ *
+ */
+
 /*
 ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 00h     R    8000h Temp_Result   Temperature result register
@@ -84,3 +101,4 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_mode_get(uint8_t*);
 ruuvi_driver_status_t ruuvi_interface_tmp117_data_get(ruuvi_driver_sensor_data_t* const
     data);
 /*@}*/
+#endif
