@@ -25,6 +25,9 @@ typedef void(*ruuvi_timer_timeout_handler_t)(void* p_context);
 // Calls whatever initialization is required by application timers
 ruuvi_driver_status_t ruuvi_interface_timer_init(void);
 
+// Calls whatever uninitialization is required by application timers
+ruuvi_driver_status_t ruuvi_interface_timer_uninit(void);
+
 //return true if timers have been successfully initialized.
 bool ruuvi_interface_timer_is_init(void);
 

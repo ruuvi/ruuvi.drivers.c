@@ -91,7 +91,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_uninit(void);
  * @return @c true if GPIO module is init
  * @return @c false if GPIO module is not init
  */
-bool  ruuvi_interface_gpio_is_init(void);
+bool ruuvi_interface_gpio_is_init(void);
 
 /**
  * @brief Configure a pin of a port into a mode.
