@@ -53,10 +53,10 @@ typedef struct
 
 /** @brief @ref ruuvi_driver_sensor_init_fp */
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_init(ruuvi_driver_sensor_t* adc_sensor,
-    ruuvi_driver_bus_t, uint8_t handle);
+    ruuvi_driver_bus_t bus, uint8_t handle);
 /** @brief @ref ruuvi_driver_sensor_init_fp */
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_uninit(ruuvi_driver_sensor_t* adc_sensor,
-    ruuvi_driver_bus_t, uint8_t handle);
+    ruuvi_driver_bus_t bus, uint8_t handle);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
 ruuvi_driver_status_t ruuvi_interface_adc_mcu_samplerate_set(uint8_t* samplerate);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
