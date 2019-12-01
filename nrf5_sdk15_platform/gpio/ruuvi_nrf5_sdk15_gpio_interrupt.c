@@ -35,7 +35,7 @@ static inline uint8_t ruuvi_to_nrf_pin(const ruuvi_interface_gpio_id_t pin)
 
 ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_init(
   ruuvi_interface_gpio_interrupt_fp_t* const interrupt_table,
-  const uint8_t interrupt_table_size)
+  const uint16_t interrupt_table_size)
 {
   if(NULL == interrupt_table) { return RUUVI_DRIVER_ERROR_NULL; }
 
