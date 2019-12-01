@@ -23,8 +23,6 @@
 
 typedef volatile uint32_t
 ruuvi_interface_atomic_t; //!< define atomic type - not portable to 8-bit.
-/** @brief Pointer to atomic flag, void* for compatibility with other underlying data types than u32. */
-typedef volatile void* const ruuvi_interface_atomic_ptr;
 
 /**
  * @brief Atomic flag check and set/clear function.
@@ -35,10 +33,10 @@ typedef volatile void* const ruuvi_interface_atomic_ptr;
  *
  * Generally used like this:
  * \code{.c}
- * static volatile uint32_t
- * if(!buffer->lock(&(buffer->readlock), true))  { return RUUVI_LIBRARY_ERROR_CONCURRENCY; }
+ * static ruuvi_interface_atomic_t readlock;
+ * if(!ruuvi_interface_atomic_flag(&readlock, true))  { return RUUVI_LIBRARY_ERROR_CONCURRENCY; }
  * do_some_critical_stuff();
- * if(!buffer->lock(&(buffer->readlock), false)) { return RUUVI_LIBRARY_ERROR_FATAL; }
+ * if(!ruuvi_interface_atomic_flag(&readlock, false)){ return RUUVI_LIBRARY_ERROR_FATAL; }
  * \endcode
  *
  * It's important to return if lock can't be had rather than busylooping:
@@ -50,7 +48,7 @@ typedef volatile void* const ruuvi_interface_atomic_ptr;
  * @param[in] set true to set flag, false to clear flag.
  * @return    @c true if operation was successful. @c false otherwise.
  */
-bool ruuvi_interface_atomic_flag(ruuvi_interface_atomic_ptr flag, const bool set);
+bool ruuvi_interface_atomic_flag(ruuvi_interface_atomic_t* const flag, const bool set);
 
 /*@}*/
 
