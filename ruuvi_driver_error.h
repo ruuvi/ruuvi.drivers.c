@@ -50,7 +50,7 @@
 #define RUUVI_DRIVER_ERROR_NOT_ACKNOWLEDGED (1<<20) ///< Ack was expected but not received
 #define RUUVI_DRIVER_ERROR_FATAL            (1<<31) ///< Program should always reset after this
 
-typedef int32_t ruuvi_driver_status_t; ///< bitfield for representing errors
+typedef uint32_t ruuvi_driver_status_t; ///< bitfield for representing errors
 
 /**
  * @brief Check given error code and compare it to non-fatal errors.
