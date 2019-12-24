@@ -502,7 +502,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_advertising_type_set(
   switch(type)
   {
     case NONCONNECTABLE_NONSCANNABLE:
-      (BLE_GAP_PHY_AUTO == m_adv_params.primary_phy) ?
+      m_adv_params.properties.type = (BLE_GAP_PHY_AUTO == m_adv_params.primary_phy) ?
           BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED :
           BLE_GAP_ADV_TYPE_EXTENDED_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
       
