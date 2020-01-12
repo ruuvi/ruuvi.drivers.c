@@ -82,7 +82,7 @@
 #define RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE       0xFF   //!< Do not change configured value
 
 // DSP functions, complemented by DSP parameter
-#define RUUVI_DRIVER_SENSOR_DSP_LAST            0      //!< Return last value from sesnor. Parameter: No effect. Use default
+#define RUUVI_DRIVER_SENSOR_DSP_LAST            0      //!< Return last value from sensor. Parameter: No effect. Use default
 #define RUUVI_DRIVER_SENSOR_DSP_LOW_PASS        (1<<1) //!< Low pass sensor values Parameter: coefficient
 #define RUUVI_DRIVER_SENSOR_DSP_HIGH_PASS       (1<<2) //!< High pass sensor values Parameter: coefficient
 #define RUUVI_DRIVER_SENSOR_DSP_OS              (1<<3) //!< Oversample sensor values. Parameter: Number of samples
@@ -261,8 +261,8 @@ typedef ruuvi_driver_status_t (*ruuvi_driver_sensor_fifo_read_fp)(size_t* num_el
 
 /**
 * @brief Enable FIFO or FIFO interrupt full interrupt on sensor.
-* FIFO interrupt Triggers as ACTIVE HIGH interrupt once FIFO is filled. 
-* It is responsibility of application to know the routing of GPIO pins and
+* FIFO interrupt Triggers an interrupt once FIFO is filled. 
+* It is responsibility of application to know the routing of and polarity of GPIO pins and
 * configure the GPIO to register interrupts.
 *
 * @param[in] enable True to enable interrupt, false to disable interrupt
