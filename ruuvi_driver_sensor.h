@@ -60,6 +60,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define RUUVI_DRIVER_SEMVER "3.3.0"
+
 #define RUUVI_DRIVER_SENSOR_INVALID_VALUE    RUUVI_DRIVER_FLOAT_INVALID  //!< Signal this sensor value is erroneous
 #define RUUVI_DRIVER_SENSOR_INVALID_TIMSTAMP RUUVI_DRIVER_UINT64_INVALID //!< Signal this timestamp value is erroneous
 

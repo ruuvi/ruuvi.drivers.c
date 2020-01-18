@@ -98,3 +98,9 @@ for example Nordic semiconductor platform files follow Nordic SDK License.
 All contributions are welcome, from typographical fixes to feedback on design and naming schemes.
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
+# Changelog
+## 3.3.0
+ - Add semantic versioning string
+
+## 3.0.0 ... 3.2.0 
+Alpha versions, do not use for anything.
