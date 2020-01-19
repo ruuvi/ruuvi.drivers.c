@@ -8,22 +8,29 @@ Repository is under active development (alpha), expect breaking changes.
 The drivers project has other drivers - suchs as Bosch and STM official drivers - as 
 submodules at root level.
 
-Interfaces folder provides platform-independent access to the peripherals of the 
+Ruuvi code is under `src` folder. 
+`Interfaces` folder provides platform-independent access to the peripherals of the 
 underlying microcontroller, for example function 
 `int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);` 
 is defined, but not implemented.
 
-Implementation is in `*_platform`-folders.
+Implementation of interfaces is in `*_platform`-folders.
 
-External platform-independent requirements are in `ruuvi_driver_enabled_modules.h` -file. 
+Tasks are larger functionalities, such as "get battery voltage" or "Broadcast this data". 
+
 
 ## File and variable naming
 Files should be named `ruuvi_module_name`, for example `ruuvi_interface_spi.h`
-Globally visible functions, variables and definitions should be likewise named 
-`ruuvi_module_file_name`, for example  `ruuvi_interface_yield_init()`
+Globally visible functions, variables and definitions should be likewise named with
+abbreviation of `ruuvi_type_module_name`, for example `ri_yield_init()` or
+`rt_adc_vdd_get()`
 
 # Usage
 ## Enabling modules
+The application should contain `app_config.h` which includes platform specific includes
+such as `nrf5_sdk15_app_config.h`. Preprocessor must define `APPLICATION_DRIVER_CONFIGURED`
+to let drivers know they can include the `app_config.h`
+
 As the repository may contain several different implementations of interface functions the
 desired implementation is enabled by definining `PLATFORM_MODULE_ENABLED 1`, 
 for example `RUUVI_NRF5_SDK15_LOG_ENABLED 1`.
@@ -71,6 +78,19 @@ astyle --project=.astylerc --recursive "./nrf5_sdk15_platform/*.c"
 astyle --project=.astylerc --recursive "./nrf5_sdk15_platform/*.h"
 ```
 
+# Testing
+## Unit tests
+Unit tests are run by Ceedling and they are completely hardware-independent. 
+They can be run by e.g. Travis. The unit tests are in `test` folder.
+
+## Integration tests
+Integration tests are run on actual hardware and cannot be run on the cloud.
+Integration tests are in `src/integration_tests` folder.
+
+## System and acceptance testing. 
+System testing and acceptance testing are in the scope of main application and 
+not handled here.
+
 # Progress
 The repository is under active development and major refactors are to be expected.
 You can follow more detailed development blog at [Ruuvi Blog](https://blog.ruuvi.com).
@@ -99,6 +119,9 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.0 
+ - Change to 0.x Semver to signal that project is in alpha.
+
 ## 3.3.0
  - Add semantic versioning string
 
