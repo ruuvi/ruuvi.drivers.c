@@ -27,7 +27,7 @@ int8_t is_led (const uint16_t led)
 {
     int8_t led_valid = -1;
 
-    for (size_t ii = 0U; (ii < (sizeof(m_led_list)/sizeof(m_led_list[0]))) && (!led_valid); ii++)
+    for (size_t ii = 0U; (ii < (sizeof(m_led_list)/sizeof(m_led_list[0]))) && (0 > led_valid); ii++)
     {
         if (led == m_led_list[ii])
         {
