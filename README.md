@@ -119,6 +119,10 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.1
+ - Fix some globally visible names not following the refactored scheme
+ - Pass RI_COMMUNICATION_TIMEOUT to application from BLE Scan.
+
 ## 0.1.0 
  - Change to 0.x Semver to signal that project is in alpha.
 

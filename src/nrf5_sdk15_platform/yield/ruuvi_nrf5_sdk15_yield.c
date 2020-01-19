@@ -96,7 +96,7 @@ rd_status_t ri_yield_low_power_enable(const bool enable)
                    RI_TIMER_MODE_SINGLE_SHOT, wakeup_handler);
   }
 
-  if(timer_status == RUUVI_DRIVER_SUCCESS)
+  if(timer_status == RD_SUCCESS)
   {
     m_lp = enable;
   }
