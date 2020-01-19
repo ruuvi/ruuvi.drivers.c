@@ -1,5 +1,5 @@
 #include "ruuvi_driver_enabled_modules.h"
-#if APPLICATION_LOG_ENABLED
+#if RI_LOG_ENABLED
 /**
  * @addtogroup Log
  * @{
@@ -222,50 +222,50 @@ static char* configuration_value_to_string(const uint8_t val)
 void ri_log_sensor_configuration(const ri_log_severity_t level,
     const rd_sensor_configuration_t* const configuration, const char* unit)
 {
-  char msg[APPLICATION_LOG_BUFFER_SIZE] = {0};
-  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Sample rate: %s Hz\r\n",
+  char msg[RD_LOG_BUFFER_SIZE] = {0};
+  snprintf(msg, RD_LOG_BUFFER_SIZE, "Sample rate: %s Hz\r\n",
            configuration_value_to_string(configuration->samplerate));
   ri_log(level, msg);
   memset(msg, 0, sizeof(msg));
-  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Resolution:  %s bits\r\n",
+  snprintf(msg, RD_LOG_BUFFER_SIZE, "Resolution:  %s bits\r\n",
            configuration_value_to_string(configuration->resolution));
   ri_log(level, msg);
   memset(msg, 0, sizeof(msg));
-  snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Scale:       %s %s\r\n",
+  snprintf(msg, RD_LOG_BUFFER_SIZE, "Scale:       %s %s\r\n",
            configuration_value_to_string(configuration->scale), unit);
   ri_log(level, msg);
   memset(msg, 0, sizeof(msg));
-  size_t written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "DSP:         ");
+  size_t written = snprintf(msg, RD_LOG_BUFFER_SIZE, "DSP:         ");
 
   switch(configuration->dsp_function)
   {
     case RD_SENSOR_DSP_HIGH_PASS:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "High pass x ");
+      written += snprintf(msg + written, RD_LOG_BUFFER_SIZE - written, "High pass x ");
       break;
 
     case RD_SENSOR_DSP_LAST:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Last x ");
+      written += snprintf(msg + written, RD_LOG_BUFFER_SIZE - written, "Last x ");
       break;
 
     case RD_SENSOR_DSP_LOW_PASS:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Lowpass x ");
+      written += snprintf(msg + written, RD_LOG_BUFFER_SIZE - written, "Lowpass x ");
       break;
 
     case RD_SENSOR_DSP_OS:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written,
+      written += snprintf(msg + written, RD_LOG_BUFFER_SIZE - written,
                           "Oversampling x ");
       break;
 
     default:
-      written += snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "Unknown x");
+      written += snprintf(msg + written, RD_LOG_BUFFER_SIZE - written, "Unknown x");
       break;
   }
 
-  snprintf(msg + written, APPLICATION_LOG_BUFFER_SIZE - written, "%s\r\n",
+  snprintf(msg + written, RD_LOG_BUFFER_SIZE - written, "%s\r\n",
            configuration_value_to_string(configuration->dsp_parameter));
   ri_log(level, msg);
   memset(msg, 0, sizeof(msg));
-  written = snprintf(msg, APPLICATION_LOG_BUFFER_SIZE, "Mode:        %s\r\n",
+  written = snprintf(msg, RD_LOG_BUFFER_SIZE, "Mode:        %s\r\n",
                      configuration_value_to_string(configuration->mode));
   ri_log(level, msg);
 }
@@ -274,7 +274,7 @@ void ri_log_hex(const ri_log_severity_t severity,
                              const uint8_t* const bytes,
                              size_t byte_length)
 {
-  char msg[APPLICATION_LOG_BUFFER_SIZE] =  { 0 };
+  char msg[RD_LOG_BUFFER_SIZE] =  { 0 };
   size_t index = 0;
 
   for(size_t ii = 0; ii < byte_length; ii++)
@@ -289,7 +289,7 @@ void ri_log_hex(const ri_log_severity_t severity,
     if(index >= sizeof(msg)) { return; }
   }
 
-  ruuvi_interface_log(severity, msg);
+  ri_log(severity, msg);
 }
 
 #else
