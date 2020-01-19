@@ -146,6 +146,30 @@ rd_status_t rt_adv_connectability_set (const bool enable,
  *  @return true if advertisement is initialized, false otherwise.
  */
 bool rt_adv_is_init (void);
+
+/** @brief Start scanning BLE advertisements
+ *
+ * This is non-blocking, you'll need to handle incoming events. 
+ *
+ * Events are:
+ *   - on_evt(RI_COMMUNICATION_RECEIVED, scan, sizeof(ri_adv_scan_t));
+ *   - on_evt(RI_COMMUNICATION_TIMEOUT, NULL, 0);
+ *
+ *  @param[in] on_evt event handler for scan results, 
+ *  @retval    RD_SUCCESS if scanning was started
+ *  @retval    RD_ERROR_INVALID_STATE if advertising isn't initialized.
+ *  @retval    error code from stack on other error.
+ *
+ * @note Scanning is stopped on timeout, you can restart the scan on event handler.
+ * @warning Event handler is called in interrupt context.
+ */
+rd_status_t rt_adv_scan_start (const ri_communication_evt_handler_fp_t on_evt);
+
+/** @brief abort scanning. 
+*/
+rd_status_t rt_adv_scan_stop (void);
+
+
 /*@}*/
 
 #endif

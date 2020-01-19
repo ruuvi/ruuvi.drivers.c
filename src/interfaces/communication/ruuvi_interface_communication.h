@@ -28,6 +28,7 @@ typedef enum
   RI_COMMUNICATION_DISCONNECTED, //!< Connection lost, cannot send, may not receive data.
   RI_COMMUNICATION_SENT,         //!< One queued message was sent with all repetitions.
   RI_COMMUNICATION_RECEIVED,     //!< New data received, available to read with read function
+  RI_COMMUNICATION_TIMEOUT       //!< Operation timed out.
 } ri_communication_evt_t;
 
 typedef struct ri_communication_t ri_communication_t; //!< forward declaration *and* typedef

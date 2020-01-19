@@ -119,6 +119,8 @@ static void on_advertisement(scan_evt_t const* p_scan_evt)
   {
     case NRF_BLE_SCAN_EVT_SCAN_TIMEOUT:
       LOG("Scan timeout\r\n");
+      m_adv_state.channel->on_evt(RI_COMMUNICATION_TIMEOUT,
+                                    NULL, 0);
       break;
 
     // Data which matches the configured filter - todo
@@ -216,8 +218,7 @@ rd_status_t ri_adv_manufacturer_id_set(const uint16_t id)
  *
  * Returns RUUVI_DIRVER_SUCCESS on success, RUUVI_DIRVER_ERROR_INVALID_STATE if radio is already initialized
  */
-rd_status_t ri_adv_init(
-  ri_communication_t* const channel)
+rd_status_t ri_adv_init(ri_communication_t* const channel)
 {
   rd_status_t err_code = RD_SUCCESS;
 

@@ -161,5 +161,39 @@ inline bool rt_adv_is_init (void)
 {
     return ( (NULL != m_channel.send) && (true == m_is_init));
 }
+
+rd_status_t rt_adv_scan_start (const ri_communication_evt_handler_fp_t on_evt)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (!m_is_init)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        m_channel.on_evt = on_evt;
+        err_code |= ri_adv_scan_start();
+    }
+
+    return err_code;
+}
+
+rd_status_t rt_adv_scan_stop (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (!m_is_init)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        err_code |= ri_adv_scan_stop();
+    }
+
+    return err_code;
+}
+
 #endif
 /*@}*/
