@@ -56,7 +56,7 @@ addons:
   sonarcloud:
     organization: ruuvi
     token:
-      secure: "**************************"
+      secure: $SONAR_TOKEN
 before_deploy:
 - sed -i '/doxygen/d' .gitignore
 deploy:
