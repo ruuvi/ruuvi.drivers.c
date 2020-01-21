@@ -30,35 +30,35 @@
  * @brief Get total size of usable flash, excluding any overhead bytes
  *
  * @param[out] size Size of useable storage in bytes.
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if size is null
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RD_SUCCESS on success
+ * @return RD_ERROR_NULL if size is null
+ * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_total_size_get(size_t* size);
+rd_status_t ri_flash_total_size_get(size_t* size);
 
 /**
  * @brief Get size of usable page, excluding any overhead bytes
  * If returned value is N, a record of N bytes must fit in one page
  *
  * @param[out] size Size of useable storage in bytes.
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if size is null
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RD_SUCCESS on success
+ * @return RD_ERROR_NULL if size is null
+ * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_page_size_get(size_t* size);
+rd_status_t ri_flash_page_size_get(size_t* size);
 
 /**
  * @brief Get total size of free flash.
  *
  * @param[out] size  size of useable storage in bytes.
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if size is null
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RD_SUCCESS on success
+ * @return RD_ERROR_NULL if size is null
+ * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
+rd_status_t ri_flash_free_size_get(size_t* size);
 
 /**
  * @brief mark a record for deletion.
@@ -70,12 +70,12 @@ ruuvi_driver_status_t ruuvi_interface_flash_free_size_get(size_t* size);
  * @param[in] file_id ID of file which contains the record.
  * @param[in] record_id ID of record to delete.
  *
- * @return RUUVI_DRIVER_SUCCESS if deletion was queued
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * @return RUUVI_DRIVER_ERROR_BUSY if another operation was ongoing
- * @return RUUVI_DRIVER_ERROR_NOT_FOUND if give record was not found.
+ * @return RD_SUCCESS if deletion was queued
+ * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RD_ERROR_BUSY if another operation was ongoing
+ * @return RD_ERROR_NOT_FOUND if give record was not found.
  */
-ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t file_id,
+rd_status_t ri_flash_record_delete(const uint32_t file_id,
     const uint32_t record_id);
 
 /**
@@ -87,14 +87,14 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t file_id
  * @param[in] record_id ID of a record. Can be a random number.
  * @param[in] data_size size data to store
  * @param[in] data pointer to data to store.
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if data is null
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * @return RUUVI_DRIVER_ERROR_DATA_SIZE if record is too large to fit on page
- * @return RUUVI_DRIVER_ERROR_NO_MEM if this record cannot fit on page.
+ * @return RD_SUCCESS on success
+ * @return RD_ERROR_NULL if data is null
+ * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RD_ERROR_DATA_SIZE if record is too large to fit on page
+ * @return RD_ERROR_NO_MEM if this record cannot fit on page.
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
+rd_status_t ri_flash_record_set(const uint32_t page_id,
     const uint32_t record_id, const size_t data_size, const void* const data);
 
 /**
@@ -106,31 +106,31 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
  * @param[in] record_id: ID of a record. Can be a random number.
  * @param[in,out] data_size input: Maximum size of data to retrieve. Output: Number of bytes retrieved.
  * @param data[in] pointer to memory which will be filled with retrieved data
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_ERROR_NULL if data is null
- * @return RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * @return RUUVI_DRIVER_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
+ * @return RD_SUCCESS on success
+ * @return RD_ERROR_NULL if data is null
+ * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @return RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_record_get(const uint32_t page_id,
+rd_status_t ri_flash_record_get(const uint32_t page_id,
     const uint32_t record_id, const size_t data_size, void* const data);
 
 /**
  * @brief Run garbage collection.
  *
- * @return RUUVI_DRIVER_SUCCESS on success
- * @return RUUVI_DRIVER_INVALID_STATE if flash is not initialized
+ * @return RD_SUCCESS on success
+ * @return RD_INVALID_STATE if flash is not initialized
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_gc_run(void);
+rd_status_t ri_flash_gc_run(void);
 
 /**
  * Initialize flash
  *
- * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RD_SUCCESS on success
  * @return error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_init(void);
+rd_status_t ri_flash_init(void);
 
 /**
  * @brief Purge flash
@@ -141,7 +141,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_init(void);
  *
  * This function is blocking, returns once flash is cleared.
  */
-void ruuvi_interface_flash_purge(void);
+void ri_flash_purge(void);
 
 /**
  * @brief Check if flash is busy
@@ -149,6 +149,6 @@ void ruuvi_interface_flash_purge(void);
  * @return True if flash is running an operation.
  * @return False if flash is idle.
  */
-bool ruuvi_interface_flash_is_busy();
+bool ri_flash_is_busy();
 /*@}*/
 #endif

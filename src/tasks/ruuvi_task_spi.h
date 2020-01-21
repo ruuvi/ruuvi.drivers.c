@@ -20,7 +20,7 @@
  *
  * @return RD_SUCCESS
  */
-rd_status_t task_spi_init (void);
+rd_status_t rt_spi_init (void);
 
 
 #endif

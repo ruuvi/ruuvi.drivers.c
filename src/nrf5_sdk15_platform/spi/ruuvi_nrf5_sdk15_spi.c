@@ -59,71 +59,71 @@ static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(
                                    SPI_INSTANCE);  /**< SPI instance. */
 static bool  m_spi_init_done = false;
 
-static ruuvi_driver_status_t ruuvi_to_nrf_spi_mode(const ruuvi_interface_spi_mode_t
+static rd_status_t ruuvi_to_nrf_spi_mode(const ri_spi_mode_t
     ruuvi_mode, nrf_drv_spi_mode_t* nrf_mode)
 {
   switch(ruuvi_mode)
   {
-    case RUUVI_INTERFACE_SPI_MODE_0:
+    case RI_SPI_MODE_0:
       *nrf_mode = NRF_DRV_SPI_MODE_0;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
-    case RUUVI_INTERFACE_SPI_MODE_1:
+    case RI_SPI_MODE_1:
       *nrf_mode = NRF_DRV_SPI_MODE_1;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
-    case RUUVI_INTERFACE_SPI_MODE_2:
+    case RI_SPI_MODE_2:
       *nrf_mode = NRF_DRV_SPI_MODE_2;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
-    case RUUVI_INTERFACE_SPI_MODE_3:
+    case RI_SPI_MODE_3:
       *nrf_mode = NRF_DRV_SPI_MODE_3;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
     default:
-      return RUUVI_DRIVER_ERROR_INVALID_PARAM;
+      return RD_ERROR_INVALID_PARAM;
   }
 }
 
-static ruuvi_driver_status_t ruuvi_to_nrf_spi_freq(const ruuvi_interface_spi_mode_t
+static rd_status_t ruuvi_to_nrf_spi_freq(const ri_spi_mode_t
     ruuvi_freq, nrf_drv_spi_frequency_t* nrf_freq)
 {
   switch(ruuvi_freq)
   {
-    case RUUVI_INTERFACE_SPI_FREQUENCY_1M:
+    case RI_SPI_FREQUENCY_1M:
       *nrf_freq = NRF_DRV_SPI_FREQ_1M;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
-    case RUUVI_INTERFACE_SPI_FREQUENCY_2M:
+    case RI_SPI_FREQUENCY_2M:
       *nrf_freq = NRF_DRV_SPI_FREQ_2M;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
-    case RUUVI_INTERFACE_SPI_FREQUENCY_4M:
+    case RI_SPI_FREQUENCY_4M:
       *nrf_freq = NRF_DRV_SPI_FREQ_4M;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
-    case RUUVI_INTERFACE_SPI_FREQUENCY_8M:
+    case RI_SPI_FREQUENCY_8M:
       *nrf_freq = NRF_DRV_SPI_FREQ_8M;
-      return RUUVI_DRIVER_SUCCESS;
+      return RD_SUCCESS;
 
     default:
-      return RUUVI_DRIVER_ERROR_INVALID_PARAM;
+      return RD_ERROR_INVALID_PARAM;
   }
 }
 
 
-ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_config_t*
+rd_status_t ri_spi_init(const ri_spi_init_config_t*
     config)
 {
   //Return error if SPI is already init
   if(m_spi_init_done) { return NRF_ERROR_INVALID_STATE; }
 
-  ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
-  nrf_drv_spi_mode_t mode = RUUVI_INTERFACE_SPI_MODE_0;
+  rd_status_t status = RD_SUCCESS;
+  nrf_drv_spi_mode_t mode = RI_SPI_MODE_0;
   nrf_drv_spi_frequency_t frequency = NRF_DRV_SPI_FREQ_1M;
   status |= ruuvi_to_nrf_spi_mode(config->mode, &mode);
   status |= ruuvi_to_nrf_spi_freq(config->frequency, &frequency);
-  RUUVI_DRIVER_ERROR_CHECK(status, RUUVI_DRIVER_SUCCESS);
+  RD_ERROR_CHECK(status, RD_SUCCESS);
   nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
   spi_config.ss_pin       = NRF_DRV_SPI_PIN_NOT_USED;
   spi_config.miso_pin     = ruuvi_to_nrf_pin_map(config->miso);
@@ -140,16 +140,16 @@ ruuvi_driver_status_t ruuvi_interface_spi_init(const ruuvi_interface_spi_init_co
 
   for(size_t ii = 0; ii < config->ss_pins_number; ii++)
   {
-    ruuvi_interface_gpio_configure(config->ss_pins[ii],
-                                   RUUVI_INTERFACE_GPIO_MODE_OUTPUT_STANDARD);
-    ruuvi_interface_gpio_write(config->ss_pins[ii], RUUVI_INTERFACE_GPIO_HIGH);
+    ri_gpio_configure(config->ss_pins[ii],
+                                   RI_GPIO_MODE_OUTPUT_STANDARD);
+    ri_gpio_write(config->ss_pins[ii], RI_GPIO_HIGH);
   }
 
   m_spi_init_done = true;
   return (status | ruuvi_nrf5_sdk15_to_ruuvi_error(err_code));
 }
 
-bool ruuvi_interface_spi_is_init()
+bool ri_spi_is_init()
 {
   return m_spi_init_done;
 }
@@ -157,22 +157,22 @@ bool ruuvi_interface_spi_is_init()
 /**
  * @brief Uninitialize SPI driver.
  *
- * @return RUUVI_DRIVER_SUCCESS
+ * @return RD_SUCCESS
  **/
-ruuvi_driver_status_t ruuvi_interface_spi_uninit()
+rd_status_t ri_spi_uninit()
 {
   nrf_drv_spi_uninit(&spi);
   m_spi_init_done = false;
-  return RUUVI_DRIVER_SUCCESS;
+  return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_spi_xfer_blocking(const uint8_t* tx,
+rd_status_t ri_spi_xfer_blocking(const uint8_t* tx,
     const size_t tx_len, uint8_t* rx, const size_t rx_len)
 {
   //Return error if not init or if given null pointer
-  if(!m_spi_init_done)            { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+  if(!m_spi_init_done)            { return RD_ERROR_INVALID_STATE; }
 
-  if((NULL == tx && 0 != tx_len) || (NULL == rx && 0 != rx_len)) { return RUUVI_DRIVER_ERROR_NULL; }
+  if((NULL == tx && 0 != tx_len) || (NULL == rx && 0 != rx_len)) { return RD_ERROR_NULL; }
 
   ret_code_t err_code = NRF_SUCCESS;
   err_code |= nrf_drv_spi_transfer(&spi, tx, tx_len, rx, rx_len);

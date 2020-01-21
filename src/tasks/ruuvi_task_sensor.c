@@ -9,22 +9,22 @@
 #include <string.h>
 
 #ifndef TASK_SENSOR_LOG_LEVEL
-#define TASK_SENSOR_LOG_LEVEL RUUVI_INTERFACE_LOG_LEVEL_INFO
+#define TASK_SENSOR_LOG_LEVEL RI_LOG_LEVEL_INFO
 #endif
 
 static inline void LOG (const char * const msg)
 {
-    ruuvi_interface_log (TASK_SENSOR_LOG_LEVEL, msg);
+    ri_log (TASK_SENSOR_LOG_LEVEL, msg);
 }
 
 static inline void LOGD (const char * const msg)
 {
-    ruuvi_interface_log (RUUVI_INTERFACE_LOG_DEBUG, msg);
+    ri_log (RI_LOG_LEVEL_DEBUG, msg);
 }
 
 static inline void LOGHEX (const char * const msg, const size_t len)
 {
-    ruuvi_interface_log_hex(TASK_SENSOR_LOG_LEVEL, msg, len);
+    ri_log_hex(TASK_SENSOR_LOG_LEVEL, msg, len);
 }
 
 /** @brief Initialize sensor CTX
@@ -38,17 +38,17 @@ static inline void LOGHEX (const char * const msg, const size_t len)
  *
  * @param[in] sensor Sensor to initialize.
  *
- * @return RUUVI_DRIVER_SUCCESS on success.
- * @return RUUVI_DRIVER_ERROR_NULL if sensor is NULL.
+ * @return RD_SUCCESS on success.
+ * @return RD_ERROR_NULL if sensor is NULL.
  * @return error code from sensor on other error.
  */
-ruuvi_driver_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
+rd_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if((NULL == sensor) || (NULL == sensor->init))
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
     else
     {
@@ -62,24 +62,24 @@ ruuvi_driver_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
  *
  * @param[in] sensor Sensor to store.
  *
- * @return RUUVI_DRIVER_SUCCESS on success.
- * @return RUUVI_DRIVER_ERROR_NULL if sensor is NULL.
+ * @return RD_SUCCESS on success.
+ * @return RD_ERROR_NULL if sensor is NULL.
  * @return error code from sensor on other error.
  */
-ruuvi_driver_status_t rt_sensor_store (rt_sensor_ctx_t * const sensor)
+rd_status_t rt_sensor_store (rt_sensor_ctx_t * const sensor)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     if(NULL == sensor)
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
-    else if (task_flash_busy())
+    else if (rt_flash_busy())
     {
-        err_code |= RUUVI_DRIVER_ERROR_BUSY;
+        err_code |= RD_ERROR_BUSY;
     }
     else
     {
-        err_code |= task_flash_store (sensor->nvm_file, sensor->nvm_record,
+        err_code |= rt_flash_store (sensor->nvm_file, sensor->nvm_record,
                                       &(sensor->configuration),
                                       sizeof (sensor->configuration));
     }
@@ -90,25 +90,25 @@ ruuvi_driver_status_t rt_sensor_store (rt_sensor_ctx_t * const sensor)
  *
  * @param[in] sensor Sensor to store.
  *
- * @return RUUVI_DRIVER_SUCCESS on success.
- * @return RUUVI_DRIVER_ERROR_NULL if sensor is NULL.
+ * @return RD_SUCCESS on success.
+ * @return RD_ERROR_NULL if sensor is NULL.
  * @return error code from sensor on other error.
  */
-ruuvi_driver_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
+rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if(NULL == sensor)
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
-    else if (task_flash_busy())
+    else if (rt_flash_busy())
     {
-        err_code |= RUUVI_DRIVER_ERROR_BUSY;
+        err_code |= RD_ERROR_BUSY;
     }
     else
     {
-        err_code |= task_flash_load (sensor->nvm_file, sensor->nvm_record,
+        err_code |= rt_flash_load (sensor->nvm_file, sensor->nvm_record,
                                      &(sensor->configuration),
                                      sizeof (sensor->configuration));
     }
@@ -120,31 +120,31 @@ ruuvi_driver_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
  * @param[in,out] sensor In: Sensor to configure. 
                          Out: Sensor->configuration will be set to actual configuration.
  *
- * @return RUUVI_DRIVER_SUCCESS on success.
- * @return RUUVI_DRIVER_ERROR_NULL if sensor is NULL.
+ * @return RD_SUCCESS on success.
+ * @return RD_ERROR_NULL if sensor is NULL.
  * @return error code from sensor on other error.
  */
-ruuvi_driver_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor)
+rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     if (NULL == sensor)
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
     else if(NULL == sensor->sensor.configuration_set)
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
     LOG ("\r\nAttempting to configure ");
     LOG (sensor->sensor.name);
     LOG (" with:\r\n");
-    ruuvi_interface_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL, 
+    ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL, 
         &(sensor->configuration), "");
     err_code |= sensor->sensor.configuration_set (&(sensor->sensor), &(sensor->configuration));
     LOG ("Actual configuration:\r\n");
-    ruuvi_interface_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL, 
+    ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL, 
         &(sensor->configuration), "");
     }
     return err_code;
@@ -154,7 +154,7 @@ ruuvi_driver_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor)
  * @brief Read sensors and encode to given buffer in Ruuvi DF5.
  *
  * @param[in] buffer uint8_t array with length of 24 bytes.
- * @return RUUVI_DRIVER_SUCCESS if data was encoded
+ * @return RD_SUCCESS if data was encoded
  */
 //ruuvi_endpoint_status_t task_sensor_encode_to_5 (uint8_t * const buffer);
 
@@ -195,7 +195,7 @@ rt_sensor_ctx_t * rt_sensor_find_backend (rt_sensor_ctx_t * const sensor_list,
  * @return NULL if requested sensor was not found.
  */
 rt_sensor_ctx_t * rt_sensor_find_provider (rt_sensor_ctx_t * const
-        sensor_list, const size_t count, ruuvi_driver_sensor_data_fields_t values)
+        sensor_list, const size_t count, rd_sensor_data_fields_t values)
 {
     rt_sensor_ctx_t * p_sensor = NULL;
 

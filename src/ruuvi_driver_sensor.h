@@ -149,7 +149,7 @@ typedef struct{
 }rd_sensor_data_bitfield_t;
 
 typedef union{
-  unsigned int bitfield;
+  uint32_t bitfield;
   rd_sensor_data_bitfield_t datas;
 }rd_sensor_data_fields_t;
 
@@ -158,10 +158,10 @@ typedef union{
  */
 typedef struct rd_sensor_data_t
 {
-  uint64_t timestamp_ms;                    //!< Timestamp of the event, @ref rd_sensor_timestamp_get.
+  uint64_t timestamp_ms;          //!< Timestamp of the event, @ref rd_sensor_timestamp_get.
   rd_sensor_data_fields_t fields; //!< Description of datafields which may be contained in this sample.
   rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample. 
-  float* data;                              //!< Data of sensor. 
+  float* data;                    //!< Data of sensor. 
 } rd_sensor_data_t;
 
 /** @brief Forward declare type definition of sensor structure */
@@ -255,7 +255,7 @@ typedef rd_status_t (*rd_configuration_fp)(
 * @return RD_ERROR_INVALID_STATE if FIFO is not in use
 * @return error code from stack on error.
 */
-typedef rd_status_t (*rd_sensor_fifo_read_fp)(size_t* num_elements,
+typedef rd_status_t (*rd_sensor_fifo_read_fp)(size_t* const num_elements,
     rd_sensor_data_t* const data);
 
 /**
@@ -446,7 +446,7 @@ uint8_t rd_sensor_data_fieldcount(const rd_sensor_data_t* const target);
  * @brief Set a desired value to target data.
  *
  * This function looks up the appropriate assigments on each data field in given target
- * and populates it with provided data. DOes nothing if there is no appropriate slot
+ * and populates it with provided data. Does nothing if there is no appropriate slot
  * in target data.
  *
  * @param[in]  target 

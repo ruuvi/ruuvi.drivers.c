@@ -10,9 +10,9 @@ rd_status_t rt_spi_init (void)
 {
     ri_spi_init_config_t config;
     ri_gpio_id_t ss_pins[] = RB_SPI_SS_LIST;
-    config.mosi.pin = RB_SPI_MOSI_PIN;
-    config.miso.pin = RB_SPI_MISO_PIN;
-    config.sclk.pin = RB_SPI_SCLK_PIN;
+    config.mosi = RB_SPI_MOSI_PIN;
+    config.miso = RB_SPI_MISO_PIN;
+    config.sclk = RB_SPI_SCLK_PIN;
     config.ss_pins = ss_pins;
     config.ss_pins_number = sizeof (ss_pins) / sizeof (ri_gpio_id_t);
     // Assume mode 0 always.
@@ -38,7 +38,7 @@ rd_status_t rt_spi_init (void)
 
         default:
             config.frequency = RI_SPI_FREQUENCY_1M;
-            ri_log (RI_LOG_WARNING,
+            ri_log (RI_LOG_LEVEL_WARNING,
                                  "Unknown SPI frequency, defaulting to 1M\r\n");
     }
 

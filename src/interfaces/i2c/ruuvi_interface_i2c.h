@@ -13,10 +13,10 @@
  */
 /*@{*/
 /**
- * @file ruuvi_interface_spi.h
+ * @file ruuvi_interface_i2c.h
 * @brief Interface for I2C operations
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-31
+ * @date 2020-01-21
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  */
@@ -26,29 +26,29 @@
  */
 typedef enum
 {
-  RUUVI_INTERFACE_I2C_FREQUENCY_100k, //!< 100 kbps
-  RUUVI_INTERFACE_I2C_FREQUENCY_250k, //!< 250 kbps
-  RUUVI_INTERFACE_I2C_FREQUENCY_400k, //!< 400 kbps
-} ruuvi_interface_i2c_frequency_t;
+  RI_I2C_FREQUENCY_100k, //!< 100 kbps
+  RI_I2C_FREQUENCY_250k, //!< 250 kbps
+  RI_I2C_FREQUENCY_400k, //!< 400 kbps
+} ri_i2c_frequency_t;
 
 /**
  * Configuration for initializing I2C
  */
 typedef struct
 {
-  ruuvi_interface_gpio_id_t sda;   //!< pin number of SDA
-  ruuvi_interface_gpio_id_t scl;   //!< pin number of SCL
-  ruuvi_interface_i2c_frequency_t
-  frequency; //!< Frequency of I2C Bus, see @ref ruuvi_interface_i2c_frequency_t
-} ruuvi_interface_i2c_init_config_t;
+  ri_gpio_id_t sda;   //!< pin number of SDA
+  ri_gpio_id_t scl;   //!< pin number of SCL
+  ri_i2c_frequency_t
+  frequency; //!< Frequency of I2C Bus, see @ref ri_i2c_frequency_t
+} ri_i2c_init_config_t;
 
 /**
  * @brief Initialize I2C driver with given settings
  *
  * @param[in] config Configuration of the I2C peripheral.
- * @return error code from the stack, RUUVI_DRIVER_SUCCESS if no error occurred
+ * @return error code from the stack, RD_SUCCESS if no error occurred
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_config_t*
+rd_status_t ri_i2c_init(const ri_i2c_init_config_t*
     const config);
 
 /**
@@ -56,7 +56,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init(const ruuvi_interface_i2c_init_co
  *
  * @return true if I2C is initialized, false otherwise.
  **/
-bool ruuvi_interface_i2c_is_init();
+bool ri_i2c_is_init();
 
 /**
  * @brief I2C read function.
@@ -67,7 +67,7 @@ bool ruuvi_interface_i2c_is_init();
  * @param[out] p_rx pointer to data to be received
  * @param[in] rx_len length of data to be received
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
+rd_status_t ri_i2c_read_blocking(const uint8_t address,
     uint8_t* const p_rx, const size_t rx_len);
 
 /**
@@ -80,7 +80,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking(const uint8_t address,
  * @param[in] tx_len length of data to be transmitted
  * @param[in] stop @c true to transmit stop condition after read, @c false to hold bus active.
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking(const uint8_t address,
+rd_status_t ri_i2c_write_blocking(const uint8_t address,
     uint8_t* const p_tx, const size_t tx_len, const bool stop);
 /* @} */
 #endif
