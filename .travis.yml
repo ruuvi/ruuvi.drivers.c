@@ -1,79 +1,54 @@
 language: c
-
 os: linux
 dist: trusty
-# Use full depth for SonarCLoud
 git:
-  depth: false 
-
+  depth: false
 before_install:
-  - wget -q -O - https://files.viva64.com/etc/pubkey.txt | sudo apt-key add -
-  - sudo wget https://files.viva64.com/etc/viva64.list -O /etc/apt/sources.list.d/viva64.list
-
+- openssl aes-256-cbc -K $encrypted_403e3d772bdb_key -iv $encrypted_403e3d772bdb_iv
+  -in traviscirdc.enc -out ~\/.ssh/traviscirdc -d
+- wget -q -O - https://files.viva64.com/etc/pubkey.txt | sudo apt-key add -
+- sudo wget https://files.viva64.com/etc/viva64.list -O /etc/apt/sources.list.d/viva64.list
 install:
-  - sudo pip install gcovr
-  - sudo apt-get update -qq && sudo apt-get install --assume-yes --quiet gcc-multilib && sudo apt-get install -qq
-  - sudo apt-get install -qq pvs-studio 
-  - sudo apt-get install -qq doxygen 
-  - gem install ceedling
-  - pvs-studio-analyzer credentials $PVS_USERNAME $PVS_KEY
-  - |
-    wget -q https://sourceforge.net/projects/astyle/files/astyle/astyle%203.1/astyle_3.1_linux.tar.gz/download -O astyle.tar.gz
-    tar -xvf astyle.tar.gz
-    cd astyle
-    mkdir as-gcc-exe
-    cd as-gcc-exe
-    cmake  ../
-    make
-    sudo make install
-    cd ../../
-
+- sudo pip install gcovr
+- sudo apt-get update -qq && sudo apt-get install --assume-yes --quiet gcc-multilib
+  && sudo apt-get install -qq
+- sudo apt-get install -qq pvs-studio
+- sudo apt-get install -qq doxygen
+- gem install ceedling
+- pvs-studio-analyzer credentials $PVS_USERNAME $PVS_KEY
+- |
+  wget -q https://sourceforge.net/projects/astyle/files/astyle/astyle%203.1/astyle_3.1_linux.tar.gz/download -O astyle.tar.gz
+  tar -xvf astyle.tar.gz
+  cd astyle
+  mkdir as-gcc-exe
+  cd as-gcc-exe
+  cmake  ../
+  make
+  sudo make install
+  cd ../../
 script:
-  - |
-    if [ ! -d "nRF5_SDK_15.3.0_59ac345/modules" ]; then
-      wget -q https://developer.nordicsemi.com/nRF5_SDK/nRF5_SDK_v15.x.x/nRF5_SDK_15.3.0_59ac345.zip
-      unzip -q nRF5_SDK_15.3.0_59ac345.zip
-    fi
-  - |
-    astyle --project=".astylerc" --recursive \
-           "src/*.h \
-           "src/*.c \
-  - git diff --exit-code --diff-filter=d --color
-  - build-wrapper-linux-x86-64 --out-dir bw-output make all
-  - ceedling test:all
-  - ceedling gcov:all utils:gcov
-  - gcov  -b -c build/gcov/out/*.gcno
-  - sonar-scanner -Dsonar.projectVersion=$TRAVIS_TAG
-
+- doxygen Doxyfile
 cache:
   directories:
-    - nRF5_SDK_15.3.0_59ac345
-
+  - nRF5_SDK_15.3.0_59ac345
 sudo: false
-
 branches:
   only:
-    - master
-
+  - master
 addons:
   apt:
     packages:
-      - doxygen
+    - doxygen
   sonarcloud:
-    organization: "ruuvi"
+    organization: ruuvi
     token:
-      secure: "**************************" # encrypted value of your token
-
-script:
-  - doxygen Doxyfile
-
+      secure: "**************************"
 before_deploy:
-  - sed -i '/doxygen/d' .gitignore
-
+- sed -i '/doxygen/d' .gitignore
 deploy:
   provider: pages
   cleanup: false
-  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  github_token: "$GITHUB_TOKEN"
   keep_history: false
   local_dir: doxygen/html
   edge: true
