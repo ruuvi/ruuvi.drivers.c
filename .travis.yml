@@ -27,7 +27,25 @@ install:
   sudo make install
   cd ../../
 script:
-- doxygen Doxyfile
+  - |
+    if [ ! -d "nRF5_SDK_15.3.0_59ac345/modules" ]; then
+      wget -q https://developer.nordicsemi.com/nRF5_SDK/nRF5_SDK_v15.x.x/nRF5_SDK_15.3.0_59ac345.zip
+      unzip -q nRF5_SDK_15.3.0_59ac345.zip
+    fi
+  - |
+    astyle --project=".astylerc" --recursive \
+           "src/application_config/*.h" \
+           "src/tasks/*.c" \
+           "src/tasks/*.h" \
+           "src/tests/*.c" \
+           "src/tests/*.h"
+  - astyle --project=".astylerc" "src/main.c"
+  - git diff --exit-code --diff-filter=d --color
+  - build-wrapper-linux-x86-64 --out-dir bw-output make all
+  - ceedling test:all
+  - ceedling gcov:all utils:gcov
+  - gcov  -b -c build/gcov/out/*.gcno
+  - sonar-scanner -Dsonar.projectVersion=$TRAVIS_TAG
 cache:
   directories:
   - nRF5_SDK_15.3.0_59ac345
