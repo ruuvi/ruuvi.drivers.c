@@ -59,28 +59,28 @@
  * @param bus_idx   Bus index to select
  * @returns         0 on success, an error code otherwise
  */
-int16_t sensirion_i2c_select_bus(uint8_t bus_idx)
+int16_t sensirion_i2c_select_bus (uint8_t bus_idx)
 {
-  // IMPLEMENT or leave empty if all sensors are located on one single bus
-  RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
-  return 0;
+    // IMPLEMENT or leave empty if all sensors are located on one single bus
+    RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
+    return 0;
 }
 
 /**
  * Driver file does not know about the board configuration, use ruuvi_interface_i2c_init instead.
  */
-void sensirion_i2c_init(void)
+void sensirion_i2c_init (void)
 {
-  RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
+    RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
 }
 
 /**
  * Release all resources initialized by sensirion_i2c_init().
  */
-void sensirion_i2c_release(void)
+void sensirion_i2c_release (void)
 {
-  // IMPLEMENT or leave empty if no resources need to be freed
-  RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
+    // IMPLEMENT or leave empty if no resources need to be freed
+    RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
 }
 
 /**
@@ -93,11 +93,11 @@ void sensirion_i2c_release(void)
  * @param count   number of bytes to read from I2C and store in the buffer
  * @returns 0 on success, error code otherwise
  */
-int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count)
+int8_t sensirion_i2c_read (uint8_t address, uint8_t * data, uint16_t count)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  err_code |= ruuvi_interface_i2c_read_blocking(address, data, count);
-  return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -STATUS_ERR_BAD_DATA;
+    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    err_code |= ruuvi_interface_i2c_read_blocking (address, data, count);
+    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -STATUS_ERR_BAD_DATA;
 }
 
 /**
@@ -111,21 +111,21 @@ int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count)
  * @param count   number of bytes to read from the buffer and send over I2C
  * @returns 0 on success, error code otherwise
  */
-int8_t sensirion_i2c_write(uint8_t address, const uint8_t* data,
-                           uint16_t count)
+int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data,
+                            uint16_t count)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
-  // data is const, NRF function is not. Make local copy
-  if(count > SENSIRION_COMMAND_SIZE || count < SENSIRION_COMMAND_SIZE)
-  {
-    RUUVI_DRIVER_ERROR_CHECK(RUUVI_DRIVER_ERROR_INVALID_LENGTH, RUUVI_DRIVER_SUCCESS);
-  }
+    // data is const, NRF function is not. Make local copy
+    if (count > SENSIRION_COMMAND_SIZE || count < SENSIRION_COMMAND_SIZE)
+    {
+        RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_INVALID_LENGTH, RUUVI_DRIVER_SUCCESS);
+    }
 
-  uint8_t deepcpy[SENSIRION_COMMAND_SIZE];
-  memcpy(deepcpy, data, SENSIRION_COMMAND_SIZE);
-  err_code |= ruuvi_interface_i2c_write_blocking(address, deepcpy, count, true);
-  return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
+    uint8_t deepcpy[SENSIRION_COMMAND_SIZE];
+    memcpy (deepcpy, data, SENSIRION_COMMAND_SIZE);
+    err_code |= ruuvi_interface_i2c_write_blocking (address, deepcpy, count, true);
+    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
 }
 
 #endif

@@ -49,7 +49,7 @@ ri_atomic_t; //!< define atomic type - not portable to 8-bit.
  * @param[in] set true to set flag, false to clear flag.
  * @return    @c true if operation was successful. @c false otherwise.
  */
-bool ri_atomic_flag(ri_atomic_t* const flag, const bool set);
+bool ri_atomic_flag (ri_atomic_t * const flag, const bool set);
 
 /*@}*/
 

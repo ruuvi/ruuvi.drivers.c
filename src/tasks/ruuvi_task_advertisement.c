@@ -35,7 +35,7 @@ static size_t safe_strlen (const char * s, size_t maxlen)
 static ri_communication_t m_channel;
 static bool m_is_init;
 
-rd_status_t rt_adv_init (rt_adv_init_t* const adv_init_settings)
+rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -47,7 +47,7 @@ rd_status_t rt_adv_init (rt_adv_init_t* const adv_init_settings)
     {
         err_code |= ri_adv_init (&m_channel);
         err_code |= ri_adv_tx_interval_set (adv_init_settings->adv_interval_ms);
-        err_code |= ri_adv_tx_power_set (&(adv_init_settings->adv_pwr_dbm));
+        err_code |= ri_adv_tx_power_set (& (adv_init_settings->adv_pwr_dbm));
         err_code |= ri_adv_type_set (NONCONNECTABLE_NONSCANNABLE);
         err_code |= ri_adv_manufacturer_id_set (adv_init_settings->manufacturer_id);
 
@@ -124,7 +124,7 @@ rd_status_t rt_adv_send_data (
 }
 
 rd_status_t rt_adv_connectability_set (const bool enable,
-        const char * const device_name)
+                                       const char * const device_name)
 {
     rd_status_t err_code = RD_SUCCESS;
 

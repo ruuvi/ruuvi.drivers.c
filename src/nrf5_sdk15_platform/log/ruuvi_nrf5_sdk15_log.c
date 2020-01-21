@@ -28,36 +28,36 @@
 NRF_LOG_MODULE_REGISTER();
 
 static ri_log_severity_t log_level;
-rd_status_t ri_log_init(const ri_log_severity_t
-    min_severity)
+rd_status_t ri_log_init (const ri_log_severity_t
+                         min_severity)
 {
-  log_level = min_severity;
-  NRF_LOG_INIT(NULL);
-  NRF_LOG_DEFAULT_BACKENDS_INIT();
-  return RD_SUCCESS;
+    log_level = min_severity;
+    NRF_LOG_INIT (NULL);
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+    return RD_SUCCESS;
 }
 
-rd_status_t ri_log_flush(void)
+rd_status_t ri_log_flush (void)
 {
-  NRF_LOG_FLUSH();
-  // Use microsecond delay to avoid getting stuck in timer loop if
-  // logs are flushed in interrupt context.
-  ri_delay_us(5000);
-  return RD_SUCCESS;
+    NRF_LOG_FLUSH();
+    // Use microsecond delay to avoid getting stuck in timer loop if
+    // logs are flushed in interrupt context.
+    ri_delay_us (5000);
+    return RD_SUCCESS;
 }
 
-void ri_log(const ri_log_severity_t severity,
-                         const char* const message)
+void ri_log (const ri_log_severity_t severity,
+             const char * const message)
 {
-  if(NULL == message)
-  {
-    RD_ERROR_CHECK(RD_ERROR_NULL, RD_ERROR_NULL);
-    return;
-  }
+    if (NULL == message)
+    {
+        RD_ERROR_CHECK (RD_ERROR_NULL, RD_ERROR_NULL);
+        return;
+    }
 
-  if(log_level >= severity)
-  {
-    NRF_LOG_INTERNAL_RAW_INFO("%s", message);
-  }
+    if (log_level >= severity)
+    {
+        NRF_LOG_INTERNAL_RAW_INFO ("%s", message);
+    }
 }
 #endif

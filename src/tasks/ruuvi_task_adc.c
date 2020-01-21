@@ -69,7 +69,7 @@ inline bool rt_adc_is_init (void)
 }
 
 rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const
-        config, const uint8_t handle, const rt_adc_mode_t mode)
+                                 config, const uint8_t handle, const rt_adc_mode_t mode)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -137,12 +137,12 @@ rd_status_t rt_adc_ratio_get (rd_sensor_data_t * const data)
     return RD_ERROR_NOT_IMPLEMENTED;
 }
 
-rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t* const vdd_adc_configuration)
+rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_configuration)
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= rt_adc_init();
     err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_AINVDD,
-                                       ABSOLUTE);
+                                     ABSOLUTE);
     m_vdd_prepared = (RD_SUCCESS == err_code);
     return (RD_SUCCESS == err_code) ? RD_SUCCESS : RD_ERROR_BUSY;
 }

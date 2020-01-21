@@ -35,7 +35,7 @@
  * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_total_size_get(size_t* size);
+rd_status_t ri_flash_total_size_get (size_t * size);
 
 /**
  * @brief Get size of usable page, excluding any overhead bytes
@@ -47,7 +47,7 @@ rd_status_t ri_flash_total_size_get(size_t* size);
  * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_page_size_get(size_t* size);
+rd_status_t ri_flash_page_size_get (size_t * size);
 
 /**
  * @brief Get total size of free flash.
@@ -58,7 +58,7 @@ rd_status_t ri_flash_page_size_get(size_t* size);
  * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_free_size_get(size_t* size);
+rd_status_t ri_flash_free_size_get (size_t * size);
 
 /**
  * @brief mark a record for deletion.
@@ -75,8 +75,8 @@ rd_status_t ri_flash_free_size_get(size_t* size);
  * @return RD_ERROR_BUSY if another operation was ongoing
  * @return RD_ERROR_NOT_FOUND if give record was not found.
  */
-rd_status_t ri_flash_record_delete(const uint32_t file_id,
-    const uint32_t record_id);
+rd_status_t ri_flash_record_delete (const uint32_t file_id,
+                                    const uint32_t record_id);
 
 /**
  * @brief Set data to record in page
@@ -94,8 +94,8 @@ rd_status_t ri_flash_record_delete(const uint32_t file_id,
  * @return RD_ERROR_NO_MEM if this record cannot fit on page.
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_record_set(const uint32_t page_id,
-    const uint32_t record_id, const size_t data_size, const void* const data);
+rd_status_t ri_flash_record_set (const uint32_t page_id,
+                                 const uint32_t record_id, const size_t data_size, const void * const data);
 
 /**
  * @brief Get data from record in page
@@ -112,8 +112,8 @@ rd_status_t ri_flash_record_set(const uint32_t page_id,
  * @return RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_record_get(const uint32_t page_id,
-    const uint32_t record_id, const size_t data_size, void* const data);
+rd_status_t ri_flash_record_get (const uint32_t page_id,
+                                 const uint32_t record_id, const size_t data_size, void * const data);
 
 /**
  * @brief Run garbage collection.
@@ -122,7 +122,7 @@ rd_status_t ri_flash_record_get(const uint32_t page_id,
  * @return RD_INVALID_STATE if flash is not initialized
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_gc_run(void);
+rd_status_t ri_flash_gc_run (void);
 
 /**
  * Initialize flash
@@ -130,7 +130,7 @@ rd_status_t ri_flash_gc_run(void);
  * @return RD_SUCCESS on success
  * @return error code from stack on other error
  */
-rd_status_t ri_flash_init(void);
+rd_status_t ri_flash_init (void);
 
 /**
  * @brief Purge flash
@@ -141,7 +141,7 @@ rd_status_t ri_flash_init(void);
  *
  * This function is blocking, returns once flash is cleared.
  */
-void ri_flash_purge(void);
+void ri_flash_purge (void);
 
 /**
  * @brief Check if flash is busy

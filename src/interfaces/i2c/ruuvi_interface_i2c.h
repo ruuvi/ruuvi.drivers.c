@@ -26,9 +26,9 @@
  */
 typedef enum
 {
-  RI_I2C_FREQUENCY_100k, //!< 100 kbps
-  RI_I2C_FREQUENCY_250k, //!< 250 kbps
-  RI_I2C_FREQUENCY_400k, //!< 400 kbps
+    RI_I2C_FREQUENCY_100k, //!< 100 kbps
+    RI_I2C_FREQUENCY_250k, //!< 250 kbps
+    RI_I2C_FREQUENCY_400k, //!< 400 kbps
 } ri_i2c_frequency_t;
 
 /**
@@ -36,10 +36,10 @@ typedef enum
  */
 typedef struct
 {
-  ri_gpio_id_t sda;   //!< pin number of SDA
-  ri_gpio_id_t scl;   //!< pin number of SCL
-  ri_i2c_frequency_t
-  frequency; //!< Frequency of I2C Bus, see @ref ri_i2c_frequency_t
+    ri_gpio_id_t sda;   //!< pin number of SDA
+    ri_gpio_id_t scl;   //!< pin number of SCL
+    ri_i2c_frequency_t
+    frequency; //!< Frequency of I2C Bus, see @ref ri_i2c_frequency_t
 } ri_i2c_init_config_t;
 
 /**
@@ -48,8 +48,8 @@ typedef struct
  * @param[in] config Configuration of the I2C peripheral.
  * @return error code from the stack, RD_SUCCESS if no error occurred
  **/
-rd_status_t ri_i2c_init(const ri_i2c_init_config_t*
-    const config);
+rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
+                         const config);
 
 /**
  * @brief Check if i2c driver is initialized
@@ -67,8 +67,8 @@ bool ri_i2c_is_init();
  * @param[out] p_rx pointer to data to be received
  * @param[in] rx_len length of data to be received
  **/
-rd_status_t ri_i2c_read_blocking(const uint8_t address,
-    uint8_t* const p_rx, const size_t rx_len);
+rd_status_t ri_i2c_read_blocking (const uint8_t address,
+                                  uint8_t * const p_rx, const size_t rx_len);
 
 /**
  * @brief I2C read function.
@@ -80,7 +80,7 @@ rd_status_t ri_i2c_read_blocking(const uint8_t address,
  * @param[in] tx_len length of data to be transmitted
  * @param[in] stop @c true to transmit stop condition after read, @c false to hold bus active.
  **/
-rd_status_t ri_i2c_write_blocking(const uint8_t address,
-    uint8_t* const p_tx, const size_t tx_len, const bool stop);
+rd_status_t ri_i2c_write_blocking (const uint8_t address,
+                                   uint8_t * const p_tx, const size_t tx_len, const bool stop);
 /* @} */
 #endif

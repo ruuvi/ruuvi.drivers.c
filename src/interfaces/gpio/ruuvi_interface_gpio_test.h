@@ -19,8 +19,8 @@
 /** @brief structure to configure GPIO test with input and output. These GPIOs must be physically connected on board. */
 typedef struct
 {
-  ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
-  ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
+    ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
+    ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
 } ruuvi_driver_test_gpio_cfg_t;
 
 /**
@@ -31,7 +31,7 @@ typedef struct
  * - Interface must return RUUVI_DRIVER_SUCCESS when called after uninitialization.
  * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_init(void);
+ruuvi_driver_status_t ruuvi_interface_gpio_test_init (void);
 
 /**
  * @brief Test configuring a pin of a port into a mode.
@@ -47,9 +47,9 @@ ruuvi_driver_status_t ruuvi_interface_gpio_test_init(void);
  *
  * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_configure(const ruuvi_interface_gpio_id_t
-    input,
-    const ruuvi_interface_gpio_id_t output);
+ruuvi_driver_status_t ruuvi_interface_gpio_test_configure (const ruuvi_interface_gpio_id_t
+        input,
+        const ruuvi_interface_gpio_id_t output);
 
 /**
  * @brief Test toggling the state of a pin of a port.
@@ -61,9 +61,9 @@ ruuvi_driver_status_t ruuvi_interface_gpio_test_configure(const ruuvi_interface_
  *
  * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_toggle(const ruuvi_interface_gpio_id_t
-    input,
-    const ruuvi_interface_gpio_id_t output);
+ruuvi_driver_status_t ruuvi_interface_gpio_test_toggle (const ruuvi_interface_gpio_id_t
+        input,
+        const ruuvi_interface_gpio_id_t output);
 
 /*@}*/
 #endif

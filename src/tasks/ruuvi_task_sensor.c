@@ -24,14 +24,14 @@ static inline void LOGD (const char * const msg)
 
 static inline void LOGHEX (const char * const msg, const size_t len)
 {
-    ri_log_hex(TASK_SENSOR_LOG_LEVEL, msg, len);
+    ri_log_hex (TASK_SENSOR_LOG_LEVEL, msg, len);
 }
 
 /** @brief Initialize sensor CTX
  *
  * To initialize a sensor, initialization function, sensor bus and sensor handle must
  * be set. After initialization, sensor control structure is ready to use,
- * initial configuration is set to actual values on sensor. 
+ * initial configuration is set to actual values on sensor.
  *
  * To configure the sensor, set the sensor configuration in struct and call
  * @ref rt_sensor_configure.
@@ -46,15 +46,15 @@ rd_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if((NULL == sensor) || (NULL == sensor->init))
+    if ( (NULL == sensor) || (NULL == sensor->init))
     {
         err_code |= RD_ERROR_NULL;
     }
     else
     {
-        err_code = sensor->init (&(sensor->sensor), sensor->bus, sensor->handle);
+        err_code = sensor->init (& (sensor->sensor), sensor->bus, sensor->handle);
     }
-    
+
     return err_code;
 }
 
@@ -69,7 +69,8 @@ rd_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
 rd_status_t rt_sensor_store (rt_sensor_ctx_t * const sensor)
 {
     rd_status_t err_code = RD_SUCCESS;
-    if(NULL == sensor)
+
+    if (NULL == sensor)
     {
         err_code |= RD_ERROR_NULL;
     }
@@ -80,9 +81,10 @@ rd_status_t rt_sensor_store (rt_sensor_ctx_t * const sensor)
     else
     {
         err_code |= rt_flash_store (sensor->nvm_file, sensor->nvm_record,
-                                      &(sensor->configuration),
-                                      sizeof (sensor->configuration));
+                                    & (sensor->configuration),
+                                    sizeof (sensor->configuration));
     }
+
     return err_code;
 }
 
@@ -98,7 +100,7 @@ rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if(NULL == sensor)
+    if (NULL == sensor)
     {
         err_code |= RD_ERROR_NULL;
     }
@@ -109,15 +111,16 @@ rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
     else
     {
         err_code |= rt_flash_load (sensor->nvm_file, sensor->nvm_record,
-                                     &(sensor->configuration),
-                                     sizeof (sensor->configuration));
+                                   & (sensor->configuration),
+                                   sizeof (sensor->configuration));
     }
+
     return err_code;
 }
 
 /** @brief Configure a sensor with given settings.
  *
- * @param[in,out] sensor In: Sensor to configure. 
+ * @param[in,out] sensor In: Sensor to configure.
                          Out: Sensor->configuration will be set to actual configuration.
  *
  * @return RD_SUCCESS on success.
@@ -127,26 +130,29 @@ rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
 rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor)
 {
     rd_status_t err_code = RD_SUCCESS;
+
     if (NULL == sensor)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if(NULL == sensor->sensor.configuration_set)
+    else if (NULL == sensor->sensor.configuration_set)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
-    LOG ("\r\nAttempting to configure ");
-    LOG (sensor->sensor.name);
-    LOG (" with:\r\n");
-    ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL, 
-        &(sensor->configuration), "");
-    err_code |= sensor->sensor.configuration_set (&(sensor->sensor), &(sensor->configuration));
-    LOG ("Actual configuration:\r\n");
-    ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL, 
-        &(sensor->configuration), "");
+        LOG ("\r\nAttempting to configure ");
+        LOG (sensor->sensor.name);
+        LOG (" with:\r\n");
+        ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL,
+                                     & (sensor->configuration), "");
+        err_code |= sensor->sensor.configuration_set (& (sensor->sensor),
+                    & (sensor->configuration));
+        LOG ("Actual configuration:\r\n");
+        ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL,
+                                     & (sensor->configuration), "");
     }
+
     return err_code;
 }
 
@@ -163,7 +169,7 @@ rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor)
  *
  * @param[in] sensor_list Array of sensors to search the backend from.
  * @param[in] count Number of sensor backends in the list.
- * @param[in] name NULL-terminated, max 9-byte (including trailing NULL) string 
+ * @param[in] name NULL-terminated, max 9-byte (including trailing NULL) string
  *                 representation of sensor.
  * @return pointer to requested sensor CTX if found
  * @return NULL if requested sensor was not found
@@ -189,8 +195,8 @@ rt_sensor_ctx_t * rt_sensor_find_backend (rt_sensor_ctx_t * const sensor_list,
  *
  * @param[in] sensor_list Array of sensors to search the backend from.
  * @param[in] count Number of sensor backends in the list.
- * @param[in] values Fields which sensor must provide. 
- * @return Pointer to requested sensor if found. If there are many candidates, first is 
+ * @param[in] values Fields which sensor must provide.
+ * @return Pointer to requested sensor if found. If there are many candidates, first is
  *         returned
  * @return NULL if requested sensor was not found.
  */
@@ -201,7 +207,7 @@ rt_sensor_ctx_t * rt_sensor_find_provider (rt_sensor_ctx_t * const
 
     for (size_t ii = 0; (count > ii) && (NULL == p_sensor); ii++)
     {
-        if ((values.bitfield & sensor_list[ii].sensor.provides.bitfield) == values.bitfield)
+        if ( (values.bitfield & sensor_list[ii].sensor.provides.bitfield) == values.bitfield)
         {
             p_sensor = & (sensor_list[ii]);
         }

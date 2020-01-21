@@ -39,8 +39,8 @@
  *
  * @return @c RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
-ruuvi_driver_status_t test_sensor_init(const ruuvi_driver_sensor_init_fp init,
-                                       const ruuvi_driver_bus_t bus, const uint8_t handle);
+ruuvi_driver_status_t test_sensor_init (const ruuvi_driver_sensor_init_fp init,
+                                        const ruuvi_driver_bus_t bus, const uint8_t handle);
 
 /**
  *  @brief Test that sensor sample rate, scale and resolution setters and getters work as expected.
@@ -58,8 +58,8 @@ ruuvi_driver_status_t test_sensor_init(const ruuvi_driver_sensor_init_fp init,
  *
  * @return RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
-ruuvi_driver_status_t test_sensor_setup(const ruuvi_driver_sensor_init_fp init,
-                                        const ruuvi_driver_bus_t bus, const uint8_t handle);
+ruuvi_driver_status_t test_sensor_setup (const ruuvi_driver_sensor_init_fp init,
+        const ruuvi_driver_bus_t bus, const uint8_t handle);
 
 /**
  * @brief Test that sensor modes work as expected
@@ -82,8 +82,8 @@ ruuvi_driver_status_t test_sensor_setup(const ruuvi_driver_sensor_init_fp init,
  *
  * @return @c RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
-ruuvi_driver_status_t test_sensor_modes(const ruuvi_driver_sensor_init_fp init,
-                                        const ruuvi_driver_bus_t bus, const uint8_t handle);
+ruuvi_driver_status_t test_sensor_modes (const ruuvi_driver_sensor_init_fp init,
+        const ruuvi_driver_bus_t bus, const uint8_t handle);
 
 /**
  * @brief Test that sensor interrupts work as expected
@@ -105,11 +105,11 @@ ruuvi_driver_status_t test_sensor_modes(const ruuvi_driver_sensor_init_fp init,
  *
  * @return @c RUUVI_DRIVER_SUCCESS if the tests passed, error code from the test otherwise.
  */
-ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp init,
-    const ruuvi_driver_bus_t bus, const uint8_t handle,
-    const bool interactive,
-    const ruuvi_interface_gpio_id_t fifo_pin,
-    const ruuvi_interface_gpio_id_t level_pin);
+ruuvi_driver_status_t test_sensor_interrupts (const ruuvi_driver_sensor_init_fp init,
+        const ruuvi_driver_bus_t bus, const uint8_t handle,
+        const bool interactive,
+        const ruuvi_interface_gpio_id_t fifo_pin,
+        const ruuvi_interface_gpio_id_t level_pin);
 
 /**
  * Register a test as being run. Increments counter of total tests.
@@ -120,7 +120,7 @@ ruuvi_driver_status_t test_sensor_interrupts(const ruuvi_driver_sensor_init_fp i
  * @return RUUVI_DRIVER_SUCCESS if test was passed.
  * @return RUUVI_DRIVER_ERROR_SELFTEST if test was failed.
  */
-ruuvi_driver_status_t test_sensor_register(bool passed);
+ruuvi_driver_status_t test_sensor_register (bool passed);
 
 /**
  * Get total number of tests run and total number of tests passed.
@@ -129,8 +129,8 @@ ruuvi_driver_status_t test_sensor_register(bool passed);
  * @param[in] passed: pointer to value which will be set to the number of tests passed
  *
  * @return RUUVI_DRIVER_SUCCESS if total tests equal passed tests
- * @return RUUVI_DRIVER_ERROR_SELFTEST if 
+ * @return RUUVI_DRIVER_ERROR_SELFTEST if
  */
-ruuvi_driver_status_t test_sensor_status(size_t* total, size_t* passed);
+ruuvi_driver_status_t test_sensor_status (size_t * total, size_t * passed);
 
 #endif

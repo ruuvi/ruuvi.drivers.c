@@ -26,8 +26,8 @@
  */
 typedef enum
 {
-  RUUVI_INTERFACE_UART_BAUD_9600,   //!< 9600 bauds
-  RUUVI_INTERFACE_UART_BAUD_115200 //!< 2 Mbps
+    RUUVI_INTERFACE_UART_BAUD_9600,   //!< 9600 bauds
+    RUUVI_INTERFACE_UART_BAUD_115200 //!< 2 Mbps
 } ruuvi_interface_uart_baud_t;
 
 /**
@@ -35,13 +35,13 @@ typedef enum
  */
 typedef struct
 {
-  ruuvi_interface_gpio_id_t tx;     //!< pin number of TX.
-  ruuvi_interface_gpio_id_t rx;     //!< pin number of RX.
-  ruuvi_interface_gpio_id_t cts;    //!< pin number of CTS.
-  ruuvi_interface_gpio_id_t rts;    //!< pin number of RTS.
-  ruuvi_interface_uart_baud_t baud; //!< Baud rate, see @ref ruuvi_interface_uart_baud_t.
-  bool parity;                      //!< True -> parity bit enabled. False -> disabled.
-  bool hwfc;                        //!< True -> Hardware flow control enabled. False -> disabled.
+    ruuvi_interface_gpio_id_t tx;     //!< pin number of TX.
+    ruuvi_interface_gpio_id_t rx;     //!< pin number of RX.
+    ruuvi_interface_gpio_id_t cts;    //!< pin number of CTS.
+    ruuvi_interface_gpio_id_t rts;    //!< pin number of RTS.
+    ruuvi_interface_uart_baud_t baud; //!< Baud rate, see @ref ruuvi_interface_uart_baud_t.
+    bool parity;                      //!< True -> parity bit enabled. False -> disabled.
+    bool hwfc;                        //!< True -> Hardware flow control enabled. False -> disabled.
 } ruuvi_interface_uart_init_config_t;
 
 /**
@@ -58,8 +58,8 @@ typedef struct
  * @return RUUVI_DRIVER_SUCCESS if no error occurred
  * @return RUUVI_DRIVER_ERROR_INVALID_STATE if UART was already initialized
  **/
-ruuvi_driver_status_t ruuvi_interface_uart_init(const ruuvi_interface_uart_init_config_t*
-    const config);
+ruuvi_driver_status_t ruuvi_interface_uart_init (const ruuvi_interface_uart_init_config_t *
+        const config);
 
 /**
  * @brief check if UART interface is already initialized.
@@ -91,8 +91,8 @@ ruuvi_driver_status_t ruuvi_interface_uart_uninit();
  * @return RUUVI_DRIVER_ERROR_INVALID_ADDRESS if p_tx is not in RAM
  * @return error code from stack on other error.
  **/
-ruuvi_driver_status_t ruuvi_interface_uart_send_blocking(const uint8_t* const p_tx,
-    const size_t tx_len);
+ruuvi_driver_status_t ruuvi_interface_uart_send_blocking (const uint8_t * const p_tx,
+        const size_t tx_len);
 
 /**
  * @brief Configure a callback to be called once data is received.

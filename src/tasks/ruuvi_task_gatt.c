@@ -149,7 +149,7 @@ ruuvi_driver_status_t rt_gatt_on_nus_isr (ruuvi_interface_communication_evt_t ev
 }
 
 ruuvi_driver_status_t rt_gatt_dis_init (const
-        ruuvi_interface_communication_ble4_gatt_dis_init_t * const p_dis)
+                                        ruuvi_interface_communication_ble4_gatt_dis_init_t * const p_dis)
 {
     ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 

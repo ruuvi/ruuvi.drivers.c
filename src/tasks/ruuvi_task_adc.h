@@ -105,7 +105,7 @@ bool rt_adc_is_init (void);
  * @retval RD_ERROR_INVALID_STATE if ADC is not initialized or if it is already configured.
  */
 rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const
-        config, const uint8_t handle, const rt_adc_mode_t mode);
+                                 config, const uint8_t handle, const rt_adc_mode_t mode);
 
 /**
  * @brief Take a new sample on ADC configured in single-shot/sleep mode
@@ -154,7 +154,7 @@ rd_status_t rt_adc_ratio_get (rd_sensor_data_t * const data);
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_BUSY if ADC cannot be reserved
  */
-rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t* const vdd_adc_configuration);
+rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_configuration);
 
 /**
  * @brief Sample VDD

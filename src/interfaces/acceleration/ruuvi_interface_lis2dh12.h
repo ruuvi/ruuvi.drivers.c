@@ -62,34 +62,37 @@
 #define RUUVI_INTERFACE_LIS2DH12_DEFAULT_RESOLUTION 10
 
 /** @brief @ref ruuvi_driver_sensor_init_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_init(ruuvi_driver_sensor_t*
-    acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_init (ruuvi_driver_sensor_t *
+        acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
 /** @brief @ref ruuvi_driver_sensor_init_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit(ruuvi_driver_sensor_t*
-    acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_uninit (ruuvi_driver_sensor_t *
+        acceleration_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_set(uint8_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_set (uint8_t * samplerate);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_get(uint8_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_samplerate_get (uint8_t * samplerate);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_set(uint8_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_set (uint8_t * resolution);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_get(uint8_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_resolution_get (uint8_t * resolution);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_set(uint8_t* scale);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_set (uint8_t * scale);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_get(uint8_t* scale);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_scale_get (uint8_t * scale);
 /** @brief @ref ruuvi_driver_sensor_dsp_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_set(uint8_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_set (uint8_t * dsp,
+        uint8_t * parameter);
 /** @brief @ref ruuvi_driver_sensor_dsp_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_get(uint8_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_dsp_get (uint8_t * dsp,
+        uint8_t * parameter);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_set(uint8_t*);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_set (uint8_t *);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_get(uint8_t*);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_mode_get (uint8_t *);
 /** @brief @ref ruuvi_driver_sensor_data_fp */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data_t* const
-    data);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get (ruuvi_driver_sensor_data_t *
+        const
+        data);
 
 /**
 * @brief Enable 32-level FIFO in LIS2DH12
@@ -98,7 +101,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_data_get(ruuvi_driver_sensor_data
 * @param[in] enable true to enable FIFO, false to disable or reset FIFO.
 * @return RUUVI_DRIVER_SUCCESS on success, error code from stack on error.
 */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use(const bool enable);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use (const bool enable);
 
 /**
 * @brief Read FIFO
@@ -111,8 +114,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_use(const bool enable);
 * @param RUUVI_DRIVER_ERROR_INVALID_STATE if FIFO is not in use
 * @param error code from stack on error.
 */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
-    ruuvi_driver_sensor_data_t* data);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read (size_t * num_elements,
+        ruuvi_driver_sensor_data_t * data);
 
 /**
 * @brief Enable FIFO full interrupt on LIS2DH12.
@@ -121,7 +124,7 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_read(size_t* num_elements,
 * @param[in] enable True to enable interrupt, false to disable interrupt
 * @return RUUVI_DRIVER_SUCCESS on success, error code from stack otherwise.
 **/
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool enable);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use (const bool enable);
 
 /**
 * Enable activity interrupt on LIS2DH12
@@ -139,8 +142,8 @@ ruuvi_driver_status_t ruuvi_interface_lis2dh12_fifo_interrupt_use(const bool ena
 * @return error code from stack on other error.
 *
 */
-ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use(const bool enable,
-    float* limit_g);
+ruuvi_driver_status_t ruuvi_interface_lis2dh12_activity_interrupt_use (const bool enable,
+        float * limit_g);
 /*@}*/
 #endif
 #endif

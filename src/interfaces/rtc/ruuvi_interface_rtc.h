@@ -23,14 +23,14 @@
  *
  * @return RUUVI_SUCCESS if no error occured, error code otherwise.
  **/
-rd_status_t ri_rtc_init(void);
+rd_status_t ri_rtc_init (void);
 
 /**
   * @brief Stop RTC if applicable.
   *
   * @return RUUVI_SUCCESS if no error occured, error code otherwise.
   **/
-rd_status_t ri_rtc_uninit(void);
+rd_status_t ri_rtc_uninit (void);
 
 /**
  * @brief Get milliseconds since init.
@@ -38,7 +38,7 @@ rd_status_t ri_rtc_uninit(void);
  * @return number of milliseconds since RTC init.
  * @return @c RUUVI_DRIVER_UINT64_INVALID if RTC is not running
   **/
-uint64_t ri_rtc_millis(void);
+uint64_t ri_rtc_millis (void);
 
 /*@}*/
 

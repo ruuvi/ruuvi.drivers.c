@@ -81,7 +81,7 @@ ruuvi_driver_status_t rt_gatt_dfu_init (void);
  * @retval RUUVI_DRIVER_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  */
 ruuvi_driver_status_t rt_gatt_dis_init (const
-        ruuvi_interface_communication_ble4_gatt_dis_init_t * const dis);
+                                        ruuvi_interface_communication_ble4_gatt_dis_init_t * const dis);
 
 /**
  * @brief Initialize Nordic UART Service
@@ -127,7 +127,7 @@ ruuvi_driver_status_t rt_gatt_init (const char * const name);
  * @retval RUUVI_DRIVER_SUCCESS on success
  * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if GATT is not initialized.
  */
-ruuvi_driver_status_t rt_gatt_enable ();
+ruuvi_driver_status_t rt_gatt_enable();
 
 /**
  * @brief Stop advertising GATT connection to devices.
@@ -139,7 +139,7 @@ ruuvi_driver_status_t rt_gatt_enable ();
  * @retval RUUVI_DRIVER_SUCCESS on success
  * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if GATT is not initialized.
  */
-ruuvi_driver_status_t rt_gatt_disable ();
+ruuvi_driver_status_t rt_gatt_disable();
 
 /**
  * @brief check if GATT task is initialized

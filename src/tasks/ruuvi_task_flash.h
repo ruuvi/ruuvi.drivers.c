@@ -83,7 +83,7 @@ rd_status_t rt_flash_init (void);
  * @warning triggers garbage collection if there is no space available, which leads to long processing time.
  */
 rd_status_t rt_flash_store (const uint16_t file_id, const uint16_t record_id,
-                                        const void * const message, const size_t message_length);
+                            const void * const message, const size_t message_length);
 
 /**
  * @brief Load data from flash.
@@ -106,7 +106,7 @@ rd_status_t rt_flash_store (const uint16_t file_id, const uint16_t record_id,
  * @warning triggers garbage collection if there is no space available, which leads to long processing time.
  */
 rd_status_t rt_flash_load (const uint16_t file_id, const uint16_t record_id,
-                                       void * const message, const size_t message_length);
+                           void * const message, const size_t message_length);
 
 /**
  * @brief Free data from flash.

@@ -19,8 +19,8 @@
 #include "nrf_pwr_mgmt.h"
 #include "nrf_error.h"
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
-  #include "ruuvi_interface_timer.h"
-  static ri_timer_id_t wakeup_timer;    //!< timer ID for wakeup
+#include "ruuvi_interface_timer.h"
+static ri_timer_id_t wakeup_timer;    //!< timer ID for wakeup
 #endif
 
 static bool m_lp = false;                          //!< low-power mode enabled flag
@@ -32,140 +32,140 @@ static ri_yield_state_ind_fp_t m_ind; //!< State indication function
 // During interrupt, handler execution FPU registers might be copied to the stack
 // (see lazy stacking option) and it is necessary to clear data at the stack
 // which will be recovered in the return from interrupt handling.
-void FPU_IRQHandler(void)
+void FPU_IRQHandler (void)
 {
-  // Prepare pointer to stack address with pushed FPSCR register (0x40 is FPSCR register offset in stacked data)
-  uint32_t* fpscr = (uint32_t*)(FPU->FPCAR + 0x40);
-  // Execute FPU instruction to activate lazy stacking
-  (void)__get_FPSCR();
+    // Prepare pointer to stack address with pushed FPSCR register (0x40 is FPSCR register offset in stacked data)
+    uint32_t * fpscr = (uint32_t *) (FPU->FPCAR + 0x40);
+    // Execute FPU instruction to activate lazy stacking
+    (void) __get_FPSCR();
 
-  // Check exception flags
-  // Critical FPU exceptions signaled:
-  // - IOC - Invalid Operation cumulative exception bit.
-  // - DZC - Division by Zero cumulative exception bit.
-  // - OFC - Overflow cumulative exception bit.
-  if(*fpscr & 0x07)
-  {
-    ri_log(RI_LOG_LEVEL_WARNING, "FPU Error \r\n");
-  }
+    // Check exception flags
+    // Critical FPU exceptions signaled:
+    // - IOC - Invalid Operation cumulative exception bit.
+    // - DZC - Division by Zero cumulative exception bit.
+    // - OFC - Overflow cumulative exception bit.
+    if (*fpscr & 0x07)
+    {
+        ri_log (RI_LOG_LEVEL_WARNING, "FPU Error \r\n");
+    }
 
-  // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.
-  *fpscr = *fpscr & ~(0x0000009F);
+    // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.
+    *fpscr = *fpscr & ~ (0x0000009F);
 }
-static void fpu_init(void)
+static void fpu_init (void)
 {
-  NVIC_SetPriority(FPU_IRQn, APP_IRQ_PRIORITY_LOW);
-  NVIC_ClearPendingIRQ(FPU_IRQn);
-  NVIC_EnableIRQ(FPU_IRQn);
+    NVIC_SetPriority (FPU_IRQn, APP_IRQ_PRIORITY_LOW);
+    NVIC_ClearPendingIRQ (FPU_IRQn);
+    NVIC_EnableIRQ (FPU_IRQn);
 }
 #else
-static void fpu_init(void)
+static void fpu_init (void)
 {}
 #endif
 
 /*
  * Set a flag to wake up
  */
-static void wakeup_handler(void* p_context)
+static void wakeup_handler (void * p_context)
 {
-  m_wakeup = true;
+    m_wakeup = true;
 }
 
 /**
  *
  */
-rd_status_t ri_yield_init(void)
+rd_status_t ri_yield_init (void)
 {
-  fpu_init();
-  ret_code_t err_code = nrf_pwr_mgmt_init();
-  m_lp = false;
-  m_wakeup = false;
-  m_ind = NULL;
-  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
+    fpu_init();
+    ret_code_t err_code = nrf_pwr_mgmt_init();
+    m_lp = false;
+    m_wakeup = false;
+    m_ind = NULL;
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
-rd_status_t ri_yield_low_power_enable(const bool enable)
+rd_status_t ri_yield_low_power_enable (const bool enable)
 {
-  // Timer can be allocated after timer has initialized
-  rd_status_t timer_status = RD_SUCCESS;
+    // Timer can be allocated after timer has initialized
+    rd_status_t timer_status = RD_SUCCESS;
 
-  if(NULL == wakeup_timer)
-  {
-    timer_status = ri_timer_create(&wakeup_timer,
-                   RI_TIMER_MODE_SINGLE_SHOT, wakeup_handler);
-  }
+    if (NULL == wakeup_timer)
+    {
+        timer_status = ri_timer_create (&wakeup_timer,
+                                        RI_TIMER_MODE_SINGLE_SHOT, wakeup_handler);
+    }
 
-  if(timer_status == RD_SUCCESS)
-  {
-    m_lp = enable;
-  }
-  else
-  {
-    m_lp = false;
-  }
+    if (timer_status == RD_SUCCESS)
+    {
+        m_lp = enable;
+    }
+    else
+    {
+        m_lp = false;
+    }
 
-  return timer_status;
+    return timer_status;
 }
 #else
 // Return error if timers are not enabled.
-rd_status_t ri_yield_low_power_enable(const bool enable)
+rd_status_t ri_yield_low_power_enable (const bool enable)
 {
-  return RD_ERROR_NOT_SUPPORTED;
+    return RD_ERROR_NOT_SUPPORTED;
 }
 #endif
 
 
-rd_status_t ri_yield(void)
+rd_status_t ri_yield (void)
 {
-  if(NULL != m_ind) { m_ind(false); }
+    if (NULL != m_ind) { m_ind (false); }
 
-  nrf_pwr_mgmt_run();
+    nrf_pwr_mgmt_run();
 
-  if(NULL != m_ind) { m_ind(true); }
+    if (NULL != m_ind) { m_ind (true); }
 
-  return RD_SUCCESS;
+    return RD_SUCCESS;
 }
 
-rd_status_t ri_delay_ms(uint32_t time)
+rd_status_t ri_delay_ms (uint32_t time)
 {
-  rd_status_t err_code = RD_SUCCESS;
-  #if RUUVI_NRF5_SDK15_TIMER_ENABLED
+    rd_status_t err_code = RD_SUCCESS;
+#if RUUVI_NRF5_SDK15_TIMER_ENABLED
 
-  if(m_lp)
-  {
-    m_wakeup = false;
-    err_code |= ri_timer_start(wakeup_timer, time);
-
-    while(RD_SUCCESS == err_code && !m_wakeup)
+    if (m_lp)
     {
-      err_code |= ri_yield();
+        m_wakeup = false;
+        err_code |= ri_timer_start (wakeup_timer, time);
+
+        while (RD_SUCCESS == err_code && !m_wakeup)
+        {
+            err_code |= ri_yield();
+        }
     }
-  }
 
-  #else
+#else
 
-  if(0) {}
+    if (0) {}
 
-  #endif
-  else
-  {
-    nrf_delay_ms(time);
-  }
+#endif
+    else
+    {
+        nrf_delay_ms (time);
+    }
 
-  return err_code;
+    return err_code;
 }
 
-rd_status_t ri_delay_us(uint32_t time)
+rd_status_t ri_delay_us (uint32_t time)
 {
-  nrf_delay_us(time);
-  return RD_SUCCESS;
+    nrf_delay_us (time);
+    return RD_SUCCESS;
 }
 
-void ri_yield_indication_set(const ri_yield_state_ind_fp_t
-    indication)
+void ri_yield_indication_set (const ri_yield_state_ind_fp_t
+                              indication)
 {
-  m_ind = indication;
+    m_ind = indication;
 }
 
 #endif

@@ -14,11 +14,11 @@
 
 typedef struct
 {
-  char fw_version[32];
-  char model[32];
-  char hw_version[32];
-  char manufacturer[32];
-  char deviceid[32];
+    char fw_version[32];
+    char model[32];
+    char hw_version[32];
+    char manufacturer[32];
+    char deviceid[32];
 } ri_gatt_dis_init_t;
 
 /**
@@ -28,7 +28,7 @@ typedef struct
  * @return RD_SUCCESS on success
  * @return RD_ERROR_INVALID_STATE if radio module is not initialized with handle RI_COMMUNICATION_RADIO_GATT
  */
-rd_status_t ri_gatt_init(void);
+rd_status_t ri_gatt_init (void);
 
 /**
  * @brief Initialize Nordic UART Service as a communication channel.
@@ -41,8 +41,8 @@ rd_status_t ri_gatt_init(void);
  *                                          or if ri_gatt_init has not been called.
  * @return error code from stack in case there is other error.
  */
-rd_status_t ri_gatt_nus_init(
-  ri_communication_t* const channel);
+rd_status_t ri_gatt_nus_init (
+    ri_communication_t * const channel);
 
 /**
  * @brief Initialize BLE4 Device firmware update service.
@@ -50,7 +50,7 @@ rd_status_t ri_gatt_nus_init(
  * @return RD_SUCCESS on success
  * @return error code from stack in case there is  error.
  */
-rd_status_t ri_gatt_dfu_init(void);
+rd_status_t ri_gatt_dfu_init (void);
 
 /**
  * @brief Initialize BLE4 Device Information service
@@ -59,7 +59,7 @@ rd_status_t ri_gatt_dfu_init(void);
  * @return RD_SUCCESS on success
  * @return error code from stack in case there is  error.
  */
-rd_status_t ri_gatt_dis_init(
-  const ri_gatt_dis_init_t* const dis);
+rd_status_t ri_gatt_dis_init (
+    const ri_gatt_dis_init_t * const dis);
 
 #endif

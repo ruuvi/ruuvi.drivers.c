@@ -26,10 +26,10 @@
  */
 typedef enum
 {
-  RI_SPI_MODE_0, //!< CPOL = 0, CPHA = 0
-  RI_SPI_MODE_1, //!< CPOL = 0, CPHA = 1
-  RI_SPI_MODE_2, //!< CPOL = 1, CPHA = 0
-  RI_SPI_MODE_3  //!< CPOL = 1, CPHA = 1
+    RI_SPI_MODE_0, //!< CPOL = 0, CPHA = 0
+    RI_SPI_MODE_1, //!< CPOL = 0, CPHA = 1
+    RI_SPI_MODE_2, //!< CPOL = 1, CPHA = 0
+    RI_SPI_MODE_3  //!< CPOL = 1, CPHA = 1
 } ri_spi_mode_t;
 
 /**
@@ -37,10 +37,10 @@ typedef enum
  */
 typedef enum
 {
-  RI_SPI_FREQUENCY_1M, //!< 1 Mbps
-  RI_SPI_FREQUENCY_2M, //!< 2 Mbps
-  RI_SPI_FREQUENCY_4M, //!< 4 Mbps
-  RI_SPI_FREQUENCY_8M, //!< 8 Mbps
+    RI_SPI_FREQUENCY_1M, //!< 1 Mbps
+    RI_SPI_FREQUENCY_2M, //!< 2 Mbps
+    RI_SPI_FREQUENCY_4M, //!< 4 Mbps
+    RI_SPI_FREQUENCY_8M, //!< 8 Mbps
 } ri_spi_frequency_t;
 
 /**
@@ -48,13 +48,13 @@ typedef enum
  */
 typedef struct
 {
-  ri_gpio_id_t mosi;           //!< pin number of MOSI
-  ri_gpio_id_t miso;           //!< pin number of MISO
-  ri_gpio_id_t sclk;           //!< pin number of SCLK
-  ri_gpio_id_t* ss_pins;       //!< array of SPI pins, can be freed after function exits
-  size_t ss_pins_number;                    //!< sizeof ss_pins
-  ri_spi_frequency_t frequency; //!< Frequency of SPI Bus, see @ref ri_spi_frequency_t
-  ri_spi_mode_t mode;           //!< Mode of SPI Bus, see @ref ri_spi_mode_t
+    ri_gpio_id_t mosi;           //!< pin number of MOSI
+    ri_gpio_id_t miso;           //!< pin number of MISO
+    ri_gpio_id_t sclk;           //!< pin number of SCLK
+    ri_gpio_id_t * ss_pins;      //!< array of SPI pins, can be freed after function exits
+    size_t ss_pins_number;                    //!< sizeof ss_pins
+    ri_spi_frequency_t frequency; //!< Frequency of SPI Bus, see @ref ri_spi_frequency_t
+    ri_spi_mode_t mode;           //!< Mode of SPI Bus, see @ref ri_spi_mode_t
 } ri_spi_init_config_t;
 
 /**
@@ -66,8 +66,8 @@ typedef struct
  * @return RD_SUCCESS if no error occurred
  * @return RD_ERROR_INVALID_STATE if SPI was already initialized
  **/
-rd_status_t ri_spi_init(const ri_spi_init_config_t*
-    const config);
+rd_status_t ri_spi_init (const ri_spi_init_config_t *
+                         const config);
 
 /**
  * @brief check if SPI interface is already initialized.
@@ -103,7 +103,7 @@ rd_status_t ri_spi_uninit();
  * @param rx_len length of data to be received
  * @warning First byte in RX is generally @c 0x00 if you're reading external sensor.
  **/
-rd_status_t ri_spi_xfer_blocking(const uint8_t* const p_tx,
-    const size_t tx_len, uint8_t* const p_rx, const size_t rx_len);
+rd_status_t ri_spi_xfer_blocking (const uint8_t * const p_tx,
+                                  const size_t tx_len, uint8_t * const p_rx, const size_t rx_len);
 /* @} */
 #endif

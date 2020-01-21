@@ -20,7 +20,8 @@
  *
  * return RUUVI_DRIVER_SUCCESS
  */
-ruuvi_driver_status_t rt_power_dcdc_init (const ruuvi_interface_power_regulators_t regulators);
+ruuvi_driver_status_t rt_power_dcdc_init (const ruuvi_interface_power_regulators_t
+        regulators);
 
 
 #endif

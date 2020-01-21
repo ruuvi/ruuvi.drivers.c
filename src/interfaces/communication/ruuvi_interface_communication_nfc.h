@@ -15,8 +15,8 @@
  *
  * Returns RUUVI_DRIVER_SUCCESS on success, RUUVI_DRIVER_ERROR_INVALID_STATE if radio is already initialized
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(
-  ruuvi_interface_communication_t* const channel);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_init (
+    ruuvi_interface_communication_t * const channel);
 
 /*
  * Uninitializes NFC hardware.
@@ -24,11 +24,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init(
  * Returns RUUVI_DRIVER_SUCCESS on success or if radio was not initialized.
  * Returns RUUVI_DRIVER_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit(
-  ruuvi_interface_communication_t* const channel);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit (
+    ruuvi_interface_communication_t * const channel);
 
 // Encodes the given data fields into NFC buffer. Clears previous data.
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set (void);
 
 /**
  * Send data as ascii-encoded binary.
@@ -36,8 +36,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set(void);
  * Returns RUUVI_DRIVER_SUCCESS if the data was placed in buffer
  * Returns error code from the stack if data could not be placed to the buffer
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(
-  ruuvi_interface_communication_message_t* messge);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_send (
+    ruuvi_interface_communication_message_t * messge);
 
 /**
  * Sets the device firmware version into "FW" text field.
@@ -48,8 +48,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_send(
  * returns RUUVI_DRIVER_ERROR_NULL if version is NULL and length != 0
  * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 32 bytes long
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(
-  const uint8_t* const version, const uint8_t length);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set (
+    const uint8_t * const version, const uint8_t length);
 
 /**
  * Sets the device mac address into "ad" text field.
@@ -60,8 +60,8 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set(
  * returns RUUVI_DRIVER_ERROR_NULL if address is NULL and length != 0
  * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 32 bytes long
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set(
-  const uint8_t* const address, const uint8_t length);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set (
+    const uint8_t * const address, const uint8_t length);
 
 /**
  * Sets the device id into "id" text field. Set NULL/0 to disable.
@@ -72,11 +72,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set(
  * returns RUUVI_DRIVER_ERROR_NULL if id is NULL and length != 0
  * returns RUUVI_DRIVER_INVALID_LENGTH if name is over 32 bytes long
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set(const uint8_t* const id,
-    const uint8_t length);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set (const uint8_t * const id,
+        const uint8_t length);
 
 // Not implemented
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive(
-  ruuvi_interface_communication_message_t* messge);
+ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive (
+    ruuvi_interface_communication_message_t * messge);
 
 #endif

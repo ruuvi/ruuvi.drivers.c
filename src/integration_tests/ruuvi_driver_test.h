@@ -22,7 +22,7 @@
  */
 
 /** @brief function pointer to print test information */
-typedef void(*rd_test_print_fp)(const char* const msg);
+typedef void (*rd_test_print_fp) (const char * const msg);
 
 /**
  * @brief Runs the tests.
@@ -31,7 +31,7 @@ typedef void(*rd_test_print_fp)(const char* const msg);
  *                    a null terminated string as a parameter and returns void.
  * @return True if all tests passed, false otherwise
  */
-bool rd_test_all_run(const rd_test_print_fp printfp);
+bool rd_test_all_run (const rd_test_print_fp printfp);
 
 /**
  * @brief configure GPIO tests
@@ -41,7 +41,7 @@ bool rd_test_all_run(const rd_test_print_fp printfp);
  *
  * @param cfg[in] Structure which defines pin to use as output and pin to use as input for all GPIO tests.
  */
-void rd_test_gpio_cfg(const rd_test_gpio_cfg_t cfg);
+void rd_test_gpio_cfg (const rd_test_gpio_cfg_t cfg);
 
 /**
  * @brief Check if given value is "near enough" to what user expects.
@@ -64,11 +64,11 @@ void rd_test_gpio_cfg(const rd_test_gpio_cfg_t cfg);
  * @param check[in] Value to check
  *
  */
-bool rd_expect_close(const float expect, const int8_t precision,
-                               const float check);
+bool rd_expect_close (const float expect, const int8_t precision,
+                      const float check);
 
 /**
- * @brief Register a test as being run. 
+ * @brief Register a test as being run.
  * Increments counter of total tests.
  * Read results with rd_test_status
  *
@@ -76,7 +76,7 @@ bool rd_expect_close(const float expect, const int8_t precision,
  *
  * @return RD_SUCCESS
  */
-rd_status_t rd_test_register(const bool passed);
+rd_status_t rd_test_register (const bool passed);
 
 /**
  * Get total number of tests run and total number of tests passed.
@@ -86,7 +86,7 @@ rd_status_t rd_test_register(const bool passed);
  *
  * return RD_SUCCESS
  */
-rd_status_t rd_test_status(size_t* const total, size_t* const passed);
+rd_status_t rd_test_status (size_t * const total, size_t * const passed);
 
 /** @} */ // End of group Driver tests
 #endif

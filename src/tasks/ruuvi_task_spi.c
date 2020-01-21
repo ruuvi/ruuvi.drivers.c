@@ -39,7 +39,7 @@ rd_status_t rt_spi_init (void)
         default:
             config.frequency = RI_SPI_FREQUENCY_1M;
             ri_log (RI_LOG_LEVEL_WARNING,
-                                 "Unknown SPI frequency, defaulting to 1M\r\n");
+                    "Unknown SPI frequency, defaulting to 1M\r\n");
     }
 
     return ri_spi_init (&config);

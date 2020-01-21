@@ -35,19 +35,19 @@
  * | Stop       | -                   |
  * |------------+---------------------|
  */
-int8_t ruuvi_interface_i2c_bme280_write(uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t* reg_data, uint16_t len)
+int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
+        uint8_t * reg_data, uint16_t len)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
-  // Support only 1-byte writes
-  if(1 > len || 2 < len) { return -1; }
+    // Support only 1-byte writes
+    if (1 > len || 2 < len) { return -1; }
 
-  uint8_t wbuf[2] = {0};
-  wbuf[0] = reg_addr;
-  wbuf[1] = reg_data[0];
-  err_code |= ruuvi_interface_i2c_write_blocking(dev_id, wbuf, 2, true);
-  return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
+    uint8_t wbuf[2] = {0};
+    wbuf[0] = reg_addr;
+    wbuf[1] = reg_data[0];
+    err_code |= ruuvi_interface_i2c_write_blocking (dev_id, wbuf, 2, true);
+    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
 
 /*
@@ -66,12 +66,12 @@ int8_t ruuvi_interface_i2c_bme280_write(uint8_t dev_id, uint8_t reg_addr,
  * |------------+---------------------|
  */
 
-int8_t ruuvi_interface_i2c_bme280_read(uint8_t dev_id, uint8_t reg_addr,
-                                       uint8_t* reg_data, uint16_t len)
+int8_t ruuvi_interface_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
+                                        uint8_t * reg_data, uint16_t len)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  err_code |= ruuvi_interface_i2c_write_blocking(dev_id, &reg_addr, 1, true);
-  err_code |= ruuvi_interface_i2c_read_blocking(dev_id, reg_data, len);
-  return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
+    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    err_code |= ruuvi_interface_i2c_write_blocking (dev_id, &reg_addr, 1, true);
+    err_code |= ruuvi_interface_i2c_read_blocking (dev_id, reg_data, len);
+    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
 #endif

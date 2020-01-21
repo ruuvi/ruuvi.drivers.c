@@ -23,8 +23,8 @@
  */
 typedef struct
 {
-  unsigned int DCDC_INTERNAL : 1;    //!< DC/DC for internal circuitry, i.e. nRF52832 radio
-  unsigned int DCDC_HV : 1;          //!< DC/DC for high voltage, i.e. nRF52840 USB
+    unsigned int DCDC_INTERNAL : 1;    //!< DC/DC for internal circuitry, i.e. nRF52832 radio
+    unsigned int DCDC_HV : 1;          //!< DC/DC for high voltage, i.e. nRF52840 USB
 } ri_power_regulators_t;
 
 /**
@@ -37,8 +37,8 @@ typedef struct
  * @param[in] regulators binary flags of regulators to enable.
  * @return RD_SUCCESS on success, error code from stack in case of a error.
  */
-rd_status_t ri_power_regulators_enable(const
-    ri_power_regulators_t regulators);
+rd_status_t ri_power_regulators_enable (const
+                                        ri_power_regulators_t regulators);
 
 /**
  * @brief Reset IC.
@@ -48,7 +48,7 @@ rd_status_t ri_power_regulators_enable(const
  * @warning This functions affects only the CPU, any peripheral sensors must be reset separately.
  * @warning Some registers might retain their values across soft resets.
  */
-void ri_power_reset(void);
+void ri_power_reset (void);
 
 /**
  * @brief Enter bootloader
@@ -58,7 +58,7 @@ void ri_power_reset(void);
  *
  * @warning Behaviour is undefined if bootloader is not onboard.
  */
-void ri_power_enter_bootloader(void);
+void ri_power_enter_bootloader (void);
 
 /*@}*/
 #endif

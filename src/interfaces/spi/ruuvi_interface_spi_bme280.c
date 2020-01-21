@@ -25,30 +25,30 @@
 #include "ruuvi_interface_yield.h"
 
 
-int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t* reg_data, uint16_t len)
+int8_t ruuvi_interface_spi_bme280_write (uint8_t dev_id, uint8_t reg_addr,
+        uint8_t * reg_data, uint16_t len)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  ruuvi_interface_gpio_id_t ss;
-  ss.pin = RUUVI_DRIVER_HANDLE_TO_GPIO(dev_id);
-  err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_LOW);
-  err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
-  err_code |= ruuvi_interface_spi_xfer_blocking(reg_data, len, NULL, 0);
-  err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_HIGH);
-  return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
+    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    ruuvi_interface_gpio_id_t ss;
+    ss.pin = RUUVI_DRIVER_HANDLE_TO_GPIO (dev_id);
+    err_code |= ruuvi_interface_gpio_write (ss, RUUVI_INTERFACE_GPIO_LOW);
+    err_code |= ruuvi_interface_spi_xfer_blocking (&reg_addr, 1, NULL, 0);
+    err_code |= ruuvi_interface_spi_xfer_blocking (reg_data, len, NULL, 0);
+    err_code |= ruuvi_interface_gpio_write (ss, RUUVI_INTERFACE_GPIO_HIGH);
+    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
 
-int8_t ruuvi_interface_spi_bme280_read(uint8_t dev_id, uint8_t reg_addr,
-                                       uint8_t* reg_data, uint16_t len)
+int8_t ruuvi_interface_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr,
+                                        uint8_t * reg_data, uint16_t len)
 {
-  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-  ruuvi_interface_gpio_id_t ss;
-  ss.pin = RUUVI_DRIVER_HANDLE_TO_GPIO(dev_id);
-  err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_LOW);
-  err_code |= ruuvi_interface_spi_xfer_blocking(&reg_addr, 1, NULL, 0);
-  err_code |= ruuvi_interface_spi_xfer_blocking(NULL, 0, reg_data, len);
-  err_code |= ruuvi_interface_gpio_write(ss, RUUVI_INTERFACE_GPIO_HIGH);
-  return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
+    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    ruuvi_interface_gpio_id_t ss;
+    ss.pin = RUUVI_DRIVER_HANDLE_TO_GPIO (dev_id);
+    err_code |= ruuvi_interface_gpio_write (ss, RUUVI_INTERFACE_GPIO_LOW);
+    err_code |= ruuvi_interface_spi_xfer_blocking (&reg_addr, 1, NULL, 0);
+    err_code |= ruuvi_interface_spi_xfer_blocking (NULL, 0, reg_data, len);
+    err_code |= ruuvi_interface_gpio_write (ss, RUUVI_INTERFACE_GPIO_HIGH);
+    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
 }
 /*@}*/
 #endif

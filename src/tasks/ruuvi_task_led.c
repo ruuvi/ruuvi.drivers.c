@@ -27,7 +27,8 @@ int8_t is_led (const uint16_t led)
 {
     int8_t led_valid = -1;
 
-    for (size_t ii = 0U; (ii < (sizeof(m_led_list)/sizeof(m_led_list[0]))) && (0 > led_valid); ii++)
+    for (size_t ii = 0U; (ii < (sizeof (m_led_list) / sizeof (m_led_list[0])))
+            && (0 > led_valid); ii++)
     {
         if (led == m_led_list[ii])
         {
@@ -41,25 +42,25 @@ int8_t is_led (const uint16_t led)
 static inline ri_gpio_state_t led_to_pin_state (ri_gpio_id_t led, bool active)
 {
     ri_gpio_state_t state;
-    int8_t index = is_led(led);
+    int8_t index = is_led (led);
 
-    if(index > -1)
+    if (index > -1)
     {
-    if (true == m_led_active_state[index])
-    {
-        state = active ? RI_GPIO_HIGH : RI_GPIO_LOW;
-    }
-    else
-    {
-        state = active ? RI_GPIO_LOW : RI_GPIO_HIGH;
-    }
+        if (true == m_led_active_state[index])
+        {
+            state = active ? RI_GPIO_HIGH : RI_GPIO_LOW;
+        }
+        else
+        {
+            state = active ? RI_GPIO_LOW : RI_GPIO_HIGH;
+        }
     }
 
     return state;
 }
 
-rd_status_t rt_led_init (const uint16_t* const leds, 
-                         const ri_gpio_state_t* const active_states, 
+rd_status_t rt_led_init (const uint16_t * const leds,
+                         const ri_gpio_state_t * const active_states,
                          const size_t num_leds)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -78,13 +79,12 @@ rd_status_t rt_led_init (const uint16_t* const leds,
 
     if (RD_SUCCESS == err_code)
     {
-
         for (size_t ii = 0u; ii < num_leds; ii++)
         {
             m_led_list[ii] = leds[ii];
             m_led_active_state[ii] = active_states[ii];
             err_code |= ri_gpio_configure (m_led_list[ii],
-                        RI_GPIO_MODE_OUTPUT_HIGHDRIVE);
+                                           RI_GPIO_MODE_OUTPUT_HIGHDRIVE);
             err_code |= ri_gpio_write (m_led_list[ii], !m_led_active_state[ii]);
         }
 
@@ -99,7 +99,7 @@ rd_status_t rt_led_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    for (size_t ii = 0U; ii < (sizeof(m_led_list)/sizeof(m_led_list[0])); ii++)
+    for (size_t ii = 0U; ii < (sizeof (m_led_list) / sizeof (m_led_list[0])); ii++)
     {
         err_code |= ri_gpio_configure (m_led_list[ii], RI_GPIO_MODE_HIGH_Z);
     }

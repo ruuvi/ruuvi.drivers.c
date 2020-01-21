@@ -13,9 +13,9 @@
 #include <stdint.h>
 
 // Wrappers for LIS2DH12
-int32_t ruuvi_interface_spi_lis2dh12_write(void* dev_ptr, uint8_t reg_addr,
-    uint8_t* reg_data, uint16_t len);
-int32_t ruuvi_interface_spi_lis2dh12_read(void* dev_ptr, uint8_t reg_addr,
-    uint8_t* reg_data, uint16_t len);
+int32_t ruuvi_interface_spi_lis2dh12_write (void * dev_ptr, uint8_t reg_addr,
+        uint8_t * reg_data, uint16_t len);
+int32_t ruuvi_interface_spi_lis2dh12_read (void * dev_ptr, uint8_t reg_addr,
+        uint8_t * reg_data, uint16_t len);
 
 #endif

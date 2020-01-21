@@ -28,7 +28,7 @@ typedef ruuvi_driver_status_t
 /**
  * @brief Start sending a "hearbeat" signal over given channel to a connected device(s).
  *
- * The heartbeats are continuous data transmissions, such as current sensor values. 
+ * The heartbeats are continuous data transmissions, such as current sensor values.
  * It's a good practice to reset watchdog timer in heartbeat function, and nowhere else.
  * New heartbeat can be configured over old one without stopping.
  *

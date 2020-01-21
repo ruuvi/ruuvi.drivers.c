@@ -20,65 +20,65 @@
 /* Analog input channels of device */
 typedef enum
 {
-  RI_ADC_AIN0,          //!< Channel 0 of ADC
-  RI_ADC_AIN1,          //!< Channel 1 of ADC
-  RI_ADC_AIN2,          //!< Channel 2 of ADC
-  RI_ADC_AIN3,          //!< Channel 3 of ADC
-  RI_ADC_AIN4,          //!< Channel 4 of ADC
-  RI_ADC_AIN5,          //!< Channel 6 of ADC
-  RI_ADC_AIN6,          //!< Channel 7 of ADC
-  RI_ADC_AIN7,          //!< Channel 7 of ADC
-  RI_ADC_AINVDD,        //!< Analog supply voltage
-  RI_ADC_AINGND,        //!< Analog ground
-  RI_ADC_VREF_INTERNAL, //!< Internal voltage reference
-  RI_ADC_VREF_EXTERNAL  //!< External voltage reference
+    RI_ADC_AIN0,          //!< Channel 0 of ADC
+    RI_ADC_AIN1,          //!< Channel 1 of ADC
+    RI_ADC_AIN2,          //!< Channel 2 of ADC
+    RI_ADC_AIN3,          //!< Channel 3 of ADC
+    RI_ADC_AIN4,          //!< Channel 4 of ADC
+    RI_ADC_AIN5,          //!< Channel 6 of ADC
+    RI_ADC_AIN6,          //!< Channel 7 of ADC
+    RI_ADC_AIN7,          //!< Channel 7 of ADC
+    RI_ADC_AINVDD,        //!< Analog supply voltage
+    RI_ADC_AINGND,        //!< Analog ground
+    RI_ADC_VREF_INTERNAL, //!< Internal voltage reference
+    RI_ADC_VREF_EXTERNAL  //!< External voltage reference
 } ri_adc_channel_t;
 
 /** @brief Define a complex sample */
 typedef struct
 {
-  ri_adc_channel_t positive;  //!< Positive channel
-  ri_adc_channel_t negative;  //!< Negative channel
-  ri_adc_channel_t reference; //!< Reference channel
-  uint8_t gain;                            //!< Gain of measurement. 1 for no gain. Rounded down.
-  uint8_t division;                        //!< Division of measurement. 1 -> unused. Gain must be 1 if division is not 1. Rounded down.
-  uint8_t oversamples;                     //!< Number os samples to take, rounded up to nearest possible value.
-  uint16_t t_acquisition_us;               //!< Acquisition time, us. Rounded up to nearest possible value.
-  bool positive_pullup_active;             //!< True to enable pullup to AVDD
-  bool positive_pulldown_active;           //!< True to enable pulldown to AGND
-  bool negative_pullup_active;             //!< True to enable pullup to AVDD
-  bool negative_pulldown_active;           //!< True to enable pulldown to AGND
+    ri_adc_channel_t positive;  //!< Positive channel
+    ri_adc_channel_t negative;  //!< Negative channel
+    ri_adc_channel_t reference; //!< Reference channel
+    uint8_t gain;                            //!< Gain of measurement. 1 for no gain. Rounded down.
+    uint8_t division;                        //!< Division of measurement. 1 -> unused. Gain must be 1 if division is not 1. Rounded down.
+    uint8_t oversamples;                     //!< Number os samples to take, rounded up to nearest possible value.
+    uint16_t t_acquisition_us;               //!< Acquisition time, us. Rounded up to nearest possible value.
+    bool positive_pullup_active;             //!< True to enable pullup to AVDD
+    bool positive_pulldown_active;           //!< True to enable pulldown to AGND
+    bool negative_pullup_active;             //!< True to enable pullup to AVDD
+    bool negative_pulldown_active;           //!< True to enable pulldown to AGND
 } ri_adc_sample_t;
 
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_adc_mcu_init(rd_sensor_t* adc_sensor,
-    rd_bus_t bus, uint8_t handle);
+rd_status_t ri_adc_mcu_init (rd_sensor_t * adc_sensor,
+                             rd_bus_t bus, uint8_t handle);
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_adc_mcu_uninit(rd_sensor_t* adc_sensor,
-    rd_bus_t bus, uint8_t handle);
+rd_status_t ri_adc_mcu_uninit (rd_sensor_t * adc_sensor,
+                               rd_bus_t bus, uint8_t handle);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_samplerate_set(uint8_t* samplerate);
+rd_status_t ri_adc_mcu_samplerate_set (uint8_t * samplerate);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_samplerate_get(uint8_t* samplerate);
+rd_status_t ri_adc_mcu_samplerate_get (uint8_t * samplerate);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_resolution_set(uint8_t* resolution);
+rd_status_t ri_adc_mcu_resolution_set (uint8_t * resolution);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_resolution_get(uint8_t* resolution);
+rd_status_t ri_adc_mcu_resolution_get (uint8_t * resolution);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_scale_set(uint8_t* scale);
+rd_status_t ri_adc_mcu_scale_set (uint8_t * scale);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_scale_get(uint8_t* scale);
+rd_status_t ri_adc_mcu_scale_get (uint8_t * scale);
 /** @brief @ref rd_sensor_dsp_fp */
-rd_status_t ri_adc_mcu_dsp_set(uint8_t* dsp, uint8_t* parameter);
+rd_status_t ri_adc_mcu_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
-rd_status_t ri_adc_mcu_dsp_get(uint8_t* dsp, uint8_t* parameter);
+rd_status_t ri_adc_mcu_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_mode_set(uint8_t* mode);
+rd_status_t ri_adc_mcu_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_adc_mcu_mode_get(uint8_t* mode);
+rd_status_t ri_adc_mcu_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
-rd_status_t ri_adc_mcu_data_get(rd_sensor_data_t* const
-    data);
+rd_status_t ri_adc_mcu_data_get (rd_sensor_data_t * const
+                                 data);
 
 /**
  * @brief take complex sample

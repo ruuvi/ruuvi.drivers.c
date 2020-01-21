@@ -23,7 +23,7 @@
  * @param[in] error error to convert
  * @return Ruuvi error corresponding to given error.
  */
-rd_status_t ruuvi_nrf5_sdk15_to_ruuvi_error(const ret_code_t error);
+rd_status_t ruuvi_nrf5_sdk15_to_ruuvi_error (const ret_code_t error);
 
 /** @} */
 #endif

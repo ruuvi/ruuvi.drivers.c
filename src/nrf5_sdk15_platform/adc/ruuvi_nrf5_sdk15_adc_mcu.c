@@ -76,33 +76,33 @@
           } while(0)
 
 static bool autorefresh  =
-  false;        // Flag to keep track if we should update the adc on data read.
+    false;        // Flag to keep track if we should update the adc on data read.
 static bool adc_is_init  =
-  false;        // Flag to keep track if ADC itself is initialized
+    false;        // Flag to keep track if ADC itself is initialized
 static uint8_t adc_channel;              // Channel of ADC
 static nrf_saadc_value_t adc_buf;        // Buffer used for storing ADC value.
 static float adc_volts;                  // Value of last sample in volts.
 static uint64_t adc_tsample;             // Time when sample was taken
 static nrf_drv_saadc_config_t adc_config =
-  NRF_DRV_SAADC_DEFAULT_CONFIG; // Structure for ADC configuration
+    NRF_DRV_SAADC_DEFAULT_CONFIG; // Structure for ADC configuration
 
 static const char m_adc_name[] = "nRF5ADC"; //!< Human-readable name
 
-static float raw_adc_to_volts(nrf_saadc_value_t adc)
+static float raw_adc_to_volts (nrf_saadc_value_t adc)
 {
-  // Get ADC max value into counts
-  uint8_t resolution;
-  ri_adc_mcu_resolution_get(&resolution);
-  uint16_t counts = 1 << resolution;
-  return (ADC_REF_VOLTAGE_IN_VOLTS * ((float)adc / (float)counts) *
-          ADC_PRE_SCALING_COMPENSATION);
+    // Get ADC max value into counts
+    uint8_t resolution;
+    ri_adc_mcu_resolution_get (&resolution);
+    uint16_t counts = 1 << resolution;
+    return (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) adc / (float) counts) *
+            ADC_PRE_SCALING_COMPENSATION);
 }
 
-static void nrf52832_adc_sample(void)
+static void nrf52832_adc_sample (void)
 {
-  nrf_drv_saadc_sample_convert(1, &adc_buf);
-  adc_tsample = rd_sensor_timestamp_get();
-  adc_volts = raw_adc_to_volts(adc_buf);
+    nrf_drv_saadc_sample_convert (1, &adc_buf);
+    adc_tsample = rd_sensor_timestamp_get();
+    adc_volts = raw_adc_to_volts (adc_buf);
 }
 
 /**@brief Function handling events from 'nrf_drv_saadc.c'.
@@ -110,475 +110,475 @@ static void nrf52832_adc_sample(void)
  *
  * @param[in] p_evt SAADC event.
  */
-static void saadc_event_handler(nrf_drv_saadc_evt_t const* p_evt)
+static void saadc_event_handler (nrf_drv_saadc_evt_t const * p_evt)
 {
-  if(p_evt->type == NRF_DRV_SAADC_EVT_DONE)
-  {
-  }
+    if (p_evt->type == NRF_DRV_SAADC_EVT_DONE)
+    {
+    }
 }
 
 // Converts Ruuvi ADC channel to nRF adc channel
-static nrf_saadc_input_t ruuvi_to_nrf_adc_channel(ri_adc_channel_t channel)
+static nrf_saadc_input_t ruuvi_to_nrf_adc_channel (ri_adc_channel_t channel)
 {
-  switch(channel)
-  {
-    case RI_ADC_AIN0:
-      return NRF_SAADC_INPUT_AIN0;
+    switch (channel)
+    {
+        case RI_ADC_AIN0:
+            return NRF_SAADC_INPUT_AIN0;
 
-    case RI_ADC_AIN1:
-      return NRF_SAADC_INPUT_AIN1;
+        case RI_ADC_AIN1:
+            return NRF_SAADC_INPUT_AIN1;
 
-    case RI_ADC_AIN2:
-      return NRF_SAADC_INPUT_AIN2;
+        case RI_ADC_AIN2:
+            return NRF_SAADC_INPUT_AIN2;
 
-    case RI_ADC_AIN3:
-      return NRF_SAADC_INPUT_AIN3;
+        case RI_ADC_AIN3:
+            return NRF_SAADC_INPUT_AIN3;
 
-    case RI_ADC_AIN4:
-      return NRF_SAADC_INPUT_AIN4;
+        case RI_ADC_AIN4:
+            return NRF_SAADC_INPUT_AIN4;
 
-    case RI_ADC_AIN5:
-      return NRF_SAADC_INPUT_AIN5;
+        case RI_ADC_AIN5:
+            return NRF_SAADC_INPUT_AIN5;
 
-    case RI_ADC_AIN6:
-      return NRF_SAADC_INPUT_AIN6;
+        case RI_ADC_AIN6:
+            return NRF_SAADC_INPUT_AIN6;
 
-    case RI_ADC_AIN7:
-      return NRF_SAADC_INPUT_AIN7;
+        case RI_ADC_AIN7:
+            return NRF_SAADC_INPUT_AIN7;
 
-    case RI_ADC_AINVDD:
-      return NRF_SAADC_INPUT_VDD;
+        case RI_ADC_AINVDD:
+            return NRF_SAADC_INPUT_VDD;
 
-    default:
-      return NRF_SAADC_INPUT_DISABLED;
-  }
+        default:
+            return NRF_SAADC_INPUT_DISABLED;
+    }
 }
 
 // Converts ruuvi ADC resolution to nRF SAADC resolution
-static nrf_saadc_resolution_t ruuvi_to_nrf_resolution(const uint8_t resolution)
+static nrf_saadc_resolution_t ruuvi_to_nrf_resolution (const uint8_t resolution)
 {
-  switch(resolution)
-  {
-    case RD_SENSOR_CFG_MIN:
-    case 8:
-      return NRF_SAADC_RESOLUTION_8BIT;
+    switch (resolution)
+    {
+        case RD_SENSOR_CFG_MIN:
+        case 8:
+            return NRF_SAADC_RESOLUTION_8BIT;
 
-    case 10:
-      return NRF_SAADC_RESOLUTION_10BIT;
+        case 10:
+            return NRF_SAADC_RESOLUTION_10BIT;
 
-    case 12:
-      return NRF_SAADC_RESOLUTION_12BIT;
+        case 12:
+            return NRF_SAADC_RESOLUTION_12BIT;
 
-    case RD_SENSOR_CFG_MAX:
-    case 14:
-      return NRF_SAADC_RESOLUTION_14BIT;
+        case RD_SENSOR_CFG_MAX:
+        case 14:
+            return NRF_SAADC_RESOLUTION_14BIT;
 
-    // we can't return "invalid", return 10 as default instead.
-    default:
-      return NRF_SAADC_RESOLUTION_10BIT;
-  }
+        // we can't return "invalid", return 10 as default instead.
+        default:
+            return NRF_SAADC_RESOLUTION_10BIT;
+    }
 }
 
 // Converts nRF SAADC resolution to ruuvi ADC resolution
-static uint8_t nrf_to_ruuvi_resolution(const nrf_saadc_resolution_t resolution)
+static uint8_t nrf_to_ruuvi_resolution (const nrf_saadc_resolution_t resolution)
 {
-  switch(resolution)
-  {
-    case NRF_SAADC_RESOLUTION_8BIT:
-      return 8;
+    switch (resolution)
+    {
+        case NRF_SAADC_RESOLUTION_8BIT:
+            return 8;
 
-    case NRF_SAADC_RESOLUTION_10BIT:
-      return 10;
+        case NRF_SAADC_RESOLUTION_10BIT:
+            return 10;
 
-    case NRF_SAADC_RESOLUTION_12BIT:
-      return 12;
+        case NRF_SAADC_RESOLUTION_12BIT:
+            return 12;
 
-    case NRF_SAADC_RESOLUTION_14BIT:
-      return 14;
+        case NRF_SAADC_RESOLUTION_14BIT:
+            return 14;
 
-    default:
-      return RUUVI_PLATFORM_ADC_NRF52832_DEFAULT_RESOLUTION;
-  }
+        default:
+            return RUUVI_PLATFORM_ADC_NRF52832_DEFAULT_RESOLUTION;
+    }
 }
 
 // Uninitializes and reinitializes ADC to apply new configuration
-static rd_status_t reinit_adc(void)
+static rd_status_t reinit_adc (void)
 {
-  ret_code_t err_code = NRF_SUCCESS;
-  nrf_drv_saadc_uninit();
-  err_code |= nrf_drv_saadc_init(&adc_config, saadc_event_handler);
-  adc_volts = RD_FLOAT_INVALID;
-  adc_tsample = RD_UINT64_INVALID;
-  autorefresh = false;
-  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
+    ret_code_t err_code = NRF_SUCCESS;
+    nrf_drv_saadc_uninit();
+    err_code |= nrf_drv_saadc_init (&adc_config, saadc_event_handler);
+    adc_volts = RD_FLOAT_INVALID;
+    adc_tsample = RD_UINT64_INVALID;
+    autorefresh = false;
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
 // Convert UINT8_T to nRF oversampling
-static nrf_saadc_oversample_t uint_to_nrf_os(uint8_t* const parameter)
+static nrf_saadc_oversample_t uint_to_nrf_os (uint8_t * const parameter)
 {
-  nrf_saadc_oversample_t oversample = NRF_SAADC_OVERSAMPLE_DISABLED;
+    nrf_saadc_oversample_t oversample = NRF_SAADC_OVERSAMPLE_DISABLED;
 
-  if(2 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_2X;
-    *parameter = 2;
-  }
-  else if(4 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_4X;
-    *parameter = 4;
-  }
-  else if(8 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_8X;
-    *parameter = 8;
-  }
-  else if(16 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_16X;
-    *parameter = 16;
-  }
-  else if(32 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_32X;
-    *parameter = 32;
-  }
-  else if(64 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_64X;
-    *parameter = 64;
-  }
-  else if(128 >= *parameter)
-  {
-    oversample = NRF_SAADC_OVERSAMPLE_128X;
-    *parameter = 128;
-  }
+    if (2 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_2X;
+        *parameter = 2;
+    }
+    else if (4 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_4X;
+        *parameter = 4;
+    }
+    else if (8 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_8X;
+        *parameter = 8;
+    }
+    else if (16 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_16X;
+        *parameter = 16;
+    }
+    else if (32 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_32X;
+        *parameter = 32;
+    }
+    else if (64 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_64X;
+        *parameter = 64;
+    }
+    else if (128 >= *parameter)
+    {
+        oversample = NRF_SAADC_OVERSAMPLE_128X;
+        *parameter = 128;
+    }
 
-  return oversample;
+    return oversample;
 }
 
-rd_status_t ri_adc_mcu_init(rd_sensor_t* adc_sensor,
-    rd_bus_t bus, uint8_t handle)
+rd_status_t ri_adc_mcu_init (rd_sensor_t * adc_sensor,
+                             rd_bus_t bus, uint8_t handle)
 {
-  if(NULL == adc_sensor) { return RD_ERROR_NULL; }
+    if (NULL == adc_sensor) { return RD_ERROR_NULL; }
 
-  if(RD_BUS_NONE != bus) { return RD_ERROR_NOT_SUPPORTED; }
+    if (RD_BUS_NONE != bus) { return RD_ERROR_NOT_SUPPORTED; }
 
-  // Support only one instance.
-  if(adc_is_init) { return RD_ERROR_INVALID_STATE; }
+    // Support only one instance.
+    if (adc_is_init) { return RD_ERROR_INVALID_STATE; }
 
-  // Initialize ADC structure
-  rd_sensor_initialize(adc_sensor);
-  nrf_drv_saadc_config_t adc_default = NRF_DRV_SAADC_DEFAULT_CONFIG;
-  memcpy(&adc_config, &adc_default, sizeof(adc_config));
-  ret_code_t err_code = nrf_drv_saadc_init(&adc_config, saadc_event_handler);
+    // Initialize ADC structure
+    rd_sensor_initialize (adc_sensor);
+    nrf_drv_saadc_config_t adc_default = NRF_DRV_SAADC_DEFAULT_CONFIG;
+    memcpy (&adc_config, &adc_default, sizeof (adc_config));
+    ret_code_t err_code = nrf_drv_saadc_init (&adc_config, saadc_event_handler);
 
-  if(NRF_SUCCESS == err_code) { adc_is_init = true; }
+    if (NRF_SUCCESS == err_code) { adc_is_init = true; }
 
-  // Initialize given channel. Only one ADC channel is supported at a time
-  nrf_saadc_channel_config_t ch_config = NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(
-      ruuvi_to_nrf_adc_channel(handle));
-  ch_config.gain =  NRF_SAADC_GAIN1_6;
-  nrf_saadc_channel_init(0, &ch_config);
-  adc_channel = handle;
-  // Setup function pointers
-  adc_sensor->init              = ri_adc_mcu_init;
-  adc_sensor->uninit            = ri_adc_mcu_uninit;
-  adc_sensor->samplerate_set    = ri_adc_mcu_samplerate_set;
-  adc_sensor->samplerate_get    = ri_adc_mcu_samplerate_get;
-  adc_sensor->resolution_set    = ri_adc_mcu_resolution_set;
-  adc_sensor->resolution_get    = ri_adc_mcu_resolution_get;
-  adc_sensor->scale_set         = ri_adc_mcu_scale_set;
-  adc_sensor->scale_get         = ri_adc_mcu_scale_get;
-  adc_sensor->dsp_set           = ri_adc_mcu_dsp_set;
-  adc_sensor->dsp_get           = ri_adc_mcu_dsp_get;
-  adc_sensor->mode_set          = ri_adc_mcu_mode_set;
-  adc_sensor->mode_get          = ri_adc_mcu_mode_get;
-  adc_sensor->data_get          = ri_adc_mcu_data_get;
-  adc_sensor->configuration_set = rd_sensor_configuration_set;
-  adc_sensor->configuration_get = rd_sensor_configuration_get;
-  adc_sensor->name              = m_adc_name;
-  adc_sensor->provides.datas.voltage_v = 1;
-  adc_volts = RD_FLOAT_INVALID;
-  adc_tsample = RD_UINT64_INVALID;
-  autorefresh = false;
-  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
+    // Initialize given channel. Only one ADC channel is supported at a time
+    nrf_saadc_channel_config_t ch_config = NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE (
+            ruuvi_to_nrf_adc_channel (handle));
+    ch_config.gain =  NRF_SAADC_GAIN1_6;
+    nrf_saadc_channel_init (0, &ch_config);
+    adc_channel = handle;
+    // Setup function pointers
+    adc_sensor->init              = ri_adc_mcu_init;
+    adc_sensor->uninit            = ri_adc_mcu_uninit;
+    adc_sensor->samplerate_set    = ri_adc_mcu_samplerate_set;
+    adc_sensor->samplerate_get    = ri_adc_mcu_samplerate_get;
+    adc_sensor->resolution_set    = ri_adc_mcu_resolution_set;
+    adc_sensor->resolution_get    = ri_adc_mcu_resolution_get;
+    adc_sensor->scale_set         = ri_adc_mcu_scale_set;
+    adc_sensor->scale_get         = ri_adc_mcu_scale_get;
+    adc_sensor->dsp_set           = ri_adc_mcu_dsp_set;
+    adc_sensor->dsp_get           = ri_adc_mcu_dsp_get;
+    adc_sensor->mode_set          = ri_adc_mcu_mode_set;
+    adc_sensor->mode_get          = ri_adc_mcu_mode_get;
+    adc_sensor->data_get          = ri_adc_mcu_data_get;
+    adc_sensor->configuration_set = rd_sensor_configuration_set;
+    adc_sensor->configuration_get = rd_sensor_configuration_get;
+    adc_sensor->name              = m_adc_name;
+    adc_sensor->provides.datas.voltage_v = 1;
+    adc_volts = RD_FLOAT_INVALID;
+    adc_tsample = RD_UINT64_INVALID;
+    autorefresh = false;
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-rd_status_t ri_adc_mcu_uninit(rd_sensor_t* adc_sensor,
-    rd_bus_t bus, uint8_t handle)
+rd_status_t ri_adc_mcu_uninit (rd_sensor_t * adc_sensor,
+                               rd_bus_t bus, uint8_t handle)
 {
-  if(NULL == adc_sensor) { return RD_ERROR_NULL; }
+    if (NULL == adc_sensor) { return RD_ERROR_NULL; }
 
-  rd_sensor_uninitialize(adc_sensor);
-  nrf_drv_saadc_uninit();
-  adc_is_init = false;
-  autorefresh = false;
-  adc_tsample = RD_UINT64_INVALID;
-  adc_volts = RD_FLOAT_INVALID;
-  return RD_SUCCESS;
+    rd_sensor_uninitialize (adc_sensor);
+    nrf_drv_saadc_uninit();
+    adc_is_init = false;
+    autorefresh = false;
+    adc_tsample = RD_UINT64_INVALID;
+    adc_volts = RD_FLOAT_INVALID;
+    return RD_SUCCESS;
 }
 
 // Continuous sampling is not supported (although we could use timer and PPI to implement it), mark pointed value as not supported even if parameter is one of no-changes
-rd_status_t ri_adc_mcu_samplerate_set(uint8_t* samplerate)
+rd_status_t ri_adc_mcu_samplerate_set (uint8_t * samplerate)
 {
-  if(NULL == samplerate) { return RD_ERROR_NULL; }
+    if (NULL == samplerate) { return RD_ERROR_NULL; }
 
-  VERIFY_SENSOR_SLEEPS();
-  uint8_t original = *samplerate;
-  *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
-  RETURN_SUCCESS_ON_VALID(original);
-  return RD_ERROR_NOT_SUPPORTED;
-}
-
-rd_status_t ri_adc_mcu_samplerate_get(uint8_t* samplerate)
-{
-  if(NULL == samplerate) { return RD_ERROR_NULL; }
-
-  *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
-  return RD_SUCCESS;
-}
-
-rd_status_t ri_adc_mcu_resolution_set(uint8_t* resolution)
-{
-  if(NULL == resolution) { return RD_ERROR_NULL; }
-
-  VERIFY_SENSOR_SLEEPS();
-
-  if(RD_SENSOR_CFG_NO_CHANGE == *resolution)    { return ri_adc_mcu_resolution_get(resolution); }
-
-  if(RD_SENSOR_CFG_MIN == *resolution)
-  {
-    *resolution = 8;
-    adc_config.resolution = NRF_SAADC_RESOLUTION_8BIT;
-  }
-  else if(RD_SENSOR_CFG_MAX == *resolution)
-  {
-    *resolution = 14;
-    adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT;
-  }
-  else if(RD_SENSOR_CFG_DEFAULT == *resolution)
-  {
-    *resolution = RUUVI_PLATFORM_ADC_NRF52832_DEFAULT_RESOLUTION;
-    adc_config.resolution = ruuvi_to_nrf_resolution(*resolution);
-  }
-  else if(8 >= *resolution)  { adc_config.resolution = NRF_SAADC_RESOLUTION_8BIT;  *resolution = 8; }
-  else if(10 >= *resolution) { adc_config.resolution = NRF_SAADC_RESOLUTION_10BIT; *resolution = 10; }
-  else if(12 >= *resolution) { adc_config.resolution = NRF_SAADC_RESOLUTION_12BIT; *resolution = 12; }
-  else if(14 >= *resolution) { adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT; *resolution = 14; }
-  else
-  {
-    *resolution = RD_SENSOR_ERR_NOT_SUPPORTED;
+    VERIFY_SENSOR_SLEEPS();
+    uint8_t original = *samplerate;
+    *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
+    RETURN_SUCCESS_ON_VALID (original);
     return RD_ERROR_NOT_SUPPORTED;
-  }
-
-  // Uninit and reinit adc with new settings.
-  return reinit_adc();
 }
 
-rd_status_t ri_adc_mcu_resolution_get(uint8_t* resolution)
+rd_status_t ri_adc_mcu_samplerate_get (uint8_t * samplerate)
 {
-  if(NULL == resolution) { return RD_ERROR_NULL; }
+    if (NULL == samplerate) { return RD_ERROR_NULL; }
 
-  *resolution = nrf_to_ruuvi_resolution(adc_config.resolution);
-  return RD_SUCCESS;
+    *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
+    return RD_SUCCESS;
+}
+
+rd_status_t ri_adc_mcu_resolution_set (uint8_t * resolution)
+{
+    if (NULL == resolution) { return RD_ERROR_NULL; }
+
+    VERIFY_SENSOR_SLEEPS();
+
+    if (RD_SENSOR_CFG_NO_CHANGE == *resolution)    { return ri_adc_mcu_resolution_get (resolution); }
+
+    if (RD_SENSOR_CFG_MIN == *resolution)
+    {
+        *resolution = 8;
+        adc_config.resolution = NRF_SAADC_RESOLUTION_8BIT;
+    }
+    else if (RD_SENSOR_CFG_MAX == *resolution)
+    {
+        *resolution = 14;
+        adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT;
+    }
+    else if (RD_SENSOR_CFG_DEFAULT == *resolution)
+    {
+        *resolution = RUUVI_PLATFORM_ADC_NRF52832_DEFAULT_RESOLUTION;
+        adc_config.resolution = ruuvi_to_nrf_resolution (*resolution);
+    }
+    else if (8 >= *resolution)  { adc_config.resolution = NRF_SAADC_RESOLUTION_8BIT;  *resolution = 8; }
+    else if (10 >= *resolution) { adc_config.resolution = NRF_SAADC_RESOLUTION_10BIT; *resolution = 10; }
+    else if (12 >= *resolution) { adc_config.resolution = NRF_SAADC_RESOLUTION_12BIT; *resolution = 12; }
+    else if (14 >= *resolution) { adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT; *resolution = 14; }
+    else
+    {
+        *resolution = RD_SENSOR_ERR_NOT_SUPPORTED;
+        return RD_ERROR_NOT_SUPPORTED;
+    }
+
+    // Uninit and reinit adc with new settings.
+    return reinit_adc();
+}
+
+rd_status_t ri_adc_mcu_resolution_get (uint8_t * resolution)
+{
+    if (NULL == resolution) { return RD_ERROR_NULL; }
+
+    *resolution = nrf_to_ruuvi_resolution (adc_config.resolution);
+    return RD_SUCCESS;
 }
 
 // While scale could be adjustable, we'll use fixed 3600 mV.
-rd_status_t ri_adc_mcu_scale_set(uint8_t* scale)
+rd_status_t ri_adc_mcu_scale_set (uint8_t * scale)
 {
-  if(NULL == scale) { return RD_ERROR_NULL; }
+    if (NULL == scale) { return RD_ERROR_NULL; }
 
-  VERIFY_SENSOR_SLEEPS();
-  uint8_t original = *scale;
-  // "At least" 3
-  *scale = 3;
-  RETURN_SUCCESS_ON_VALID(original);
-  return RD_ERROR_NOT_SUPPORTED;
+    VERIFY_SENSOR_SLEEPS();
+    uint8_t original = *scale;
+    // "At least" 3
+    *scale = 3;
+    RETURN_SUCCESS_ON_VALID (original);
+    return RD_ERROR_NOT_SUPPORTED;
 }
 
-rd_status_t ri_adc_mcu_scale_get(uint8_t* scale)
+rd_status_t ri_adc_mcu_scale_get (uint8_t * scale)
 {
-  if(NULL == scale) { return RD_ERROR_NULL; }
+    if (NULL == scale) { return RD_ERROR_NULL; }
 
-  // "At least" 3
-  *scale = 3;
-  return RD_SUCCESS;
+    // "At least" 3
+    *scale = 3;
+    return RD_SUCCESS;
 }
 
 // Return success on DSP_LAST, DSP_OVERSAMPLING and acceptable defaults, not supported otherwise
-rd_status_t ri_adc_mcu_dsp_set(uint8_t* dsp, uint8_t* parameter)
+rd_status_t ri_adc_mcu_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-  if(NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
 
-  VERIFY_SENSOR_SLEEPS();
-  // Store originals
-  uint8_t dsp_original;
-  dsp_original       = *dsp;
-  // Ge actual values
-  ri_adc_mcu_dsp_get(dsp, parameter);
+    VERIFY_SENSOR_SLEEPS();
+    // Store originals
+    uint8_t dsp_original;
+    dsp_original       = *dsp;
+    // Ge actual values
+    ri_adc_mcu_dsp_get (dsp, parameter);
 
-  // Set new values if applicable
-  if(RD_SENSOR_DSP_LAST == dsp_original ||
-      RD_SENSOR_CFG_DEFAULT == dsp_original)
-  {
-    adc_config.oversample = NRF_SAADC_OVERSAMPLE_DISABLED;
-    *parameter = 1;
-    *dsp = RD_SENSOR_DSP_LAST;
-    reinit_adc();
-    return RD_SUCCESS;
-  }
+    // Set new values if applicable
+    if (RD_SENSOR_DSP_LAST == dsp_original ||
+            RD_SENSOR_CFG_DEFAULT == dsp_original)
+    {
+        adc_config.oversample = NRF_SAADC_OVERSAMPLE_DISABLED;
+        *parameter = 1;
+        *dsp = RD_SENSOR_DSP_LAST;
+        reinit_adc();
+        return RD_SUCCESS;
+    }
 
-  // 128 is maximum we support
-  if((RD_SENSOR_DSP_OS == dsp_original) &&
-      (128 < *parameter))
-  {
-    adc_config.oversample = uint_to_nrf_os(parameter);
-    reinit_adc();
-    return RD_SUCCESS;
-  }
+    // 128 is maximum we support
+    if ( (RD_SENSOR_DSP_OS == dsp_original) &&
+            (128 < *parameter))
+    {
+        adc_config.oversample = uint_to_nrf_os (parameter);
+        reinit_adc();
+        return RD_SUCCESS;
+    }
 
-  return RD_ERROR_NOT_SUPPORTED;
+    return RD_ERROR_NOT_SUPPORTED;
 }
 
-rd_status_t ri_adc_mcu_dsp_get(uint8_t* dsp, uint8_t* parameter)
+rd_status_t ri_adc_mcu_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-  switch(adc_config.oversample)
-  {
-    case NRF_SAADC_OVERSAMPLE_DISABLED:
-      *dsp = RD_SENSOR_DSP_LAST;
-      *parameter = 1;
-      break;
+    switch (adc_config.oversample)
+    {
+        case NRF_SAADC_OVERSAMPLE_DISABLED:
+            *dsp = RD_SENSOR_DSP_LAST;
+            *parameter = 1;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_2X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 2;
-      break;
+        case NRF_SAADC_OVERSAMPLE_2X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 2;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_4X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 4;
-      break;
+        case NRF_SAADC_OVERSAMPLE_4X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 4;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_8X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 8;
-      break;
+        case NRF_SAADC_OVERSAMPLE_8X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 8;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_16X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 16;
-      break;
+        case NRF_SAADC_OVERSAMPLE_16X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 16;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_32X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 32;
-      break;
+        case NRF_SAADC_OVERSAMPLE_32X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 32;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_64X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 64;
-      break;
+        case NRF_SAADC_OVERSAMPLE_64X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 64;
+            break;
 
-    case NRF_SAADC_OVERSAMPLE_128X:
-      *dsp = RD_SENSOR_DSP_OS;
-      *parameter = 128;
-      break;
+        case NRF_SAADC_OVERSAMPLE_128X:
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = 128;
+            break;
 
-    default:
-      return RD_ERROR_INTERNAL;
-  }
+        default:
+            return RD_ERROR_INTERNAL;
+    }
 
-  return RD_SUCCESS;
+    return RD_SUCCESS;
 }
 
 // Start single on command, mark autorefresh with continuous
-rd_status_t ri_adc_mcu_mode_set(uint8_t* mode)
+rd_status_t ri_adc_mcu_mode_set (uint8_t * mode)
 {
-  if(NULL == mode) { return RD_ERROR_NULL; }
+    if (NULL == mode) { return RD_ERROR_NULL; }
 
-  // Enter sleep by default and by explicit sleep commmand
-  if(RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
-  {
-    autorefresh = false;
-    *mode = RD_SENSOR_CFG_SLEEP;
-    return RD_SUCCESS;
-  }
-
-  if(RD_SENSOR_CFG_SINGLE == *mode)
-  {
-    // Do nothing if sensor is in continuous mode
-    uint8_t current_mode;
-    ri_adc_mcu_mode_get(&current_mode);
-
-    if(RD_SENSOR_CFG_CONTINUOUS == current_mode)
+    // Enter sleep by default and by explicit sleep commmand
+    if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
     {
-      *mode = RD_SENSOR_CFG_CONTINUOUS;
-      return RD_ERROR_INVALID_STATE;
+        autorefresh = false;
+        *mode = RD_SENSOR_CFG_SLEEP;
+        return RD_SUCCESS;
     }
 
-    // Enter sleep after measurement
-    autorefresh = false;
-    *mode = RD_SENSOR_CFG_SLEEP;
-    // Global float is updated by sample
-    nrf52832_adc_sample();
-    return RD_SUCCESS;
-  }
+    if (RD_SENSOR_CFG_SINGLE == *mode)
+    {
+        // Do nothing if sensor is in continuous mode
+        uint8_t current_mode;
+        ri_adc_mcu_mode_get (&current_mode);
 
-  if(RD_SENSOR_CFG_CONTINUOUS == *mode)
-  {
-    autorefresh = true;
-    return RD_SUCCESS;
-  }
+        if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
+        {
+            *mode = RD_SENSOR_CFG_CONTINUOUS;
+            return RD_ERROR_INVALID_STATE;
+        }
 
-  return RD_ERROR_INVALID_PARAM;
+        // Enter sleep after measurement
+        autorefresh = false;
+        *mode = RD_SENSOR_CFG_SLEEP;
+        // Global float is updated by sample
+        nrf52832_adc_sample();
+        return RD_SUCCESS;
+    }
+
+    if (RD_SENSOR_CFG_CONTINUOUS == *mode)
+    {
+        autorefresh = true;
+        return RD_SUCCESS;
+    }
+
+    return RD_ERROR_INVALID_PARAM;
 }
 
 
-rd_status_t ri_adc_mcu_mode_get(uint8_t* mode)
+rd_status_t ri_adc_mcu_mode_get (uint8_t * mode)
 {
-  if(NULL == mode) { return RD_ERROR_NULL; }
+    if (NULL == mode) { return RD_ERROR_NULL; }
 
-  if(autorefresh)
-  {
-    *mode = RD_SENSOR_CFG_CONTINUOUS;
-  }
+    if (autorefresh)
+    {
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
+    }
 
-  if(!autorefresh)
-  {
-    *mode = RD_SENSOR_CFG_SLEEP;
-  }
+    if (!autorefresh)
+    {
+        *mode = RD_SENSOR_CFG_SLEEP;
+    }
 
-  return RD_SUCCESS;
+    return RD_SUCCESS;
 }
 
 
-rd_status_t ri_adc_mcu_data_get(rd_sensor_data_t* const
-    p_data)
+rd_status_t ri_adc_mcu_data_get (rd_sensor_data_t * const
+                                 p_data)
 {
-  if(NULL == p_data) { return RD_ERROR_NULL; }
+    if (NULL == p_data) { return RD_ERROR_NULL; }
 
-  if(autorefresh) { nrf52832_adc_sample(); }
+    if (autorefresh) { nrf52832_adc_sample(); }
 
-  p_data->timestamp_ms    = RD_UINT64_INVALID;
+    p_data->timestamp_ms    = RD_UINT64_INVALID;
 
-  if(!isnan(adc_volts))
-  {
-    rd_sensor_data_t d_adc;
-    rd_sensor_data_fields_t adc_fields = {.bitfield = 0};
-    float adc_values[1];
-    adc_values[0] = adc_volts;
-    adc_fields.datas.voltage_v = 1;
-    d_adc.data = adc_values;
-    d_adc.valid  = adc_fields;
-    d_adc.fields = adc_fields;
-    rd_sensor_data_populate(p_data,
-                                      &d_adc,
-                                      p_data->fields);
-    p_data->timestamp_ms = adc_tsample;
-  }
+    if (!isnan (adc_volts))
+    {
+        rd_sensor_data_t d_adc;
+        rd_sensor_data_fields_t adc_fields = {.bitfield = 0};
+        float adc_values[1];
+        adc_values[0] = adc_volts;
+        adc_fields.datas.voltage_v = 1;
+        d_adc.data = adc_values;
+        d_adc.valid  = adc_fields;
+        d_adc.fields = adc_fields;
+        rd_sensor_data_populate (p_data,
+                                 &d_adc,
+                                 p_data->fields);
+        p_data->timestamp_ms = adc_tsample;
+    }
 
-  return RD_SUCCESS;
+    return RD_SUCCESS;
 }
 
 /**
@@ -597,35 +597,35 @@ rd_status_t ri_adc_mcu_data_get(rd_sensor_data_t* const
  * @return error code from stack on other error.
  */
 #if 0
-rd_status_t ri_adc_complex_sample(const
-    ri_adc_sample_t* const sample, ri_adc_data_t* const data)
+rd_status_t ri_adc_complex_sample (const
+                                   ri_adc_sample_t * const sample, ri_adc_data_t * const data)
 {
-  if(NULL == data || NULL == sample) { return RD_ERROR_NULL; }
+    if (NULL == data || NULL == sample) { return RD_ERROR_NULL; }
 
-  if(true == adc_is_init) { return RD_ERROR_INVALID_STATE; }
+    if (true == adc_is_init) { return RD_ERROR_INVALID_STATE; }
 
-  // Initialize ADC
-  nrf_drv_saadc_config_t adc_default = NRF_DRV_SAADC_DEFAULT_CONFIG;
-  memcpy(&adc_config, &adc_default, sizeof(adc_config));
-  uint8_t os = sample->oversamples;
-  adc_config.oversample = uint_to_nrf_os(&os);
-  adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT;
-  ret_code_t err_code = nrf_drv_saadc_init(&adc_config, saadc_event_handler);
-  // Initialize given channel. Only one ADC channel is supported at a time
-  nrf_saadc_channel_config_t ch_config =
-  {
-    \
-    .resistor_p = NRF_SAADC_RESISTOR_DISABLED,                       \
-    .resistor_n = NRF_SAADC_RESISTOR_DISABLED,                       \
-    .gain       = NRF_SAADC_GAIN1_6,                                 \
-    .reference  = NRF_SAADC_REFERENCE_INTERNAL,                      \
-    .acq_time   = NRF_SAADC_ACQTIME_10US,                            \
-    .mode       = (RUUVI_INTERFACE_ADC_AINGND == (sample->negative)) ? NRF_SAADC_MODE_SINGLE_ENDED : NRF_SAADC_MODE_DIFFERENTIAL, \
-    .pin_p      = ruuvi_to_nrf_adc_channel(sample->positive),        \
-    .pin_n      = ruuvi_to_nrf_adc_channel(sample->negative)
-  };
-  nrf_saadc_channel_init(0, &ch_config);
-  return err_code;
+    // Initialize ADC
+    nrf_drv_saadc_config_t adc_default = NRF_DRV_SAADC_DEFAULT_CONFIG;
+    memcpy (&adc_config, &adc_default, sizeof (adc_config));
+    uint8_t os = sample->oversamples;
+    adc_config.oversample = uint_to_nrf_os (&os);
+    adc_config.resolution = NRF_SAADC_RESOLUTION_14BIT;
+    ret_code_t err_code = nrf_drv_saadc_init (&adc_config, saadc_event_handler);
+    // Initialize given channel. Only one ADC channel is supported at a time
+    nrf_saadc_channel_config_t ch_config =
+    {
+        \
+        .resistor_p = NRF_SAADC_RESISTOR_DISABLED,                       \
+        .resistor_n = NRF_SAADC_RESISTOR_DISABLED,                       \
+        .gain       = NRF_SAADC_GAIN1_6,                                 \
+        .reference  = NRF_SAADC_REFERENCE_INTERNAL,                      \
+        .acq_time   = NRF_SAADC_ACQTIME_10US,                            \
+        .mode       = (RUUVI_INTERFACE_ADC_AINGND == (sample->negative)) ? NRF_SAADC_MODE_SINGLE_ENDED : NRF_SAADC_MODE_DIFFERENTIAL, \
+        .pin_p      = ruuvi_to_nrf_adc_channel (sample->positive),        \
+        .pin_n      = ruuvi_to_nrf_adc_channel (sample->negative)
+    };
+    nrf_saadc_channel_init (0, &ch_config);
+    return err_code;
 }
-#endif 
+#endif
 #endif

@@ -128,7 +128,7 @@ void rt_acceleration_scheduler_task (void * p_event_data, uint16_t event_size)
 }
 
 ruuvi_driver_status_t rt_nfc_on_nfc (ruuvi_interface_communication_evt_t evt,
-                                       void * p_data, size_t data_len)
+                                     void * p_data, size_t data_len)
 {
     ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 

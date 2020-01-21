@@ -43,8 +43,8 @@
  * @param[in] p_reg_data pointer to data to be written.
  * @param[in] len length of data to be written.
  **/
-int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t* p_reg_data, uint16_t len);
+int8_t ruuvi_interface_spi_bme280_write (uint8_t dev_id, uint8_t reg_addr,
+        uint8_t * p_reg_data, uint16_t len);
 
 /**
  * @brief SPI Read function for BME280
@@ -57,7 +57,7 @@ int8_t ruuvi_interface_spi_bme280_write(uint8_t dev_id, uint8_t reg_addr,
  * @param[in] p_reg_data pointer to data to be received.
  * @param[in] len length of data to be received.
  **/
-int8_t ruuvi_interface_spi_bme280_read(uint8_t dev_id, uint8_t reg_addr,
-                                       uint8_t* reg_data, uint16_t len);
+int8_t ruuvi_interface_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr,
+                                        uint8_t * reg_data, uint16_t len);
 /** @} */
 #endif

@@ -46,8 +46,8 @@
  * @return 0 on success
  * @return positive number on warning
  **/
-int8_t ruuvi_interface_i2c_bme280_write(uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t* p_reg_data, uint16_t len);
+int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
+        uint8_t * p_reg_data, uint16_t len);
 
 /**
  * @brief I2C Read function for BME280
@@ -63,7 +63,7 @@ int8_t ruuvi_interface_i2c_bme280_write(uint8_t dev_id, uint8_t reg_addr,
  * @return 0 on success
  * @return positive number on warning
  **/
-int8_t ruuvi_interface_i2c_bme280_read(uint8_t dev_id, uint8_t reg_addr,
-                                       uint8_t* reg_data, uint16_t len);
+int8_t ruuvi_interface_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
+                                        uint8_t * reg_data, uint16_t len);
 /** @} */
 #endif

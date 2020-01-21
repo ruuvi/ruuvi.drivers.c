@@ -17,18 +17,18 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 
-ruuvi_driver_status_t ruuvi_interface_communication_id_get(uint64_t* const _id)
+ruuvi_driver_status_t ruuvi_interface_communication_id_get (uint64_t * const _id)
 {
-  uint64_t id = 0;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[0] >> 24) & 0xFF) << 56;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[0] >> 16) & 0xFF) << 48;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[0] >> 8) & 0xFF)  << 40;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[0] >> 0) & 0xFF)  << 32;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[1] >> 24) & 0xFF) << 24;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[1] >> 16) & 0xFF) << 16;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[1] >> 8) & 0xFF)  << 8;
-  id |= (uint64_t)((NRF_FICR->DEVICEID[1] >> 0) & 0xFF)  << 0;
-  *_id = id;
-  return RUUVI_DRIVER_SUCCESS;
+    uint64_t id = 0;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[0] >> 24) & 0xFF) << 56;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[0] >> 16) & 0xFF) << 48;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[0] >> 8) & 0xFF)  << 40;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[0] >> 0) & 0xFF)  << 32;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[1] >> 24) & 0xFF) << 24;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[1] >> 16) & 0xFF) << 16;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[1] >> 8) & 0xFF)  << 8;
+    id |= (uint64_t) ( (NRF_FICR->DEVICEID[1] >> 0) & 0xFF)  << 0;
+    *_id = id;
+    return RUUVI_DRIVER_SUCCESS;
 }
 #endif

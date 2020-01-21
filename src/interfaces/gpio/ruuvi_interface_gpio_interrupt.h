@@ -19,10 +19,10 @@
  */
 typedef enum
 {
-  RI_GPIO_SLOPE_HITOLO, /**<  High to low transition */
-  RI_GPIO_SLOPE_LOTOHI, /**<  Low to high transition */
-  RI_GPIO_SLOPE_TOGGLE, /**<  Any transition */
-  RI_GPIO_SLOPE_UNKNOWN /**<  Error or unknown value. */
+    RI_GPIO_SLOPE_HITOLO, /**<  High to low transition */
+    RI_GPIO_SLOPE_LOTOHI, /**<  Low to high transition */
+    RI_GPIO_SLOPE_TOGGLE, /**<  Any transition */
+    RI_GPIO_SLOPE_UNKNOWN /**<  Error or unknown value. */
 } ri_gpio_slope_t;
 
 /**
@@ -30,13 +30,13 @@ typedef enum
  */
 typedef struct
 {
-  /** @brief @ref ri_gpio_slope_t slope of event */
-  ri_gpio_slope_t slope;
-  /**@brief Pin of the event */
-  ri_gpio_id_t pin;
+    /** @brief @ref ri_gpio_slope_t slope of event */
+    ri_gpio_slope_t slope;
+    /**@brief Pin of the event */
+    ri_gpio_id_t pin;
 } ri_gpio_evt_t;
 
-typedef void(*ri_gpio_interrupt_fp_t)(const ri_gpio_evt_t);
+typedef void (*ri_gpio_interrupt_fp_t) (const ri_gpio_evt_t);
 
 /**
  * @brief Initialize interrupt functionality to GPIO.
@@ -54,22 +54,22 @@ typedef void(*ri_gpio_interrupt_fp_t)(const ri_gpio_evt_t);
  *
  * @return @ref RD_SUCCESS on success, error code on failure.
  */
-rd_status_t ri_gpio_interrupt_init(
-  ri_gpio_interrupt_fp_t* const interrupt_table, const uint16_t max_interrupts);
+rd_status_t ri_gpio_interrupt_init (
+    ri_gpio_interrupt_fp_t * const interrupt_table, const uint16_t max_interrupts);
 
 /**
  * @brief Uninitialize interrupt functionality of GPIO.
  *
  * @return @ref RD_SUCCESS on success, error code on failure.
  */
-rd_status_t ri_gpio_interrupt_uninit(void);
+rd_status_t ri_gpio_interrupt_uninit (void);
 
 /**
  * @brief Check if interrupt module is initialized
  *
  * @return @c true if module is initialized, false otherwise
  */
-bool ri_gpio_interrupt_is_init(void);
+bool ri_gpio_interrupt_is_init (void);
 
 /**
  * @brief Enable interrupt on a pin.
@@ -96,11 +96,11 @@ bool ri_gpio_interrupt_is_init(void);
  * @return @ref RD_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-rd_status_t ri_gpio_interrupt_enable(const
-    ri_gpio_id_t pin,
-    const ri_gpio_slope_t slope,
-    const ri_gpio_mode_t mode,
-    const ri_gpio_interrupt_fp_t handler);
+rd_status_t ri_gpio_interrupt_enable (const
+                                      ri_gpio_id_t pin,
+                                      const ri_gpio_slope_t slope,
+                                      const ri_gpio_mode_t mode,
+                                      const ri_gpio_interrupt_fp_t handler);
 
 /**
  * @brief Disable interrupt on a pin.
@@ -111,8 +111,8 @@ rd_status_t ri_gpio_interrupt_enable(const
  *
  * @return @ref RD_SUCCESS on success, error code on failure.
  */
-rd_status_t ri_gpio_interrupt_disable(const
-    ri_gpio_id_t pin);
+rd_status_t ri_gpio_interrupt_disable (const
+                                       ri_gpio_id_t pin);
 
 /*@}*/
 

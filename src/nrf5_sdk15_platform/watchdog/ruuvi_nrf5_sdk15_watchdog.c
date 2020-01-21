@@ -53,12 +53,12 @@ nrf_drv_wdt_channel_id m_channel_id;
 /**
  * @brief WDT events handler.
  */
-void wdt_event_handler(void)
+void wdt_event_handler (void)
 {
-  //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
-  ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
+    //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
+    ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
 
-  while(1);
+    while (1);
 }
 
 /**
@@ -71,25 +71,25 @@ void wdt_event_handler(void)
  *
  * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_watchdog_init(uint32_t interval)
+ruuvi_driver_status_t ruuvi_interface_watchdog_init (uint32_t interval)
 {
-  uint32_t err_code = NRF_SUCCESS;
-  nrf_drv_wdt_config_t config = NRF_DRV_WDT_DEAFULT_CONFIG;
-  config.reload_value = interval;
-  err_code = nrf_drv_wdt_init(&config, wdt_event_handler);
-  err_code = nrf_drv_wdt_channel_alloc(&m_channel_id);
-  nrf_drv_wdt_enable();
-  return ruuvi_nrf5_sdk15_to_ruuvi_error(err_code);
+    uint32_t err_code = NRF_SUCCESS;
+    nrf_drv_wdt_config_t config = NRF_DRV_WDT_DEAFULT_CONFIG;
+    config.reload_value = interval;
+    err_code = nrf_drv_wdt_init (&config, wdt_event_handler);
+    err_code = nrf_drv_wdt_channel_alloc (&m_channel_id);
+    nrf_drv_wdt_enable();
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
 /**
  * "Feed" the watchdog, resets the watchdog timer.
  * This must be called after watchdog initialization or the program will reset.
  */
-ruuvi_driver_status_t ruuvi_interface_watchdog_feed(void)
+ruuvi_driver_status_t ruuvi_interface_watchdog_feed (void)
 {
-  nrf_drv_wdt_channel_feed(m_channel_id);
-  return RUUVI_DRIVER_SUCCESS;
+    nrf_drv_wdt_channel_feed (m_channel_id);
+    return RUUVI_DRIVER_SUCCESS;
 }
 
 #endif

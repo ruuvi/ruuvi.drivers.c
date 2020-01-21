@@ -14,7 +14,7 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Ruuvi sensor interface <b>Lifecycle: Beta</b>
  *
- *  
+ *
  *
  * Common interface to all Ruuvi Sensors
  * Every sensor must implement these functions:
@@ -95,77 +95,82 @@
 /**
  * @brief All sensors must implement configuration functions which accepts this struct.
  */
-typedef struct __attribute__((packed, aligned(4)))
+typedef struct __attribute__ ( (packed, aligned (4)))
 {
-  uint8_t samplerate;     //!< Samplerate, in Hz
-  uint8_t resolution;     //!< Resolution, in bits
-  uint8_t scale;          //!< Scale, in relevant Si-unit
-  uint8_t dsp_function;   //!< DSP function, one of @c RD_SENSOR_DSP_*
-  uint8_t dsp_parameter;  //!< Parameter to DSP functions
-  uint8_t mode;           //!< Mode, RD_SENSOR_SLEEP, _SINGLE, _CONTINOUS
-  uint8_t reserved0;      //!< Reserved for future use
-  uint8_t reserved1;      //!< Reserved for future use
-}rd_sensor_configuration_t;
+    uint8_t samplerate;     //!< Samplerate, in Hz
+    uint8_t resolution;     //!< Resolution, in bits
+    uint8_t scale;          //!< Scale, in relevant Si-unit
+    uint8_t dsp_function;   //!< DSP function, one of @c RD_SENSOR_DSP_*
+    uint8_t dsp_parameter;  //!< Parameter to DSP functions
+    uint8_t mode;           //!< Mode, RD_SENSOR_SLEEP, _SINGLE, _CONTINOUS
+    uint8_t reserved0;      //!< Reserved for future use
+    uint8_t reserved1;      //!< Reserved for future use
+}
+rd_sensor_configuration_t;
 
 /**
  * @brief Type of bus sensor uses.
  */
 typedef enum
 {
-  RD_BUS_NONE = 0, //!< No bus, internal to IC
-  RD_BUS_SPI  = 1, //!< SPI bus
-  RD_BUS_I2C  = 2, //!< I2C bus
-  RD_BUS_UART = 3, //!< UART bus
-  RD_BUS_PDM  = 4, //!< PDM bus
-  RD_BUS_FAIL = 5  //!< Test behaviour on invalid bus with this value.
+    RD_BUS_NONE = 0, //!< No bus, internal to IC
+    RD_BUS_SPI  = 1, //!< SPI bus
+    RD_BUS_I2C  = 2, //!< I2C bus
+    RD_BUS_UART = 3, //!< UART bus
+    RD_BUS_PDM  = 4, //!< PDM bus
+    RD_BUS_FAIL = 5  //!< Test behaviour on invalid bus with this value.
 } rd_bus_t;
 
 /**
  * @brief Bitfield to describe related sensor data
  */
-typedef struct{
-  unsigned int acceleration_x_g : 1; //!< Acceleration along X-axis, gravities.
-  unsigned int acceleration_y_g : 1; //!< Acceleration along Y-axis, gravities.
-  unsigned int acceleration_z_g : 1; //!< Acceleration along Z-axis, gravities.
-  unsigned int co2_ppm : 1;          //!< CO2, Parts per million.
-  unsigned int gyro_x_dps : 1;       //!< Rotation along X-axis, degrees per second.
-  unsigned int gyro_y_dps : 1;       //!< Rotation along Y-axis, degrees per second.
-  unsigned int gyro_z_dps : 1;       //!< Rotation along Z-axis, degrees per second.
-  unsigned int humidity_rh :1;       //!< Relative humidity, %.
-  unsigned int luminosity  :1;       //!< Light level, dimensionless. Comparable only between identical devices.
-  unsigned int magnetometer_x_g : 1; //!< Magnetic flux along X-axis, Gauss.
-  unsigned int magnetometer_y_g : 1; //!< Magnetic flux along Y-axis, Gauss.
-  unsigned int magnetometer_z_g : 1; //!< Magnetic flux along Z-axis, Gauss.
-  unsigned int pm_1_ugm3 : 1;        //!< Ultra-fine particulate matter, microgram per m^3.
-  unsigned int pm_2_ugm3 : 1;        //!< Fine particulate matter, microgram per m^3.
-  unsigned int pm_4_ugm3 : 1;        //!< Medium particulate matter, microgram per m^3.
-  unsigned int pm_10_ugm3 : 1;       //!< Coarse particulate matter, microgram per m^3.
-  unsigned int pressure_pa :1;       //!< Pressure, pascals
-  unsigned int spl_dbz : 1;          //!< Unweighted sound pressure level.
-  unsigned int temperature_c :1;     //!< Temperature, celcius
-  unsigned int voc_ppm : 1;          //!< Volatile organic compounds, parts per million.
-  unsigned int voltage_v : 1;        //!< Voltage, volts. 
-  unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
-}rd_sensor_data_bitfield_t;
+typedef struct
+{
+    unsigned int acceleration_x_g : 1; //!< Acceleration along X-axis, gravities.
+    unsigned int acceleration_y_g : 1; //!< Acceleration along Y-axis, gravities.
+    unsigned int acceleration_z_g : 1; //!< Acceleration along Z-axis, gravities.
+    unsigned int co2_ppm : 1;          //!< CO2, Parts per million.
+    unsigned int gyro_x_dps : 1;       //!< Rotation along X-axis, degrees per second.
+    unsigned int gyro_y_dps : 1;       //!< Rotation along Y-axis, degrees per second.
+    unsigned int gyro_z_dps : 1;       //!< Rotation along Z-axis, degrees per second.
+    unsigned int humidity_rh : 1;      //!< Relative humidity, %.
+unsigned int luminosity  :
+    1;      //!< Light level, dimensionless. Comparable only between identical devices.
+    unsigned int magnetometer_x_g : 1; //!< Magnetic flux along X-axis, Gauss.
+    unsigned int magnetometer_y_g : 1; //!< Magnetic flux along Y-axis, Gauss.
+    unsigned int magnetometer_z_g : 1; //!< Magnetic flux along Z-axis, Gauss.
+    unsigned int pm_1_ugm3 : 1;        //!< Ultra-fine particulate matter, microgram per m^3.
+    unsigned int pm_2_ugm3 : 1;        //!< Fine particulate matter, microgram per m^3.
+    unsigned int pm_4_ugm3 : 1;        //!< Medium particulate matter, microgram per m^3.
+    unsigned int pm_10_ugm3 : 1;       //!< Coarse particulate matter, microgram per m^3.
+    unsigned int pressure_pa : 1;      //!< Pressure, pascals
+    unsigned int spl_dbz : 1;          //!< Unweighted sound pressure level.
+    unsigned int temperature_c : 1;    //!< Temperature, celcius
+    unsigned int voc_ppm : 1;          //!< Volatile organic compounds, parts per million.
+    unsigned int voltage_v : 1;        //!< Voltage, volts.
+    unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
+} rd_sensor_data_bitfield_t;
 
-typedef union{
-  uint32_t bitfield;
-  rd_sensor_data_bitfield_t datas;
-}rd_sensor_data_fields_t;
+typedef union
+{
+    uint32_t bitfield;
+    rd_sensor_data_bitfield_t datas;
+} rd_sensor_data_fields_t;
 
 /**
- * @brief Generic sensor data struct. 
+ * @brief Generic sensor data struct.
  */
 typedef struct rd_sensor_data_t
 {
-  uint64_t timestamp_ms;          //!< Timestamp of the event, @ref rd_sensor_timestamp_get.
-  rd_sensor_data_fields_t fields; //!< Description of datafields which may be contained in this sample.
-  rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample. 
-  float* data;                    //!< Data of sensor. 
+    uint64_t timestamp_ms;          //!< Timestamp of the event, @ref rd_sensor_timestamp_get.
+    rd_sensor_data_fields_t
+    fields; //!< Description of datafields which may be contained in this sample.
+    rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample.
+    float * data;                   //!< Data of sensor.
 } rd_sensor_data_t;
 
 /** @brief Forward declare type definition of sensor structure */
-typedef struct rd_sensor_t rd_sensor_t; 
+typedef struct rd_sensor_t rd_sensor_t;
 
 /**
  * @brief Initialize and uninitialize sensor.
@@ -180,11 +185,11 @@ typedef struct rd_sensor_t rd_sensor_t;
  * @return @c RD_ERROR_NOT_FOUND if there is no response from sensor or if ID of
  *            a sensor read over bus does not match expected value
  * @return @c RD_ERROR_SELFTEST if sensor is found but it does not pass selftest
- * @return @c RD_ERROR_INVALID_STATE if trying to initialize sensor which 
+ * @return @c RD_ERROR_INVALID_STATE if trying to initialize sensor which
  *            already has been initialized.
  **/
-typedef rd_status_t (*rd_sensor_init_fp)(rd_sensor_t* const
-    p_sensor, const rd_bus_t bus, const uint8_t handle);
+typedef rd_status_t (*rd_sensor_init_fp) (rd_sensor_t * const
+        p_sensor, const rd_bus_t bus, const uint8_t handle);
 
 /**
  *  @brief Setup a parameter of a sensor.
@@ -196,7 +201,7 @@ typedef rd_status_t (*rd_sensor_init_fp)(rd_sensor_t* const
  *  @return RD_ERROR_NOT_SUPPORTED if sensor cannot support given parameter
  *  @return RD_ERROR_NOT_IMPLEMENTED if the sensor could support parameter, but it's not implemented in fw.
  **/
-typedef rd_status_t (*rd_sensor_setup_fp)(uint8_t* parameter);
+typedef rd_status_t (*rd_sensor_setup_fp) (uint8_t * parameter);
 
 /**
  * @brief Configure sensor digital signal processing.
@@ -213,8 +218,8 @@ typedef rd_status_t (*rd_sensor_setup_fp)(uint8_t* parameter);
  *         driver does not implement it
  * @return RD_ERROR_INVALID_PARAM if parameter is invalid for any reason.
  **/
-typedef rd_status_t (*rd_sensor_dsp_fp)(uint8_t* dsp_function,
-    uint8_t* dsp_parameter);
+typedef rd_status_t (*rd_sensor_dsp_fp) (uint8_t * dsp_function,
+        uint8_t * dsp_parameter);
 
 /**
  * @brief Read latest data from sensor registers
@@ -226,28 +231,28 @@ typedef rd_status_t (*rd_sensor_dsp_fp)(uint8_t* dsp_function,
  * @return RD_SUCCESS on success
  * @return RD_ERROR_NULL if p_data is @c NULL.
  *
- * @warning if sensor data is not valid for any reason, data is populated with 
+ * @warning if sensor data is not valid for any reason, data is populated with
  *          @c RD_FLOAT_INVALID.
  */
-typedef rd_status_t (*rd_sensor_data_fp)(rd_sensor_data_t* const p_data);
+typedef rd_status_t (*rd_sensor_data_fp) (rd_sensor_data_t * const p_data);
 
 /**
  * @brief Convenience function to write/read entire configuration in one call.
  * Modifies input parameters to actual values written on the sensor.
  *
  * @param[in] p_sensor sensor to configure
- * @param[in,out] p_configuration Input: desired configuration. Output: 
+ * @param[in,out] p_configuration Input: desired configuration. Output:
  *                configuration written to sensot.
  **/
-typedef rd_status_t (*rd_configuration_fp)(
-  const rd_sensor_t* const p_sensor,
-  rd_sensor_configuration_t* const p_configuration);
+typedef rd_status_t (*rd_configuration_fp) (
+    const rd_sensor_t * const p_sensor,
+    rd_sensor_configuration_t * const p_configuration);
 
 /**
 * @brief Read First-in-first-out (FIFO) buffer
 * Reads up to num_elements data points from FIFO and populates pointer data with them
 *
-* @param[in, out] num_elements Input: number of elements in data. 
+* @param[in, out] num_elements Input: number of elements in data.
                                Output: Number of elements placed in data
 * @param[out] data array of ruuvi_interface_acceleration_data_t with num_elements slots.
 * @return RD_SUCCESS on success
@@ -255,33 +260,33 @@ typedef rd_status_t (*rd_configuration_fp)(
 * @return RD_ERROR_INVALID_STATE if FIFO is not in use
 * @return error code from stack on error.
 */
-typedef rd_status_t (*rd_sensor_fifo_read_fp)(size_t* const num_elements,
-    rd_sensor_data_t* const data);
+typedef rd_status_t (*rd_sensor_fifo_read_fp) (size_t * const num_elements,
+        rd_sensor_data_t * const data);
 
 /**
 * @brief Enable FIFO or FIFO interrupt full interrupt on sensor.
-* FIFO interrupt Triggers an interrupt once FIFO is filled. 
+* FIFO interrupt Triggers an interrupt once FIFO is filled.
 * It is responsibility of application to know the routing of and polarity of GPIO pins and
 * configure the GPIO to register interrupts.
 *
 * @param[in] enable True to enable interrupt, false to disable interrupt
 * @return RD_SUCCESS on success, error code from stack otherwise.
 **/
-typedef rd_status_t (*rd_sensor_fifo_enable_fp)(const bool enable);
+typedef rd_status_t (*rd_sensor_fifo_enable_fp) (const bool enable);
 
 /**
 * @brief Enable level interrupt on sensor.
 * Triggers as ACTIVE HIGH interrupt while detected data is above threshold.
-* Trigger is symmetric, i.e. thershold is valid for above positive or below negative 
+* Trigger is symmetric, i.e. thershold is valid for above positive or below negative
 * of given value.
 * On accelerometer data is high-passed to filter out gravity.
 * Axes are examined individually, compound data won't trigger the interrupt.
 * It is responsibility of application to know the GPIO routing and register
-* GPIO interrupts. 
+* GPIO interrupts.
 *
 * @param[in] enable  True to enable interrupt, false to disable interrupt
 * @param[in,out] limit_g: Input: Desired acceleration to trigger the interrupt.
-*                         Is considered as "at least", the acceleration is rounded up to 
+*                         Is considered as "at least", the acceleration is rounded up to
 *                         next value.
 *                         Output: written with value that was set to interrupt
 * @return RD_SUCCESS on success
@@ -289,8 +294,8 @@ typedef rd_status_t (*rd_sensor_fifo_enable_fp)(const bool enable);
 * @return error code from stack on error.
 *
 */
-typedef rd_status_t (*rd_sensor_level_interrupt_use_fp)(const bool enable,
-    float* limit_g);
+typedef rd_status_t (*rd_sensor_level_interrupt_use_fp) (const bool enable,
+        float * limit_g);
 
 /**
  * @brief Return number of milliseconds since the start of RTC.
@@ -298,7 +303,7 @@ typedef rd_status_t (*rd_sensor_level_interrupt_use_fp)(const bool enable,
  * @return milliseconds since start of RTC.
  * @return RD_UINT64T_INVALID if RTC is not running
  */
-typedef uint64_t (*rd_sensor_timestamp_fp)(void);
+typedef uint64_t (*rd_sensor_timestamp_fp) (void);
 
 /**
  * @brief Interface to sensor.
@@ -307,61 +312,61 @@ typedef uint64_t (*rd_sensor_timestamp_fp)(void);
  */
 typedef struct rd_sensor_t
 {
-  /** @brief sensor human-readable name. Should be at most 8 bytes long. */
-  const char* name;
-  /** @brief Description of data fields the sensor is able to provide. */
-  rd_sensor_data_fields_t provides;
-  /** @brief @ref rd_sensor_init_fp */
-  rd_sensor_init_fp   init;  
-  /** @brief @ref rd_sensor_init_fp */            
-  rd_sensor_init_fp   uninit;            
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp samplerate_set; 
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp samplerate_get;
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp resolution_set;
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp resolution_get;
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp scale_set;
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp scale_get;
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp mode_set;
-  /** @brief @ref rd_sensor_setup_fp */
-  rd_sensor_setup_fp mode_get;
-  /** @brief @ref rd_sensor_dsp_fp */
-  rd_sensor_dsp_fp   dsp_set;
-  /** @brief @ref rd_sensor_dsp_fp */
-  rd_sensor_dsp_fp   dsp_get;
-  /** @brief @ref rd_configuration_fp */
-  rd_configuration_fp configuration_set;
-  /** @brief @ref rd_configuration_fp */
-  rd_configuration_fp configuration_get;
-  /** @brief @ref rd_sensor_data_fp */
-  rd_sensor_data_fp   data_get;        
-  /** @brief @®ef rd_sensor_fifo_enable_fp */
-  rd_sensor_fifo_enable_fp fifo_enable;
-  /** @brief @®ef rd_sensor_level_interrupt_use_fp */
-  rd_sensor_fifo_enable_fp fifo_interrupt_enable;
-  /** @brief @®ef rd_sensor_level_interrupt_use_fp */
-  rd_sensor_fifo_read_fp   fifo_read;
-  /** @brief @®ef rd_sensor_level_interrupt_use_fp */
-  rd_sensor_level_interrupt_use_fp level_interrupt_set;
+    /** @brief sensor human-readable name. Should be at most 8 bytes long. */
+    const char * name;
+    /** @brief Description of data fields the sensor is able to provide. */
+    rd_sensor_data_fields_t provides;
+    /** @brief @ref rd_sensor_init_fp */
+    rd_sensor_init_fp   init;
+    /** @brief @ref rd_sensor_init_fp */
+    rd_sensor_init_fp   uninit;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp samplerate_set;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp samplerate_get;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp resolution_set;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp resolution_get;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp scale_set;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp scale_get;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp mode_set;
+    /** @brief @ref rd_sensor_setup_fp */
+    rd_sensor_setup_fp mode_get;
+    /** @brief @ref rd_sensor_dsp_fp */
+    rd_sensor_dsp_fp   dsp_set;
+    /** @brief @ref rd_sensor_dsp_fp */
+    rd_sensor_dsp_fp   dsp_get;
+    /** @brief @ref rd_configuration_fp */
+    rd_configuration_fp configuration_set;
+    /** @brief @ref rd_configuration_fp */
+    rd_configuration_fp configuration_get;
+    /** @brief @ref rd_sensor_data_fp */
+    rd_sensor_data_fp   data_get;
+    /** @brief @®ef rd_sensor_fifo_enable_fp */
+    rd_sensor_fifo_enable_fp fifo_enable;
+    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    rd_sensor_fifo_enable_fp fifo_interrupt_enable;
+    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    rd_sensor_fifo_read_fp   fifo_read;
+    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    rd_sensor_level_interrupt_use_fp level_interrupt_set;
 } rd_sensor_t;
 
 /**
  * @brief implementation of ref rd_configuration_fp
  */
-rd_status_t rd_sensor_configuration_set(const rd_sensor_t*
-    sensor, rd_sensor_configuration_t* config);
+rd_status_t rd_sensor_configuration_set (const rd_sensor_t *
+        sensor, rd_sensor_configuration_t * config);
 
 /**
  * @brief implementation of ref rd_configuration_fp
  */
-rd_status_t rd_sensor_configuration_get(const rd_sensor_t*
-    sensor, rd_sensor_configuration_t* config);
+rd_status_t rd_sensor_configuration_get (const rd_sensor_t *
+        sensor, rd_sensor_configuration_t * config);
 
 /**
  * @brief Setup timestamping
@@ -370,54 +375,54 @@ rd_status_t rd_sensor_configuration_get(const rd_sensor_t*
  * @param[in] timestamp_fp Function pointer to @ref rd_sensor_timestamp_fp implementation
  * @return RD_SUCCESS
  */
-rd_status_t rd_sensor_timestamp_function_set(
-  const rd_sensor_timestamp_fp  timestamp_fp);
+rd_status_t rd_sensor_timestamp_function_set (
+    const rd_sensor_timestamp_fp  timestamp_fp);
 
 /**
  * @brief Calls the timestamp function and returns its value.
  * @return milliseconds since the start of RTC
  * @return RD_UINT64_INVALID if timestamp function is NULL
  */
-uint64_t rd_sensor_timestamp_get(void);
+uint64_t rd_sensor_timestamp_get (void);
 
 /**
  * @brief Initialize sensor struct with non-null pointers which return RD_ERROR_NOT_INITIALIZED
  *
  * @param[out] p_sensor pointer to sensor struct to initialize.
  */
-void rd_sensor_initialize(rd_sensor_t* const p_sensor);
+void rd_sensor_initialize (rd_sensor_t * const p_sensor);
 
 /**
- * @brief Mark sensor as uninitialized by calling the generic initialization. 
+ * @brief Mark sensor as uninitialized by calling the generic initialization.
  *
  * @param[out] p_sensor pointer to sensor struct to uninitialize.
  */
-void rd_sensor_uninitialize(rd_sensor_t* const p_sensor);
+void rd_sensor_uninitialize (rd_sensor_t * const p_sensor);
 
 /**
- * @brief Check if given sensor structure is already initialized. 
+ * @brief Check if given sensor structure is already initialized.
  *
  * @param[in] sensor Sensor interface to check.
  * @return true if structure is initialized, false otherwise.
  */
-bool rd_sensor_is_init(const rd_sensor_t* const sensor);
+bool rd_sensor_is_init (const rd_sensor_t * const sensor);
 
-/** 
- * @brief Populate given target data with data provided by sensor as requested. 
+/**
+ * @brief Populate given target data with data provided by sensor as requested.
  *
  * This function looks up the appropriate assigments on each data field in given target
  * and populates it with provided data if caller requested the field to be populated.
- * Populated fields are marked as valid. 
+ * Populated fields are marked as valid.
  *
  * @param[out] target Data to be populated.
  * @param[in]  provided Data provided by sensor.
- * @param[in]  requested Fields to be filled if possible. 
+ * @param[in]  requested Fields to be filled if possible.
  */
-void rd_sensor_data_populate(rd_sensor_data_t* const target,
-                                       const rd_sensor_data_t* const provided,
-                                       const rd_sensor_data_fields_t requested);
+void rd_sensor_data_populate (rd_sensor_data_t * const target,
+                              const rd_sensor_data_t * const provided,
+                              const rd_sensor_data_fields_t requested);
 
-/** 
+/**
  * @brief Parse data from provided struct
  *
  * This function looks up the appropriate assigments on each data field in given target
@@ -426,35 +431,35 @@ void rd_sensor_data_populate(rd_sensor_data_t* const target,
  * @param[out] target Data to be populated.
  * @param[in]  provided Data provided by sensor.
  * @param[in]  requested Data to be parsed if possible
- * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't have a valid value. 
+ * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't have a valid value.
  */
-float rd_sensor_data_parse(const rd_sensor_data_t* const provided,
-                                     const rd_sensor_data_fields_t requested);
+float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
+                            const rd_sensor_data_fields_t requested);
 
-/** 
+/**
  * @brief count number of floats required for this data structure
  *
  * This function looks up the appropriate assigments on each data field in given target
  * and populates it with provided data if caller requested the field to be populated.
  *
  * @param[in]  target Structure to count number of fields from.
- * @return     Number of floats required to store the sensor data. 
+ * @return     Number of floats required to store the sensor data.
  */
-uint8_t rd_sensor_data_fieldcount(const rd_sensor_data_t* const target);
+uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target);
 
-/** 
+/**
  * @brief Set a desired value to target data.
  *
  * This function looks up the appropriate assigments on each data field in given target
  * and populates it with provided data. Does nothing if there is no appropriate slot
  * in target data.
  *
- * @param[in]  target 
- * @param[in]  field  Quantity to set, exactly one must be set to true. 
+ * @param[in]  target
+ * @param[in]  field  Quantity to set, exactly one must be set to true.
  * @param[in]  value  Value of quantity
  */
-void rd_sensor_data_set(rd_sensor_data_t* const target,
-                                  const rd_sensor_data_fields_t field,
-                                  const float value);
+void rd_sensor_data_set (rd_sensor_data_t * const target,
+                         const rd_sensor_data_fields_t field,
+                         const float value);
 /*@}*/
 #endif

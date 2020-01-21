@@ -45,32 +45,32 @@
  * @endcode
  */
 /** @brief @ref ruuvi_driver_sensor_init_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_init(ruuvi_driver_sensor_t*
-    environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_shtcx_init (ruuvi_driver_sensor_t *
+        environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
 /** @brief @ref ruuvi_driver_sensor_init_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_uninit(ruuvi_driver_sensor_t*
-    environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
+ruuvi_driver_status_t ruuvi_interface_shtcx_uninit (ruuvi_driver_sensor_t *
+        environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_samplerate_set(uint8_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_shtcx_samplerate_set (uint8_t * samplerate);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_samplerate_get(uint8_t* samplerate);
+ruuvi_driver_status_t ruuvi_interface_shtcx_samplerate_get (uint8_t * samplerate);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_resolution_set(uint8_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_shtcx_resolution_set (uint8_t * resolution);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_resolution_get(uint8_t* resolution);
+ruuvi_driver_status_t ruuvi_interface_shtcx_resolution_get (uint8_t * resolution);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_scale_set(uint8_t* scale);
+ruuvi_driver_status_t ruuvi_interface_shtcx_scale_set (uint8_t * scale);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_scale_get(uint8_t* scale);
+ruuvi_driver_status_t ruuvi_interface_shtcx_scale_get (uint8_t * scale);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_dsp_set(uint8_t* dsp, uint8_t* parameter);
-ruuvi_driver_status_t ruuvi_interface_shtcx_dsp_get(uint8_t* dsp, uint8_t* parameter);
+ruuvi_driver_status_t ruuvi_interface_shtcx_dsp_set (uint8_t * dsp, uint8_t * parameter);
+ruuvi_driver_status_t ruuvi_interface_shtcx_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_mode_set(uint8_t*);
+ruuvi_driver_status_t ruuvi_interface_shtcx_mode_set (uint8_t *);
 /** @brief @ref ruuvi_driver_sensor_setup_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_mode_get(uint8_t*);
+ruuvi_driver_status_t ruuvi_interface_shtcx_mode_get (uint8_t *);
 /** @brief @ref ruuvi_driver_sensor_data_fp */
-ruuvi_driver_status_t ruuvi_interface_shtcx_data_get(ruuvi_driver_sensor_data_t* const
-    p_data);
+ruuvi_driver_status_t ruuvi_interface_shtcx_data_get (ruuvi_driver_sensor_data_t * const
+        p_data);
 /*@}*/
 #endif

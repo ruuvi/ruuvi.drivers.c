@@ -25,9 +25,9 @@
  * @return RUUVI_DRIVER_SUCCESS on success
  * @return RUUVI_DRIVER_ERROR_TIMEOUT if device does not respond on bus
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_write(const uint8_t dev_id,
-    const uint8_t reg_addr,
-    const uint16_t reg_val);
+ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_write (const uint8_t dev_id,
+        const uint8_t reg_addr,
+        const uint16_t reg_val);
 
 /**
  * @brief I2C Read function for TMP117
@@ -40,9 +40,9 @@ ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_write(const uint8_t dev_id,
  * @return RUUVI_DRIVER_SUCCESS on success
  * @return RUUVI_DRIVER_ERROR_TIMEOUT if device does not respond on bus
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_read(const uint8_t dev_id,
-    const uint8_t reg_addr,
-    uint16_t* const reg_val);
+ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_read (const uint8_t dev_id,
+        const uint8_t reg_addr,
+        uint16_t * const reg_val);
 
 /*@}*/
 #endif

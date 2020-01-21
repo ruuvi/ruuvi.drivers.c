@@ -65,8 +65,8 @@ typedef uint32_t rd_status_t; ///< bitfield for representing errors
  * @param[in] p_file file from which function was called
  * @param[in] line line from which the function was called
  **/
-void rd_error_check(const rd_status_t error,
-                              const rd_status_t non_fatal_mask, const char* p_file, const int line);
+void rd_error_check (const rd_status_t error,
+                     const rd_status_t non_fatal_mask, const char * p_file, const int line);
 
 /**
  * @brief Shorthand macro for calling the @ref rd_error_check with current file & line
@@ -88,26 +88,26 @@ void rd_error_check(const rd_status_t error,
  */
 rd_status_t rd_errors_clear();
 
-/* @brief Application callback on error 
+/* @brief Application callback on error
  *
- * If this callback is set, it will get called on error. 
+ * If this callback is set, it will get called on error.
  *
  * @param[in] error Type of error
  * @param[in] fatal True if error is considered non-recoverable
  * @param[in] file  Pointer to name of file where error occured
  * @param[in] line  line where error occured
  */
-typedef void (*rd_error_cb)(const rd_status_t error,
-                                      const bool fatal, 
-                                      const char* file, 
-                                      const int line);
+typedef void (*rd_error_cb) (const rd_status_t error,
+                             const bool fatal,
+                             const char * file,
+                             const int line);
 
 /**
  * @brief Configure application callback for errors
  *
  * @param[in] cb Callback on error, NULL to clear callback
  */
-void rd_error_cb_set(rd_error_cb cb);
+void rd_error_cb_set (rd_error_cb cb);
 
 /** @} */
 #endif

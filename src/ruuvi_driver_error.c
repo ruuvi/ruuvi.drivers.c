@@ -24,51 +24,53 @@ static rd_status_t m_errors = RD_SUCCESS;
 /** Application callback on errors **/
 static rd_error_cb m_cb;
 
-void rd_error_check(rd_status_t error,
-                              rd_status_t non_fatal_mask, const char* file, int line)
+void rd_error_check (rd_status_t error,
+                     rd_status_t non_fatal_mask, const char * file, int line)
 {
-  // Do nothing on success
-  if(RD_SUCCESS == error) { return; }
-  m_errors |= error;
-  char message[RD_LOG_BUFFER_SIZE];
-  size_t index = 0;
-  bool fatal = ~non_fatal_mask & error;
-  // Cut out the full path
-  const char* filename = strrchr(file, '/');
+    // Do nothing on success
+    if (RD_SUCCESS == error) { return; }
 
-  // If on Windows
-  if(NULL == filename) { filename = strrchr(file, '\\'); }
+    m_errors |= error;
+    char message[RD_LOG_BUFFER_SIZE];
+    size_t index = 0;
+    bool fatal = ~non_fatal_mask & error;
+    // Cut out the full path
+    const char * filename = strrchr (file, '/');
 
-  // In case the file was already only the name
-  if(NULL == filename) { filename = file; }
-  // Otherwise skip the slash
-  else { filename++; }
+    // If on Windows
+    if (NULL == filename) { filename = strrchr (file, '\\'); }
 
-  // Reset on fatal error
-  if(fatal)
-  {
-    index += snprintf(message, sizeof(message), "%s:%d FATAL: ", filename, line);
-    index += ri_error_to_string(error, (message + index),
-             (sizeof(message) - index));
-    snprintf((message + index), (sizeof(message) - index), "\r\n");
-    ri_log_flush();
-    ri_log(RI_LOG_LEVEL_ERROR, message);
-    ri_log_flush();
-  }
-  // Log non-fatal errors
-  else if(RD_SUCCESS != error)
-  {
-    index += snprintf(message, sizeof(message), "%s:%d WARNING: ", filename, line);
-    index += ri_error_to_string(error, (message + index),
-             (sizeof(message) - index));
-    snprintf((message + index), (sizeof(message) - index), "\r\n");
-    ri_log(RI_LOG_LEVEL_WARNING, message);
-  }
-  // Call error callback
-  if(RD_SUCCESS != error && NULL != m_cb) 
-  {
-    m_cb(error, fatal, filename, line);
-  }
+    // In case the file was already only the name
+    if (NULL == filename) { filename = file; }
+    // Otherwise skip the slash
+    else { filename++; }
+
+    // Reset on fatal error
+    if (fatal)
+    {
+        index += snprintf (message, sizeof (message), "%s:%d FATAL: ", filename, line);
+        index += ri_error_to_string (error, (message + index),
+                                     (sizeof (message) - index));
+        snprintf ( (message + index), (sizeof (message) - index), "\r\n");
+        ri_log_flush();
+        ri_log (RI_LOG_LEVEL_ERROR, message);
+        ri_log_flush();
+    }
+    // Log non-fatal errors
+    else if (RD_SUCCESS != error)
+    {
+        index += snprintf (message, sizeof (message), "%s:%d WARNING: ", filename, line);
+        index += ri_error_to_string (error, (message + index),
+                                     (sizeof (message) - index));
+        snprintf ( (message + index), (sizeof (message) - index), "\r\n");
+        ri_log (RI_LOG_LEVEL_WARNING, message);
+    }
+
+    // Call error callback
+    if (RD_SUCCESS != error && NULL != m_cb)
+    {
+        m_cb (error, fatal, filename, line);
+    }
 }
 
 /*
@@ -78,14 +80,14 @@ void rd_error_check(rd_status_t error,
  */
 rd_status_t rd_errors_clear()
 {
-  rd_status_t errors = m_errors;
-  m_errors = RD_SUCCESS;
-  return errors;
+    rd_status_t errors = m_errors;
+    m_errors = RD_SUCCESS;
+    return errors;
 }
 
-void rd_error_cb_set(rd_error_cb cb)
+void rd_error_cb_set (rd_error_cb cb)
 {
-  m_cb = cb;
+    m_cb = cb;
 }
 
 /** @} */

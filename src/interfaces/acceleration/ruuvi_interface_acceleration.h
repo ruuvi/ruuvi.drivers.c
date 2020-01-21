@@ -18,8 +18,8 @@
 
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_INTERFACE_ACCELERATION_ENABLED || DOXYGEN
-  #include "ruuvi_driver_error.h"
+#include "ruuvi_driver_error.h"
 
-  /*@}*/
+/*@}*/
 #endif
 #endif

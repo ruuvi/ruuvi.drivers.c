@@ -3,9 +3,9 @@
 
 #include "ruuvi_driver_enabled_modules.h"
 
-#    if (!NRF5_SDK15_CONFIGURED)
+#if (!NRF5_SDK15_CONFIGURED)
 #        warning "NRF5 SDK15 is not configured, using defaults. Consider #include nrf5_sdk15_app_config.h before this file."
-#    endif
+#endif
 
 #ifndef NRF_BLE_SCAN_BUFFER
 /** @brief maximum data in a BLE packet */

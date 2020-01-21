@@ -68,8 +68,8 @@ static void on_error (const rd_status_t err,
     strncpy (error.filename, file, sizeof (error.filename));
     // Store reason of fatal error
     err_code = rt_flash_store (APPLICATION_FLASH_ERROR_FILE,
-                                 APPLICATION_FLASH_ERROR_RECORD,
-                                 &error, sizeof (error));
+                               APPLICATION_FLASH_ERROR_RECORD,
+                               &error, sizeof (error));
 
     // Wait for flash store op to complete
     while (RD_SUCCESS == err_code &&
@@ -86,7 +86,7 @@ static void on_error (const rd_status_t err,
     ri_power_enter_bootloader();
     ri_power_reset();
 }
-#endif 
+#endif
 
 static void print_error_cause (void)
 {
@@ -94,8 +94,8 @@ static void print_error_cause (void)
     uint32_t timeout = 0;
     rd_status_t err_code;
     err_code = rt_flash_load (APPLICATION_FLASH_ERROR_FILE,
-                                APPLICATION_FLASH_ERROR_RECORD,
-                                &error, sizeof (error));
+                              APPLICATION_FLASH_ERROR_RECORD,
+                              &error, sizeof (error));
 
     if (RD_SUCCESS != err_code)
     {
@@ -115,7 +115,7 @@ static void print_error_cause (void)
     index += snprintf (error_str, sizeof (error_str), "Previous fatal error: %s:%d: ",
                        error.filename, error.line);
     index += ri_error_to_string (error.error, error_str + index,
-             sizeof (error_str) - index);
+                                 sizeof (error_str) - index);
     snprintf (error_str + index,  sizeof (error_str) - index, "\r\n");
     LOG (error_str);
 }
@@ -140,7 +140,7 @@ rd_status_t rt_flash_init (void)
 }
 
 rd_status_t rt_flash_store (const uint16_t page_id, const uint16_t record_id,
-                                        const void * const message, const size_t message_length)
+                            const void * const message, const size_t message_length)
 {
     rd_status_t status = RD_SUCCESS;
     status = ri_flash_record_set (page_id, record_id, message_length, message);
@@ -161,7 +161,7 @@ rd_status_t rt_flash_store (const uint16_t page_id, const uint16_t record_id,
 }
 
 rd_status_t rt_flash_load (const uint16_t page_id, const uint16_t record_id,
-                                       void * const message, const size_t message_length)
+                           void * const message, const size_t message_length)
 {
     return ri_flash_record_get (page_id, record_id, message_length, message);
 }
@@ -213,13 +213,13 @@ rd_status_t rt_flash_init (void)
 }
 
 rd_status_t rt_flash_store (const uint16_t file_id, const uint16_t record_id,
-                                        const void * const message, const size_t message_length)
+                            const void * const message, const size_t message_length)
 {
     return RD_SUCCESS;
 }
 
 rd_status_t rt_flash_load (const uint16_t page_id, const uint16_t record_id,
-                                       void * const message, const size_t message_length)
+                           void * const message, const size_t message_length)
 {
     return RD_ERROR_NOT_FOUND;
 }

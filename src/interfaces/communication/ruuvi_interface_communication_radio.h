@@ -19,8 +19,8 @@
  */
 typedef enum
 {
-  RI_RADIO_BEFORE,         //!< Event is before radio goes active, i.e. radio turns on soon.
-  RI_RADIO_AFTER           //!< Event is after radio activity, i.e. radio was turned off recently.
+    RI_RADIO_BEFORE,         //!< Event is before radio goes active, i.e. radio turns on soon.
+    RI_RADIO_AFTER           //!< Event is after radio activity, i.e. radio was turned off recently.
 } ri_radio_activity_evt_t;
 
 /**
@@ -28,10 +28,10 @@ typedef enum
  */
 typedef enum
 {
-  RI_RADIO_UNINIT = 0,    //!< Radio is not in use
-  RI_RADIO_ADV, //!< Radio is used for advertising
-  RI_RADIO_GATT,          //!< Radio is used for GATT connections
-  RI_RADIO_MESH           //!< Radio is used by a mesh protocol, standard or proprietary
+    RI_RADIO_UNINIT = 0,    //!< Radio is not in use
+    RI_RADIO_ADV, //!< Radio is used for advertising
+    RI_RADIO_GATT,          //!< Radio is used for GATT connections
+    RI_RADIO_MESH           //!< Radio is used by a mesh protocol, standard or proprietary
 } ri_radio_user_t;
 
 /**
@@ -40,8 +40,8 @@ typedef enum
  *
  *  @param[in] evt Type of radio event
  */
-typedef void(*ri_radio_activity_interrupt_fp_t)(
-  const ri_radio_activity_evt_t evt);
+typedef void (*ri_radio_activity_interrupt_fp_t) (
+    const ri_radio_activity_evt_t evt);
 
 /**
  *  @brief Enable radio stack for an user
@@ -52,8 +52,8 @@ typedef void(*ri_radio_activity_interrupt_fp_t)(
  *  @return    RD_ERROR_INVALID_STATE if radio is already initialized.
  *  @note      it's possible to use radio even if the radio is conserved by other user, but there may be concurrency issues.
  */
-rd_status_t ri_radio_init(
-  const ri_radio_user_t handle);
+rd_status_t ri_radio_init (
+    const ri_radio_user_t handle);
 /**
  *  @brief Release radio stack
  *
@@ -64,8 +64,8 @@ rd_status_t ri_radio_init(
  *  @return    RD_ERROR_FORBIDDEN if radio is in use by other user
  *  @note      It's not possible to uninitialize radio from another user than original initializer.
  */
-rd_status_t ri_radio_uninit(
-  const ri_radio_user_t handle);
+rd_status_t ri_radio_uninit (
+    const ri_radio_user_t handle);
 
 /**
  * Writes maximum 64-bit unique address of the device to the pointer. This address
@@ -77,8 +77,8 @@ rd_status_t ri_radio_uninit(
  * return RD_SUCCESS on success
  * return RD_ERROR_NOT_SUPPORTED if address cannot be returned on given platform
  */
-rd_status_t ri_radio_address_get(
-  uint64_t* const address);
+rd_status_t ri_radio_address_get (
+    uint64_t * const address);
 
 /**
  * Configures maximum 64-bit unique address of the device to the radio.
@@ -94,8 +94,8 @@ rd_status_t ri_radio_address_get(
  * @return RD_ERROR_INVALID_STATE if radio is in state where address is required, such as advertising, connected or scanning.
  * @note   The implementation is allowed to enforce protocol rules, for example BLE MAC will be masked with 0x00 00 [0b11xx]X XX XX XX XX XX XX and sent LSB first.
  */
-rd_status_t ri_radio_address_set(
-  uint64_t const address);
+rd_status_t ri_radio_address_set (
+    uint64_t const address);
 
 /**
  * @brief Setup radio activity interrupt
@@ -104,8 +104,8 @@ rd_status_t ri_radio_address_set(
  * will not start the callbacks, callbacks are started on radio initialization.
  * @param[in] handler Function to call on radio event. Set to @c NULL to disable radio-level callback, however module-level callbacks (advertising, GATT etc) will be called.
  */
-void ri_radio_activity_callback_set(
-  const ri_radio_activity_interrupt_fp_t handler);
+void ri_radio_activity_callback_set (
+    const ri_radio_activity_interrupt_fp_t handler);
 
 /**
  * @brief Check if radio is initialized

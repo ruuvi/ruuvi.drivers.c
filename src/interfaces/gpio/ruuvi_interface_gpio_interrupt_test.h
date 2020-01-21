@@ -33,8 +33,8 @@
  *
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_init(
-  const ruuvi_driver_test_gpio_cfg_t cfg);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_init (
+    const ruuvi_driver_test_gpio_cfg_t cfg);
 
 /**
  * @brief Test enabling interrupt on a pin.
@@ -58,7 +58,7 @@ ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_init(
  * @return @ref RUUVI_DRIVER_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable(
-  const ruuvi_driver_test_gpio_cfg_t cfg);
+ruuvi_driver_status_t ruuvi_interface_gpio_interrupt_test_enable (
+    const ruuvi_driver_test_gpio_cfg_t cfg);
 /*@}*/
 #endif

@@ -6,7 +6,8 @@
 #include "ruuvi_interface_power.h"
 #include "task_power.h"
 
-ruuvi_driver_status_t rt_power_dcdc_init (const ruuvi_interface_power_regulators_t regulators)
+ruuvi_driver_status_t rt_power_dcdc_init (const ruuvi_interface_power_regulators_t
+        regulators)
 {
     return ruuvi_interface_power_regulators_enable (regulators);
 }

@@ -17,109 +17,110 @@ static size_t tests_passed = 0;
 /** @brief Configuration structure of GPIO test */
 static rd_test_gpio_cfg_t gpio_test_cfg = { .input = RUUVI_INTERFACE_GPIO_ID_UNUSED, .output = RUUVI_INTERFACE_GPIO_ID_UNUSED};
 
-void rd_test_gpio_cfg(const rd_test_gpio_cfg_t cfg)
+void rd_test_gpio_cfg (const rd_test_gpio_cfg_t cfg)
 {
-  gpio_test_cfg = cfg;
+    gpio_test_cfg = cfg;
 }
 
-static bool rd_test_gpio_run(const rd_test_print_fp printfp)
+static bool rd_test_gpio_run (const rd_test_print_fp printfp)
 {
-  printfp("GPIO tests ");
+    printfp ("GPIO tests ");
 
-  if(gpio_test_cfg.input.pin != RUUVI_INTERFACE_GPIO_ID_UNUSED)
-  {
-    rd_status_t status = RD_SUCCESS;
+    if (gpio_test_cfg.input.pin != RUUVI_INTERFACE_GPIO_ID_UNUSED)
+    {
+        rd_status_t status = RD_SUCCESS;
+        bool fail = false;
+        status |= ruuvi_interface_gpio_test_init();
+
+        if (RD_SUCCESS != status)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            fail = true;
+        }
+
+        status |= ruuvi_interface_gpio_test_configure (gpio_test_cfg.input, gpio_test_cfg.output);
+
+        if (RD_SUCCESS != status)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            fail = true;
+        }
+
+        status |= ruuvi_interface_gpio_test_toggle (gpio_test_cfg.input, gpio_test_cfg.output);
+
+        if (RD_SUCCESS != status)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            fail = true;
+        }
+
+        if (RD_SUCCESS == status) { printfp ("PASSED.\r\n"); }
+        else { printfp ("FAILED.\r\n"); }
+    }
+    else { printfp ("SKIPPED.\r\n"); }
+}
+
+static bool rd_test_gpio_interrupt_run (const rd_test_print_fp printfp)
+{
+    printfp ("GPIO interrupt tests ");
     bool fail = false;
-    status |= ruuvi_interface_gpio_test_init();
 
-    if(RD_SUCCESS != status)
+    if (gpio_test_cfg.input.pin != RUUVI_INTERFACE_GPIO_ID_UNUSED)
     {
-      RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-      fail = true;
+        rd_status_t status = RD_SUCCESS;
+        status |= ruuvi_interface_gpio_interrupt_test_init (gpio_test_cfg);
+
+        if (RD_SUCCESS != status)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            fail = true;
+        }
+
+        status = ruuvi_interface_gpio_interrupt_test_enable (gpio_test_cfg);
+
+        if (RD_SUCCESS != status)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            fail = true;
+        }
+
+        if (RD_SUCCESS == status) { printfp ("PASSED.\r\n"); }
+        else { printfp ("FAILED.\r\n"); }
+
+        // todo: move to a separate teardown
+        ruuvi_interface_gpio_interrupt_disable (gpio_test_cfg.input);
+        ruuvi_interface_gpio_uninit();
+        ruuvi_interface_gpio_interrupt_uninit();
     }
+    else { printfp ("SKIPPED.\r\n"); }
 
-    status |= ruuvi_interface_gpio_test_configure(gpio_test_cfg.input, gpio_test_cfg.output);
-
-    if(RD_SUCCESS != status)
-    {
-      RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-      fail = true;
-    }
-
-    status |= ruuvi_interface_gpio_test_toggle(gpio_test_cfg.input, gpio_test_cfg.output);
-
-    if(RD_SUCCESS != status)
-    {
-      RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-      fail = true;
-    }
-
-    if(RD_SUCCESS == status) { printfp("PASSED.\r\n"); }
-    else { printfp("FAILED.\r\n"); }
-  }
-  else { printfp("SKIPPED.\r\n"); }
+    return !fail;
 }
 
-static bool rd_test_gpio_interrupt_run(const rd_test_print_fp printfp)
+bool rd_test_all_run (const rd_test_print_fp printfp)
 {
-  printfp("GPIO interrupt tests ");
-  bool fail = false;
-
-  if(gpio_test_cfg.input.pin != RUUVI_INTERFACE_GPIO_ID_UNUSED)
-  {
-    rd_status_t status = RD_SUCCESS;
-
-    status |= ruuvi_interface_gpio_interrupt_test_init(gpio_test_cfg);
-
-    if(RD_SUCCESS != status)
-    {
-      RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-      fail = true;
-    }
-
-    status = ruuvi_interface_gpio_interrupt_test_enable(gpio_test_cfg);
-
-    if(RD_SUCCESS != status)
-    {
-      RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-      fail = true;
-    }
-
-    if(RD_SUCCESS == status) { printfp("PASSED.\r\n"); }
-    else { printfp("FAILED.\r\n"); }
-    // todo: move to a separate teardown
-    ruuvi_interface_gpio_interrupt_disable(gpio_test_cfg.input);
-    ruuvi_interface_gpio_uninit();
-    ruuvi_interface_gpio_interrupt_uninit();
-  }
-  else { printfp("SKIPPED.\r\n"); }
-  return !fail;
+    tests_passed = 0;
+    tests_total  = 0;
+    printfp ("Running driver tests... \r\n");
+    rd_test_gpio_run (printfp);
+    rd_test_gpio_interrupt_run (printfp);
 }
 
-bool rd_test_all_run(const rd_test_print_fp printfp)
+bool ruuvi_interface_expect_close (const float expect, const int8_t precision,
+                                   const float check)
 {
-  tests_passed = 0;
-  tests_total  = 0;
-  printfp("Running driver tests... \r\n");
-  rd_test_gpio_run(printfp);
-  rd_test_gpio_interrupt_run(printfp);
-}
+    if (!isfinite (expect) || !isfinite (check)) { return false; }
 
-bool ruuvi_interface_expect_close(const float expect, const int8_t precision,
-                                  const float check)
-{
-  if(!isfinite(expect) || !isfinite(check)) { return false; }
+    const float max_delta = pow (10, precision);
+    float delta = expect - check;
 
-  const float max_delta = pow(10, precision);
-  float delta = expect - check;
+    if (delta < 0) { delta = 0 - delta; } // absolute value
 
-  if(delta < 0) { delta = 0 - delta; } // absolute value
-
-  return max_delta > delta;
+    return max_delta > delta;
 }
 
 /**
- * @brief Register a test as being run. 
+ * @brief Register a test as being run.
  * Increments counter of total tests.
  * Read results with rd_test_status
  *
@@ -127,19 +128,21 @@ bool ruuvi_interface_expect_close(const float expect, const int8_t precision,
  *
  * @return RD_SUCCESS
  */
-rd_status_t rd_test_register(const bool passed)
+rd_status_t rd_test_register (const bool passed)
 {
-  tests_total++;
-  if(true == passed)
-  {
-    tests_passed++;
-  }
-  return RD_SUCCESS;
+    tests_total++;
+
+    if (true == passed)
+    {
+        tests_passed++;
+    }
+
+    return RD_SUCCESS;
 }
 
-rd_status_t rd_test_status(size_t* const total, size_t* const passed)
+rd_status_t rd_test_status (size_t * const total, size_t * const passed)
 {
-  *total  = tests_total;
-  *passed = tests_passed;
-  return RD_SUCCESS;
+    *total  = tests_total;
+    *passed = tests_passed;
+    return RD_SUCCESS;
 }

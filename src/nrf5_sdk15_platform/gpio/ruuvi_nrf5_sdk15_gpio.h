@@ -21,14 +21,14 @@
  * @param[in] pin Ruuvi pin to convert to platform
  * @return Nordic pin corresponding to Ruuvi pin.
  */
-static inline uint8_t ruuvi_to_nrf_pin_map(const ri_gpio_id_t pin)
+static inline uint8_t ruuvi_to_nrf_pin_map (const ri_gpio_id_t pin)
 {
-  return (pin >> 8) + (pin & 0x1F);
+    return (pin >> 8) + (pin & 0x1F);
 }
 
-static inline ri_gpio_id_t nrf_to_ruuvi_pin(const uint8_t pin)
+static inline ri_gpio_id_t nrf_to_ruuvi_pin (const uint8_t pin)
 {
-  return ((pin & 0xE0) << 3) + (pin & 0x1F);
+    return ( (pin & 0xE0) << 3) + (pin & 0x1F);
 }
 
 /*@}*/

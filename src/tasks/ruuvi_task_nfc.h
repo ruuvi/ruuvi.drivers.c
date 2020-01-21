@@ -64,6 +64,6 @@ ruuvi_driver_status_t rt_nfc_send (ruuvi_interface_communication_message_t * mes
  * @return error code from stack on error.
  */
 ruuvi_driver_status_t rt_nfc_on_nfc (ruuvi_interface_communication_evt_t evt,
-                                       void * p_data, size_t data_len);
+                                     void * p_data, size_t data_len);
 /*@}*/
 #endif

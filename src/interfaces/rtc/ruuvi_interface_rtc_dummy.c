@@ -11,11 +11,11 @@
 static ri_timer_id_t counter_timer;    //!< timer ID for counter
 static volatile uint64_t
 m_dummy;                   //!< mark volatile in case someone busyloops with RTC
-static void counter_handler(void* p_context)
+static void counter_handler (void * p_context)
 {
-  uint64_t mask = ~((uint64_t)DUMMY_RTC_INTERVAL - 1);
-  m_dummy &= mask;
-  m_dummy += DUMMY_RTC_INTERVAL;
+    uint64_t mask = ~ ( (uint64_t) DUMMY_RTC_INTERVAL - 1);
+    m_dummy &= mask;
+    m_dummy += DUMMY_RTC_INTERVAL;
 }
 
 /**
@@ -23,27 +23,27 @@ static void counter_handler(void* p_context)
  *
  * @return RUUVI_SUCCESS if no error occured, error code otherwise.
  **/
-rd_status_t ri_rtc_init(void)
+rd_status_t ri_rtc_init (void)
 {
-  m_dummy = 0;
-  // Use timer interrupts at 1024 ms to increment RTC.
-  rd_status_t err_code = RD_SUCCESS;
+    m_dummy = 0;
+    // Use timer interrupts at 1024 ms to increment RTC.
+    rd_status_t err_code = RD_SUCCESS;
 
-  if(!ri_timer_is_init())
-  {
-    err_code = ri_timer_init();
-  }
+    if (!ri_timer_is_init())
+    {
+        err_code = ri_timer_init();
+    }
 
-  if(NULL == counter_timer)
-  {
-    err_code |= ri_timer_create(&counter_timer,
-                RI_TIMER_MODE_REPEATED,
-                counter_handler);
-  }
+    if (NULL == counter_timer)
+    {
+        err_code |= ri_timer_create (&counter_timer,
+                                     RI_TIMER_MODE_REPEATED,
+                                     counter_handler);
+    }
 
-  err_code |= ri_timer_start(counter_timer, DUMMY_RTC_INTERVAL);
-  return (RD_SUCCESS == err_code) ? RD_SUCCESS :
-         RD_ERROR_NOT_SUPPORTED;
+    err_code |= ri_timer_start (counter_timer, DUMMY_RTC_INTERVAL);
+    return (RD_SUCCESS == err_code) ? RD_SUCCESS :
+           RD_ERROR_NOT_SUPPORTED;
 }
 
 /**
@@ -51,13 +51,13 @@ rd_status_t ri_rtc_init(void)
   *
   * @return RUUVI_SUCCESS if no error occured, error code otherwise.
   **/
-rd_status_t ri_rtc_uninit(void)
+rd_status_t ri_rtc_uninit (void)
 {
-  m_dummy = 0;
+    m_dummy = 0;
 
-  if(NULL != counter_timer)  { ri_timer_stop(counter_timer); }
+    if (NULL != counter_timer)  { ri_timer_stop (counter_timer); }
 
-  return RD_SUCCESS;
+    return RD_SUCCESS;
 }
 
 /**
@@ -66,9 +66,9 @@ rd_status_t ri_rtc_uninit(void)
  * @return number of milliseconds since RTC init.
  * @return @c RUUVI_DRIVER_UINT64_INVALID if RTC is not running
   **/
-uint64_t ri_rtc_millis(void)
+uint64_t ri_rtc_millis (void)
 {
-  return m_dummy++;
+    return m_dummy++;
 }
 
 #endif

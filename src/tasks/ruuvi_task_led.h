@@ -69,10 +69,10 @@
  * @retval RD_ERROR_INVALID_STATE if leds were already initialized.
  * @retval error code from stack on other error.
  * @warning Behaviour is undefined if led list and state list are o different size
- *          than num_leds. 
+ *          than num_leds.
  **/
-rd_status_t rt_led_init (const uint16_t* const leds, 
-                         const ri_gpio_state_t* const active_states, 
+rd_status_t rt_led_init (const uint16_t * const leds,
+                         const ri_gpio_state_t * const active_states,
                          const size_t num_leds);
 
 /**

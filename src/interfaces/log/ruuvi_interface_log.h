@@ -27,10 +27,10 @@
  **/
 typedef enum
 {
-  RI_LOG_LEVEL_ERROR,      //<! An error occured
-  RI_LOG_LEVEL_WARNING,    //<! Warn user abour something, such as uninitialized peripheral
-  RI_LOG_LEVEL_INFO,       //<! General information, such as changing mode of application
-  RI_LOG_LEVEL_DEBUG       //<! Debug messages
+    RI_LOG_LEVEL_ERROR,      //<! An error occured
+    RI_LOG_LEVEL_WARNING,    //<! Warn user abour something, such as uninitialized peripheral
+    RI_LOG_LEVEL_INFO,       //<! General information, such as changing mode of application
+    RI_LOG_LEVEL_DEBUG       //<! Debug messages
 } ri_log_severity_t;
 
 /**
@@ -39,14 +39,14 @@ typedef enum
  * @param min_severity least severe log level that will be printed.
  * @return @ref RD_SUCCESS if log was init, error code otherwise
  */
-rd_status_t ri_log_init(const ri_log_severity_t min_severity);
+rd_status_t ri_log_init (const ri_log_severity_t min_severity);
 
 /**
  * @brief Blocks until remaining log messages are sent out
  *
  * @return @ref RD_SUCCESS if buffered messages were sent, error otherwise.
  */
-rd_status_t ri_log_flush(void);
+rd_status_t ri_log_flush (void);
 
 /**
  * @brief Queues messages into log.
@@ -57,8 +57,8 @@ rd_status_t ri_log_flush(void);
  * @param message message string
  *
  */
-void ri_log(const ri_log_severity_t severity,
-                         const char* const message);
+void ri_log (const ri_log_severity_t severity,
+             const char * const message);
 
 /**
  * @brief Queues bytes to be logged out as a hex string
@@ -70,9 +70,9 @@ void ri_log(const ri_log_severity_t severity,
  * @param byte:length length of bytes to log.
  *
  */
-void ri_log_hex(const ri_log_severity_t severity,
-                             const uint8_t* const bytes,
-                             size_t byte_length);
+void ri_log_hex (const ri_log_severity_t severity,
+                 const uint8_t * const bytes,
+                 size_t byte_length);
 
 /**
  * @brief Write text description of error message into given string pointer and null-terminate it.
@@ -83,8 +83,8 @@ void ri_log_hex(const ri_log_severity_t severity,
  * @param space_remaining How many bytes there are remaining in the error string.
  * @return number of bytes written (snprintf rvalue).
  */
-size_t ri_error_to_string(rd_status_t error, char* error_string,
-                                       size_t space_remaining);
+size_t ri_error_to_string (rd_status_t error, char * error_string,
+                           size_t space_remaining);
 
 /**
  * Log the given configuration parameters at given log level.
@@ -93,7 +93,7 @@ size_t ri_error_to_string(rd_status_t error, char* error_string,
  * parameter configuration: Configuration to print
  * parameter unit: String representation to the unit of a scale
  */
-void ri_log_sensor_configuration(const ri_log_severity_t level,
-    const rd_sensor_configuration_t* const configuration, const char* unit);
+void ri_log_sensor_configuration (const ri_log_severity_t level,
+                                  const rd_sensor_configuration_t * const configuration, const char * unit);
 /*@}*/
 #endif

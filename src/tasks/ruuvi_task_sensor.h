@@ -16,21 +16,22 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
-typedef struct {
-  rd_sensor_t sensor;                       //!< Control structure for sensor.
-  rd_sensor_init_fp init;                   //!< Initialization function.
-  rd_sensor_configuration_t configuration;  //!< Sensor configuration.
-  uint16_t nvm_file;                                  //!< NVM file of configuration.
-  uint16_t nvm_record;                                //!< NVM record of configuration.
-  uint8_t  handle;                                    //!< Handle of sensor.
-  rd_bus_t bus;                             //!< Bus of sensor. 
-}rt_sensor_ctx_t;
+typedef struct
+{
+    rd_sensor_t sensor;                       //!< Control structure for sensor.
+    rd_sensor_init_fp init;                   //!< Initialization function.
+    rd_sensor_configuration_t configuration;  //!< Sensor configuration.
+    uint16_t nvm_file;                                  //!< NVM file of configuration.
+    uint16_t nvm_record;                                //!< NVM record of configuration.
+    uint8_t  handle;                                    //!< Handle of sensor.
+    rd_bus_t bus;                             //!< Bus of sensor.
+} rt_sensor_ctx_t;
 
 /** @brief Initialize sensor CTX
  *
  * To initialize a sensor, initialization function, sensor bus and sensor handle must
  * be set. After initialization, sensor control structure is ready to use,
- * initial configuration is set to actual values on sensor. 
+ * initial configuration is set to actual values on sensor.
  *
  * To configure the sensor, set the sensor configuration in struct and call
  * @ref rt_sensor_configure.
@@ -65,7 +66,7 @@ rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor);
 
 /** @brief Configure a sensor with given settings.
  *
- * @param[in,out] sensor In: Sensor to configure. 
+ * @param[in,out] sensor In: Sensor to configure.
                          Out: Sensor->configuration will be set to actual configuration.
  *
  * @return RD_SUCCESS on success.
@@ -87,7 +88,7 @@ rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor);
  *
  * @param[in] sensor_list Array of sensors to search the backend from.
  * @param[in] count Number of sensor backends in the list.
- * @param[in] name NULL-terminated, max 9-byte (including trailing NULL) string 
+ * @param[in] name NULL-terminated, max 9-byte (including trailing NULL) string
  *                 representation of sensor.
  * @return pointer to requested sensor CTX if found
  * @return NULL if requested sensor was not found
@@ -100,8 +101,8 @@ rt_sensor_ctx_t * rt_sensor_find_backend (rt_sensor_ctx_t * const
  *
  * @param[in] sensor_list Array of sensors to search the backend from.
  * @param[in] count Number of sensor backends in the list.
- * @param[in] values Fields which sensor must provide. 
- * @return Pointer to requested sensor CTXif found. If there are many candidates, first is 
+ * @param[in] values Fields which sensor must provide.
+ * @return Pointer to requested sensor CTXif found. If there are many candidates, first is
  *         returned
  * @return NULL if requested sensor was not found.
  */

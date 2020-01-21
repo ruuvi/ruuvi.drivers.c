@@ -43,13 +43,14 @@
 #define SCAN_RSP_NAME_MAX_LEN 11 //!< Longer name gets truncated when advertised with UUID.
 
 /** @brief Initial configuration for advertisement. PHY will be transferred to GATT.  */
-typedef struct{
-  // ri_phy_t,
-  // ri_channels_t,
-  uint16_t adv_interval_ms;  //!< ms / advertisement, not counting random delay
-  int8_t   adv_pwr_dbm;      //!< Power to antenna, dBm.
-  uint16_t manufacturer_id;  //!< BLE SIG id of board manufacturer
-}rt_adv_init_t; 
+typedef struct
+{
+    // ri_phy_t,
+    // ri_channels_t,
+    uint16_t adv_interval_ms;  //!< ms / advertisement, not counting random delay
+    int8_t   adv_pwr_dbm;      //!< Power to antenna, dBm.
+    uint16_t manufacturer_id;  //!< BLE SIG id of board manufacturer
+} rt_adv_init_t;
 
 /**
  * @brief Initializes data advertising.
@@ -68,7 +69,7 @@ typedef struct{
  * @retval RD_ERROR_INVALID_STATE if advertising is already initialized.
  * @®etval RD_ERROR_INVALID_PARAM if configuration constant is invalid.
  */
-rd_status_t rt_adv_init (rt_adv_init_t* const adv_init_settings);
+rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings);
 
 /**
  * @brief Uninitializes data advertising.
@@ -140,7 +141,7 @@ rd_status_t rt_adv_send_data (
  *  @retval    error code from stack on other error.
  */
 rd_status_t rt_adv_connectability_set (const bool enable,
-        const char * const device_name);
+                                       const char * const device_name);
 
 /** @brief check if advertisement is initialized
  *  @return true if advertisement is initialized, false otherwise.
@@ -149,13 +150,13 @@ bool rt_adv_is_init (void);
 
 /** @brief Start scanning BLE advertisements
  *
- * This is non-blocking, you'll need to handle incoming events. 
+ * This is non-blocking, you'll need to handle incoming events.
  *
  * Events are:
  *   - on_evt(RI_COMMUNICATION_RECEIVED, scan, sizeof(ri_adv_scan_t));
  *   - on_evt(RI_COMMUNICATION_TIMEOUT, NULL, 0);
  *
- *  @param[in] on_evt event handler for scan results, 
+ *  @param[in] on_evt event handler for scan results,
  *  @retval    RD_SUCCESS if scanning was started
  *  @retval    RD_ERROR_INVALID_STATE if advertising isn't initialized.
  *  @retval    error code from stack on other error.
@@ -165,7 +166,7 @@ bool rt_adv_is_init (void);
  */
 rd_status_t rt_adv_scan_start (const ri_communication_evt_handler_fp_t on_evt);
 
-/** @brief abort scanning. 
+/** @brief abort scanning.
 */
 rd_status_t rt_adv_scan_stop (void);
 

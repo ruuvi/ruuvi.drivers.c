@@ -19,10 +19,10 @@
 /** @brief Alloved advertisement types */
 typedef enum
 {
-  NONCONNECTABLE_NONSCANNABLE, //!< Nonconnectable, nonscannable
-  CONNECTABLE_NONSCANNABLE,    //!< Connectable, nonscannable
-  CONNECTABLE_SCANNABLE,       //!< Connectable, scannable
-  NONCONNECTABLE_SCANNABLE     //!< Nonconnectable, scannable
+    NONCONNECTABLE_NONSCANNABLE, //!< Nonconnectable, nonscannable
+    CONNECTABLE_NONSCANNABLE,    //!< Connectable, nonscannable
+    CONNECTABLE_SCANNABLE,       //!< Connectable, scannable
+    NONCONNECTABLE_SCANNABLE     //!< Nonconnectable, scannable
 } ri_adv_type_t;
 
 /** @brief Advertisement report from scanner
@@ -30,10 +30,10 @@ typedef enum
  */
 typedef struct
 {
-  uint8_t addr[6];  //<! MAC address, MSB first
-  int8_t rssi;      //!< RSSI of advertisement
-  uint8_t data[31]; //!< Full payload of the advertisement
-  size_t data_len;  //!< Length of received data
+    uint8_t addr[6];  //<! MAC address, MSB first
+    int8_t rssi;      //!< RSSI of advertisement
+    uint8_t data[31]; //!< Full payload of the advertisement
+    size_t data_len;  //!< Length of received data
 } ri_adv_scan_t;
 
 /*
@@ -44,8 +44,8 @@ typedef struct
  *
  * @note This function calls ri_radio_init internally, calling separate radio initialization is not required.
  */
-rd_status_t ri_adv_init(
-  ri_communication_t* const channel);
+rd_status_t ri_adv_init (
+    ri_communication_t * const channel);
 
 /*
  * @brief Uninitializes radio hardware, advertising module and scanning module.
@@ -55,8 +55,8 @@ rd_status_t ri_adv_init(
  * @retval RD_SUCCESS on success or if radio was not initialized.
  * @retval RD_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
  */
-rd_status_t ri_adv_uninit(
-  ri_communication_t* const channel);
+rd_status_t ri_adv_uninit (
+    ri_communication_t * const channel);
 
 /*
  * @brief Setter for broadcast advertisement interval.
@@ -65,8 +65,8 @@ rd_status_t ri_adv_uninit(
  * @return RD_SUCCESS on success,
  * @return RD_ERROR_INVALID_PARAM if the parameter is outside allowed range
  */
-rd_status_t ri_adv_tx_interval_set(
-  const uint32_t ms);
+rd_status_t ri_adv_tx_interval_set (
+    const uint32_t ms);
 
 /**
  * @brief Getter for broadcast advertisement interval
@@ -75,8 +75,8 @@ rd_status_t ri_adv_tx_interval_set(
  * @return RD_SUCCESS on success.
  * @return RD_ERROR_INVALID_STATE if advertisement module is not initialized.
  */
-rd_status_t ri_adv_tx_interval_get(
-  uint32_t* ms);
+rd_status_t ri_adv_tx_interval_get (
+    uint32_t * ms);
 
 /**
  * @brief Set manufacturer ID of manufacturer specific advertisement
@@ -84,8 +84,8 @@ rd_status_t ri_adv_tx_interval_get(
  * @param[in] id ID of manufacturer, MSB first. E.g. 0x0499 for Ruuvi Innovations.
  * @return RD_SUCCESS
  */
-rd_status_t ri_adv_manufacturer_id_set(
-  const uint16_t id);
+rd_status_t ri_adv_manufacturer_id_set (
+    const uint16_t id);
 
 /**
  * @brief Set manufacturer specific data to advertise.
@@ -100,8 +100,8 @@ rd_status_t ri_adv_manufacturer_id_set(
  * @return RD_ERROR_INVALID_LENGTH if data_length is over 24 bytes
  * @return error code from stack on other error.
  */
-rd_status_t ri_adv_data_set(
-  const uint8_t* data, const uint8_t data_length);
+rd_status_t ri_adv_data_set (
+    const uint8_t * data, const uint8_t data_length);
 
 /**
  * @brief Send data as manufacturer specific data payload.
@@ -111,18 +111,18 @@ rd_status_t ri_adv_data_set(
  * @return RD_ERROR_NULL if message is NULL
  * @return RD_ERROR_INVALID_LENGTH if data length is over 24 bytes
  */
-rd_status_t ri_adv_send(
-  ri_communication_message_t* message);
+rd_status_t ri_adv_send (
+    ri_communication_message_t * message);
 
 // Set / get radio tx power
-rd_status_t ri_adv_tx_power_set(
-  int8_t* dbm);
-rd_status_t ri_adv_tx_power_get(
-  int8_t* dbm);
+rd_status_t ri_adv_tx_power_set (
+    int8_t * dbm);
+rd_status_t ri_adv_tx_power_get (
+    int8_t * dbm);
 
 /** @brief Communication API read function */
-rd_status_t ri_adv_receive(
-  ri_communication_message_t* message);
+rd_status_t ri_adv_receive (
+    ri_communication_message_t * message);
 
 /** @brief setup scan window interval and window size.
  *
@@ -136,8 +136,8 @@ rd_status_t ri_adv_receive(
  *  @return RD_ERROR_INVALID_STATE if scan is ongoing
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  */
-rd_status_t ri_adv_rx_interval_set(
-  const uint32_t window_interval_ms, const uint32_t window_size_ms);
+rd_status_t ri_adv_rx_interval_set (
+    const uint32_t window_interval_ms, const uint32_t window_size_ms);
 
 /** @brief get scan window interval and window size.
  *
@@ -148,11 +148,11 @@ rd_status_t ri_adv_rx_interval_set(
  *  @return RD_ERROR_NULL if either pointer is NULL
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  */
-rd_status_t ri_adv_rx_interval_get(
-  uint32_t* window_interval_ms, uint32_t* window_size_ms);
+rd_status_t ri_adv_rx_interval_get (
+    uint32_t * window_interval_ms, uint32_t * window_size_ms);
 
-rd_status_t ri_adv_scan_start(void);
-rd_status_t ri_adv_scan_stop(void);
+rd_status_t ri_adv_scan_start (void);
+rd_status_t ri_adv_scan_stop (void);
 
 /**
  * Event handler for radio activity interrupts. This is called by ruuvi_platform_interface_radio.c event, application should
@@ -160,21 +160,21 @@ rd_status_t ri_adv_scan_stop(void);
  *
  * parameter evt: Radio activity event.
  */
-void ri_adv_activity_handler(
-  const ri_radio_activity_evt_t evt);
+void ri_adv_activity_handler (
+    const ri_radio_activity_evt_t evt);
 
 /**
  * @brief Configure advertising data with a scan response.
  * The scan response must be separately enabled.
  */
 rd_status_t ri_adv_scan_response_setup
-(const char* const name,
+(const char * const name,
  const bool advertise_nus);
 
-rd_status_t ri_adv_type_set(ri_adv_type_t type);
+rd_status_t ri_adv_type_set (ri_adv_type_t type);
 
 /** @brief Notify advertising module that advertising has been stopped by external event */
-void ri_adv_notify_stop(void);
+void ri_adv_notify_stop (void);
 
 /** @brief start advertising with previously configured settings */
 rd_status_t ri_adv_start();
@@ -183,9 +183,9 @@ rd_status_t ri_adv_start();
 rd_status_t ri_adv_stop();
 
 /** @brief send one raw packet */
-rd_status_t ri_adv_send_raw(
-  uint8_t* data, size_t data_length);
+rd_status_t ri_adv_send_raw (
+    uint8_t * data, size_t data_length);
 
-rd_status_t ri_adv_ongoing(void);
+rd_status_t ri_adv_ongoing (void);
 
 #endif

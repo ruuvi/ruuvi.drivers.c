@@ -82,33 +82,33 @@ ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 #define TMP117_VALUE_TEMP_NA     0x8000
 
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_tmp117_init(rd_sensor_t*
-    environmental_sensor, rd_bus_t bus, uint8_t handle);
+rd_status_t ri_tmp117_init (rd_sensor_t *
+                            environmental_sensor, rd_bus_t bus, uint8_t handle);
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_tmp117_uninit(rd_sensor_t*
-    environmental_sensor, rd_bus_t bus, uint8_t handle);
+rd_status_t ri_tmp117_uninit (rd_sensor_t *
+                              environmental_sensor, rd_bus_t bus, uint8_t handle);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_samplerate_set(uint8_t* samplerate);
+rd_status_t ri_tmp117_samplerate_set (uint8_t * samplerate);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_samplerate_get(uint8_t* samplerate);
+rd_status_t ri_tmp117_samplerate_get (uint8_t * samplerate);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_resolution_set(uint8_t* resolution);
+rd_status_t ri_tmp117_resolution_set (uint8_t * resolution);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_resolution_get(uint8_t* resolution);
+rd_status_t ri_tmp117_resolution_get (uint8_t * resolution);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_scale_set(uint8_t* scale);
+rd_status_t ri_tmp117_scale_set (uint8_t * scale);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_scale_get(uint8_t* scale);
+rd_status_t ri_tmp117_scale_get (uint8_t * scale);
 /** @brief @ref rd_sensor_dsp_fp */
-rd_status_t ri_tmp117_dsp_set(uint8_t* dsp, uint8_t* parameter);
+rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
-rd_status_t ri_tmp117_dsp_get(uint8_t* dsp, uint8_t* parameter);
+rd_status_t ri_tmp117_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_mode_set(uint8_t*);
+rd_status_t ri_tmp117_mode_set (uint8_t *);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_mode_get(uint8_t*);
+rd_status_t ri_tmp117_mode_get (uint8_t *);
 /** @brief @ref rd_sensor_data_fp */
-rd_status_t ri_tmp117_data_get(rd_sensor_data_t* const
-    data);
+rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
+                                data);
 /*@}*/
 #endif

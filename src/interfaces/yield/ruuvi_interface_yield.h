@@ -26,15 +26,15 @@
  * @param[in] active true if device is going to be active, false otherwise.
  *
  */
-typedef void(*ri_yield_state_ind_fp_t)(const bool active);
+typedef void (*ri_yield_state_ind_fp_t) (const bool active);
 
 /**
  * Configure sleep indication function.
  *
  * @param[in] indication function to call when entering/exiting sleep, NULL to disable
  */
-void ri_yield_indication_set(const ri_yield_state_ind_fp_t
-    indication);
+void ri_yield_indication_set (const ri_yield_state_ind_fp_t
+                              indication);
 
 /**
  * @brief Initializes yielding functions.
@@ -44,7 +44,7 @@ void ri_yield_indication_set(const ri_yield_state_ind_fp_t
  *
  * @return RD_SUCCESS on success, error code from stack on error.
  */
-rd_status_t ri_yield_init(void);
+rd_status_t ri_yield_init (void);
 
 /**
  * @brief Initializes yielding functions.
@@ -54,7 +54,7 @@ rd_status_t ri_yield_init(void);
  *
  * @return RD_SUCCESS on success, error code from stack on error.
  */
-rd_status_t ri_yield_low_power_enable(const bool enable);
+rd_status_t ri_yield_low_power_enable (const bool enable);
 
 /**
   * @brief Function which will release execution.
@@ -65,7 +65,7 @@ rd_status_t ri_yield_low_power_enable(const bool enable);
   * @return RD_SUCCESS on success, error code from stack on error.
   * @warning This function will never return unless external event occurs.
   **/
-rd_status_t ri_yield(void);
+rd_status_t ri_yield (void);
 
 /**
   * @brief Delay a given number of milliseconds.
@@ -80,7 +80,7 @@ rd_status_t ri_yield(void);
   * @warning Underlying implementation may block execution and keep CPU active leading to high power consumption
   * @warning The timing is indicative only and should not be relied for precise timing.
   **/
-rd_status_t ri_delay_ms(uint32_t time);
+rd_status_t ri_delay_ms (uint32_t time);
 
 /**
   * @brief Delay a given number of microseconds.
@@ -94,7 +94,7 @@ rd_status_t ri_delay_ms(uint32_t time);
   * @warning Underlying implementation may block execution and keep CPU active leading to high power consumption
   * @warning The timing is indicative only and should not be relied for precise timing.
   **/
-rd_status_t ri_delay_us(uint32_t time);
+rd_status_t ri_delay_us (uint32_t time);
 
 /*@}*/
 
