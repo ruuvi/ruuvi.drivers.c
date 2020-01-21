@@ -174,10 +174,8 @@ RUUVI_PRJ_SOURCES= \
   $(PROJ_DIR)/src/tasks/ruuvi_task_nfc.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_power.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_rtc.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_scheduler.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_spi.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_timer.c \
-  $(PROJ_DIR)/src/tests/test_acceleration.c \
+  $(PROJ_DIR)/src/tasks/ruuvi_task_timer.c 
 
 COMMON_SOURCES= \
   $(RUUVI_LIB_SOURCES) \
