@@ -34,12 +34,8 @@ script:
     fi
   - |
     astyle --project=".astylerc" --recursive \
-           "src/application_config/*.h" \
-           "src/tasks/*.c" \
-           "src/tasks/*.h" \
-           "src/tests/*.c" \
-           "src/tests/*.h"
-  - astyle --project=".astylerc" "src/main.c"
+           "src/*.h" \
+           "src/*.c"
   - git diff --exit-code --diff-filter=d --color
   - build-wrapper-linux-x86-64 --out-dir bw-output make all
   - ceedling test:all
