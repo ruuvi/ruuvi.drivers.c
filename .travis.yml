@@ -1,3 +1,50 @@
+language: c
+
+os: linux
+dist: trusty
+# Use full depth for SonarCLoud
+git:
+  depth: false 
+
+install:
+  - sudo pip install gcovr
+  - sudo apt-get update -qq && sudo apt-get install --assume-yes --quiet gcc-multilib && sudo apt-get install -qq
+  - sudo apt-get install -qq pvs-studio 
+  - sudo apt-get install -qq doxygen 
+  - gem install ceedling
+  - pvs-studio-analyzer credentials $PVS_USERNAME $PVS_KEY
+  - |
+    wget -q https://sourceforge.net/projects/astyle/files/astyle/astyle%203.1/astyle_3.1_linux.tar.gz/download -O astyle.tar.gz
+    tar -xvf astyle.tar.gz
+    cd astyle
+    mkdir as-gcc-exe
+    cd as-gcc-exe
+    cmake  ../
+    make
+    sudo make install
+    cd ../../
+
+script:
+  - |
+    if [ ! -d "nRF5_SDK_15.3.0_59ac345/modules" ]; then
+      wget -q https://developer.nordicsemi.com/nRF5_SDK/nRF5_SDK_v15.x.x/nRF5_SDK_15.3.0_59ac345.zip
+      unzip -q nRF5_SDK_15.3.0_59ac345.zip
+    fi
+  - |
+    astyle --project=".astylerc" --recursive \
+           "src/*.h \
+           "src/*.c \
+  - git diff --exit-code --diff-filter=d --color
+  - build-wrapper-linux-x86-64 --out-dir bw-output make all
+  - ceedling test:all
+  - ceedling gcov:all utils:gcov
+  - gcov  -b -c build/gcov/out/*.gcno
+  - sonar-scanner -Dsonar.projectVersion=$TRAVIS_TAG
+
+cache:
+  directories:
+    - nRF5_SDK_15.3.0_59ac345
+
 sudo: false
 
 branches:
@@ -8,6 +55,10 @@ addons:
   apt:
     packages:
       - doxygen
+  sonarcloud:
+    organization: "ruuvi"
+    token:
+      secure: "**************************" # encrypted value of your token
 
 script:
   - doxygen Doxyfile
@@ -17,8 +68,10 @@ before_deploy:
 
 deploy:
   provider: pages
-  skip_cleanup: true
+  cleanup: false
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep_history: false
   local_dir: doxygen/html
-  github_token: $GH_REPO_TOKEN
+  edge: true
   on:
     branch: master
