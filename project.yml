@@ -33,7 +33,9 @@
     - +:test/**
     - -:test/support
   :source:
-    - src/**
+    - src/*
+    - src/tasks/**
+    - src/interfaces/**
   :support:
     - test/support
 
@@ -44,10 +46,10 @@
   :common: &common_defines []
   :test:
     - *common_defines
-    - TEST
+    - CEEDLING
   :test_preprocess:
     - *common_defines
-    - TEST
+    - CEEDLING
 
 :cmock:
   :mock_prefix: mock_
@@ -56,6 +58,9 @@
   :plugins:
     - :ignore
     - :callback
+    - :return_thru_ptr
+    - :array
+    - :expect_any_args
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16
@@ -94,5 +99,15 @@
   :enabled:
     - stdout_pretty_tests_report
     - module_generator
-    - gcov
+    - gcov 
+
+:flags:
+  :test:
+    :compile:
+      :*:
+        - -std=c11
+  :gcov:
+    :compile:
+      :*:
+        - -std=c11
 ...

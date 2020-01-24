@@ -37,16 +37,24 @@
 #endif
 
 #ifndef RI_COMMUNICATION_MESSAGE_MAX_LENGTH
-/** @brief Standard BLE Broadcast manufacturer specific data payload length is the maximum length */
+/** @brief Standard BLE Broadcast manufacturer specific 
+data payload length is the maximum length */
 #define RI_COMMUNICATION_MESSAGE_MAX_LENGTH 24
 #endif
 
 #ifndef RD_LOG_BUFFER_SIZE
+/** @brief Maximum length of one log message */
 #define RD_LOG_BUFFER_SIZE (128U)
 #endif
 
 #ifndef RT_ADC_ENABLED
+/** @brief Enable ADC task compilation. */
 #define RT_ADC_ENABLED ENABLE_DEFAULT
-#endif  
+#endif
+
+#ifndef RT_ADV_ENABLED
+/** @brief Enable BLE advertising compilation. */
+#define RT_ADV_ENABLED ENABLE_DEFAULT
+#endif 
 
 #endif

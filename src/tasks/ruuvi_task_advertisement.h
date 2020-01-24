@@ -67,7 +67,7 @@ typedef struct
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if advertising is already initialized.
- * @®etval RD_ERROR_INVALID_PARAM if configuration constant is invalid.
+ * @®etval RD_ERROR_INVALID_PARAM if configuration constant is invalid. Not initialized.
  */
 rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings);
 
