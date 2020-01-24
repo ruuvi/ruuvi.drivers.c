@@ -1,7 +1,7 @@
 /**
  * @file ruuvi_nrf5_sdk15_yield.c
  * @author Otso Jousimaa
- * @date 2019-01-30
+ * @date 2020-01-21
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Implementation for yield and delay
  *
@@ -20,12 +20,12 @@
 #include "nrf_error.h"
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
 #include "ruuvi_interface_timer.h"
-static ri_timer_id_t wakeup_timer;    //!< timer ID for wakeup
+static ri_timer_id_t wakeup_timer;     //!< timer ID for wakeup
 #endif
 
-static bool m_lp = false;                          //!< low-power mode enabled flag
-static volatile bool m_wakeup = false;             //!< wakeup flag
-static ri_yield_state_ind_fp_t m_ind; //!< State indication function
+static bool m_lp = false;              //!< low-power mode enabled flag
+static volatile bool m_wakeup = false; //!< wakeup flag
+static ri_yield_state_ind_fp_t m_ind;  //!< State indication function
 
 #ifdef FLOAT_ABI_HARD
 // Function handles and clears exception flags in FPSCR register and at the stack.
@@ -34,7 +34,8 @@ static ri_yield_state_ind_fp_t m_ind; //!< State indication function
 // which will be recovered in the return from interrupt handling.
 void FPU_IRQHandler (void)
 {
-    // Prepare pointer to stack address with pushed FPSCR register (0x40 is FPSCR register offset in stacked data)
+    // Prepare pointer to stack address with pushed FPSCR register 
+    // (0x40 is FPSCR register offset in stacked data)
     uint32_t * fpscr = (uint32_t *) (FPU->FPCAR + 0x40);
     // Execute FPU instruction to activate lazy stacking
     (void) __get_FPSCR();
@@ -52,13 +53,15 @@ void FPU_IRQHandler (void)
     // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.
     *fpscr = *fpscr & ~ (0x0000009F);
 }
+
 static void fpu_init (void)
 {
-    NVIC_SetPriority (FPU_IRQn, APP_IRQ_PRIORITY_LOW);
+    NVIC_SetPriority (FPU_IRQn, 7);
     NVIC_ClearPendingIRQ (FPU_IRQn);
     NVIC_EnableIRQ (FPU_IRQn);
 }
-#else
+
+#else //!< FLOAT_ABI_HARD
 static void fpu_init (void)
 {}
 #endif
@@ -71,9 +74,6 @@ static void wakeup_handler (void * p_context)
     m_wakeup = true;
 }
 
-/**
- *
- */
 rd_status_t ri_yield_init (void)
 {
     fpu_init();
@@ -162,8 +162,7 @@ rd_status_t ri_delay_us (uint32_t time)
     return RD_SUCCESS;
 }
 
-void ri_yield_indication_set (const ri_yield_state_ind_fp_t
-                              indication)
+void ri_yield_indication_set (const ri_yield_state_ind_fp_t indication)
 {
     m_ind = indication;
 }

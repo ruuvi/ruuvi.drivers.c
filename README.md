@@ -20,15 +20,26 @@ The drivers project has other drivers - suchs as Bosch and STM official drivers 
 submodules at root level.
 
 Ruuvi code is under `src` folder. 
+
+## Interfaces
 `Interfaces` folder provides platform-independent access to the peripherals of the 
 underlying microcontroller, for example function 
 `int8_t spi_bosch_platform_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len);` 
-is defined, but not implemented.
+is defined, but not implemented. This eases mocking the tasks for unit tests. 
 
+## Platform implementations
 Implementation of interfaces is in `*_platform`-folders.
 
-Tasks are larger functionalities, such as "get battery voltage" or "Broadcast this data". 
+Currently only supported platform is Nordic SDK15.3. Unpack (or softlink) the SDK on the
+root of the project for running the tests. 
 
+Because the platforms must contain hardware dependencies, the interfaces and platforms
+which implement them are not unit tested but integration tested instead.  
+
+## Tasks
+Tasks are larger functionalities, such as "get battery voltage" or "Broadcast this data".
+Top keep the tasks unit testable, they must contain only references to interfaces which
+allows mocking the hardware dependencies. 
 
 ## File and variable naming
 Files should be named `ruuvi_module_name`, for example `ruuvi_interface_spi.h`
@@ -40,14 +51,15 @@ abbreviation of `ruuvi_type_module_name`, for example `ri_yield_init()` or
 ## Enabling modules
 The application should contain `app_config.h` which includes platform specific includes
 such as `nrf5_sdk15_app_config.h`. Preprocessor must define `APPLICATION_DRIVER_CONFIGURED`
-to let drivers know they can include the `app_config.h`
+to let drivers know they can include the `app_config.h` and `RUUVI_NRF5_SDK15_ENABLED` 
+for including the `nrf5_sdk15_app_config.h`.
 
 As the repository may contain several different implementations of interface functions the
 desired implementation is enabled by definining `PLATFORM_MODULE_ENABLED 1`, 
 for example `RUUVI_NRF5_SDK15_LOG_ENABLED 1`.
 
-Leaving unused modules unenabled may conserve some flash and RAM as they're not 
-accidentally linked into given application. 
+Leaving unused modules unenabled will conserve some flash and RAM as they're not 
+linked into given application. 
 
 ## Error codes
 There are common error code definitions for the drivers, please see `ruuvi_driver_error.h`
@@ -130,6 +142,12 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.3
+ - Add unit tests for tasks
+
+## 0.1.2
+ - Fix some globally visible names not following the refactored scheme
+
 ## 0.1.1
  - Fix some globally visible names not following the refactored scheme
  - Pass RI_COMMUNICATION_TIMEOUT to application from BLE Scan.

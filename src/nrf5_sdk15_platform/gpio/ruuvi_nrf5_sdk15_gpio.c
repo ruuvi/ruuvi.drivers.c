@@ -1,6 +1,6 @@
 #include "ruuvi_driver_enabled_modules.h"
 
-#if (RUUVI_NRF5_SDK15_GPIO_ENABLED || DOXYGEN)
+#if (RUUVI_NRF5_SDK15_GPIO_ENABLED || DOXYGEN || CEEDLING)
 
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_driver_error.h"
@@ -15,7 +15,7 @@
 /**
 * @file ruuvi_nrf5_sdk15_gpio.c
 * @author Otso Jousimaa <otso@ojousima.net>
-* @date 2019-04-27
+* @date 2020-01-21
 * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
 *
 * Implementations for basic GPIO writes and reads on nRF5 SDK15.

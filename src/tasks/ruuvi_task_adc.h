@@ -12,9 +12,9 @@
  */
 /*@{*/
 /**
- * @file task_adc.h
+ * @file ruuvi_task_adc.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-12-25
+ * @date 2019-20-24
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Read ADC. Important: The ADC peripheral is shared by many different functions
@@ -37,16 +37,14 @@
  *    .samplerate    = APPLICATION_ADC_SAMPLERATE,
  *    .scale         = APPLICATION_ADC_SCALE
  *  };
- *  float battery_values; // Could be array, but we're measuring only one channel
- *  battery.data = &battery_values;
- *  battery.fields.datas.voltage_v = 1;
+ *  float battery_value;
  *  err_code = rt_adc_init();
  *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
  *  err_code |= rt_adc_configure_se(&vdd_adc_configuration, RI_ADC_AINVDD, ABSOLUTE);
  *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
  *  err_code |= rt_adc_sample();
  *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
- *  err_code |= rt_adc_voltage_get(&battery);
+ *  err_code |= rt_adc_voltage_get(&battery_value);
  *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
  *  err_code = rt_adc_uninit();
  *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
@@ -170,8 +168,8 @@ rd_status_t rt_adc_vdd_sample (void);
 /**
  * @brief Get VDD
  *
- * This function should be called any time after @ref rt_adc_vdd_prepare.
- * The value returned will remain fixed until next call to @ref rt_adc_vdd_prepare.
+ * This function should be called any time after @ref rt_adc_vdd_sample.
+ * The value returned will remain fixed until next call to @ref rt_adc_vdd_sample.
  *
  * @param[out] vdd VDD voltage in volts.
  * @retval RD_SUCCESS on success

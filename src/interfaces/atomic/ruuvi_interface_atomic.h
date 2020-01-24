@@ -22,8 +22,7 @@
 
 #define RI_ATOMIC_FLAG_INIT 0 //!< Initial value for atomic flag.
 
-typedef volatile uint32_t
-ri_atomic_t; //!< define atomic type - not portable to 8-bit.
+typedef volatile uint32_t ri_atomic_t; //!< define atomic type - not portable to 8-bit.
 
 /**
  * @brief Atomic flag check and set/clear function.

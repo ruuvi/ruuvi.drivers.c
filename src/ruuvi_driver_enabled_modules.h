@@ -42,7 +42,11 @@
 #endif
 
 #ifndef RD_LOG_BUFFER_SIZE
-#define    RD_LOG_BUFFER_SIZE (128U)
+#define RD_LOG_BUFFER_SIZE (128U)
 #endif
+
+#ifndef RT_ADC_ENABLED
+#define RT_ADC_ENABLED ENABLE_DEFAULT
+#endif  
 
 #endif
