@@ -12,6 +12,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_task_button.h"
 #if RT_BUTTON_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
