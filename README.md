@@ -142,6 +142,9 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.4
+ - Fix button task compilation when button task is not enabled
+
 ## 0.1.3
  - Add unit tests for tasks
  - Support multiple button initialization.
