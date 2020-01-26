@@ -8,7 +8,7 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=ncloc)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=sqale_index)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.firmware.c)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=sqale_index)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
 
 Ruuvi embedded drivers used across various platforms. Generally you should not use this 
 repository as-is, but rather as a submodule included in your project.
@@ -144,6 +144,7 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 # Changelog
 ## 0.1.3
  - Add unit tests for tasks
+ - Support multiple button initialization.
 
 ## 0.1.2
  - Fix some globally visible names not following the refactored scheme
