@@ -34,7 +34,7 @@ static ri_yield_state_ind_fp_t m_ind;  //!< State indication function
 // which will be recovered in the return from interrupt handling.
 void FPU_IRQHandler (void)
 {
-    // Prepare pointer to stack address with pushed FPSCR register 
+    // Prepare pointer to stack address with pushed FPSCR register
     // (0x40 is FPSCR register offset in stacked data)
     uint32_t * fpscr = (uint32_t *) (FPU->FPCAR + 0x40);
     // Execute FPU instruction to activate lazy stacking

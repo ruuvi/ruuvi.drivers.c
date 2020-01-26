@@ -21,18 +21,19 @@
 
 /** @brief Called on button event with the slope of edge.
  *
- * @param[in] event Slope of the button event, RI_GPIO_SLOPE_LOTOHI or 
+ * @param[in] event Slope of the button event, RI_GPIO_SLOPE_LOTOHI or
  *                  RI_GPIO_SLOPE_HITOLO.
  */
 typedef void (*rt_button_fp_t) (const ri_gpio_evt_t event);
 
 /** @brief Struct for initializing buttons. */
-typedef struct{
-  const ri_gpio_id_t* p_button_pins;        //!< Array of button pins.
-  const ri_gpio_state_t* p_button_active;   //!< Array of button active states.
-  const rt_button_fp_t* p_button_handlers;  //!< Array of button handlers.
-  const size_t num_buttons;                 //!< Number of buttons to initialize.
-}rt_button_init_t;
+typedef struct
+{
+    const ri_gpio_id_t * p_button_pins;       //!< Array of button pins.
+    const ri_gpio_state_t * p_button_active;  //!< Array of button active states.
+    const rt_button_fp_t * p_button_handlers; //!< Array of button handlers.
+    const size_t num_buttons;                 //!< Number of buttons to initialize.
+} rt_button_init_t;
 
 /**
  * @brief Button initialization function.
@@ -43,7 +44,7 @@ typedef struct{
  * @param[in] rt_init Initialization structure for button task.
  *
  * @retval RD_SUCCESS If buttons were initialized.
- * @retval RD_ERROR_NULL If any array of rt_init is NULL or any element of 
+ * @retval RD_ERROR_NULL If any array of rt_init is NULL or any element of
                          p_button_pins or p_button_active is NULL.
  * @retval RD_ERROR_INVALID_STATE if GPIO or GPIO interrupts aren't initialized.
  * @retval RD_ERROR_INVALID_PARAM if the GPIOs arent useable, e.g. pin 48 on board with
@@ -55,7 +56,7 @@ typedef struct{
  * @warning If error occurs while intializing pins the task calls rt_button_unit
  *          with the original initialization structure.
  **/
-rd_status_t rt_button_init (const rt_button_init_t* const rt_init);
+rd_status_t rt_button_init (const rt_button_init_t * const rt_init);
 
 /**
  * @brief Button uninitialization function.
@@ -64,10 +65,10 @@ rd_status_t rt_button_init (const rt_button_init_t* const rt_init);
  * their interrupts are disabled.
  *
  * @retval RD_SUCCESS
- * @retval RD_ERROR_NULL If any array of rt_init is NULL or any element of 
+ * @retval RD_ERROR_NULL If any array of rt_init is NULL or any element of
                          p_button_pins NULL.
  **/
-rd_status_t rt_button_uninit (const rt_button_init_t* const rt_init);
+rd_status_t rt_button_uninit (const rt_button_init_t * const rt_init);
 
 /*@}*/
 #endif

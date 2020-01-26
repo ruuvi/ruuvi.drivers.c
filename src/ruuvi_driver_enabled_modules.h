@@ -37,7 +37,7 @@
 #endif
 
 #ifndef RI_COMMUNICATION_MESSAGE_MAX_LENGTH
-/** @brief Standard BLE Broadcast manufacturer specific 
+/** @brief Standard BLE Broadcast manufacturer specific
 data payload length is the maximum length */
 #define RI_COMMUNICATION_MESSAGE_MAX_LENGTH 24
 #endif
@@ -55,12 +55,12 @@ data payload length is the maximum length */
 #ifndef RT_ADV_ENABLED
 /** @brief Enable BLE advertising compilation. */
 #define RT_ADV_ENABLED ENABLE_DEFAULT
-#endif 
+#endif
 
 #ifndef RT_BUTTON_ENABLED
 /** @brief Enable BLE advertising compilation. */
 #define RT_BUTTON_ENABLED ENABLE_DEFAULT
-#endif 
+#endif
 
 #ifndef RT_GPIO_ENABLED
 /** @brief Enable GPIO task compilation. */
