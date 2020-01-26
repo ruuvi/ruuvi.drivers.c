@@ -21,16 +21,16 @@
 
 /** @brief Called on button event with the slope of edge.
  *
- * @param[in] event slope of the button event, RI_GPIO_SLOPE_LOTOHI or 
- *                  RI_GPIO_SLOPE_HITOLO
+ * @param[in] event Slope of the button event, RI_GPIO_SLOPE_LOTOHI or 
+ *                  RI_GPIO_SLOPE_HITOLO.
  */
 typedef void (*rt_button_fp_t) (const ri_gpio_evt_t event);
 
-/** @brief struct for initializing buttons */
+/** @brief Struct for initializing buttons. */
 typedef struct{
-  const ri_gpio_id_t* p_button_pins;        //!< Array of button pins
-  const ri_gpio_state_t* p_button_active;   //!< Array of button active states
-  const rt_button_fp_t* p_button_handlers;  //!< Array of button handlers, NULL not allowed.
+  const ri_gpio_id_t* p_button_pins;        //!< Array of button pins.
+  const ri_gpio_state_t* p_button_active;   //!< Array of button active states.
+  const rt_button_fp_t* p_button_handlers;  //!< Array of button handlers.
   const size_t num_buttons;                 //!< Number of buttons to initialize.
 }rt_button_init_t;
 
@@ -42,15 +42,18 @@ typedef struct{
  *
  * @param[in] rt_init Initialization structure for button task.
  *
- * @retval RD_SUCCESS if buttons were initialized
- * @retval RD_ERROR_NULL if any array of rt_init is NULL or any element of 
-                         p_button_pins or p_button_active is NULL
+ * @retval RD_SUCCESS If buttons were initialized.
+ * @retval RD_ERROR_NULL If any array of rt_init is NULL or any element of 
+                         p_button_pins or p_button_active is NULL.
  * @retval RD_ERROR_INVALID_STATE if GPIO or GPIO interrupts aren't initialized.
  * @retval RD_ERROR_INVALID_PARAM if the GPIOs arent useable, e.g. pin 48 on board with
- *                                32 GPIO pins.
+ *                                32 GPIO pins or invalid active state.
+ * @retval RD_ERROR_NOT_ENABLED   if the driver module is not enabled at compile time.
  *
  * @note    This function can be called without uninitialization to reconfigure.
- * @warning behaviour is undefined if lengths of arrays don't match num_buttons.
+ * @warning Behaviour is undefined if lengths of arrays don't match num_buttons.
+ * @warning If error occurs while intializing pins the task calls rt_button_unit
+ *          with the original initialization structure.
  **/
 rd_status_t rt_button_init (const rt_button_init_t* const rt_init);
 
@@ -58,11 +61,11 @@ rd_status_t rt_button_init (const rt_button_init_t* const rt_init);
  * @brief Button uninitialization function.
  *
  * After calling this function the given button pins are configured as High-Z and
- * their interrupts are disable.d
+ * their interrupts are disabled.
  *
  * @retval RD_SUCCESS
- * @retval RD_ERROR_NULL if any array of rt_init is NULL or any element of 
-                         p_button_pins NULL
+ * @retval RD_ERROR_NULL If any array of rt_init is NULL or any element of 
+                         p_button_pins NULL.
  **/
 rd_status_t rt_button_uninit (const rt_button_init_t* const rt_init);
 

@@ -48,6 +48,7 @@
 #define RD_STATUS_MORE_AVAILABLE  (1<<18) ///< Driver has more data queued
 #define RD_ERROR_NOT_INITIALIZED  (1<<19) ///< Driver is not initialized.
 #define RD_ERROR_NOT_ACKNOWLEDGED (1<<20) ///< Ack was expected but not received
+#define RD_ERROR_NOT_ENABLED      (1<<21) ///< Driver is not enabled
 #define RD_ERROR_FATAL            (1<<31) ///< Program should always reset after this
 
 typedef uint32_t rd_status_t; ///< bitfield for representing errors

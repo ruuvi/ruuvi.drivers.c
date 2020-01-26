@@ -62,4 +62,9 @@ data payload length is the maximum length */
 #define RT_BUTTON_ENABLED ENABLE_DEFAULT
 #endif 
 
+#ifndef RT_GPIO_ENABLED
+/** @brief Enable GPIO task compilation. */
+#define RT_GPIO_ENABLED ENABLE_DEFAULT
+#endif
+
 #endif

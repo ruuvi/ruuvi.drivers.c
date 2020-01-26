@@ -96,8 +96,7 @@ bool ri_gpio_interrupt_is_init (void);
  * @return @ref RD_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-rd_status_t ri_gpio_interrupt_enable (const
-                                      ri_gpio_id_t pin,
+rd_status_t ri_gpio_interrupt_enable (const ri_gpio_id_t pin,
                                       const ri_gpio_slope_t slope,
                                       const ri_gpio_mode_t mode,
                                       const ri_gpio_interrupt_fp_t handler);
@@ -105,14 +104,14 @@ rd_status_t ri_gpio_interrupt_enable (const
 /**
  * @brief Disable interrupt on a pin.
  *
- * Pin will be left as @ref RI_GPIO_MODE_HIGH_Z
+ * Pin will be left as @ref RI_GPIO_MODE_HIGH_Z.
  *
- * @param pin[in] pin to disable as interrupt source
+ * @param pin[in] pin to disable as interrupt source.
  *
- * @return @ref RD_SUCCESS on success, error code on failure.
+ * @retval @ref RD_SUCCESS on success.
+
  */
-rd_status_t ri_gpio_interrupt_disable (const
-                                       ri_gpio_id_t pin);
+rd_status_t ri_gpio_interrupt_disable (const ri_gpio_id_t pin);
 
 /*@}*/
 

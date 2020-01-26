@@ -100,11 +100,9 @@ void test_rt_button_init_null (void)
     ri_gpio_mode_t  mode1 = (ACTIVE_STATE1) ? RI_GPIO_MODE_INPUT_PULLDOWN : RI_GPIO_MODE_INPUT_PULLUP;
     ri_gpio_mode_t  mode2 = (ACTIVE_STATE2) ? RI_GPIO_MODE_INPUT_PULLDOWN : RI_GPIO_MODE_INPUT_PULLUP;
 
-    rt_gpio_is_init_ExpectAndReturn(true);
     err_code = rt_button_init (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 
-    rt_gpio_is_init_ExpectAndReturn(true);
     err_code = rt_button_init (&(rt_button_init_t)
 {
     .p_button_pins = NULL,
@@ -114,7 +112,6 @@ void test_rt_button_init_null (void)
 });
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 
-    rt_gpio_is_init_ExpectAndReturn(true);
     err_code = rt_button_init (&(rt_button_init_t)
 {
     .p_button_pins = button_pins,
@@ -124,7 +121,6 @@ void test_rt_button_init_null (void)
 });
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 
-    rt_gpio_is_init_ExpectAndReturn(true);
     err_code = rt_button_init (&(rt_button_init_t)
 {
     .p_button_pins = button_pins,
@@ -146,5 +142,66 @@ void test_rt_button_init_no_gpio (void)
     rt_gpio_is_init_ExpectAndReturn(false);
     err_code = rt_button_init (&init_data);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
+}
 
+void test_rt_button_init_invalid_params (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    ri_gpio_slope_t slope = RI_GPIO_SLOPE_TOGGLE;
+    ri_gpio_mode_t  mode1 = (ACTIVE_STATE1) ? RI_GPIO_MODE_INPUT_PULLDOWN : RI_GPIO_MODE_INPUT_PULLUP;
+    ri_gpio_mode_t  mode2 = (ACTIVE_STATE2) ? RI_GPIO_MODE_INPUT_PULLDOWN : RI_GPIO_MODE_INPUT_PULLUP;
+    const ri_gpio_id_t invalid_pins[] = { CEED_PIN1, 0xFFFF };
+    const ri_gpio_state_t invalid_active[] = { ACTIVE_STATE1, 87 };
+    const rt_button_fp_t invalid_handlers[] = { ceedling_cb1, NULL };
+
+    rt_gpio_is_init_ExpectAndReturn(true);
+    ri_gpio_interrupt_enable_ExpectAndReturn (CEED_PIN1, slope, mode1, (init_data.p_button_handlers[0]),
+            RD_SUCCESS);
+    ri_gpio_interrupt_enable_ExpectAndReturn (0xFFFF, slope, mode2, (init_data.p_button_handlers[1]),
+            RD_ERROR_INVALID_PARAM);
+    rt_gpio_is_init_ExpectAndReturn(true);
+    ri_gpio_interrupt_disable_ExpectAndReturn(CEED_PIN1, RD_SUCCESS);
+    ri_gpio_interrupt_disable_ExpectAndReturn(0xFFFF, RD_ERROR_INVALID_PARAM);
+    rt_button_init_t init1 = 
+    {
+    .p_button_pins = invalid_pins,
+    .p_button_active = button_active,
+    .p_button_handlers = button_handlers,
+    .num_buttons = 2
+    };
+    err_code = rt_button_init (&init1);
+    TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
+
+    rt_gpio_is_init_ExpectAndReturn(true);
+    ri_gpio_interrupt_enable_ExpectAndReturn (CEED_PIN1, slope, mode1, (init_data.p_button_handlers[0]),
+            RD_SUCCESS);
+    rt_gpio_is_init_ExpectAndReturn(true);
+    ri_gpio_interrupt_disable_ExpectAndReturn(CEED_PIN1, RD_SUCCESS);
+    ri_gpio_interrupt_disable_ExpectAndReturn(CEED_PIN2, RD_SUCCESS);
+    rt_button_init_t init2 =
+    {
+    .p_button_pins = button_pins,
+    .p_button_active = invalid_active,
+    .p_button_handlers = button_handlers,
+    .num_buttons = 2
+    };
+    err_code = rt_button_init (&init2);
+    TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
+
+    rt_gpio_is_init_ExpectAndReturn(true);
+    ri_gpio_interrupt_enable_ExpectAndReturn (CEED_PIN1, slope, mode1, (init_data.p_button_handlers[0]),
+            RD_SUCCESS);
+    rt_gpio_is_init_ExpectAndReturn(true);
+    ri_gpio_interrupt_disable_ExpectAndReturn(CEED_PIN1, RD_SUCCESS);
+    ri_gpio_interrupt_disable_ExpectAndReturn(CEED_PIN2, RD_SUCCESS);
+    rt_button_init_t init3 =
+    {
+    .p_button_pins = button_pins,
+    .p_button_active = button_active,
+    .p_button_handlers = invalid_handlers,
+    .num_buttons = 2
+    };
+    err_code = rt_button_init (&init3);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
