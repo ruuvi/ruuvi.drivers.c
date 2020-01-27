@@ -21,9 +21,7 @@
 #include "ruuvi_interface_log.h"
 
 /** @brief Function to get heartbeat data */
-typedef ruuvi_driver_status_t
-(*heartbeat_data_fp_t)
-(uint8_t * const msg);
+typedef rd_status_t (*heartbeat_data_fp_t) (uint8_t * const msg);
 
 /**
  * @brief Start sending a "hearbeat" signal over given channel to a connected device(s).
@@ -37,16 +35,16 @@ typedef ruuvi_driver_status_t
  * @param[in] data_src function to generate the heartbeat message
  * @param[in] send function pointer to send the data through. May be NULL if interval is 0.
  *
- * @retval RUUVI_DRIVER_SUCCESS if heartbeat was initialized (or stopped)
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if timer cannot be initialized.
- * @retval RUUVI_DRIVER_ERROR_NULL if interval wasn't 0 and send is NULL
+ * @retval RD_SUCCESS if heartbeat was initialized (or stopped)
+ * @retval RD_ERROR_INVALID_STATE if timer cannot be initialized.
+ * @retval RD_ERROR_NULL if interval wasn't 0 and send is NULL
  * @retval error code from stack on other error.
  *
  */
-ruuvi_driver_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
-        const size_t max_len,
-        const heartbeat_data_fp_t data_src,
-        const ruuvi_interface_communication_xfer_fp_t send);
+rd_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
+                                        const size_t max_len,
+                                        const heartbeat_data_fp_t data_src,
+                                        const ri_communication_xfer_fp_t send);
 
 /**
  * @brief get MAC address of the device from radio driver and write it to given buffer.
@@ -56,11 +54,11 @@ ruuvi_driver_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
  * 0xAA, BB, CC, DD, EE, FF.
  *
  * @param[out] mac_buffer 6-character array
- * @retval RUUVI_DRIVER_SUCCESS if mac buffer was written
- * @retval RUUVI_DRIVER_ERROR_NULL if mac_buffer was NULL
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if radio is not initialized
+ * @retval RD_SUCCESS if mac buffer was written
+ * @retval RD_ERROR_NULL if mac_buffer was NULL
+ * @retval RD_ERROR_INVALID_STATE if radio is not initialized
  */
-ruuvi_driver_status_t rt_com_get_mac (uint8_t * const mac_buffer);
+rd_status_t rt_com_get_mac (uint8_t * const mac_buffer);
 
 /*@}*/
 

@@ -17,18 +17,21 @@
 
 static uint16_t m_activity_led;
 static bool     m_initialized;
-static ri_gpio_id_t m_led_list[DRIVER_MAX_LED_CFG];
-static ri_gpio_state_t m_led_active_state[DRIVER_MAX_LED_CFG];
+static ri_gpio_id_t    m_led_list[RT_MAX_LED_CFG];
+static ri_gpio_state_t m_led_active_state[RT_MAX_LED_CFG];
+//Store user configured led number in case there's extra space in array.
+static size_t          m_num_leds;
 
 #ifndef CEEDLING
 static
 #endif
-int8_t is_led (const uint16_t led)
+int8_t is_led (const ri_gpio_id_t led)
 {
     int8_t led_valid = -1;
 
-    for (size_t ii = 0U; (ii < (sizeof (m_led_list) / sizeof (m_led_list[0])))
-            && (0 > led_valid); ii++)
+    for (size_t ii = 0U;
+            (ii < m_num_leds) && (0 > led_valid);
+            ii++)
     {
         if (led == m_led_list[ii])
         {
@@ -46,7 +49,7 @@ static inline ri_gpio_state_t led_to_pin_state (ri_gpio_id_t led, bool active)
 
     if (index > -1)
     {
-        if (true == m_led_active_state[index])
+        if (RI_GPIO_HIGH == m_led_active_state[index])
         {
             state = active ? RI_GPIO_HIGH : RI_GPIO_LOW;
         }
@@ -89,6 +92,7 @@ rd_status_t rt_led_init (const uint16_t * const leds,
         }
 
         m_activity_led = RI_GPIO_ID_UNUSED;
+        m_num_leds = num_leds;
         m_initialized = true;
     }
 
@@ -99,13 +103,14 @@ rd_status_t rt_led_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    for (size_t ii = 0U; ii < (sizeof (m_led_list) / sizeof (m_led_list[0])); ii++)
+    for (size_t ii = 0U; ii < m_num_leds; ii++)
     {
         err_code |= ri_gpio_configure (m_led_list[ii], RI_GPIO_MODE_HIGH_Z);
     }
 
     m_activity_led = RI_GPIO_ID_UNUSED;
     m_initialized = false;
+    m_num_leds = 0;
     return err_code;
 }
 
@@ -113,13 +118,13 @@ rd_status_t rt_led_write (const uint16_t led, const bool active)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (0 > is_led (led))
-    {
-        err_code |= RD_ERROR_INVALID_PARAM;
-    }
-    else if (!m_initialized)
+    if (!m_initialized)
     {
         err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (0 > is_led (led))
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
     }
     else
     {

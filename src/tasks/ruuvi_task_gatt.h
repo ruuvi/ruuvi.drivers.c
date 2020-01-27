@@ -5,7 +5,7 @@
 /**
  * @file task_gatt.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-10-12
+ * @date 2020-01-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  *
@@ -23,8 +23,8 @@
 void rt_gatt_mock_state_reset();
 
 // Expose callback to Ceedling
-ruuvi_driver_status_t rt_gatt_on_nus_isr (ruuvi_interface_communication_evt_t evt,
-        void * p_data, size_t data_len);
+rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
+                                void * p_data, size_t data_len);
 
 #endif
 
@@ -38,15 +38,13 @@ typedef void (*rt_gatt_cb_t) (void * p_data, size_t data_len);
  * There is no guarantee on when the data is actually sent, and
  * there is no acknowledgement or callback after the data has been sent.
  *
- * @retval RUUVI_DRIVER_SUCCESS if data was placed in send buffer
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if NUS is not connected
- * @retval RUUVI_DRIVER_ERROR_NO_MEM if tx buffer is full
+ * @retval RD_SUCCESS if data was placed in send buffer
+ * @retval RD_ERROR_INVALID_STATE if NUS is not connected
+ * @retval RD_ERROR_NO_MEM if tx buffer is full
  * @retval error code from stack on other error
  *
  */
-ruuvi_driver_status_t rt_gatt_send_asynchronous (ruuvi_interface_communication_message_t
-        *
-        const msg);
+rd_status_t rt_gatt_send_asynchronous (ri_communication_message_t * const msg);
 
 /**
  * @brief Initialize Device Firmware Update service
@@ -59,10 +57,10 @@ ruuvi_driver_status_t rt_gatt_send_asynchronous (ruuvi_interface_communication_m
  *
  * To use the DFU service advertisement module must send connectable (and preferably scannable) advertisements.
  *
- * @retval RUUVI_DRIVER_SUCCESS GATT was initialized successfully
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE DFU was already initialized or GATT is not initialized
+ * @retval RD_SUCCESS GATT was initialized successfully
+ * @retval RD_ERROR_INVALID_STATE DFU was already initialized or GATT is not initialized
  */
-ruuvi_driver_status_t rt_gatt_dfu_init (void);
+rd_status_t rt_gatt_dfu_init (void);
 
 /**
  * @brief Initialize Device Information Update service
@@ -76,12 +74,11 @@ ruuvi_driver_status_t rt_gatt_dfu_init (void);
  *
  * @param[in] dis structure containing data to be copied into DIS, can be freed after call finishes.
  *
- * @retval RUUVI_DRIVER_SUCCESS GATT was initialized successfully
- * @retval RUUVI_DRIVER_ERROR_NULL if given NULL as the information.
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
+ * @retval RD_SUCCESS GATT was initialized successfully
+ * @retval RD_ERROR_NULL if given NULL as the information.
+ * @retval RD_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  */
-ruuvi_driver_status_t rt_gatt_dis_init (const
-                                        ruuvi_interface_communication_ble4_gatt_dis_init_t * const dis);
+rd_status_t rt_gatt_dis_init (const ri_gatt_dis_init_t * const dis);
 
 /**
  * @brief Initialize Nordic UART Service
@@ -94,13 +91,13 @@ ruuvi_driver_status_t rt_gatt_dis_init (const
  * To use the NUS service advertisement module must send connectable (and preferably scannable) advertisements.
  *
  *
- * @retval RUUVI_DRIVER_SUCCESS GATT was initialized successfully
- * @retval RUUVI_DRIVER_ERROR_NULL if given NULL as the information.
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
+ * @retval RD_SUCCESS GATT was initialized successfully
+ * @retval RD_ERROR_NULL if given NULL as the information.
+ * @retval RD_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  *
  * @note To actually use the data in application, user must setup at least data received callback with @ref rt_gatt_set_on_received_isr
  */
-ruuvi_driver_status_t rt_gatt_nus_init();
+rd_status_t rt_gatt_nus_init();
 
 /**
  * @brief Initialize GATT. Must be called as a first function in rt_gatt.
@@ -109,13 +106,13 @@ ruuvi_driver_status_t rt_gatt_nus_init();
  *
  * @param[in] name Full name of device to be advertised in scan responses. Maximum 11 chars + trailing NULL. Must not be NULL, 0-length string is valid.
  *
- * @retval RUUVI_DRIVER_SUCCESS on success.
- * @retval RUUVI_DRIVER_ERROR_NULL if name is NULL (use 0-length string instead)
- * @retval RUUVI_DRIVER_ERROR_INVALID_LENGTH if name is longer than @ref SCAN_RSP_NAME_MAX_LEN
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if GATT is already initialized or advertisements are not initialized.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if name is NULL (use 0-length string instead)
+ * @retval RD_ERROR_INVALID_LENGTH if name is longer than @ref SCAN_RSP_NAME_MAX_LEN
+ * @retval RD_ERROR_INVALID_STATE if GATT is already initialized or advertisements are not initialized.
  *
  */
-ruuvi_driver_status_t rt_gatt_init (const char * const name);
+rd_status_t rt_gatt_init (const char * const name);
 
 /**
  * @brief Start advertising GATT connection to devices.
@@ -124,10 +121,10 @@ ruuvi_driver_status_t rt_gatt_init (const char * const name);
  * to add the scan response to data being advertised. This makes sure that advertised data stays valid.
  * This function has no effect if called while already enabled.
  *
- * @retval RUUVI_DRIVER_SUCCESS on success
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if GATT is not initialized.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-ruuvi_driver_status_t rt_gatt_enable();
+rd_status_t rt_gatt_enable();
 
 /**
  * @brief Stop advertising GATT connection to devices.
@@ -136,10 +133,10 @@ ruuvi_driver_status_t rt_gatt_enable();
  * to remove the scan response from data being advertised. This makes sure that advertised data stays valid.
  * This function has not effect if called while already disabled
  *
- * @retval RUUVI_DRIVER_SUCCESS on success
- * @retval RUUVI_DRIVER_ERROR_INVALID_STATE if GATT is not initialized.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-ruuvi_driver_status_t rt_gatt_disable();
+rd_status_t rt_gatt_disable();
 
 /**
  * @brief check if GATT task is initialized
@@ -154,6 +151,17 @@ bool rt_gatt_is_init();
  * @return true if NUS is connected is initialized, false otherwise.
  */
 bool rt_gatt_nus_is_connected();
+
+/** @brief Check if Nordic UART Service is enabled.
+ *
+ *  The event handler has signature of
+ *  @code void(*rt_gatt_cb_t)(void* p_event_data, uint16_t event_size) @endcode
+ *  where event data is NULL and event_size is 0.
+ *  The event handler is called in interrupt context.
+ *
+ * @return true if GATT is initialized and ready to accept connection, false otherwise.
+ */
+bool rt_gatt_is_nus_enabled();
 
 /** @brief Setup connection event handler.
  *

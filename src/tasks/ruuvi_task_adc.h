@@ -2,7 +2,7 @@
 #define TASK_ADC_H
 
 /**
- * @defgroup adc_tasks ADC tasks
+ * @addtogroup adc_tasks ADC tasks
  * @brief Internal Analog-to-digital converter control.
  *
  */
@@ -14,7 +14,7 @@
 /**
  * @file ruuvi_task_adc.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-20-24
+ * @date 2019-20-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Read ADC. Important: The ADC peripheral is shared by many different functions
@@ -89,12 +89,12 @@ bool rt_adc_is_init (void);
  * @brief Configure ADC before sampling
  *
  * This function readies the ADC for sampling.
- * Configuring the ADC may take some time (< 1 ms) while actual sample must be as fast.
+ * Configuring the ADC may take some time (< 1 ms) while actual sample must be as fast
  * as possible to catch transients.
  *
  * <b>Note:</b> ADC should be configured to sleep or continuous mode. To take a single sample,
  * call @ref rt_adc_sample after configuration. Configuring ADC into single sample mode is
- * equivalent to configuring ADC into sleep and then calling @ref rt_adc_sample immediately
+ * equivalent to calling @ref rt_adc_sample and configuring ADC into sleep immediately.
  *
  * @param[in,out] config Configuration of ADC.
  * @param[in] handle Handle to ADC, i.e. ADC pin.
@@ -102,8 +102,8 @@ bool rt_adc_is_init (void);
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if ADC is not initialized or if it is already configured.
  */
-rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const
-                                 config, const uint8_t handle, const rt_adc_mode_t mode);
+rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
+                                 const uint8_t handle, const rt_adc_mode_t mode);
 
 /**
  * @brief Take a new sample on ADC configured in single-shot/sleep mode

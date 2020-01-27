@@ -14,8 +14,7 @@ rd_status_t rt_gpio_init()
     if (!rt_gpio_is_init())
     {
         err_code |= ri_gpio_init();
-        err_code |= ri_gpio_interrupt_init (interrupt_table,
-                                            sizeof (interrupt_table));
+        err_code |= ri_gpio_interrupt_init (interrupt_table, sizeof (interrupt_table));
     }
 
     return err_code;
@@ -23,7 +22,6 @@ rd_status_t rt_gpio_init()
 
 bool rt_gpio_is_init()
 {
-    return ri_gpio_is_init()
-           && ri_gpio_interrupt_is_init();
+    return ri_gpio_is_init() && ri_gpio_interrupt_is_init();
 }
 #endif
