@@ -18,6 +18,7 @@
 #include "ruuvi_interface_communication_ble4_advertising.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_task_advertisement.h"
+#include "ruuvi_task_gatt.h"
 
 // https://github.com/arm-embedded/gcc-arm-none-eabi.debian/blob/master/src/libiberty/strnlen.c
 // Not included when compiled with std=c99.
@@ -123,8 +124,7 @@ rd_status_t rt_adv_send_data (
     return err_code;
 }
 
-rd_status_t rt_adv_connectability_set (const bool enable,
-                                       const char * const device_name)
+rd_status_t rt_adv_connectability_set (const bool enable, const char * const device_name)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -134,8 +134,7 @@ rd_status_t rt_adv_connectability_set (const bool enable,
     }
     else if (!enable)
     {
-        err_code |= ri_adv_type_set (
-                        NONCONNECTABLE_NONSCANNABLE);
+        err_code |= ri_adv_type_set (NONCONNECTABLE_NONSCANNABLE);
     }
     else if (NULL == device_name)
     {
@@ -148,10 +147,8 @@ rd_status_t rt_adv_connectability_set (const bool enable,
     else
     {
         // TODO @ojousima: ensure that advertisement type is extended if necessary.
-        err_code |= ri_adv_type_set (
-                        CONNECTABLE_SCANNABLE);
-        err_code |= ri_adv_scan_response_setup (
-                        device_name, true);
+        err_code |= ri_adv_type_set (CONNECTABLE_SCANNABLE);
+        err_code |= ri_adv_scan_response_setup (device_name, rt_gatt_is_nus_enabled());
     }
 
     return err_code;

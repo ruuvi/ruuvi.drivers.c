@@ -11,6 +11,7 @@
 #include "ruuvi_task_advertisement.h"
 #include "ruuvi_driver_error.h"
 
+#include "mock_ruuvi_task_gatt.h"
 #include "mock_ruuvi_interface_communication_ble4_advertising.h"
 #include "mock_ruuvi_interface_log.h"
 
@@ -338,15 +339,25 @@ void test_rt_adv_send_data_excess_size_25 (void)
  *  @retval    RD_ERROR_INVALID_LENGTH if name size exceeds 10 bytes + NULL
  *  @retval    error code from stack on other error.
  */
+void test_rt_adv_connectability_set_nus_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    const char name[] = "Ceedling";
+    ri_adv_type_set_ExpectAndReturn (CONNECTABLE_SCANNABLE, RD_SUCCESS);
+    rt_gatt_is_nus_enabled_ExpectAndReturn(true);
+    ri_adv_scan_response_setup_ExpectAndReturn (name, true, RD_SUCCESS);
+    err_code = rt_adv_connectability_set (true, name);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
 void test_rt_adv_connectability_set_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     const char name[] = "Ceedling";
-    ri_adv_type_set_ExpectAndReturn (
-        CONNECTABLE_SCANNABLE, RD_SUCCESS);
-    ri_adv_scan_response_setup_ExpectAndReturn (name,
-            true, RD_SUCCESS);
-    err_code = rt_adv_connectability_set (true, "Ceedling");
+    ri_adv_type_set_ExpectAndReturn (CONNECTABLE_SCANNABLE, RD_SUCCESS);
+    rt_gatt_is_nus_enabled_ExpectAndReturn(false);
+    ri_adv_scan_response_setup_ExpectAndReturn (name, false, RD_SUCCESS);
+    err_code = rt_adv_connectability_set (true, name);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 

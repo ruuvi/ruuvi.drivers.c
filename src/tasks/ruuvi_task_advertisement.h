@@ -120,8 +120,7 @@ rd_status_t rt_adv_stop (void);
  *  @retval    RD_ERROR_DATA_SIZE if payload size is larger than 24 bytes
  *  @retval    error code from stack on other error.
  */
-rd_status_t rt_adv_send_data (
-    ri_communication_message_t * const msg);
+rd_status_t rt_adv_send_data (ri_communication_message_t * const msg);
 
 /** @brief Start advertising BLE GATT connection
  *

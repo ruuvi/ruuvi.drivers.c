@@ -15,10 +15,9 @@
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_scheduler.h"
-#include "ruuvi_interface_watchdog.h"
-#include "task_advertisement.h"
-#include "task_communication.h"
-#include "task_gatt.h"
+#include "ruuvi_task_advertisement.h"
+#include "ruuvi_task_communication.h"
+#include "ruuvi_task_gatt.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,31 +30,31 @@
 #if 0
 static inline void LOG (const char * const msg)
 {
-    ruuvi_interface_log (TASK_GATT_LOG_LEVEL, msg);
+    ri_log (TASK_GATT_LOG_LEVEL, msg);
 }
 
 static inline void LOGE (const char * const msg)
 {
-    ruuvi_interface_log (RUUVI_INTERFACE_LOG_ERROR, msg);
+    ri_log (RI_LOG_ERROR, msg);
 }
 
 static inline void LOGHEX (const uint8_t * const msg, const size_t len)
 {
-    ruuvi_interface_log_hex (TASK_GATT_LOG_LEVEL, msg, len);
+    ri_log_hex (TASK_GATT_LOG_LEVEL, msg, len);
 }
 #endif
 
 static inline void LOGD (const char * const msg)
 {
-    ruuvi_interface_log (RUUVI_INTERFACE_LOG_DEBUG, msg);
+    ri_log (RI_LOG_LEVEL_DEBUG, msg);
 }
 
 static inline void LOGDHEX (const uint8_t * const msg, const size_t len)
 {
-    ruuvi_interface_log_hex (RUUVI_INTERFACE_LOG_DEBUG, msg, len);
+    ri_log_hex (RI_LOG_LEVEL_DEBUG, msg, len);
 }
 
-static ruuvi_interface_communication_t m_channel;   //!< API for sending data.
+static ri_communication_t m_channel;   //!< API for sending data.
 static bool m_is_init;
 static bool m_nus_is_init;
 static bool m_dis_is_init;
@@ -91,7 +90,7 @@ void rt_gatt_mock_state_reset()
     m_dfu_is_init = false;
     m_dis_is_init = false;
     m_nus_is_connected = false;
-    memset (&m_channel, 0, sizeof (ruuvi_interface_communication_t));
+    memset (&m_channel, 0, sizeof (ri_communication_t));
     memset (m_name, 0, sizeof (m_name));
 }
 #endif
@@ -110,34 +109,34 @@ void rt_gatt_mock_state_reset()
  *
  * @param evt Event type
  * @param p_data pointer to event data, if event is
- *               @c RUUVI_INTERFACE_COMMUNICATION_RECEIVED received data, NULL otherwise.
+ *               @c RI_COMMUNICATION_RECEIVED received data, NULL otherwise.
  * @param data_len number of bytes in received data, 0 if p_data is NULL.
  *
  */
 #ifndef CEEDLING
 static
 #endif
-ruuvi_driver_status_t rt_gatt_on_nus_isr (ruuvi_interface_communication_evt_t evt,
+rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
         void * p_data, size_t data_len)
 {
     switch (evt)
     {
         // Note: This gets called only after the NUS notifications have been registered.
-        case RUUVI_INTERFACE_COMMUNICATION_CONNECTED:
+        case RI_COMMUNICATION_CONNECTED:
             m_nus_is_connected = true;
             (NULL != m_on_connected) ? m_on_connected (p_data, data_len) : false;
             break;
 
-        case RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED:
+        case RI_COMMUNICATION_DISCONNECTED:
             m_nus_is_connected = false;
             (NULL != m_on_disconnected) ? m_on_disconnected (p_data, data_len) : false;
             break;
 
-        case RUUVI_INTERFACE_COMMUNICATION_SENT:
+        case RI_COMMUNICATION_SENT:
             (NULL != m_on_sent) ? m_on_sent (p_data, data_len) : false;
             break;
 
-        case RUUVI_INTERFACE_COMMUNICATION_RECEIVED:
+        case RI_COMMUNICATION_RECEIVED:
             (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
             break;
 
@@ -145,40 +144,39 @@ ruuvi_driver_status_t rt_gatt_on_nus_isr (ruuvi_interface_communication_evt_t ev
             break;
     }
 
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t rt_gatt_dis_init (const
-                                        ruuvi_interface_communication_ble4_gatt_dis_init_t * const p_dis)
+rd_status_t rt_gatt_dis_init (const ri_gatt_dis_init_t * const p_dis)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == p_dis)
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
     else if (rt_gatt_is_init() && (!m_dis_is_init))
     {
-        err_code |= ruuvi_interface_communication_ble4_gatt_dis_init (p_dis);
-        m_dis_is_init = (RUUVI_DRIVER_SUCCESS == err_code);
+        err_code |= ri_gatt_dis_init (p_dis);
+        m_dis_is_init = (RD_SUCCESS == err_code);
     }
     else
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
 }
 
-ruuvi_driver_status_t rt_gatt_nus_init (void)
+rd_status_t rt_gatt_nus_init (void)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (rt_gatt_is_init() && (!m_nus_is_init))
     {
-        err_code |= ruuvi_interface_communication_ble4_gatt_nus_init (&m_channel);
+        err_code |= ri_gatt_nus_init (&m_channel);
 
-        if (RUUVI_DRIVER_SUCCESS == err_code)
+        if (RD_SUCCESS == err_code)
         {
             m_channel.on_evt = rt_gatt_on_nus_isr;
             m_nus_is_init = true;
@@ -186,58 +184,58 @@ ruuvi_driver_status_t rt_gatt_nus_init (void)
     }
     else
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
 }
 
-ruuvi_driver_status_t rt_gatt_dfu_init (void)
+rd_status_t rt_gatt_dfu_init (void)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (rt_gatt_is_init() && (!m_dfu_is_init))
     {
-        err_code |= ruuvi_interface_communication_ble4_gatt_dfu_init();
-        m_dfu_is_init = (RUUVI_DRIVER_SUCCESS == err_code);
+        err_code |= ri_gatt_dfu_init();
+        m_dfu_is_init = (RD_SUCCESS == err_code);
     }
     else
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
 }
 
-ruuvi_driver_status_t rt_gatt_init (const char * const name)
+rd_status_t rt_gatt_init (const char * const name)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == name)
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
-    else if (rt_advertisement_is_init() && (!rt_gatt_is_init()))
+    else if (rt_adv_is_init() && (!rt_gatt_is_init()))
     {
         const size_t name_length = safe_strlen (name, sizeof (m_name));
 
         if (sizeof (m_name) > name_length)
         {
-            err_code |= ruuvi_interface_communication_ble4_gatt_init();
+            err_code |= ri_gatt_init();
             memcpy (m_name, name, name_length);
             m_name[name_length] = '\0';
         }
         else
         {
-            err_code |= RUUVI_DRIVER_ERROR_INVALID_LENGTH;
+            err_code |= RD_ERROR_INVALID_LENGTH;
         }
     }
     else
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
-    if (RUUVI_DRIVER_SUCCESS == err_code)
+    if (RD_SUCCESS == err_code)
     {
         m_is_init = true;
     }
@@ -245,39 +243,33 @@ ruuvi_driver_status_t rt_gatt_init (const char * const name)
     return err_code;
 }
 
-ruuvi_driver_status_t rt_gatt_enable (void)
+rd_status_t rt_gatt_enable (void)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (rt_gatt_is_init())
     {
-        // Note that this doesn't update sofdevice buffer, you have to call
-        // advertising functions to encode data and start the advertisements.
-        err_code |= ruuvi_interface_communication_ble4_advertising_scan_response_setup (
-                        m_name, m_nus_is_init);
-        err_code |= ruuvi_interface_communication_ble4_advertising_type_set (
-                        CONNECTABLE_SCANNABLE);
+        err_code |= rt_adv_connectability_set (true, m_name);
     }
     else
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
 }
 
-ruuvi_driver_status_t rt_gatt_disable (void)
+rd_status_t rt_gatt_disable (void)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (rt_gatt_is_init())
     {
-        err_code |= ruuvi_interface_communication_ble4_advertising_type_set (
-                        NONCONNECTABLE_NONSCANNABLE);
+        err_code |= rt_adv_connectability_set (false, NULL);
     }
     else
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
@@ -298,19 +290,19 @@ bool rt_gatt_nus_is_connected (void)
     return m_nus_is_connected && (NULL != m_channel.send);
 }
 
-ruuvi_driver_status_t rt_gatt_send_asynchronous (ruuvi_interface_communication_message_t
+rd_status_t rt_gatt_send_asynchronous (ri_communication_message_t
         * const p_msg)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     // State, input check
     if (NULL == p_msg)
     {
-        err_code |= RUUVI_DRIVER_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
     else if (!rt_gatt_nus_is_connected())
     {
-        err_code |= RUUVI_DRIVER_ERROR_INVALID_STATE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
@@ -318,20 +310,20 @@ ruuvi_driver_status_t rt_gatt_send_asynchronous (ruuvi_interface_communication_m
         err_code |= m_channel.send (p_msg);
 
         // If success, return. Else put data to ringbuffer
-        if (RUUVI_DRIVER_SUCCESS == err_code)
+        if (RD_SUCCESS == err_code)
         {
             LOGD (">>>;");
             LOGDHEX (p_msg->data, p_msg->data_length);
             LOGD ("\r\n");
         }
-        else if (RUUVI_DRIVER_ERROR_RESOURCES == err_code)
+        else if (RD_ERROR_RESOURCES == err_code)
         {
-            err_code = RUUVI_DRIVER_ERROR_NO_MEM;
+            err_code = RD_ERROR_NO_MEM;
         }
         // If the error code is something else than buffer full, return error.
         else
         {
-            RUUVI_DRIVER_ERROR_CHECK (err_code, ~RUUVI_DRIVER_ERROR_FATAL);
+            RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
         }
     }
 
@@ -357,6 +349,11 @@ void rt_gatt_set_on_received_isr (const rt_gatt_cb_t cb)
 void rt_gatt_set_on_sent_isr (const rt_gatt_cb_t cb)
 {
     m_on_sent = cb;
+}
+
+bool rt_gatt_is_nus_enabled(void)
+{
+    return m_nus_is_init;
 }
 
 #endif
