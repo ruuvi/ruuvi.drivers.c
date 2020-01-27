@@ -20,7 +20,7 @@ static bool     m_initialized;
 static ri_gpio_id_t    m_led_list[RT_MAX_LED_CFG];
 static ri_gpio_state_t m_led_active_state[RT_MAX_LED_CFG];
 //Store user configured led number in case there's extra space in array.
-static size_t          m_num_leds; 
+static size_t          m_num_leds;
 
 #ifndef CEEDLING
 static
@@ -29,9 +29,9 @@ int8_t is_led (const ri_gpio_id_t led)
 {
     int8_t led_valid = -1;
 
-    for (size_t ii = 0U; 
-        (ii < m_num_leds) && (0 > led_valid); 
-        ii++)
+    for (size_t ii = 0U;
+            (ii < m_num_leds) && (0 > led_valid);
+            ii++)
     {
         if (led == m_led_list[ii])
         {

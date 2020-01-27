@@ -24,7 +24,7 @@ void rt_gatt_mock_state_reset();
 
 // Expose callback to Ceedling
 rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
-        void * p_data, size_t data_len);
+                                void * p_data, size_t data_len);
 
 #endif
 
@@ -154,7 +154,7 @@ bool rt_gatt_nus_is_connected();
 
 /** @brief Check if Nordic UART Service is enabled.
  *
- *  The event handler has signature of 
+ *  The event handler has signature of
  *  @code void(*rt_gatt_cb_t)(void* p_event_data, uint16_t event_size) @endcode
  *  where event data is NULL and event_size is 0.
  *  The event handler is called in interrupt context.

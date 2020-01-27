@@ -80,7 +80,7 @@ data payload length is the maximum length */
 #ifndef RT_LED_ENABLED
 /** @brief Enable LED task compilation. */
 #define RT_LED_ENABLED ENABLE_DEFAULT
-#endif 
+#endif
 
 #if RT_LED_ENABLED && (!RT_GPIO_ENABLED)
 #  error "LED task requires GPIO task"
@@ -90,7 +90,7 @@ data payload length is the maximum length */
 #  if (!ENABLE_DEFAULT)
 #    warning "Conserving space for 48 LEDs, are you sure?"
 #  endif
-/** @brief Conserve RAM for led task variables. 
+/** @brief Conserve RAM for led task variables.
  *
  * You should override this with a lower value .
  */

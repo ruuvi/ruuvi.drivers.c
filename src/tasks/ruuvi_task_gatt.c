@@ -117,7 +117,7 @@ void rt_gatt_mock_state_reset()
 static
 #endif
 rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
-        void * p_data, size_t data_len)
+                                void * p_data, size_t data_len)
 {
     switch (evt)
     {
@@ -291,7 +291,7 @@ bool rt_gatt_nus_is_connected (void)
 }
 
 rd_status_t rt_gatt_send_asynchronous (ri_communication_message_t
-        * const p_msg)
+                                       * const p_msg)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -351,7 +351,7 @@ void rt_gatt_set_on_sent_isr (const rt_gatt_cb_t cb)
     m_on_sent = cb;
 }
 
-bool rt_gatt_is_nus_enabled(void)
+bool rt_gatt_is_nus_enabled (void)
 {
     return m_nus_is_init;
 }
