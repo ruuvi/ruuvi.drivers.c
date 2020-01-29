@@ -19,19 +19,19 @@
 /** @brief structure to configure GPIO test with input and output. These GPIOs must be physically connected on board. */
 typedef struct
 {
-    ruuvi_interface_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
-    ruuvi_interface_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
-} ruuvi_driver_test_gpio_cfg_t;
+    ri_gpio_id_t input;  //!< Input pin used in test. Must be interrupt-capable.
+    ri_gpio_id_t output; //!< Output pin used in test. Must be PWM-capable.
+} rd_test_gpio_cfg_t;
 
 /**
  * @brief Test GPIO module initialization
  *
- * - Interface must return RUUVI_DRIVER_SUCCESS after first call.
- * - Interface must return RUUVI_DRIVER_ERROR_INVALID_STATE when called while already initialized.
- * - Interface must return RUUVI_DRIVER_SUCCESS when called after uninitialization.
- * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
+ * - Interface must return RD_SUCCESS after first call.
+ * - Interface must return RD_ERROR_INVALID_STATE when called while already initialized.
+ * - Interface must return RD_SUCCESS when called after uninitialization.
+ * @return @c RD_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_init (void);
+rd_status_t ri_gpio_test_init (void);
 
 /**
  * @brief Test configuring a pin of a port into a mode.
@@ -45,11 +45,9 @@ ruuvi_driver_status_t ruuvi_interface_gpio_test_init (void);
  * @param input[in]  Pin used to check the state of output pin
  * @param output[in] Pin being configured into various modes.
  *
- * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
+ * @return @c RD_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_configure (const ruuvi_interface_gpio_id_t
-        input,
-        const ruuvi_interface_gpio_id_t output);
+rd_status_t ri_gpio_test_configure (const ri_gpio_id_t input, const ri_gpio_id_t output);
 
 /**
  * @brief Test toggling the state of a pin of a port.
@@ -59,11 +57,9 @@ ruuvi_driver_status_t ruuvi_interface_gpio_test_configure (const ruuvi_interface
  * @param input[in]  Pin used to check the state of output pin.
  * @param output[in] Pin being toggled.
  *
- * @return @c RUUVI_DRIVER_SUCCESS if all tests pass, error code on failure
+ * @return @c RD_SUCCESS if all tests pass, error code on failure
  */
-ruuvi_driver_status_t ruuvi_interface_gpio_test_toggle (const ruuvi_interface_gpio_id_t
-        input,
-        const ruuvi_interface_gpio_id_t output);
+rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input, const ri_gpio_id_t output);
 
 /*@}*/
 #endif
