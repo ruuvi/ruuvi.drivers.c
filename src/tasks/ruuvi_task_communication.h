@@ -61,7 +61,7 @@ rd_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
 rd_status_t rt_com_get_mac (uint8_t * const mac_buffer);
 
 /**
- * @brief Get Unique ID of the device. 
+ * @brief Get Unique ID of the device.
  *
  * The ID will remain constant even if MAC is changed. The ID must remain same across
  * reboots and firmware updates.

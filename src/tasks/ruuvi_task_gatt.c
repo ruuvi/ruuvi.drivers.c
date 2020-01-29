@@ -116,7 +116,7 @@ void rt_gatt_mock_state_reset()
 #ifndef CEEDLING
 static
 #endif
-rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt, 
+rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
                                 void * p_data, size_t data_len)
 {
     switch (evt)

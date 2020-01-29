@@ -31,7 +31,8 @@ typedef enum
     RI_COMMUNICATION_TIMEOUT       //!< Operation timed out.
 } ri_communication_evt_t;
 
-typedef struct ri_communication_t ri_communication_t; //!< forward declaration *and* typedef
+typedef struct ri_communication_t
+    ri_communication_t; //!< forward declaration *and* typedef
 
 /** @brief Asynchronous transfer function. Puts/gets message in driver queue
  *  @param[in, out] A message to put/get to/from driver queue
