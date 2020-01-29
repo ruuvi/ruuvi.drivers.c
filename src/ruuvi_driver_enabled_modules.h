@@ -37,33 +37,33 @@
 #endif
 
 #ifndef RI_COMMUNICATION_MESSAGE_MAX_LENGTH
-   /** @brief Standard BLE Broadcast manufacturer specific
-   data payload length is the maximum length */
+/** @brief Standard BLE Broadcast manufacturer specific
+data payload length is the maximum length */
 #  define RI_COMMUNICATION_MESSAGE_MAX_LENGTH 24
 #endif
 
 #ifndef RD_LOG_BUFFER_SIZE
-   /** @brief Maximum length of one log message */
+/** @brief Maximum length of one log message */
 #  define RD_LOG_BUFFER_SIZE (128U)
 #endif
 
 #ifndef RT_ADC_ENABLED
-   /** @brief Enable ADC task compilation. */
+/** @brief Enable ADC task compilation. */
 #  define RT_ADC_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RT_ADV_ENABLED
-   /** @brief Enable BLE advertising compilation. */
+/** @brief Enable BLE advertising compilation. */
 #  define RT_ADV_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RT_BUTTON_ENABLED
-   /** @brief Enable BLE advertising compilation. */
+/** @brief Enable BLE advertising compilation. */
 #  define RT_BUTTON_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RT_GATT_ENABLED
-   /** @brief Enable GATT task compilation. */
+/** @brief Enable GATT task compilation. */
 #  define RT_GATT_ENABLED ENABLE_DEFAULT
 #endif
 
@@ -73,12 +73,12 @@
 
 
 #ifndef RT_GPIO_ENABLED
-   /** @brief Enable GPIO task compilation. */
+/** @brief Enable GPIO task compilation. */
 #  define RT_GPIO_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RT_LED_ENABLED
-   /** @brief Enable LED task compilation. */
+/** @brief Enable LED task compilation. */
 #  define RT_LED_ENABLED ENABLE_DEFAULT
 #  if RT_LED_ENABLED
 #    if (!RT_GPIO_ENABLED)
@@ -89,20 +89,20 @@
 #        warning "Conserving space for 48 LEDs, are you sure?"
 #      endif
 #    endif
-  /** @brief Conserve RAM for led task variables.
-   *
-   * You should override this with a lower value.
-   */
+/** @brief Conserve RAM for led task variables.
+ *
+ * You should override this with a lower value.
+ */
 #  define RT_MAX_LED_CFG 48
 #  endif
 #endif
 
 #ifndef RUUVI_NRF5_SDK15_YIELD_ENABLED
-   /** @brief Enable nRF SDK15 yield, delay. */
+/** @brief Enable nRF SDK15 yield, delay. */
 #  define RUUVI_NRF5_SDK15_YIELD_ENABLED ENABLE_DEFAULT
 #endif
-#if RUUVI_NRF5_SDK15_YIELD_ENABLED 
+#if RUUVI_NRF5_SDK15_YIELD_ENABLED
 #  define NRF_PWR_MGMT_ENABLED 1
-#endif 
+#endif
 
 #endif
