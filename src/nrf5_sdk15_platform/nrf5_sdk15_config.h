@@ -37,4 +37,8 @@
 #  define NRF_PWR_MGMT_ENABLED 1
 #endif
 
+#if RUUVI_NRF5_SDK15_ENABLED
+#  define WDT_ENABLED 1
+#endif
+
 #endif

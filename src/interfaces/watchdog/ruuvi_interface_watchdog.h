@@ -32,7 +32,9 @@
 #include <stdbool.h>
 
 /** @brief Enable implementation selected by application */
+#if RI_WATCHDOG_ENABLED
 #define RUUVI_NRF5_SDK15_WATCHDOG_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /** @brief Watchdog event handler function.
  *

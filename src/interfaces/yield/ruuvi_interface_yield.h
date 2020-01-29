@@ -23,7 +23,9 @@
 #include <stdbool.h>
 
 /** @brief Enable implementation selected by application */
+#if RI_YIELD_ENABLED
 #define RUUVI_NRF5_SDK15_YIELD_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /** Function which gets called when entering / exiting sleep, configured by application.
  *

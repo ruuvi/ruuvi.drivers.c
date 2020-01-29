@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVER_SEMVER "0.1.4"
+#define RUUVI_DRIVERS_SEMVER "0.1.5"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -71,7 +71,6 @@ data payload length is the maximum length */
 #  error "GATT task requires Advertisement task"
 #endif
 
-
 #ifndef RT_GPIO_ENABLED
 /** @brief Enable GPIO task compilation. */
 #  define RT_GPIO_ENABLED ENABLE_DEFAULT
@@ -95,6 +94,14 @@ data payload length is the maximum length */
  */
 #  define RT_MAX_LED_CFG 48
 #  endif
+#endif
+
+#ifndef RI_YIELD_ENABLED
+#define RI_YIELD_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_WATCHDOG_ENABLED
+#define RI_WATCHDOG_ENABLED ENABLE_DEFAULT
 #endif
 
 #endif
