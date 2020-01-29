@@ -15,7 +15,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-
 static ruuvi_interface_timer_id_t
 heartbeat_timer;   //!< Timer for heartbeat action
 static size_t
