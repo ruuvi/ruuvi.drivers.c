@@ -21,4 +21,15 @@
 #define RUUVI_NRF5_SDK15_RADIO_IRQ_PRIORITY 2
 #endif
 
+#ifndef NRF_SDH_ENABLED
+/** @brief Required by SDK BLE modules not conditionally compiled */
+#define NRF_SDH_ENABLED 1
+#endif
+
+
+#ifndef NRF_SDH_BLE_ENABLED
+/** @brief Required by SDK BLE modules not conditionally compiled */
+#define NRF_SDH_BLE_ENABLED 1
+#endif
+
 #endif
