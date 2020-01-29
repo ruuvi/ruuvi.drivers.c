@@ -92,7 +92,7 @@ data payload length is the maximum length */
 #  endif
 /** @brief Conserve RAM for led task variables.
  *
- * You should override this with a lower value .
+ * You should override this with a lower value.
  */
 #  define RT_MAX_LED_CFG 48
 #endif
