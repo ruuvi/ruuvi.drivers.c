@@ -56,7 +56,7 @@ nrf_drv_wdt_channel_id m_channel_id;
 void wdt_event_handler (void)
 {
     //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
-    ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
+    ri_log (RI_LOG_LEVEL_ERROR, "WDT Triggered, reset\r\n");
 
     while (1);
 }
@@ -69,9 +69,9 @@ void wdt_event_handler (void)
  *
  * parameter interval: how often the watchdog should be fed.
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * Return RD_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_watchdog_init (uint32_t interval)
+rd_status_t ri_watchdog_init (uint32_t interval)
 {
     uint32_t err_code = NRF_SUCCESS;
     nrf_drv_wdt_config_t config = NRF_DRV_WDT_DEAFULT_CONFIG;
@@ -86,10 +86,10 @@ ruuvi_driver_status_t ruuvi_interface_watchdog_init (uint32_t interval)
  * "Feed" the watchdog, resets the watchdog timer.
  * This must be called after watchdog initialization or the program will reset.
  */
-ruuvi_driver_status_t ruuvi_interface_watchdog_feed (void)
+rd_status_t ri_watchdog_feed (void)
 {
     nrf_drv_wdt_channel_feed (m_channel_id);
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
 #endif
