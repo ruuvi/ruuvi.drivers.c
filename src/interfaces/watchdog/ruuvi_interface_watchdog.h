@@ -34,12 +34,12 @@
 /** @brief Enable implementation selected by application */
 #define RUUVI_NRF5_SDK15_WATCHDOG_ENABLED RUUVI_NRF5_SDK15_ENABLED
 
-/** @brief Watchdog event handler function. 
+/** @brief Watchdog event handler function.
  *
  * Set up at initialization, gets called on watchdog triggered.
  */
 
-typedef void(*wdt_evt_handler_t)(void);
+typedef void (*wdt_evt_handler_t) (void);
 
 /**
  * Initializes watchdog module.
@@ -52,7 +52,8 @@ typedef void(*wdt_evt_handler_t)(void);
  *
  * @retval RD_SUCCESS on success, error code on failure.
  */
-rd_status_t ri_watchdog_init (const uint32_t interval_ms, const wdt_evt_handler_t handler);
+rd_status_t ri_watchdog_init (const uint32_t interval_ms,
+                              const wdt_evt_handler_t handler);
 
 /**
  * "Feed" the watchdog, resets the watchdog timer.
