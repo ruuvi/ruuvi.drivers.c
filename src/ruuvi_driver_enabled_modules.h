@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVER_SEMVER "0.1.2"
+#define RUUVI_DRIVER_SEMVER "0.1.4"
 
 #ifdef CEEDLING
 #define ENABLE_DEFAULT 1
@@ -87,14 +87,14 @@ data payload length is the maximum length */
 #endif
 
 #ifndef RT_MAX_LED_CFG
-#  if (!ENABLE_DEFAULT)
+#  if (!ENABLE_DEFAULT && RT_LED_ENABLED)
 #    warning "Conserving space for 48 LEDs, are you sure?"
-#  endif
 /** @brief Conserve RAM for led task variables.
  *
  * You should override this with a lower value .
  */
 #  define RT_MAX_LED_CFG 48
+#  endif
 #endif
 
 #endif
