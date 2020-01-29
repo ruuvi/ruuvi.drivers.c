@@ -7,7 +7,7 @@
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
-#include "test_sensor.h"
+#include "sensor_test.h"
 
 #include <float.h>
 #include <stdbool.h>
