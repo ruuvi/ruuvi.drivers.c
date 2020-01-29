@@ -15,7 +15,7 @@
  *
  * @code{.c}
  *  rd_status_t err_code = RD_SUCCESS;
- *  err_code = ri_watchdog_init(WATCHDOG_INTERVAL_MS);
+ *  err_code = ri_watchdog_init(WATCHDOG_INTERVAL_MS, on_wdt);
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
  *  while(1)
  *  {
@@ -27,11 +27,21 @@
  *  }
  * @endcode
  */
-
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 
+/** @brief Enable implementation selected by application */
+#if RI_WATCHDOG_ENABLED
+#define RUUVI_NRF5_SDK15_WATCHDOG_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
+/** @brief Watchdog event handler function.
+ *
+ * Set up at initialization, gets called on watchdog triggered.
+ */
+
+typedef void (*wdt_evt_handler_t) (void);
 
 /**
  * Initializes watchdog module.
@@ -39,11 +49,13 @@
  * There is not way to uninitialize the watchdog.
  * Consider bootloader watchdog interval on setup.
  *
- * parameter interval: how often the watchdog should be fed.
+ * @param interval_ms Watchdog will reset program unless fed faster than this.
+ * @param handler Handler for watchdog event.
  *
- * Return RD_SUCCESS on success, error code on failure.
+ * @retval RD_SUCCESS on success, error code on failure.
  */
-rd_status_t ri_watchdog_init (uint32_t interval);
+rd_status_t ri_watchdog_init (const uint32_t interval_ms,
+                              const wdt_evt_handler_t handler);
 
 /**
  * "Feed" the watchdog, resets the watchdog timer.

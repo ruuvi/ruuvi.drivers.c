@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVER_SEMVER "0.1.4"
+#define RUUVI_DRIVERS_SEMVER "0.1.5"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -71,7 +71,6 @@ data payload length is the maximum length */
 #  error "GATT task requires Advertisement task"
 #endif
 
-
 #ifndef RT_GPIO_ENABLED
 /** @brief Enable GPIO task compilation. */
 #  define RT_GPIO_ENABLED ENABLE_DEFAULT
@@ -97,12 +96,12 @@ data payload length is the maximum length */
 #  endif
 #endif
 
-#ifndef RUUVI_NRF5_SDK15_YIELD_ENABLED
-/** @brief Enable nRF SDK15 yield, delay. */
-#  define RUUVI_NRF5_SDK15_YIELD_ENABLED ENABLE_DEFAULT
+#ifndef RI_YIELD_ENABLED
+#define RI_YIELD_ENABLED ENABLE_DEFAULT
 #endif
-#if RUUVI_NRF5_SDK15_YIELD_ENABLED
-#  define NRF_PWR_MGMT_ENABLED 1
+
+#ifndef RI_WATCHDOG_ENABLED
+#define RI_WATCHDOG_ENABLED ENABLE_DEFAULT
 #endif
 
 #endif
