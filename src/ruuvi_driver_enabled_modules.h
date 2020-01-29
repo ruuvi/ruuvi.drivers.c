@@ -89,12 +89,12 @@ data payload length is the maximum length */
 #ifndef RT_MAX_LED_CFG
 #  if (!ENABLE_DEFAULT && RT_LED_ENABLED)
 #    warning "Conserving space for 48 LEDs, are you sure?"
+#  endif
 /** @brief Conserve RAM for led task variables.
  *
  * You should override this with a lower value .
  */
 #  define RT_MAX_LED_CFG 48
-#  endif
 #endif
 
 #endif
