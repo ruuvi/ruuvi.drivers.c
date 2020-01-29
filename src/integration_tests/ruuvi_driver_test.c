@@ -107,7 +107,7 @@ bool rd_test_all_run (const rd_test_print_fp printfp)
 }
 
 bool ri_expect_close (const float expect, const int8_t precision,
-                                   const float check)
+                      const float check)
 {
     if (!isfinite (expect) || !isfinite (check)) { return false; }
 

@@ -40,7 +40,7 @@
  * @return @c RD_SUCCESS if the tests passed, error code from the test otherwise.
  */
 rd_status_t test_sensor_init (const rd_sensor_init_fp init,
-                                        const rd_bus_t bus, const uint8_t handle);
+                              const rd_bus_t bus, const uint8_t handle);
 
 /**
  *  @brief Test that sensor sample rate, scale and resolution setters and getters work as expected.
@@ -59,7 +59,7 @@ rd_status_t test_sensor_init (const rd_sensor_init_fp init,
  * @return RD_SUCCESS if the tests passed, error code from the test otherwise.
  */
 rd_status_t test_sensor_setup (const rd_sensor_init_fp init,
-        const rd_bus_t bus, const uint8_t handle);
+                               const rd_bus_t bus, const uint8_t handle);
 
 /**
  * @brief Test that sensor modes work as expected
@@ -83,7 +83,7 @@ rd_status_t test_sensor_setup (const rd_sensor_init_fp init,
  * @return @c RD_SUCCESS if the tests passed, error code from the test otherwise.
  */
 rd_status_t test_sensor_modes (const rd_sensor_init_fp init,
-        const rd_bus_t bus, const uint8_t handle);
+                               const rd_bus_t bus, const uint8_t handle);
 
 /**
  * @brief Test that sensor interrupts work as expected
@@ -106,10 +106,10 @@ rd_status_t test_sensor_modes (const rd_sensor_init_fp init,
  * @return @c RD_SUCCESS if the tests passed, error code from the test otherwise.
  */
 rd_status_t test_sensor_interrupts (const rd_sensor_init_fp init,
-        const rd_bus_t bus, const uint8_t handle,
-        const bool interactive,
-        const ri_gpio_id_t fifo_pin,
-        const ri_gpio_id_t level_pin);
+                                    const rd_bus_t bus, const uint8_t handle,
+                                    const bool interactive,
+                                    const ri_gpio_id_t fifo_pin,
+                                    const ri_gpio_id_t level_pin);
 
 /**
  * Register a test as being run. Increments counter of total tests.

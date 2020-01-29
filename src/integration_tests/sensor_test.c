@@ -184,7 +184,7 @@ static bool test_sensor_init_on_null (rd_sensor_t * DUT,
 }
 
 rd_status_t test_sensor_init (const rd_sensor_init_fp init,
-                                        const rd_bus_t bus, const uint8_t handle)
+                              const rd_bus_t bus, const uint8_t handle)
 {
     rd_sensor_t DUT;
     rd_status_t err_code = RD_SUCCESS;
@@ -324,7 +324,7 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
 }
 
 rd_status_t test_sensor_setup (const rd_sensor_init_fp init,
-        const rd_bus_t bus, const uint8_t handle)
+                               const rd_bus_t bus, const uint8_t handle)
 {
     // - Sensor must return RD_SUCCESS on first init.
     rd_sensor_t DUT;
@@ -426,8 +426,8 @@ static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const
     rd_status_t err_code = RD_SUCCESS;
     float values_new[32]; // conserve excess space for simplicity.
     rd_sensor_data_t new_data = {.fields = DUT->provides,
-                                           .data = values_new
-                                          };
+                                 .data = values_new
+                                };
     err_code = DUT->data_get (&new_data);
 
     if (RD_SUCCESS != err_code || new_data.valid.bitfield)
@@ -485,11 +485,11 @@ static bool single_sample_stays_valid (const rd_sensor_t * const DUT)
     float old_values[32] = {0};
     float new_values[32] = {0};
     rd_sensor_data_t old_data = {.fields = DUT->provides,
-                                           .data   = old_values
-                                          };
+                                 .data   = old_values
+                                };
     rd_sensor_data_t new_data = {.fields = DUT->provides,
-                                           .data   = new_values
-                                          };
+                                 .data   = new_values
+                                };
     err_code = DUT->mode_set (&mode);
     err_code |= DUT->data_get (&old_data);
     ri_delay_ms (2); // wait 2 ms to ensure timestamp is not changed.
@@ -569,11 +569,11 @@ static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
     float old_values[32];
     float new_values[32];
     rd_sensor_data_t old_data = {.fields = DUT->provides,
-                                           .data   = old_values
-                                          };
+                                 .data   = old_values
+                                };
     rd_sensor_data_t new_data = {.fields = DUT->provides,
-                                           .data   = new_values
-                                          };
+                                 .data   = new_values
+                                };
     err_code = DUT->mode_set (&mode);
     err_code |= DUT->data_get (&old_data);
     ri_delay_ms (2); // wait 2 ms to ensure timestamp is not changed.
@@ -623,7 +623,7 @@ static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
 }
 
 rd_status_t test_sensor_modes (const rd_sensor_init_fp init,
-        const rd_bus_t bus, const uint8_t handle)
+                               const rd_bus_t bus, const uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_t DUT;
@@ -690,11 +690,11 @@ static rd_status_t test_sensor_interrupts_setup (rd_sensor_t * DUT,
         const ri_gpio_id_t level_pin)
 {
     ri_gpio_interrupt_init (interrupt_table,
-                                         RI_GPIO_INTERRUPT_TEST_TABLE_SIZE);
+                            RI_GPIO_INTERRUPT_TEST_TABLE_SIZE);
     ri_gpio_interrupt_enable (fifo_pin, RI_GPIO_SLOPE_LOTOHI,
-                                           RI_GPIO_MODE_INPUT_PULLUP, on_fifo);
+                              RI_GPIO_MODE_INPUT_PULLUP, on_fifo);
     ri_gpio_interrupt_enable (level_pin, RI_GPIO_SLOPE_LOTOHI,
-                                           RI_GPIO_MODE_INPUT_PULLUP, on_level);
+                              RI_GPIO_MODE_INPUT_PULLUP, on_level);
     // - Sensor must return RD_SUCCESS on first init.
     memset (DUT, 0, sizeof (rd_sensor_t));
     rd_status_t err_code = RD_SUCCESS;
@@ -760,10 +760,10 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
  *  - FIFO full interrupt must not
  */
 rd_status_t test_sensor_interrupts (const rd_sensor_init_fp init,
-        const rd_bus_t bus, const uint8_t handle,
-        const bool interactive,
-        const ri_gpio_id_t fifo_pin,
-        const ri_gpio_id_t level_pin)
+                                    const rd_bus_t bus, const uint8_t handle,
+                                    const bool interactive,
+                                    const ri_gpio_id_t fifo_pin,
+                                    const ri_gpio_id_t level_pin)
 {
     ri_gpio_interrupt_fp_t
     interrupt_table[RI_GPIO_INTERRUPT_TEST_TABLE_SIZE];
