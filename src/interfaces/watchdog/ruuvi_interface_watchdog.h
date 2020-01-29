@@ -14,7 +14,7 @@
  * Interface for Watchdog basic usage. Typical use:
  *
  * @code{.c}
- *  rd_status_t err_code = RD_SUCCESS;  
+ *  rd_status_t err_code = RD_SUCCESS;
  *  err_code = ri_watchdog_init(WATCHDOG_INTERVAL_MS);
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
  *  while(1)
