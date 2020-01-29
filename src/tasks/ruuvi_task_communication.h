@@ -60,6 +60,19 @@ rd_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
  */
 rd_status_t rt_com_get_mac (uint8_t * const mac_buffer);
 
+/**
+ * @brief Get Unique ID of the device. 
+ *
+ * The ID will remain constant even if MAC is changed. The ID must remain same across
+ * reboots and firmware updates.
+ *
+ * @param[out] id_buffer 8-character array
+ * @retval RD_SUCCESS if mac buffer was written
+ * @retval RD_ERROR_NULL if mac_buffer was NULL
+ * @retval RD_ERROR_INVALID_STATE if radio is not initialized
+ */
+rd_status_t rt_com_get_id (uint8_t * const id_buffer);
+
 /*@}*/
 
 #endif
