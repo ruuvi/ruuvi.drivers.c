@@ -18,8 +18,12 @@
  *
  */
 
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
+
+/** @brief Enable implementation selected by application */
+#define RUUVI_NRF5_SDK15_YIELD_ENABLED RUUVI_NRF5_SDK15_ENABLED
 
 /** Function which gets called when entering / exiting sleep, configured by application.
  *

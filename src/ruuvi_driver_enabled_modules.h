@@ -97,12 +97,4 @@ data payload length is the maximum length */
 #  endif
 #endif
 
-#ifndef RUUVI_NRF5_SDK15_YIELD_ENABLED
-/** @brief Enable nRF SDK15 yield, delay. */
-#  define RUUVI_NRF5_SDK15_YIELD_ENABLED ENABLE_DEFAULT
-#endif
-#if RUUVI_NRF5_SDK15_YIELD_ENABLED
-#  define NRF_PWR_MGMT_ENABLED 1
-#endif
-
 #endif
