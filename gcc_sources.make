@@ -170,7 +170,6 @@ RUUVI_PRJ_SOURCES= \
   $(PROJ_DIR)/src/tasks/ruuvi_task_adc.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_flash.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_gpio.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_i2c.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_nfc.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_power.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_rtc.c \
