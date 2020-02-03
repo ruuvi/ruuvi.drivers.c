@@ -38,7 +38,6 @@
  * Testing the interface with @ref test_sensor.h
  *
  * @code{.c}
- *  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_ERROR_SELFTEST);
  *  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
  *  ruuvi_driver_bus_t bus = RUUVI_DRIVER_BUS_NONE;
  *  uint8_t handle = 0;

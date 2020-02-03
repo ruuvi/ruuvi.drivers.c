@@ -17,8 +17,8 @@
 typedef struct ri_communication_message_t
 {
     uint8_t data[RI_COMMUNICATION_MESSAGE_MAX_LENGTH]; //!< Data payload.
-    uint8_t data_length;                                            //!< Length of data
-    uint8_t repeat;                                                 //!< Number of times to repeat the message, 0 for infinite sends, 1 for send once.
+    uint8_t data_length;                               //!< Length of data
+    uint8_t repeat;                                    //!< Number of times to repeat the message, 0 for infinite sends, 1 for send once.
 } ri_communication_message_t;
 
 /** @brief Communication event type */
