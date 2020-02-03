@@ -34,8 +34,8 @@ rd_status_t ri_gpio_interrupt_test_init (
     ri_gpio_interrupt_fp_t
     interrupt_table[RI_GPIO_INTERRUPT_TEST_TABLE_SIZE];
 
-    if ( ((cfg.input%32) + ((cfg.input>>8) * 32)) > interrupt_table_size 
-         ||((cfg.output%32) + ((cfg.input>>8) * 32)) > interrupt_table_size )
+    if ( ( (cfg.input % 32) + ( (cfg.input >> 8) * 32)) > interrupt_table_size
+            || ( (cfg.output % 32) + ( (cfg.input >> 8) * 32)) > interrupt_table_size)
     {
         return RD_ERROR_NO_MEM;
     }
@@ -110,8 +110,8 @@ rd_status_t ri_gpio_interrupt_test_enable (
     ri_gpio_interrupt_fp_t
     interrupt_table[RI_GPIO_INTERRUPT_TEST_TABLE_SIZE] = {0};
 
-    if ( ((cfg.input%32) + ((cfg.input>>8) * 32)) > interrupt_table_size 
-         ||((cfg.output%32) + ((cfg.input>>8) * 32)) > interrupt_table_size )
+    if ( ( (cfg.input % 32) + ( (cfg.input >> 8) * 32)) > interrupt_table_size
+            || ( (cfg.output % 32) + ( (cfg.input >> 8) * 32)) > interrupt_table_size)
     {
         return RD_ERROR_NO_MEM;
     }
@@ -120,7 +120,7 @@ rd_status_t ri_gpio_interrupt_test_enable (
     ri_gpio_interrupt_uninit();
     ri_gpio_uninit();
     status |= ri_gpio_interrupt_enable (cfg.input,
-              RI_GPIO_SLOPE_LOTOHI, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+                                        RI_GPIO_SLOPE_LOTOHI, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
 
     if (RD_ERROR_INVALID_STATE != status)
     {
@@ -136,10 +136,10 @@ rd_status_t ri_gpio_interrupt_test_enable (
     status = ri_gpio_init();
     status |= ri_gpio_interrupt_init (interrupt_table, interrupt_table_size);
     status |= ri_gpio_configure (cfg.output,
-              RI_GPIO_MODE_OUTPUT_STANDARD);
+                                 RI_GPIO_MODE_OUTPUT_STANDARD);
     status |= ri_gpio_write (cfg.output, RI_GPIO_LOW);
     status |= ri_gpio_interrupt_enable (cfg.input,
-              RI_GPIO_SLOPE_LOTOHI, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+                                        RI_GPIO_SLOPE_LOTOHI, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
     status |= ri_gpio_write (cfg.output, RI_GPIO_HIGH);
     status |= ri_gpio_write (cfg.output, RI_GPIO_LOW);
 
@@ -169,7 +169,7 @@ rd_status_t ri_gpio_interrupt_test_enable (
     status |= ri_gpio_write (cfg.output, RI_GPIO_LOW);
     num_int_trigs = 0;
     status |= ri_gpio_interrupt_enable (cfg.input,
-              RI_GPIO_SLOPE_HITOLO, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+                                        RI_GPIO_SLOPE_HITOLO, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
     status |= ri_gpio_write (cfg.output, RI_GPIO_HIGH);
     status |= ri_gpio_write (cfg.output, RI_GPIO_LOW);
 
@@ -187,7 +187,7 @@ rd_status_t ri_gpio_interrupt_test_enable (
     status |= ri_gpio_interrupt_disable (cfg.input);
     num_int_trigs = 0;
     status |= ri_gpio_interrupt_enable (cfg.input,
-              RI_GPIO_SLOPE_TOGGLE, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
+                                        RI_GPIO_SLOPE_TOGGLE, RI_GPIO_MODE_INPUT_NOPULL, on_interrupt);
     status |= ri_gpio_write (cfg.output, RI_GPIO_HIGH);
     status |= ri_gpio_write (cfg.output, RI_GPIO_LOW);
 
@@ -201,11 +201,11 @@ rd_status_t ri_gpio_interrupt_test_enable (
     rd_test_register (true);
     // - Interrupt pin shall be at logic HIGH when interrupt is enabled with a pull-up and the pin is not loaded externally
     status = ri_gpio_configure (cfg.output,
-             RI_GPIO_MODE_INPUT_NOPULL);
+                                RI_GPIO_MODE_INPUT_NOPULL);
     status |= ri_gpio_interrupt_disable (cfg.input);
     num_int_trigs = 0;
     status |= ri_gpio_interrupt_enable (cfg.input,
-              RI_GPIO_SLOPE_TOGGLE, RI_GPIO_MODE_INPUT_PULLUP, on_interrupt);
+                                        RI_GPIO_SLOPE_TOGGLE, RI_GPIO_MODE_INPUT_PULLUP, on_interrupt);
     ri_gpio_state_t state;
     status |= ri_gpio_read (cfg.output, &state);
 
@@ -219,12 +219,12 @@ rd_status_t ri_gpio_interrupt_test_enable (
     rd_test_register (true);
     // - Interrupt pin shall be at logic LOW when interrupt is enabled with a pull-down and the pin is not loaded externally
     status |= ri_gpio_configure (cfg.output,
-              RI_GPIO_MODE_INPUT_NOPULL);
+                                 RI_GPIO_MODE_INPUT_NOPULL);
     status |= ri_gpio_interrupt_disable (cfg.input);
     num_int_trigs = 0;
     status |= ri_gpio_interrupt_enable (cfg.input,
-              RI_GPIO_SLOPE_TOGGLE, RI_GPIO_MODE_INPUT_PULLDOWN,
-              on_interrupt);
+                                        RI_GPIO_SLOPE_TOGGLE, RI_GPIO_MODE_INPUT_PULLDOWN,
+                                        on_interrupt);
     status |= ri_gpio_read (cfg.output, &state);
 
     if (RD_SUCCESS != status || RI_GPIO_LOW != state)

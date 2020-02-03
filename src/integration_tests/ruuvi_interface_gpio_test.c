@@ -55,8 +55,8 @@ rd_status_t ri_gpio_test_init (void)
 }
 
 rd_status_t ri_gpio_test_configure (const ri_gpio_id_t
-        input,
-        const ri_gpio_id_t output)
+                                    input,
+                                    const ri_gpio_id_t output)
 {
     rd_status_t status = RD_SUCCESS;
     // * - When Input is in High-Z mode, and output mode is INPUT_PULLUP, input must read as HIGH
@@ -77,7 +77,7 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t
     // - When Input is in High-Z mode, and output mode is INPUT_PULLDOWN, input must read as LOW
     status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_NOPULL);
     status |= ri_gpio_configure (output,
-              RI_GPIO_MODE_INPUT_PULLDOWN);
+                                 RI_GPIO_MODE_INPUT_PULLDOWN);
     status |= ri_gpio_read (input, &state);
 
     if (RD_SUCCESS != status || RI_GPIO_LOW != state)
@@ -91,7 +91,7 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t
     // - When Input is in INPUT_PULLUP mode, and output is in OUTPUT_LOW mode, input must read as LOW
     status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_PULLUP);
     status |= ri_gpio_configure (output,
-              RI_GPIO_MODE_OUTPUT_STANDARD);
+                                 RI_GPIO_MODE_OUTPUT_STANDARD);
     status |= ri_gpio_write (output, RI_GPIO_LOW);
     status |= ri_gpio_read (input, &state);
 
@@ -105,9 +105,9 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t
     rd_test_register (true);
     // - When Input is in INPUT_PULLDOWN mode, and output is in OUTPUT_HIGH mode, input must read as HIGH
     status |= ri_gpio_configure (input,
-              RI_GPIO_MODE_INPUT_PULLDOWN);
+                                 RI_GPIO_MODE_INPUT_PULLDOWN);
     status |= ri_gpio_configure (output,
-              RI_GPIO_MODE_OUTPUT_STANDARD);
+                                 RI_GPIO_MODE_OUTPUT_STANDARD);
     status |= ri_gpio_write (output, RI_GPIO_HIGH);
     status |= ri_gpio_read (input, &state);
     status |= ri_gpio_uninit();
@@ -124,8 +124,8 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t
 }
 
 rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t
-        input,
-        const ri_gpio_id_t output)
+                                 input,
+                                 const ri_gpio_id_t output)
 {
     rd_status_t status = RD_SUCCESS;
     // * - When Input is in High-Z mode, and output mode is INPUT_PULLUP, input must read as HIGH
@@ -133,7 +133,7 @@ rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t
     status |= ri_gpio_init();
     status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_NOPULL);
     status |= ri_gpio_configure (output,
-              RI_GPIO_MODE_OUTPUT_STANDARD);
+                                 RI_GPIO_MODE_OUTPUT_STANDARD);
     status |= ri_gpio_write (output, RI_GPIO_LOW);
     status |= ri_gpio_read (input, &state);
 
