@@ -78,9 +78,9 @@ static void rtc_handler (nrf_drv_rtc_int_type_t int_type)
  *
  * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
  **/
-ruuvi_driver_status_t ruuvi_interface_rtc_init (void)
+rd_status_t ri_rtc_init (void)
 {
-    if (true == m_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (true == m_is_init) { return RD_ERROR_INVALID_STATE; }
 
     ret_code_t err_code = NRF_SUCCESS;
 
@@ -108,7 +108,7 @@ ruuvi_driver_status_t ruuvi_interface_rtc_init (void)
   *
   * Returns RUUVI_SUCCESS if no error occured, error code otherwise.
   **/
-ruuvi_driver_status_t ruuvi_interface_rtc_uninit (void)
+rd_status_t ri_rtc_uninit (void)
 {
     if (true == m_is_init)
     {
@@ -117,15 +117,15 @@ ruuvi_driver_status_t ruuvi_interface_rtc_uninit (void)
         nrf_drv_clock_lfclk_release();
     }
 
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
 /**
-  * Return number of milliseconds since RTC init, RUUVI_DRIVER_UINT64_INVALID if RTC is not running
+  * Return number of milliseconds since RTC init, RD_UINT64_INVALID if RTC is not running
   **/
-uint64_t ruuvi_interface_rtc_millis (void)
+uint64_t ri_rtc_millis (void)
 {
-    if (false == m_is_init) { return RUUVI_DRIVER_UINT64_INVALID; }
+    if (false == m_is_init) { return RD_UINT64_INVALID; }
 
     uint64_t ms = nrf_drv_rtc_counter_get (&rtc) + ticks;
     return ( (ms * 1000) / 32768);
