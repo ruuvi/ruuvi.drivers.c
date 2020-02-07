@@ -142,6 +142,9 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.5
+ - Add nrf15_sdk log enable macro to ruuvi_interface_log.h
+
 ## 0.1.4
  - Fix button task compilation when button task is not enabled
  - Remove RTC, Power tasks as they unnecessarily wrap interface.

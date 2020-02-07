@@ -2,6 +2,8 @@
 #define NRF5_SDK5_CONFIG_H
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_log.h" //!< Check if NRF_LOG is required
+#include "ruuvi_interface_watchdog.h" //!< Check if WDT is required
 #include "ruuvi_interface_yield.h" //!< Check if NRF_PWR_MGMT is required
 
 #if (!NRF5_SDK15_CONFIGURED)
@@ -33,12 +35,20 @@
 #define NRF_SDH_BLE_ENABLED 1
 #endif
 
+#if RUUVI_NRF5_SDK15_LOG_ENABLED
+#  define NRF_LOG_ENABLED 1
+#  define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED 0
+#  define NRF_LOG_DEFERRED 0
+#endif
+
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED
 #  define NRF_PWR_MGMT_ENABLED 1
 #endif
 
-#if RUUVI_NRF5_SDK15_ENABLED
+#if RUUVI_NRF5_SDK15_WATCHDOG_ENABLED
 #  define WDT_ENABLED 1
 #endif
+
+
 
 #endif
