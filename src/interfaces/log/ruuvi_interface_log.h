@@ -18,9 +18,15 @@
  *
  */
 
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include <stddef.h>
+
+/** @brief Enable implementation selected by application */
+#if RI_LOG_ENABLED
+#define RUUVI_NRF5_SDK15_LOG_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /**
  * Severity levels of log messages. Lower numerical value means more severe.

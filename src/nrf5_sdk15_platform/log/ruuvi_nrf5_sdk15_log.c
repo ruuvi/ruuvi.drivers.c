@@ -14,9 +14,9 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  **/
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_log.h"
 #if RUUVI_NRF5_SDK15_LOG_ENABLED
 #include "ruuvi_driver_error.h"
-#include "ruuvi_interface_log.h"
 #include "ruuvi_interface_yield.h"
 #include <stdarg.h>
 
@@ -28,8 +28,7 @@
 NRF_LOG_MODULE_REGISTER();
 
 static ri_log_severity_t log_level;
-rd_status_t ri_log_init (const ri_log_severity_t
-                         min_severity)
+rd_status_t ri_log_init (const ri_log_severity_t min_severity)
 {
     log_level = min_severity;
     NRF_LOG_INIT (NULL);
