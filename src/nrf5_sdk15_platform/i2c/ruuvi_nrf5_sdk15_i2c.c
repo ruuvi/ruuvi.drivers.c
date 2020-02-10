@@ -50,9 +50,6 @@
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
-#include "app_util_platform.h"
-
-
 
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
