@@ -12,34 +12,34 @@
 #include "ruuvi_interface_i2c.h"
 #include "ruuvi_task_i2c.h"
 
-ruuvi_driver_status_t rt_i2c_init (void)
+rd_status_t rt_i2c_init (void)
 {
-    ruuvi_interface_i2c_init_config_t config;
-    ruuvi_interface_gpio_id_t scl = { .pin = RUUVI_BOARD_I2C_SCL_PIN };
-    ruuvi_interface_gpio_id_t sda = { .pin = RUUVI_BOARD_I2C_SDA_PIN };
+    ri_i2c_init_config_t config;
+    ri_gpio_id_t scl = RB_I2C_SCL_PIN;
+    ri_gpio_id_t sda = RB_I2C_SDA_PIN;
     config.sda = sda;
     config.scl = scl;
 
-    switch (RUUVI_BOARD_I2C_FREQ)
+    switch (RB_I2C_FREQ)
     {
-        case RUUVI_BOARD_I2C_FREQUENCY_100k:
-            config.frequency = RUUVI_INTERFACE_I2C_FREQUENCY_100k;
+        case RB_I2C_FREQUENCY_100k:
+            config.frequency = RB_I2C_FREQUENCY_100k;
             break;
 
-        case RUUVI_BOARD_I2C_FREQUENCY_250k:
-            config.frequency = RUUVI_INTERFACE_I2C_FREQUENCY_250k;
+        case RB_I2C_FREQUENCY_250k:
+            config.frequency = RI_I2C_FREQUENCY_250k;
             break;
 
-        case RUUVI_BOARD_I2C_FREQUENCY_400k:
-            config.frequency = RUUVI_INTERFACE_I2C_FREQUENCY_400k;
+        case RB_I2C_FREQUENCY_400k:
+            config.frequency = RI_I2C_FREQUENCY_400k;
             break;
 
         default:
-            config.frequency = RUUVI_INTERFACE_I2C_FREQUENCY_100k;
-            ruuvi_interface_log (RUUVI_INTERFACE_LOG_WARNING,
+            config.frequency = RI_I2C_FREQUENCY_100k;
+            ri_log (RI_LOG_LEVEL_WARNING,
                                  "Unknown I2C frequency, defaulting to 100k\r\n");
     }
 
-    return ruuvi_interface_i2c_init (&config);
+    return ri_i2c_init (&config);
 }
 #endif
