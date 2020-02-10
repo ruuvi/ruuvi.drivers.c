@@ -1,5 +1,5 @@
 # ruuvi.drivers.c
-[![Build Status](https://travis-ci.org/ruuvi/ruuvi.drivers.c.svg?branch=master)
+[![Build Status](https://travis-ci.org/ruuvi/ruuvi.drivers.c.svg?branch=master)](https://travis-ci.org/ruuvi/ruuvi.drivers.c)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=alert_status)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=bugs)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ruuvi_ruuvi.drivers.c&metric=code_smells)](https://sonarcloud.io/dashboard?id=ruuvi_ruuvi.drivers.c)
@@ -142,8 +142,13 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.5
+ - Add nrf15_sdk log enable macro to ruuvi_interface_log.h
+
 ## 0.1.4
  - Fix button task compilation when button task is not enabled
+ - Remove RTC, Power tasks as they unnecessarily wrap interface.
+ - Add watchdog
 
 ## 0.1.3
  - Add unit tests for tasks

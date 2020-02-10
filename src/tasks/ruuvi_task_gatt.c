@@ -283,7 +283,7 @@ bool rt_gatt_is_init (void)
 /**
  * @brief check if NUS is connected, i.e. central has registered to TX notifications.
  *
- * @return true if NUS is connected is initialized, false otherwise.
+ * @return true if NUS is connected, false otherwise.
  */
 bool rt_gatt_nus_is_connected (void)
 {

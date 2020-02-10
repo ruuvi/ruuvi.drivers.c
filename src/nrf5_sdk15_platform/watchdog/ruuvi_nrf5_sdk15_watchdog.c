@@ -38,17 +38,17 @@
  *
  */
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_watchdog.h"
 #if RUUVI_NRF5_SDK15_WATCHDOG_ENABLED
-
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_power.h"
-#include "ruuvi_interface_watchdog.h"
 #include "nrf_drv_wdt.h"
 #include <stdbool.h>
 
 nrf_drv_wdt_channel_id m_channel_id;
+wdt_evt_handler_t      m_on_trigger;
 
 /**
  * @brief WDT events handler.
@@ -56,7 +56,12 @@ nrf_drv_wdt_channel_id m_channel_id;
 void wdt_event_handler (void)
 {
     //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
-    ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "WDT Triggered, reset\r\n");
+    if (NULL != m_on_trigger)
+    {
+        m_on_trigger();
+    }
+
+    ri_log (RI_LOG_LEVEL_ERROR, "WDT Triggered, reset\r\n");
 
     while (1);
 }
@@ -69,16 +74,17 @@ void wdt_event_handler (void)
  *
  * parameter interval: how often the watchdog should be fed.
  *
- * Return RUUVI_DRIVER_SUCCESS on success, error code on failure.
+ * Return RD_SUCCESS on success, error code on failure.
  */
-ruuvi_driver_status_t ruuvi_interface_watchdog_init (uint32_t interval)
+rd_status_t ri_watchdog_init (const uint32_t interval_ms, const wdt_evt_handler_t handler)
 {
     uint32_t err_code = NRF_SUCCESS;
     nrf_drv_wdt_config_t config = NRF_DRV_WDT_DEAFULT_CONFIG;
-    config.reload_value = interval;
+    config.reload_value = interval_ms;
     err_code = nrf_drv_wdt_init (&config, wdt_event_handler);
     err_code = nrf_drv_wdt_channel_alloc (&m_channel_id);
     nrf_drv_wdt_enable();
+    m_on_trigger = handler;
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
@@ -86,10 +92,10 @@ ruuvi_driver_status_t ruuvi_interface_watchdog_init (uint32_t interval)
  * "Feed" the watchdog, resets the watchdog timer.
  * This must be called after watchdog initialization or the program will reset.
  */
-ruuvi_driver_status_t ruuvi_interface_watchdog_feed (void)
+rd_status_t ri_watchdog_feed (void)
 {
     nrf_drv_wdt_channel_feed (m_channel_id);
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
 #endif
