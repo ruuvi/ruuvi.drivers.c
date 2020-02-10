@@ -50,44 +50,45 @@
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
+#include "app_util_platform.h"
 
 
 
-static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE (I2C_INSTANCE);
+static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
 static volatile bool m_tx_in_progress     = false;
 static volatile ret_code_t xfer_status    = NRF_SUCCESS;
 static uint16_t timeout_us_per_byte       = 400;
 
 static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency (const
-        ruuvi_interface_i2c_frequency_t freq)
+        ri_i2c_frequency_t freq)
 {
     switch (freq)
     {
-        case RUUVI_INTERFACE_I2C_FREQUENCY_100k:
+        case RI_I2C_FREQUENCY_100k:
             return NRF_DRV_TWI_FREQ_100K;
 
-        case RUUVI_INTERFACE_I2C_FREQUENCY_250k:
+        case RI_I2C_FREQUENCY_250k:
             return NRF_DRV_TWI_FREQ_250K;
 
-        case RUUVI_INTERFACE_I2C_FREQUENCY_400k:
+        case RI_I2C_FREQUENCY_400k:
         default:
             return NRF_DRV_TWI_FREQ_400K;
     }
 }
 
 static void byte_timeout_set (const
-                              ruuvi_interface_i2c_frequency_t freq)
+                              ri_i2c_frequency_t freq)
 {
     switch (freq)
     {
-        case RUUVI_INTERFACE_I2C_FREQUENCY_100k:
+        case RI_I2C_FREQUENCY_100k:
             timeout_us_per_byte = 1000;
 
-        case RUUVI_INTERFACE_I2C_FREQUENCY_250k:
+        case RI_I2C_FREQUENCY_250k:
             timeout_us_per_byte = 400;
 
-        case RUUVI_INTERFACE_I2C_FREQUENCY_400k:
+        case RI_I2C_FREQUENCY_400k:
         default:
             timeout_us_per_byte = 200;
     }
@@ -102,7 +103,7 @@ static void on_complete (nrf_drv_twi_evt_t const * p_event, void * p_context)
     else if (p_event->type != NRF_DRV_TWI_EVT_DONE) { xfer_status |= NRF_ERROR_INTERNAL; }
 }
 
-ruuvi_driver_status_t ruuvi_interface_i2c_init (const ruuvi_interface_i2c_init_config_t *
+rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
         config)
 {
     ret_code_t err_code;
@@ -117,17 +118,17 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init (const ruuvi_interface_i2c_init_c
         .clear_bus_init     = true
     };
     // Verify that lines can be pulled up
-    ruuvi_interface_gpio_configure (config->scl, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
-    ruuvi_interface_gpio_configure (config->sda, RUUVI_INTERFACE_GPIO_MODE_INPUT_PULLUP);
-    ruuvi_interface_gpio_state_t state_scl, state_sda;
-    ruuvi_interface_delay_us (10);
-    ruuvi_interface_gpio_read (config->sda, &state_sda);
-    ruuvi_interface_gpio_read (config->scl, &state_scl);
+    ri_gpio_configure (config->scl, RI_GPIO_MODE_INPUT_PULLUP);
+    ri_gpio_configure (config->sda, RI_GPIO_MODE_INPUT_PULLUP);
+    ri_gpio_state_t state_scl, state_sda;
+    ri_delay_us (10);
+    ri_gpio_read (config->sda, &state_sda);
+    ri_gpio_read (config->scl, &state_scl);
 
-    if (RUUVI_INTERFACE_GPIO_HIGH != state_sda ||
-            RUUVI_INTERFACE_GPIO_HIGH != state_scl)
+    if (RI_GPIO_HIGH != state_sda ||
+            RI_GPIO_HIGH != state_scl)
     {
-        return RUUVI_DRIVER_ERROR_INTERNAL;
+        return RD_ERROR_INTERNAL;
     }
 
     err_code = nrf_drv_twi_init (&m_twi, &twi_config, on_complete, NULL);
@@ -137,18 +138,18 @@ ruuvi_driver_status_t ruuvi_interface_i2c_init (const ruuvi_interface_i2c_init_c
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-bool ruuvi_interface_i2c_is_init()
+bool ri_i2c_is_init()
 {
     return m_i2c_is_init;
 }
 
 /**
  * @brief uninitialize I2C driver with default settings
- * @return RUUVI_DRIVER_SUCCESS on success, ruuvi error code on error
+ * @return RD_SUCCESS on success, ruuvi error code on error
  */
-ruuvi_driver_status_t i2c_uninit (void)
+rd_status_t i2c_uninit (void)
 {
-    return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
+    return RD_ERROR_NOT_IMPLEMENTED;
 }
 
 
@@ -161,14 +162,14 @@ ruuvi_driver_status_t i2c_uninit (void)
  * @param[in] stop Should a stop condition be clocked out. False to keep communicating
  *
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking (const uint8_t address,
+rd_status_t ri_i2c_write_blocking (const uint8_t address,
         uint8_t * const p_tx, const size_t tx_len, const bool stop)
 {
-    if (!m_i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (!m_i2c_is_init) { return RD_ERROR_INVALID_STATE; }
 
-    if (NULL == p_tx) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == p_tx) { return RD_ERROR_NULL; }
 
-    if (m_tx_in_progress) { return RUUVI_DRIVER_ERROR_BUSY; }
+    if (m_tx_in_progress) { return RD_ERROR_BUSY; }
 
     int32_t err_code = NRF_SUCCESS;
     m_tx_in_progress = true;
@@ -178,7 +179,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking (const uint8_t address,
     while (m_tx_in_progress && timeout < (timeout_us_per_byte * tx_len))
     {
         timeout++;
-        ruuvi_interface_delay_us (1);
+        ri_delay_us (1);
     }
 
     if (timeout >= (timeout_us_per_byte * tx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
@@ -196,12 +197,12 @@ ruuvi_driver_status_t ruuvi_interface_i2c_write_blocking (const uint8_t address,
  * parameter data: pointer to data to be received.
  *
  **/
-ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking (const uint8_t address,
+rd_status_t ri_i2c_read_blocking (const uint8_t address,
         uint8_t * const p_rx, const size_t rx_len)
 {
-    if (!m_i2c_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (!m_i2c_is_init) { return RD_ERROR_INVALID_STATE; }
 
-    if (NULL == p_rx) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == p_rx) { return RD_ERROR_NULL; }
 
     int32_t err_code = NRF_SUCCESS;
     m_tx_in_progress = true;
@@ -211,7 +212,7 @@ ruuvi_driver_status_t ruuvi_interface_i2c_read_blocking (const uint8_t address,
     while (m_tx_in_progress && timeout < (timeout_us_per_byte * rx_len))
     {
         timeout++;
-        ruuvi_interface_delay_us (1);
+        ri_delay_us (1);
     }
 
     if (timeout >= (timeout_us_per_byte * rx_len)) { err_code |= NRF_ERROR_TIMEOUT; }
