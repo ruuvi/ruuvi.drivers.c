@@ -51,7 +51,7 @@
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 
-static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(I2C_INSTANCE);
+static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE (I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
 static volatile bool m_tx_in_progress     = false;
 static volatile ret_code_t xfer_status    = NRF_SUCCESS;
@@ -101,7 +101,7 @@ static void on_complete (nrf_drv_twi_evt_t const * p_event, void * p_context)
 }
 
 rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
-        config)
+                         config)
 {
     ret_code_t err_code;
     nrf_drv_twi_frequency_t frequency = ruuvi_to_nrf_frequency (config->frequency);
@@ -160,7 +160,7 @@ rd_status_t i2c_uninit (void)
  *
  **/
 rd_status_t ri_i2c_write_blocking (const uint8_t address,
-        uint8_t * const p_tx, const size_t tx_len, const bool stop)
+                                   uint8_t * const p_tx, const size_t tx_len, const bool stop)
 {
     if (!m_i2c_is_init) { return RD_ERROR_INVALID_STATE; }
 
@@ -195,7 +195,7 @@ rd_status_t ri_i2c_write_blocking (const uint8_t address,
  *
  **/
 rd_status_t ri_i2c_read_blocking (const uint8_t address,
-        uint8_t * const p_rx, const size_t rx_len)
+                                  uint8_t * const p_rx, const size_t rx_len)
 {
     if (!m_i2c_is_init) { return RD_ERROR_INVALID_STATE; }
 
