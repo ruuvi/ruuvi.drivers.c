@@ -109,7 +109,6 @@ void print_error_cause (void)
 
     if (RD_SUCCESS == err_code)
     {
-
         char error_str[128];
         size_t index = 0;
         index += snprintf (error_str, sizeof (error_str), "Previous fatal error: %s:%d: ",
