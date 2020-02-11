@@ -125,7 +125,7 @@ rd_status_t ri_flash_record_get (const uint32_t page_id,
 rd_status_t ri_flash_gc_run (void);
 
 /**
- * Initialize flash. 
+ * Initialize flash.
  * After initialization other flash functions can be used.
  *
  * @retval RD_SUCCESS on success.
@@ -135,7 +135,7 @@ rd_status_t ri_flash_init (void);
 
 /**
  * Unintialize flash.
- * After uninitialization only initialization can be used. 
+ * After uninitialization only initialization can be used.
  *
  * @retval RD_SUCCESS on success.
  */

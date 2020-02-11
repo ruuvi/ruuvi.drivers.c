@@ -40,11 +40,11 @@
 
 #ifndef RT_FLASH_ERROR_FILE
 #  define RT_FLASH_ERROR_FILE 0xBFFE
-#endif 
+#endif
 
 #ifndef RT_FLASH_ERROR_RECORD
 #  define RT_FLASH_ERROR_RECORD 0xBFFE
-#endif 
+#endif
 
 #define LOG(msg) ri_log(TASK_FLASH_LOG_LEVEL, msg)
 #define LOGD(msg) ri_log(RI_LOG_DEBUG, msg)
@@ -96,7 +96,7 @@ static void on_error (const rd_status_t err,
 #endif
 
 #ifndef CEEDLING
-static 
+static
 #endif
 void print_error_cause (void)
 {
@@ -109,22 +109,21 @@ void print_error_cause (void)
 
     if (RD_SUCCESS == err_code)
     {
+        // Wait for flash store op to complete
+        while (timeout < 1000 && ri_flash_is_busy())
+        {
+            timeout++;
+            ri_delay_ms (10);
+        }
 
-    // Wait for flash store op to complete
-    while (timeout < 1000 && ri_flash_is_busy())
-    {
-        timeout++;
-        ri_delay_ms (10);
-    }
-
-    char error_str[128];
-    size_t index = 0;
-    index += snprintf (error_str, sizeof (error_str), "Previous fatal error: %s:%d: ",
-                       error.filename, error.line);
-    index += ri_error_to_string (error.error, error_str + index,
-                                 sizeof (error_str) - index);
-    snprintf (error_str + index,  sizeof (error_str) - index, "\r\n");
-    LOG (error_str);
+        char error_str[128];
+        size_t index = 0;
+        index += snprintf (error_str, sizeof (error_str), "Previous fatal error: %s:%d: ",
+                           error.filename, error.line);
+        index += ri_error_to_string (error.error, error_str + index,
+                                     sizeof (error_str) - index);
+        snprintf (error_str + index,  sizeof (error_str) - index, "\r\n");
+        LOG (error_str);
     }
 }
 
@@ -140,13 +139,12 @@ rd_status_t rt_flash_init (void)
         ri_power_reset();
         // Stop test execution here.
 #       ifdef CEEDLING
-          return err_code;
+        return err_code;
 #       endif
     }
 
     // Print previous fatal error
     print_error_cause();
-
     return err_code;
 }
 
