@@ -151,6 +151,8 @@ static rd_status_t fds_to_ruuvi_error (ret_code_t err_code)
 static bool volatile m_fds_initialized;
 /* Flag to check fds processing status. */
 static bool volatile m_fds_processing;
+/* Flag to check fds callback registration. */
+static bool volatile m_fds_registered;
 /** @brief Handle FDS events */
 static void fds_evt_handler (fds_evt_t const * p_evt)
 {
@@ -465,7 +467,11 @@ rd_status_t ri_flash_init (void)
     rd_status_t err_code = RD_SUCCESS;
     ret_code_t rc = NRF_SUCCESS;
     /* Register first to receive an event when initialization is complete. */
-    (void) fds_register (fds_evt_handler);
+    if(!m_fds_registered)
+    {
+        (void) fds_register (fds_evt_handler);
+        m_fds_registered = true;
+    }
     rc = fds_init();
     err_code |= fds_to_ruuvi_error (rc);
 
@@ -479,6 +485,19 @@ rd_status_t ri_flash_init (void)
     rc = fds_stat (&stat);
     m_number_of_pages = stat.pages_available;
     err_code |= fds_to_ruuvi_error (rc);
+    return err_code;
+}
+
+/**
+ * Unintialize flash.
+ * After uninitialization only initialization can be used.
+ *
+ * @retval RD_SUCCESS on success.
+ */
+rd_status_t ri_flash_uninit (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    m_fds_initialized = false;
     return err_code;
 }
 
