@@ -109,12 +109,6 @@ void print_error_cause (void)
 
     if (RD_SUCCESS == err_code)
     {
-        // Wait for flash store op to complete
-        while (timeout < 1000 && ri_flash_is_busy())
-        {
-            timeout++;
-            ri_delay_ms (10);
-        }
 
         char error_str[128];
         size_t index = 0;
@@ -158,7 +152,7 @@ rd_status_t rt_flash_store (const uint16_t page_id, const uint16_t record_id,
     {
         ri_flash_gc_run();
 
-        while (ri_flash_is_busy())
+        while (rt_flash_busy())
         {
             ri_yield();
         }

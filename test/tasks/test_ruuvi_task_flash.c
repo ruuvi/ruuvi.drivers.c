@@ -10,6 +10,7 @@
 void setUp(void)
 {
   ri_log_Ignore();
+  ri_error_to_string_IgnoreAndReturn(0);
 }
 
 void tearDown(void)
@@ -160,4 +161,10 @@ void test_rt_flash_gc_ok (void)
   // Tested by integration test
   ri_flash_gc_run_ExpectAndReturn (RD_SUCCESS);
   rt_flash_gc_run();
+}
+
+void test_print_error_cause_ok (void)
+{
+    ri_flash_record_get_ExpectAnyArgsAndReturn(RD_SUCCESS);
+    print_error_cause();
 }

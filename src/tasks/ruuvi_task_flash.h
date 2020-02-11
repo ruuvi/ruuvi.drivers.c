@@ -151,7 +151,7 @@ rd_status_t rt_flash_gc_run (void);
  */
 bool rt_flash_busy (void);
 
-#ifndef CEEDLING
+#ifdef CEEDLING
 // Give Ceedling access to internal functions.
 void print_error_cause (void);
 #endif
