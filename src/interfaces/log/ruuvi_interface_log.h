@@ -33,6 +33,7 @@
  **/
 typedef enum
 {
+    RI_LOG_LEVEL_NONE = 0,   //<! Log nothing
     RI_LOG_LEVEL_ERROR,      //<! An error occured
     RI_LOG_LEVEL_WARNING,    //<! Warn user abour something, such as uninitialized peripheral
     RI_LOG_LEVEL_INFO,       //<! General information, such as changing mode of application
@@ -43,7 +44,8 @@ typedef enum
  * @brief Runs initialization code for the logging backend and sets the severity level.
  *
  * @param min_severity least severe log level that will be printed.
- * @return @ref RD_SUCCESS if log was init, error code otherwise
+ * @retval @ref RD_SUCCESS if log was init.
+ * @retval @ref RD_ERROR_INVALID_STATE if log had already been initialized.
  */
 rd_status_t ri_log_init (const ri_log_severity_t min_severity);
 
