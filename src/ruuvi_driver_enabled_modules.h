@@ -62,6 +62,11 @@ data payload length is the maximum length */
 #  define RT_BUTTON_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RT_FLASH_ENABLED
+/** @brief Enable Flash storage compilation. */
+#  define RT_FLASH_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RT_GATT_ENABLED
 /** @brief Enable GATT task compilation. */
 #  define RT_GATT_ENABLED ENABLE_DEFAULT

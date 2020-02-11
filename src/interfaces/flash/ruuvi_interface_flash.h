@@ -125,12 +125,21 @@ rd_status_t ri_flash_record_get (const uint32_t page_id,
 rd_status_t ri_flash_gc_run (void);
 
 /**
- * Initialize flash
+ * Initialize flash.
+ * After initialization other flash functions can be used.
  *
- * @return RD_SUCCESS on success
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if flash is already initialized.
  */
 rd_status_t ri_flash_init (void);
+
+/**
+ * Unintialize flash.
+ * After uninitialization only initialization can be used.
+ *
+ * @retval RD_SUCCESS on success.
+ */
+rd_status_t ri_flash_uninit (void);
 
 /**
  * @brief Purge flash
