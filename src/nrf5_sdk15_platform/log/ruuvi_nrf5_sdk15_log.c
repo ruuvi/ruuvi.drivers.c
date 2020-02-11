@@ -27,13 +27,28 @@
 #include "nrf_log_ctrl.h"
 NRF_LOG_MODULE_REGISTER();
 
-static ri_log_severity_t log_level;
+static ri_log_severity_t m_log_level;
 rd_status_t ri_log_init (const ri_log_severity_t min_severity)
 {
-    log_level = min_severity;
-    NRF_LOG_INIT (NULL);
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-    return RD_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (RI_LOG_LEVEL_NONE == m_log_level)
+    {
+        m_log_level = min_severity;
+        NRF_LOG_INIT (NULL);
+        NRF_LOG_DEFAULT_BACKENDS_INIT();
+    }
+    else if (RI_LOG_LEVEL_NONE != min_severity)
+    {
+        // Error if already initialized.
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        // No action needed if initialized as NONE.
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_log_flush (void)
@@ -54,7 +69,7 @@ void ri_log (const ri_log_severity_t severity,
         return;
     }
 
-    if (log_level >= severity)
+    if (m_log_level >= severity)
     {
         NRF_LOG_INTERNAL_RAW_INFO ("%s", message);
     }
