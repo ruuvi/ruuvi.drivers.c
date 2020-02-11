@@ -43,7 +43,6 @@
  * @endcode
  */
 
-#include "ruuvi_boards.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_flash.h"

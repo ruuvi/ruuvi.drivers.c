@@ -1,12 +1,15 @@
 #include "unity.h"
 
-#include "ruuvi_driver_error.h"
 #include "ruuvi_task_flash.h"
+#include "mock_ruuvi_driver_error.h"
 #include "mock_ruuvi_interface_flash.h"
+#include "mock_ruuvi_interface_log.h"
 #include "mock_ruuvi_interface_power.h"
+#include "mock_ruuvi_interface_yield.h"
 
 void setUp(void)
 {
+  ri_log_Ignore();
 }
 
 void tearDown(void)
@@ -26,9 +29,10 @@ void test_rt_flash_init_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     ri_flash_init_ExpectAndReturn(RD_SUCCESS);
+    ri_flash_record_get_ExpectAnyArgsAndReturn(RD_ERROR_NOT_FOUND);
     err_code |= rt_flash_init();
     TEST_ASSERT(RD_SUCCESS == err_code);
-    ri_flash_record_get_ExpectAnyArgsAndReturn(RD_ERROR_NOT_FOUND);
+    
 }
 
 void test_rt_flash_init_error (void)
@@ -37,7 +41,7 @@ void test_rt_flash_init_error (void)
     ri_flash_init_ExpectAndReturn(RD_ERROR_INTERNAL);
     ri_flash_purge_Expect();
     ri_power_reset_Expect();
-    (void)ri_flash_record_get_ExpectAnyArgsAndReturn(RD_ERROR_NOT_FOUND);
+    (void)rt_flash_init();
 }
 
 /**
@@ -65,7 +69,7 @@ void test_rt_flash_init_error (void)
 void test_rt_flash_store_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_flash_record_set_ExpectAndReturn(0xABU, 0xCDU, "Message", sizeof("Message"), RD_SUCCESS);
+    ri_flash_record_set_ExpectAndReturn(0xABU, 0xCDU, sizeof("Message"), "Message", RD_SUCCESS);
     err_code |= rt_flash_store (0xABU, 0xCDU, "Message", sizeof("Message"));
     TEST_ASSERT(RD_SUCCESS == err_code);
 }
@@ -73,12 +77,12 @@ void test_rt_flash_store_ok (void)
 void test_rt_flash_store_gc_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_flash_record_set_ExpectAndReturn(0xABU, 0xCDU, "Message", sizeof("Message"), RD_ERROR_NO_MEM);
-    ri_flash_gc_run_Expect();
+    ri_flash_record_set_ExpectAndReturn(0xABU, 0xCDU, sizeof("Message"), "Message", RD_ERROR_NO_MEM);
+    ri_flash_gc_run_ExpectAndReturn(RD_SUCCESS);
     ri_flash_is_busy_ExpectAndReturn(true);
-    ri_yield_Expect();
+    ri_yield_ExpectAndReturn(RD_SUCCESS);
     ri_flash_is_busy_ExpectAndReturn(false);
-    ri_flash_record_set_ExpectAndReturn(0xABU, 0xCDU, "Message", sizeof("Message"), RD_SUCCESS);
+    ri_flash_record_set_ExpectAndReturn(0xABU, 0xCDU, sizeof("Message"), "Message", RD_SUCCESS);
     err_code |= rt_flash_store (0xABU, 0xCDU, "Message", sizeof("Message"));
     TEST_ASSERT(RD_SUCCESS == err_code);
 }
@@ -108,7 +112,7 @@ void test_rt_flash_load_ok (void)
   // Tested by integration test
   uint8_t message[128];
   ri_flash_record_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
-  rt_flash_store(0xABU, 0xCDU, 128U, &message);
+  rt_flash_load(0xABU, 0xCDU, message, 128U);
 
 }
 

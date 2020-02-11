@@ -23,7 +23,6 @@
 #if RT_FLASH_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
-#include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_power.h"
@@ -36,11 +35,15 @@
 #include <inttypes.h>
 
 #ifndef TASK_FLASH_LOG_LEVEL
-#define TASK_FLASH_LOG_LEVEL RUUVI_INTERFACE_LOG_LEVEL_INFO
+#define TASK_FLASH_LOG_LEVEL RI_LOG_LEVEL_INFO
 #endif
 
 #ifndef RT_FLASH_ERROR_FILE
 #  define RT_FLASH_ERROR_FILE 0xBFFE
+#endif 
+
+#ifndef RT_FLASH_ERROR_RECORD
+#  define RT_FLASH_ERROR_RECORD 0xBFFE
 #endif 
 
 #define LOG(msg) ri_log(TASK_FLASH_LOG_LEVEL, msg)
@@ -97,7 +100,7 @@ static
 #endif
 void print_error_cause (void)
 {
-    error_cause_t error;
+    rt_flash_error_cause_t error;
     uint32_t timeout = 0;
     rd_status_t err_code;
     err_code = rt_flash_load (RT_FLASH_ERROR_FILE,
@@ -108,8 +111,7 @@ void print_error_cause (void)
     {
 
     // Wait for flash store op to complete
-    while (timeout < 1000 &&
-            ri_flash_is_busy())
+    while (timeout < 1000 && ri_flash_is_busy())
     {
         timeout++;
         ri_delay_ms (10);
