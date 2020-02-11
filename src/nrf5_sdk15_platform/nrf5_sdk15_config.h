@@ -2,6 +2,7 @@
 #define NRF5_SDK5_CONFIG_H
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h" //!< Check if NRF_LOG is required
 #include "ruuvi_interface_watchdog.h" //!< Check if WDT is required
 #include "ruuvi_interface_yield.h" //!< Check if NRF_PWR_MGMT is required

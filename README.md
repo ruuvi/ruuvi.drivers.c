@@ -145,6 +145,7 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 ## 0.1.5
  - Add nrf15_sdk log enable macro to ruuvi_interface_log.h
  - Fix nRF5 SDK15 watchdog reinitialization assert
+ - Unit test task_flash, integration test ri_flash.
 
 ## 0.1.4
  - Fix button task compilation when button task is not enabled
