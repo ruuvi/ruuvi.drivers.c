@@ -39,6 +39,10 @@
 #define TASK_FLASH_LOG_LEVEL RUUVI_INTERFACE_LOG_LEVEL_INFO
 #endif
 
+#ifndef RT_FLASH_ERROR_FILE
+#  define RT_FLASH_ERROR_FILE 0xBFFE
+#endif 
+
 #define LOG(msg) ri_log(TASK_FLASH_LOG_LEVEL, msg)
 #define LOGD(msg) ri_log(RI_LOG_DEBUG, msg)
 #define LOGW(msg) ri_log(RI_LOG_WARNING, msg)
@@ -49,7 +53,7 @@ typedef struct
     rd_status_t error;
     char filename[32];
     int line;
-} error_cause_t;
+} rt_flash_error_cause_t;
 
 #if 0
 static void on_error (const rd_status_t err,
@@ -88,19 +92,20 @@ static void on_error (const rd_status_t err,
 }
 #endif
 
-static void print_error_cause (void)
+#ifndef CEEDLING
+static 
+#endif
+void print_error_cause (void)
 {
     error_cause_t error;
     uint32_t timeout = 0;
     rd_status_t err_code;
-    err_code = rt_flash_load (APPLICATION_FLASH_ERROR_FILE,
-                              APPLICATION_FLASH_ERROR_RECORD,
+    err_code = rt_flash_load (RT_FLASH_ERROR_FILE,
+                              RT_FLASH_ERROR_RECORD,
                               &error, sizeof (error));
 
-    if (RD_SUCCESS != err_code)
+    if (RD_SUCCESS == err_code)
     {
-        return;
-    }
 
     // Wait for flash store op to complete
     while (timeout < 1000 &&
@@ -118,6 +123,7 @@ static void print_error_cause (void)
                                  sizeof (error_str) - index);
     snprintf (error_str + index,  sizeof (error_str) - index, "\r\n");
     LOG (error_str);
+    }
 }
 
 rd_status_t rt_flash_init (void)
@@ -130,12 +136,15 @@ rd_status_t rt_flash_init (void)
     {
         ri_flash_purge();
         ri_power_reset();
+        // Stop test execution here.
+#       ifdef CEEDLING
+          return err_code;
+#       endif
     }
 
     // Print previous fatal error
     print_error_cause();
-    // Setup error logger
-    rd_error_cb_set (on_error);
+
     return err_code;
 }
 
@@ -173,11 +182,6 @@ rd_status_t rt_flash_free (const uint16_t file_id, const uint16_t record_id)
 
 rd_status_t rt_flash_gc_run (void)
 {
-    while (ri_flash_is_busy())
-    {
-        ri_yield();
-    }
-
     return ri_flash_gc_run();
 }
 
@@ -189,26 +193,12 @@ bool rt_flash_busy (void)
 
 
 #else
-#if 0
-static void on_error (const rd_status_t err,
-                      const bool fatal,
-                      const char * file,
-                      const int line)
-{
-    if (fatal)
-    {
-        // Try to enter bootloader, if that fails reset.
-        ri_power_enter_bootloader();
-        ri_power_reset();
-    }
-}
-#endif
+
 #include "ruuvi_driver_error.h"
 #include <stdlib.h>
 rd_status_t rt_flash_init (void)
 {
     // Setup error reset
-    // rd_error_cb_set (on_error);
     return RD_SUCCESS;
 }
 

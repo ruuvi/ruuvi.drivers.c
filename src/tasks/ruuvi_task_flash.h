@@ -16,9 +16,9 @@
  */
 /*@{*/
 /**
- * @file task_flash.h
+ * @file ruuvi_task_flash.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-10-11
+ * @date 2020-02-11
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Store and load data to/from persistent storage.
@@ -54,8 +54,8 @@
  *
  * If flash initialization fails, flash is purged and device tries to enter bootloader.
  *
- * @return RD_SUCCESS on success
- * @return error code from stack on error
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_INVALID_STATE if flash is already initialized
  * @warning Erases entire flash storage and reboots on failure.
  */
 rd_status_t rt_flash_init (void);
@@ -69,16 +69,16 @@ rd_status_t rt_flash_init (void);
  * This function only queues the data to be written, you must verify that write was completed before freeing message.
  *
  * @param[in] file_id ID of a file to store. Valid range 1 ... 0xBFFF
- * @param[in] record_id ID of a record to store. Valid range 1 ... 0x
+ * @param[in] record_id ID of a record to store. Valid range 1 ... 0xFFFF
  * @param[in] message Data to store. Must be aligned to a 4-byte boundary.
  * @param[in] message_length Length of stored data. Maximum 4000 bytes per record on nRF52.
  *
- * @return RD_SUCCESS on success.
- * @return RD_ERROR_NULL if data pointer is NULL.
- * @return RD_ERROR_INVALID_STATE if flash is not initialized.
- * @return RD_ERROR_BUSY if another operation was ongoing.
- * @return RD_ERROR_NO_MEM if there was no space for the record in flash.
- * @return RD_ERROR_DATA_SIZE if record exceeds maximum size.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if data pointer is NULL.
+ * @retval RD_ERROR_INVALID_STATE if flash is not initialized.
+ * @retval RD_ERROR_BUSY if another operation was ongoing.
+ * @retval RD_ERROR_NO_MEM if there was no space for the record in flash.
+ * @retval RD_ERROR_DATA_SIZE if record exceeds maximum size.
  *
  * @warning triggers garbage collection if there is no space available, which leads to long processing time.
  */
@@ -92,16 +92,16 @@ rd_status_t rt_flash_store (const uint16_t file_id, const uint16_t record_id,
  * You can for example have a file for sensor configurations and record for each sensor.
  *
  * @param[in] file_id ID of a file to load. Valid range 1 ... 0xBFFF
- * @param[in] record_id ID of a record to load. Valid range 1 ... 0x
+ * @param[in] record_id ID of a record to load. Valid range 1 ... 0xFFFF
  * @param[in] message Data to load. Must be aligned to a 4-byte boundary.
  * @param[in] message_length Length of loaded data. Maximum 4000 bytes per record on nRF52.
  *
- * @return RD_SUCCESS on success.
- * @return RD_ERROR_NULL if data pointer is NULL.
- * @return RD_ERROR_INVALID_STATE if flash is not initialized.
- * @return RD_ERROR_BUSY if another operation was ongoing.
- * @return RD_ERROR_NOT_FOUND if given record was not found.
- * @return RD_ERROR_DATA_SIZE if record exceeds maximum size.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if data pointer is NULL.
+ * @retval RD_ERROR_INVALID_STATE if flash is not initialized.
+ * @retval RD_ERROR_BUSY if another operation was ongoing.
+ * @retval RD_ERROR_NOT_FOUND if given record was not found.
+ * @retval RD_ERROR_DATA_SIZE if record exceeds maximum size.
  *
  * @warning triggers garbage collection if there is no space available, which leads to long processing time.
  */
@@ -117,12 +117,12 @@ rd_status_t rt_flash_load (const uint16_t file_id, const uint16_t record_id,
  * This function does not physically erase the data, it only marks the record as deleteable for garbage collection.
  *
  * @param[in] file_id ID of a file to delete. Valid range 1 ... 0xBFFF
- * @param[in] record_id ID of a record to delete. Valid range 1 ... 0x
+ * @param[in] record_id ID of a record to delete. Valid range 1 ... 0xFFFF
  *
- * @return RD_SUCCESS on success.
- * @return RD_ERROR_INVALID_STATE if flash is not initialized.
- * @return RD_ERROR_BUSY if another operation was ongoing.
- * @return RD_ERROR_NOT_FOUND if given record was not found.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if flash is not initialized.
+ * @retval RD_ERROR_BUSY if another operation was ongoing.
+ * @retval RD_ERROR_NOT_FOUND if given record was not found.
  *
  * @warning triggers garbage collection if there is no space available, which leads to long processing time.
  */
@@ -151,5 +151,12 @@ rd_status_t rt_flash_gc_run (void);
  *
  */
 bool rt_flash_busy (void);
+
+#ifndef CEEDLING
+// Give Ceedling access to internal functions.
+void print_error_cause (void);
+#endif
+
+
 /*@}*/
 #endif
