@@ -67,14 +67,16 @@ void wdt_event_handler (void)
 }
 
 /**
- * Initializes watchdog module.
+ * @param Initializes watchdog module.
  * After initialization watchdog must be fed at given interval or the program will reset.
- * There is not way to uninitialize the watchdog.
+ * There is no way to uninitialize the watchdog.
  * Consider bootloader watchdog interval on setup.
  *
- * parameter interval: how often the watchdog should be fed.
+ * @param[in] interval How often the watchdog should be fed.
+ * @param[in] handler Function called on watchdog trigger. Must complete within 2 1/2^15 ms cycles.
  *
- * Return RD_SUCCESS on success, error code on failure.
+ * @retval RD_SUCCESS on success.
+ * @retval RI_ERROR_INVALID_STATE if Watchdog is already initialized.
  */
 rd_status_t ri_watchdog_init (const uint32_t interval_ms, const wdt_evt_handler_t handler)
 {
@@ -82,8 +84,17 @@ rd_status_t ri_watchdog_init (const uint32_t interval_ms, const wdt_evt_handler_
     nrf_drv_wdt_config_t config = NRF_DRV_WDT_DEAFULT_CONFIG;
     config.reload_value = interval_ms;
     err_code = nrf_drv_wdt_init (&config, wdt_event_handler);
-    err_code = nrf_drv_wdt_channel_alloc (&m_channel_id);
-    nrf_drv_wdt_enable();
+
+    if (NRF_SUCCESS == err_code)
+    {
+        err_code = nrf_drv_wdt_channel_alloc (&m_channel_id);
+
+        if (NRF_SUCCESS == err_code)
+        {
+            nrf_drv_wdt_enable();
+        }
+    }
+
     m_on_trigger = handler;
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
