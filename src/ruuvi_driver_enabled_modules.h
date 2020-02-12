@@ -81,17 +81,32 @@ data payload length is the maximum length */
 #  define RT_GPIO_ENABLED ENABLE_DEFAULT
 #endif
 
+#if RT_GPIO_ENABLED
+#  ifndef RT_GPIO_INT_TABLE_SIZE
+#    if (!ENABLE_DEFAULT)
+#      warning "Conserving space for 48 GPIOs, are you sure?"
+#    endif
+/** @brief Conserve RAM for led task variables.
+ *
+ * You should override this with a lower value.
+ */
+#  define RT_GPIO_INT_TABLE_SIZE 48
+#  endif
+#endif
+
+
 #ifndef RT_LED_ENABLED
 /** @brief Enable LED task compilation. */
 #  define RT_LED_ENABLED ENABLE_DEFAULT
-#  if RT_LED_ENABLED
-#    if (!RT_GPIO_ENABLED)
-#      error "LED task requires GPIO task"
-#    endif
-#    ifndef RT_MAX_LED_CFG
-#      if (!ENABLE_DEFAULT)
-#        warning "Conserving space for 48 LEDs, are you sure?"
-#      endif
+#endif
+
+#if RT_LED_ENABLED
+#  if (!RT_GPIO_ENABLED)
+#    error "LED task requires GPIO task"
+#  endif
+#  ifndef RT_MAX_LED_CFG
+#    if (!ENABLE_DEFAULT)
+#      warning "Conserving space for 48 LEDs, are you sure?"
 #    endif
 /** @brief Conserve RAM for led task variables.
  *

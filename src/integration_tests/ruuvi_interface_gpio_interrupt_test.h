@@ -58,7 +58,19 @@ rd_status_t ri_gpio_interrupt_test_init (
  * @return @ref RD_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
-rd_status_t ri_gpio_interrupt_test_enable (
-    const rd_test_gpio_cfg_t cfg);
+rd_status_t ri_gpio_interrupt_test_enable (const rd_test_gpio_cfg_t cfg);
+
+/**
+ * @brief Run all GPIO interrupt integration tests
+ *
+ * @param printfp[in] Function pointer to which test result strings are sent.
+ * @param input[in]  Pin used to check the state of output pin.
+ * @param output[in] Pin being toggled.
+ *
+ * @return false if there are no errors, true otherwise.
+ */
+bool ri_gpio_interrupt_run_integration_test (const rd_test_print_fp printfp,
+        const ri_gpio_id_t input, const ri_gpio_id_t output);
+
 /*@}*/
 #endif

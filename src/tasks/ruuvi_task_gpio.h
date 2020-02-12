@@ -28,7 +28,7 @@
 /**
  * @brief initialise GPIO. Pins are in high-Z state by default.
  *
- * @return RUUVI_DRIVER_SUCCESS
+ * @retval RUUVI_DRIVER_SUCCESS
  */
 rd_status_t rt_gpio_init (void);
 

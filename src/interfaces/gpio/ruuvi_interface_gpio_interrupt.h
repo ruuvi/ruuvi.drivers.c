@@ -12,8 +12,14 @@
  *
  * Interface for basic GPIO interrupt functions
  */
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
+/** @brief Enable implementation selected by application */
+#if RI_GPIO_ENABLED
+#  define RUUVI_NRF5_SDK15_GPIO_INTERRUPT_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
+
 /**
  * Enumeration for GPIO slopes
  */
