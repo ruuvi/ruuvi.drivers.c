@@ -215,33 +215,38 @@ rd_status_t ri_gpio_interrupt_test_enable (
     return RD_SUCCESS;
 }
 
-bool ri_gpio_interrupt_run_integration_test(const rd_test_print_fp printfp, const ri_gpio_id_t input, const ri_gpio_id_t output)
+bool ri_gpio_interrupt_run_integration_test (const rd_test_print_fp printfp,
+        const ri_gpio_id_t input, const ri_gpio_id_t output)
 {
     rd_status_t status;
     rd_test_gpio_cfg_t cfg;
     cfg.input = input;
     cfg.output = output;
-    printfp("\"gpio_interrupt\":{\r\n");
-    printfp("\"init\":");
-    status = ri_gpio_interrupt_test_init(cfg);
-    if(RD_SUCCESS == status)
+    printfp ("\"gpio_interrupt\":{\r\n");
+    printfp ("\"init\":");
+    status = ri_gpio_interrupt_test_init (cfg);
+
+    if (RD_SUCCESS == status)
     {
-        printfp("\"pass\",\r\n");
+        printfp ("\"pass\",\r\n");
     }
     else
     {
-        printfp("\"fail\",\r\n");
+        printfp ("\"fail\",\r\n");
     }
-    printfp("\"enable\":");
-    status = ri_gpio_interrupt_test_enable(cfg);
-    if(RD_SUCCESS == status)
+
+    printfp ("\"enable\":");
+    status = ri_gpio_interrupt_test_enable (cfg);
+
+    if (RD_SUCCESS == status)
     {
-        printfp("\"pass\"\r\n");
+        printfp ("\"pass\"\r\n");
     }
     else
     {
-        printfp("\"fail\"\r\n");
+        printfp ("\"fail\"\r\n");
     }
-    printfp("},\r\n");
+
+    printfp ("},\r\n");
 }
 #endif

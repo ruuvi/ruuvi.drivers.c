@@ -72,7 +72,8 @@ rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input, const ri_gpio_id_t ou
  *
  * @return false if there are no errors, true otherwise.
  */
-bool ri_gpio_run_integration_test(const rd_test_print_fp printfp, const ri_gpio_id_t input, const ri_gpio_id_t output);
+bool ri_gpio_run_integration_test (const rd_test_print_fp printfp,
+                                   const ri_gpio_id_t input, const ri_gpio_id_t output);
 
 /*@}*/
 #endif

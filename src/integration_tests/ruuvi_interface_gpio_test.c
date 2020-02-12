@@ -157,41 +157,48 @@ rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input,
     return RD_SUCCESS;
 }
 
-bool ri_gpio_run_integration_test(const rd_test_print_fp printfp, const ri_gpio_id_t input, const ri_gpio_id_t output)
+bool ri_gpio_run_integration_test (const rd_test_print_fp printfp,
+                                   const ri_gpio_id_t input, const ri_gpio_id_t output)
 {
     rd_status_t status;
-    printfp("\"gpio\":{\r\n");
-    printfp("\"init\":");
+    printfp ("\"gpio\":{\r\n");
+    printfp ("\"init\":");
     status = ri_gpio_test_init();
-    if(RD_SUCCESS == status)
+
+    if (RD_SUCCESS == status)
     {
-        printfp("\"pass\",\r\n");
+        printfp ("\"pass\",\r\n");
     }
     else
     {
-        printfp("\"fail\",\r\n");
+        printfp ("\"fail\",\r\n");
     }
-    printfp("\"configure\":");
-    status = ri_gpio_test_configure(input, output);
-    if(RD_SUCCESS == status)
+
+    printfp ("\"configure\":");
+    status = ri_gpio_test_configure (input, output);
+
+    if (RD_SUCCESS == status)
     {
-        printfp("\"pass\",\r\n");
+        printfp ("\"pass\",\r\n");
     }
     else
     {
-        printfp("\"fail\",\r\n");
+        printfp ("\"fail\",\r\n");
     }
-    printfp("\"toggle\":");
-    status = ri_gpio_test_toggle(input, output);
-    if(RD_SUCCESS == status)
+
+    printfp ("\"toggle\":");
+    status = ri_gpio_test_toggle (input, output);
+
+    if (RD_SUCCESS == status)
     {
-        printfp("\"pass\"\r\n");
+        printfp ("\"pass\"\r\n");
     }
     else
     {
-        printfp("\"fail\"\r\n");
+        printfp ("\"fail\"\r\n");
     }
-    printfp("},\r\n");
+
+    printfp ("},\r\n");
 }
 
 #endif
