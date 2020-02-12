@@ -39,10 +39,10 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_flash.h"
 #if RUUVI_NRF5_SDK15_FLASH_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
-#include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_yield.h"
 
@@ -62,7 +62,23 @@
 
 #include <string.h>
 
-#define LOG_LEVEL RUUVI_INTERFACE_LOG_DEBUG
+/**
+ * @addtogroup Flash Flash storage
+ * @brief Interface and implementations for storing data into flash in a persistent manner.
+ *
+ */
+/*@{*/
+/**
+ * @file ruuvi_nrf5_sdk15_flash.c
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2020-02-11
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @brief Implement persistent flash storage.
+ *
+ *
+ */
+
+#define LOG_LEVEL RI_LOG_LEVEL_DEBUG
 
 NRF_FSTORAGE_DEF (nrf_fstorage_t m_fs1) =
 {
@@ -72,62 +88,62 @@ NRF_FSTORAGE_DEF (nrf_fstorage_t m_fs1) =
 
 static size_t m_number_of_pages = 0;
 
-// convert FDS error to ruuvi error
-static ruuvi_driver_status_t fds_to_ruuvi_error (ret_code_t err_code)
+/** @brief convert FDS error to ruuvi error */
+static rd_status_t fds_to_ruuvi_error (ret_code_t err_code)
 {
     switch (err_code)
     {
         case FDS_SUCCESS:
-            return RUUVI_DRIVER_SUCCESS;
+            return RD_SUCCESS;
 
         case FDS_ERR_OPERATION_TIMEOUT:
-            return RUUVI_DRIVER_ERROR_TIMEOUT;
+            return RD_ERROR_TIMEOUT;
 
         case FDS_ERR_NOT_INITIALIZED:
-            return RUUVI_DRIVER_ERROR_INVALID_STATE;
+            return RD_ERROR_INVALID_STATE;
 
         case FDS_ERR_UNALIGNED_ADDR:
-            return RUUVI_DRIVER_ERROR_INTERNAL;
+            return RD_ERROR_INTERNAL;
 
         case FDS_ERR_INVALID_ARG:
-            return RUUVI_DRIVER_ERROR_INVALID_PARAM;
+            return RD_ERROR_INVALID_PARAM;
 
         case FDS_ERR_NULL_ARG:
-            return RUUVI_DRIVER_ERROR_NULL;
+            return RD_ERROR_NULL;
 
         case FDS_ERR_NO_OPEN_RECORDS:
-            return RUUVI_DRIVER_ERROR_INVALID_STATE;
+            return RD_ERROR_INVALID_STATE;
 
         case FDS_ERR_NO_SPACE_IN_FLASH:
-            return RUUVI_DRIVER_ERROR_NO_MEM;
+            return RD_ERROR_NO_MEM;
 
         case FDS_ERR_NO_SPACE_IN_QUEUES:
-            return RUUVI_DRIVER_ERROR_BUSY;
+            return RD_ERROR_BUSY;
 
         case FDS_ERR_RECORD_TOO_LARGE:
-            return RUUVI_DRIVER_ERROR_DATA_SIZE;
+            return RD_ERROR_DATA_SIZE;
 
         case FDS_ERR_NOT_FOUND:
-            return RUUVI_DRIVER_ERROR_NOT_FOUND;
+            return RD_ERROR_NOT_FOUND;
 
         case FDS_ERR_NO_PAGES:
-            return RUUVI_DRIVER_ERROR_NO_MEM;
+            return RD_ERROR_NO_MEM;
 
         case FDS_ERR_USER_LIMIT_REACHED:
-            return RUUVI_DRIVER_ERROR_RESOURCES;
+            return RD_ERROR_RESOURCES;
 
         case FDS_ERR_CRC_CHECK_FAILED:
-            return RUUVI_DRIVER_ERROR_SELFTEST;
+            return RD_ERROR_SELFTEST;
 
         case FDS_ERR_BUSY:
-            return RUUVI_DRIVER_ERROR_BUSY;
+            return RD_ERROR_BUSY;
 
         case FDS_ERR_INTERNAL:
         default:
-            return RUUVI_DRIVER_ERROR_INTERNAL;
+            return RD_ERROR_INTERNAL;
     }
 
-    return RUUVI_DRIVER_ERROR_INTERNAL;
+    return RD_ERROR_INTERNAL;
 }
 
 
@@ -135,7 +151,9 @@ static ruuvi_driver_status_t fds_to_ruuvi_error (ret_code_t err_code)
 static bool volatile m_fds_initialized;
 /* Flag to check fds processing status. */
 static bool volatile m_fds_processing;
-
+/* Flag to check fds callback registration. */
+static bool m_fds_registered;
+/** @brief Handle FDS events */
 static void fds_evt_handler (fds_evt_t const * p_evt)
 {
     switch (p_evt->id)
@@ -144,7 +162,7 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
             if (p_evt->result == FDS_SUCCESS)
             {
                 m_fds_initialized = true;
-                ruuvi_interface_log (LOG_LEVEL, "FDS init\r\n");
+                ri_log (LOG_LEVEL, "FDS init\r\n");
             }
 
             break;
@@ -153,7 +171,7 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_interface_log (LOG_LEVEL, "Record written\r\n");
+                ri_log (LOG_LEVEL, "Record written\r\n");
                 m_fds_processing = false;
             }
         }
@@ -163,7 +181,7 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_interface_log (LOG_LEVEL, "Record updated\r\n");
+                ri_log (LOG_LEVEL, "Record updated\r\n");
                 m_fds_processing = false;
             }
         }
@@ -173,7 +191,7 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_interface_log (LOG_LEVEL, "Record deleted\r\n");
+                ri_log (LOG_LEVEL, "Record deleted\r\n");
                 m_fds_processing = false;
             }
         }
@@ -183,7 +201,7 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_interface_log (LOG_LEVEL, "File deleted\r\n");
+                ri_log (LOG_LEVEL, "File deleted\r\n");
                 m_fds_processing = false;
             }
         }
@@ -193,7 +211,7 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
         {
             if (p_evt->result == FDS_SUCCESS)
             {
-                ruuvi_interface_log (LOG_LEVEL, "Garbage collected\r\n");
+                ri_log (LOG_LEVEL, "Garbage collected\r\n");
                 m_fds_processing = false;
             }
         }
@@ -205,30 +223,42 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
 }
 
 /**
- * Get total size of usable flash, including any overhead bytes
+ * @brief Get total size of usable flash, including any overhead bytes.
  *
- * parameter size: size of useable storage in bytes.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if size is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: error code from stack on other error
+ * @param[out] size Size of useable storage in bytes.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if size is null
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @retval error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_total_size_get (size_t * size)
+rd_status_t ri_flash_total_size_get (size_t * const size)
 {
-    if (NULL == size) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == size) { return RD_ERROR_NULL; }
 
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
-    ruuvi_interface_flash_page_size_get (size);
+    ri_flash_page_size_get (size);
     *size *= m_number_of_pages;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_flash_free_size_get (size_t * size)
+/**
+ * @brief Get largest unit of continuous storage.
+ *
+ * This is maximum size of element that can be stored.
+ * Try running garbage collection if you cannot fit enough data into the block.
+ *
+ * @param[out] size Size of largest continous block in bytes.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if size is null
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @retval error code from stack on other error
+ */
+rd_status_t ri_flash_free_size_get (size_t * const size)
 {
-    if (NULL == size) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == size) { return RD_ERROR_NULL; }
 
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
     // Read filesystem status
     fds_stat_t stat = {0};
@@ -238,28 +268,41 @@ ruuvi_driver_status_t ruuvi_interface_flash_free_size_get (size_t * size)
 }
 
 /**
- * Get size of usable page, including any overhead bytes
+ * @brief Get size of usable page, including any overhead bytes.
  *
- * parameter size: size of useable storage in bytes.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if size is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: error code from stack on other error
+ * @param[out] size Size of a storage block in bytes.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if size is null
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @retval error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_page_size_get (size_t * size)
+rd_status_t ri_flash_page_size_get (size_t * size)
 {
-    if (NULL == size) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == size) { return RD_ERROR_NULL; }
 
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
     *size = FDS_VIRTUAL_PAGE_SIZE;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_flash_record_delete (const uint32_t page_id,
-        const uint32_t record_id)
+/**
+ * @brief Delete a record.
+ *
+ * This function only marks the record as deleted and does not erase or free space.
+ * Run garbage collection to clear deleted records.
+ *
+ * @param[in] page_id Id of page where record is.
+ * @param[in] page_id Id of record to delete.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
+ * @retval RD_ERROR_NOT_FOUND if target record can't be found.
+ * @retval error code from stack on other error
+ */
+rd_status_t ri_flash_record_delete (const uint32_t page_id,
+                                    const uint32_t record_id)
 {
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
     fds_record_desc_t desc = {0};
     fds_find_token_t  tok  = {0};
@@ -278,28 +321,28 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_delete (const uint32_t page_i
  * Updates record if it already exists.
  * Automatically runs garbage collection if record cannot fit on page.
  *
- * parameter page_id: ID of a page. Can be random number.
- * parameter record_id: ID of a record. Can be a random number.
- * parameter data_size: size data to store
- * parameter data: pointer to data to store.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if data is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: RUUVI_DRIVER_ERROR_DATA_SIZE if record is too large to fit on page
- * return: RUUVI_DRIVER_ERROR_NO_MEM if this record cannot fit on page.
- * return: error code from stack on other error
+ * @param[in] page_id ID of a page. Can be random number.
+ * @param[in] record_id ID of a record. Can be a random number.
+ * @param[in] data_size size data to store
+ * @param[in] data pointer to data to store.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if data is null
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @retval RD_ERROR_DATA_SIZE if record is too large to fit on page
+ * @retval RD_ERROR_NO_MEM if this record cannot fit on page.
+ * @retval error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_record_set (const uint32_t page_id,
-        const uint32_t record_id, const size_t data_size, const void * const data)
+rd_status_t ri_flash_record_set (const uint32_t page_id,
+                                 const uint32_t record_id, const size_t data_size, const void * const data)
 {
-    if (NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == data) { return RD_ERROR_NULL; }
 
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
     /* Wait for process to complete */
-    if (m_fds_processing) { return RUUVI_DRIVER_ERROR_BUSY; }
+    if (m_fds_processing) { return RD_ERROR_BUSY; }
 
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     fds_record_desc_t desc = {0};
     fds_find_token_t  tok  = {0};
     /* A record structure. */
@@ -321,7 +364,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set (const uint32_t page_id,
         rc = fds_record_update (&desc, &record);
         err_code |= fds_to_ruuvi_error (rc);
 
-        if (RUUVI_DRIVER_SUCCESS != err_code)
+        if (RD_SUCCESS != err_code)
         {
             m_fds_processing = false;
             return err_code;
@@ -336,7 +379,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set (const uint32_t page_id,
         rc = fds_record_write (&desc, &record);
         err_code |= fds_to_ruuvi_error (rc);
 
-        if (RUUVI_DRIVER_SUCCESS != err_code)
+        if (RD_SUCCESS != err_code)
         {
             m_fds_processing = false;
             return err_code;
@@ -349,26 +392,26 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set (const uint32_t page_id,
 /**
  * Get data from record in page
  *
- * parameter page_id: ID of a page. Can be random number.
- * parameter record_id: ID of a record. Can be a random number.
- * parameter data_size: size data to store
- * parameter data: pointer to data to store.
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_ERROR_NULL if data is null
- * return: RUUVI_DRIVER_ERROR_INVALID_STATE if flash storage is not initialized
- * return: RUUVI_DRIVER_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
- * return: error code from stack on other error
+ * param[in] page_id ID of a page. Can be random number.
+ * param[in] record_id ID of a record. Can be a random number.
+ * param[in] data_size size data to load
+ * @param[out] data pointer to load with data.
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if data is null
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @retval RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
+ * @retval error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_record_get (const uint32_t page_id,
-        const uint32_t record_id, const size_t data_size, void * const data)
+rd_status_t ri_flash_record_get (const uint32_t page_id,
+                                 const uint32_t record_id, const size_t data_size, void * const data)
 {
-    if (NULL == data) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == data) { return RD_ERROR_NULL; }
 
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
-    if (m_fds_processing) { return RUUVI_DRIVER_ERROR_BUSY; }
+    if (m_fds_processing) { return RD_ERROR_BUSY; }
 
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     fds_record_desc_t desc = {0};
     fds_find_token_t  tok  = {0};
     ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
@@ -383,7 +426,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_get (const uint32_t page_id,
         err_code |= fds_to_ruuvi_error (rc);
 
         // Check length
-        if (record.p_header->length_words * 4 > data_size) { return RUUVI_DRIVER_ERROR_DATA_SIZE; }
+        if (record.p_header->length_words * 4 > data_size) { return RD_ERROR_DATA_SIZE; }
 
         /* Copy the data from flash into RAM. */
         memcpy (data, record.p_data, record.p_header->length_words * 4);
@@ -396,17 +439,17 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_get (const uint32_t page_id,
 }
 
 /**
- * Run garbage collection.
+ * @brief Run garbage collection.
  *
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: RUUVI_DRIVER_INVALID_STATE if flash is not initialized
- * return: error code from stack on other error
+ * @retval RD_SUCCESS on success
+ * @retval RD_INVALID_STATE if flash is not initialized
+ * @retval error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_gc_run (void)
+rd_status_t ri_flash_gc_run (void)
 {
-    if (false == m_fds_initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
 
-    if (m_fds_processing) { return RUUVI_DRIVER_ERROR_BUSY; }
+    if (m_fds_processing) { return RD_ERROR_BUSY; }
 
     m_fds_processing = true;
     ret_code_t rc = fds_gc();
@@ -414,30 +457,60 @@ ruuvi_driver_status_t ruuvi_interface_flash_gc_run (void)
 }
 
 /**
- * Initialize flash
+ * @brief Initialize flash
  *
- * return: RUUVI_DRIVER_SUCCESS on success
- * return: error code from stack on other error
+ * @retval RD_SUCCESS on success
+ * @retval error code from stack on other error
  */
-ruuvi_driver_status_t ruuvi_interface_flash_init (void)
+rd_status_t ri_flash_init (void)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     ret_code_t rc = NRF_SUCCESS;
-    /* Register first to receive an event when initialization is complete. */
-    (void) fds_register (fds_evt_handler);
-    rc = fds_init();
+
+    if (m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        /* Register first to receive an event when initialization is complete. */
+        if (!m_fds_registered)
+        {
+            (void) fds_register (fds_evt_handler);
+            m_fds_registered = true;
+        }
+
+        rc = fds_init();
+        err_code |= fds_to_ruuvi_error (rc);
+
+        if (RD_SUCCESS == err_code)
+        {
+            // Wait for init ok
+            while (!m_fds_initialized) {};
+
+            // Read filesystem status
+            fds_stat_t stat = {0};
+
+            rc = fds_stat (&stat);
+
+            m_number_of_pages = stat.pages_available;
+        }
+    }
+
     err_code |= fds_to_ruuvi_error (rc);
+    return err_code;
+}
 
-    if (RUUVI_DRIVER_SUCCESS != err_code) { return err_code; }
-
-    // Wait for init ok
-    while (!m_fds_initialized);
-
-    // Read filesystem status
-    fds_stat_t stat = {0};
-    rc = fds_stat (&stat);
-    m_number_of_pages = stat.pages_available;
-    err_code |= fds_to_ruuvi_error (rc);
+/**
+ * Unintialize flash.
+ * After uninitialization only initialization can be used.
+ *
+ * @retval RD_SUCCESS on success.
+ */
+rd_status_t ri_flash_uninit (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    m_fds_initialized = false;
     return err_code;
 }
 
@@ -463,7 +536,7 @@ static void flash_bounds_set (void)
 }
 
 /** Erase FDS */
-void ruuvi_interface_flash_purge (void)
+void ri_flash_purge (void)
 {
     flash_bounds_set();
 
@@ -476,12 +549,12 @@ void ruuvi_interface_flash_purge (void)
 #endif
         int page = m_fs1.start_addr / erase_unit + p; // erase unit == virtual page size
         ret_code_t rc = sd_flash_page_erase (page);
-        ruuvi_interface_delay_ms (200);
-        RUUVI_DRIVER_ERROR_CHECK (rc, RUUVI_DRIVER_SUCCESS);
+        ri_delay_ms (200);
+        RD_ERROR_CHECK (rc, RD_SUCCESS);
     }
 }
 
-bool ruuvi_interface_flash_is_busy()
+bool ri_flash_is_busy()
 {
     return m_fds_processing;
 }

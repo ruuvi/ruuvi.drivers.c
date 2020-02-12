@@ -22,9 +22,14 @@
  *
  */
 
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
-
 #include <stddef.h>
+
+/** @brief Enable implementation selected by application */
+#if RI_FLASH_ENABLED
+#  define RUUVI_NRF5_SDK15_FLASH_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /**
  * @brief Get total size of usable flash, excluding any overhead bytes

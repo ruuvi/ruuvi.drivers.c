@@ -2,6 +2,7 @@
 #define NRF5_SDK5_CONFIG_H
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h" //!< Check if NRF_LOG is required
 #include "ruuvi_interface_watchdog.h" //!< Check if WDT is required
 #include "ruuvi_interface_yield.h" //!< Check if NRF_PWR_MGMT is required
@@ -32,7 +33,15 @@
 
 #ifndef NRF_SDH_BLE_ENABLED
 /** @brief Required by SDK BLE modules not conditionally compiled */
-#define NRF_SDH_BLE_ENABLED 1
+#  define NRF_SDH_BLE_ENABLED 1
+#endif
+
+#if RUUVI_NRF5_SDK15_FLASH_ENABLED
+#  define FDS_ENABLED 1
+#  define NRF_FSTORAGE_ENABLED 1
+#  ifndef NRF_SDH_SOC_ENABLED
+#    define NRF_SDH_SOC_ENABLED 1
+#  endif
 #endif
 
 #if RUUVI_NRF5_SDK15_LOG_ENABLED
