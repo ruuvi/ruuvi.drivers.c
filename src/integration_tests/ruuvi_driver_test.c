@@ -12,16 +12,7 @@
 static size_t tests_total = 0;
 /** @brief counter of total tests passed */
 static size_t tests_passed = 0;
-
-
-/** @brief Configuration structure of GPIO test */
-static rd_test_gpio_cfg_t gpio_test_cfg = { .input = RI_GPIO_ID_UNUSED, .output = RI_GPIO_ID_UNUSED};
-
-void rd_test_gpio_cfg (const rd_test_gpio_cfg_t cfg)
-{
-    gpio_test_cfg = cfg;
-}
-
+#if 0
 static bool rd_test_gpio_run (const rd_test_print_fp printfp)
 {
     printfp ("GPIO tests ");
@@ -105,6 +96,7 @@ bool rd_test_all_run (const rd_test_print_fp printfp)
     rd_test_gpio_run (printfp);
     rd_test_gpio_interrupt_run (printfp);
 }
+#endif
 
 bool ri_expect_close (const float expect, const int8_t precision,
                       const float check)

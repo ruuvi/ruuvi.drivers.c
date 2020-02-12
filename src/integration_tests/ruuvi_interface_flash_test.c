@@ -42,7 +42,7 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
 {
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
-    printfp ("'init':");
+    printfp ("\"init\":");
     err_code = ri_flash_init();
 
     if (RD_SUCCESS != err_code)
@@ -61,11 +61,11 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("'fail',\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-        printfp ("'pass',\r\n");
+        printfp ("\"pass\",\r\n");
     }
 
     return status;
@@ -87,7 +87,7 @@ static bool ri_flash_uninit_test (const rd_test_print_fp printfp)
 {
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
-    printfp ("'uninit':");
+    printfp ("\"uninit\":");
     err_code = ri_flash_uninit();
 
     if (RD_SUCCESS != err_code)
@@ -108,11 +108,11 @@ static bool ri_flash_uninit_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("'fail',\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-        printfp ("'pass',\r\n");
+        printfp ("\"pass\",\r\n");
     }
 
     return status;
@@ -128,7 +128,7 @@ static bool ri_flash_store_test (const rd_test_print_fp printfp)
 {
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
-    printfp ("'store':");
+    printfp ("\"store\":");
     err_code = ri_flash_uninit();
     err_code = ri_flash_record_set (F_TEST_PAGE, F_TEST_RECORD, sizeof (f_data1), f_data1);
 
@@ -159,11 +159,11 @@ static bool ri_flash_store_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("'fail',\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-        printfp ("'pass',\r\n");
+        printfp ("\"pass\",\r\n");
     }
 
     return status;
@@ -181,7 +181,7 @@ static bool ri_flash_load_test (const rd_test_print_fp printfp)
     bool status = false;
     // Ensure we can align into 4-byte boundary.
     char load_buffer[sizeof (f_data2) + 4] = {0};
-    printfp ("'load':");
+    printfp ("\"load\":");
     err_code = ri_flash_uninit();
     err_code |= ri_flash_record_get (F_TEST_PAGE, F_TEST_RECORD, sizeof (f_data1),
                                      load_buffer);
@@ -205,11 +205,11 @@ static bool ri_flash_load_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("'fail',\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-        printfp ("'pass',\r\n");
+        printfp ("\"pass\",\r\n");
     }
 
     return status;
@@ -227,7 +227,7 @@ static bool ri_flash_delete_test (const rd_test_print_fp printfp)
     bool status = false;
     // Ensure we can align into 4-byte boundary.
     char load_buffer[sizeof (f_data2) + 4] = {0};
-    printfp ("'free':");
+    printfp ("\"free\":");
     err_code = ri_flash_uninit();
     err_code |= ri_flash_record_delete (F_TEST_PAGE, F_TEST_RECORD);
 
@@ -258,11 +258,11 @@ static bool ri_flash_delete_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("'fail',\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-        printfp ("'pass',\r\n");
+        printfp ("\"pass\",\r\n");
     }
 
     return status;
@@ -283,7 +283,7 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
     bool status = false;
     // Ensure we can align into 4-byte boundary.
     char load_buffer[sizeof (f_data2) + 4] = {0};
-    printfp ("'gc':");
+    printfp ("\"gc\":");
     err_code = ri_flash_uninit();
     err_code |= ri_flash_gc_run();
 
@@ -318,11 +318,11 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("'fail'\r\n");
+        printfp ("\"fail\"\r\n");
     }
     else
     {
-        printfp ("'pass'\r\n");
+        printfp ("\"pass\"\r\n");
     }
 
     return status;
@@ -338,14 +338,14 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
 bool ri_flash_run_integration_test (const rd_test_print_fp printfp)
 {
     bool status = false;
-    printfp ("'flash':{\r\n");
+    printfp ("\"flash\":{\r\n");
     status |= ri_flash_init_test (printfp);
     status |= ri_flash_uninit_test (printfp);
     status |= ri_flash_store_test (printfp);
     status |= ri_flash_load_test (printfp);
     status |= ri_flash_delete_test (printfp);
     status |= ri_flash_gc_size_busy_test (printfp);
-    printfp ("}\r\n");
+    printfp ("},\r\n");
     return status;
 }
 

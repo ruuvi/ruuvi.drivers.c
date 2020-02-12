@@ -1,6 +1,7 @@
 #ifndef RUUVI_INTERFACE_GPIO_H
 #define RUUVI_INTERFACE_GPIO_H
 #include "ruuvi_driver_error.h"
+#include "ruuvi_driver_enabled_modules.h"
 #include <stdbool.h>
 /**
  * @defgroup GPIO GPIO functions
@@ -19,6 +20,11 @@
  * Interface for basic GPIO writes and reads
  *
  */
+
+/** @brief Enable implementation selected by application */
+#if RI_GPIO_ENABLED
+#  define RUUVI_NRF5_SDK15_GPIO_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 #define RI_GPIO_ID_UNUSED   0xFFFF //!< Use this value to signal that nothing should be done with this gpio,  i.e. UART CTS not used.
 

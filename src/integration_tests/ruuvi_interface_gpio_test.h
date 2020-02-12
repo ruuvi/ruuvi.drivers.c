@@ -1,6 +1,8 @@
 #ifndef RUUVI_INTERFACE_GPIO_TEST_H
 #define RUUVI_INTERFACE_GPIO_TEST_H
 #include "ruuvi_driver_error.h"
+#include "ruuvi_driver_test.h"
+#include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
 /**
  * @addtogroup GPIO
@@ -60,6 +62,17 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t input, const ri_gpio_id_t
  * @return @c RD_SUCCESS if all tests pass, error code on failure
  */
 rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input, const ri_gpio_id_t output);
+
+/**
+ * @brief Run all GPIO integration tests
+ *
+ * @param printfp[in] Function pointer to which test result strings are sent.
+ * @param input[in]  Pin used to check the state of output pin.
+ * @param output[in] Pin being toggled.
+ *
+ * @return false if there are no errors, true otherwise.
+ */
+bool ri_gpio_run_integration_test(const rd_test_print_fp printfp, const ri_gpio_id_t input, const ri_gpio_id_t output);
 
 /*@}*/
 #endif

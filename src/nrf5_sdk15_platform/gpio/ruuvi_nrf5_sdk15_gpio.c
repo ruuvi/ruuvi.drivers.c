@@ -1,5 +1,5 @@
 #include "ruuvi_driver_enabled_modules.h"
-
+#include "ruuvi_interface_gpio.h"
 #if (RUUVI_NRF5_SDK15_GPIO_ENABLED || DOXYGEN || CEEDLING)
 
 #include "ruuvi_interface_gpio.h"
