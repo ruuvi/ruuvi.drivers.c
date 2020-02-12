@@ -71,9 +71,9 @@ static void in_pin_handler (const nrf_drv_gpiote_pin_t pin,
 {
     if (max_interrupts <= pin) { return; }
 
-    //Call event handler.
+    
     ri_gpio_evt_t event;
-
+    ri_gpio_state_t state;
     if (NULL != pin_event_handlers[pin])
     {
         switch (action)
@@ -87,10 +87,12 @@ static void in_pin_handler (const nrf_drv_gpiote_pin_t pin,
                 break;
 
             default:
-                event.slope = RI_GPIO_SLOPE_UNKNOWN;
+                // Determine slope from current state
+                ri_gpio_read(nrf_to_ruuvi_pin(pin), &state);
+                event.slope = (state == RI_GPIO_LOW) ? RI_GPIO_SLOPE_HITOLO : RI_GPIO_SLOPE_LOTOHI;
                 break;
         }
-
+        //Call event handler.
         event.pin = nrf_to_ruuvi_pin (pin);
         (pin_event_handlers[pin]) (event);
     }
