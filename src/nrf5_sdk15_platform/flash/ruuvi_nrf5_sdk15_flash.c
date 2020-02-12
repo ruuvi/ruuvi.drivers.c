@@ -152,7 +152,7 @@ static bool volatile m_fds_initialized;
 /* Flag to check fds processing status. */
 static bool volatile m_fds_processing;
 /* Flag to check fds callback registration. */
-static bool volatile m_fds_registered;
+static bool m_fds_registered;
 /** @brief Handle FDS events */
 static void fds_evt_handler (fds_evt_t const * p_evt)
 {
@@ -466,24 +466,37 @@ rd_status_t ri_flash_init (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     ret_code_t rc = NRF_SUCCESS;
-    /* Register first to receive an event when initialization is complete. */
-    if(!m_fds_registered)
+
+    if (m_fds_initialized)
     {
-        (void) fds_register (fds_evt_handler);
-        m_fds_registered = true;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
-    rc = fds_init();
-    err_code |= fds_to_ruuvi_error (rc);
+    else
+    {
+        /* Register first to receive an event when initialization is complete. */
+        if (!m_fds_registered)
+        {
+            (void) fds_register (fds_evt_handler);
+            m_fds_registered = true;
+        }
 
-    if (RD_SUCCESS != err_code) { return err_code; }
+        rc = fds_init();
+        err_code |= fds_to_ruuvi_error (rc);
 
-    // Wait for init ok
-    while (!m_fds_initialized);
+        if (RD_SUCCESS == err_code)
+        {
+            // Wait for init ok
+            while (!m_fds_initialized) {};
 
-    // Read filesystem status
-    fds_stat_t stat = {0};
-    rc = fds_stat (&stat);
-    m_number_of_pages = stat.pages_available;
+            // Read filesystem status
+            fds_stat_t stat = {0};
+
+            rc = fds_stat (&stat);
+
+            m_number_of_pages = stat.pages_available;
+        }
+    }
+
     err_code |= fds_to_ruuvi_error (rc);
     return err_code;
 }
