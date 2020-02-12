@@ -155,6 +155,11 @@ size_t ri_error_to_string (rd_status_t error,
                                      "NOT ACKNOWLEDGED");
                 break;
 
+            case RD_ERROR_NOT_ENABLED:
+                written += snprintf (error_string + written, space_remaining - written, "%s",
+                                     "NOT ENABLED");
+                break;
+
             case RD_ERROR_FATAL:
                 written += snprintf (error_string + written, space_remaining - written, "%s", "FATAL");
                 break;
