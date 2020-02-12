@@ -15,8 +15,8 @@
 static const ri_gpio_id_t leds[LEDS_NUMBER] = {3U, 6U, 9U};
 static const ri_gpio_state_t leds_on[LEDS_NUMBER] = 
 {
-    RI_GPIO_LOW, 
-    RI_GPIO_HIGH, 
+    RI_GPIO_LOW,
+    RI_GPIO_HIGH,
     RI_GPIO_LOW
 };
 static size_t configured_leds;
