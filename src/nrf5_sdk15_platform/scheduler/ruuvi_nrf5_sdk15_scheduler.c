@@ -13,9 +13,9 @@ rd_status_t ri_scheduler_init (size_t event_size,
                                size_t queue_length)
 {
     // Event size and queue length must be fixed at compile time. Warn user if other values are going to be used.
-    if ((event_size !=  RI_SCHEDULER_SIZE) || (queue_length != RI_SCHEDULER_SIZE))
-    { 
-        RD_ERROR_CHECK (RD_ERROR_INVALID_PARAM, ~RD_ERROR_FATAL); 
+    if ( (event_size !=  RI_SCHEDULER_SIZE) || (queue_length != RI_SCHEDULER_SIZE))
+    {
+        RD_ERROR_CHECK (RD_ERROR_INVALID_PARAM, ~RD_ERROR_FATAL);
     }
 
     APP_SCHED_INIT (RI_SCHEDULER_SIZE,

@@ -13,7 +13,7 @@
  * @brief Interface functions to scheduler.
  *
  * The scheduler is in drivers rather than in library as many platforms provide
- * their own implementation of the scheduler. 
+ * their own implementation of the scheduler.
  */
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
@@ -28,7 +28,7 @@
  * Initialize scheduler.
  *
  * Allocates memory for scheduler task queue if dynamically allocated,
- * verifies expected size if statically allocated. 
+ * verifies expected size if statically allocated.
  *
  * @param[in] event_size Maximum size for event data.
  * @param[in] queue_size Maximum number of scheduled tasks.
