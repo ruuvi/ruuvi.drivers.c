@@ -6,6 +6,7 @@
 #include "ruuvi_interface_gpio_interrupt.h" //!< Check if NRFX GPIOTE is required
 #include "ruuvi_interface_flash.h"          //!< Check if FDS is required
 #include "ruuvi_interface_power.h"          //!< Check if POWER is required
+#include "ruuvi_interface_scheduler.h"      //!< Check if APP_SCHEDULER is required 
 #include "ruuvi_interface_log.h"            //!< Check if NRF_LOG is required
 #include "ruuvi_interface_watchdog.h"       //!< Check if WDT is required
 #include "ruuvi_interface_yield.h"          //!< Check if NRF_PWR_MGMT is required
@@ -33,7 +34,6 @@
 #define NRF_SDH_ENABLED 1
 #endif
 
-
 #ifndef NRF_SDH_BLE_ENABLED
 /** @brief Required by SDK BLE modules not conditionally compiled */
 #  define NRF_SDH_BLE_ENABLED 1
@@ -59,6 +59,10 @@
 
 #if RUUVI_NRF5_SDK15_POWER_ENABLED
 #  define POWER_ENABLED 1
+#endif
+
+#if RUUVI_NRF5_SDK15_SCHEDULER_ENABLED
+#  define APP_SCHEDULER_ENABLED 1
 #endif
 
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED
