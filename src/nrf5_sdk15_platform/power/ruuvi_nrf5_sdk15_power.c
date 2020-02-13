@@ -10,6 +10,7 @@
  **/
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_power.h"
 #if RUUVI_NRF5_SDK15_POWER_ENABLED
 #include <stdint.h>
 #include "nrf_bootloader_info.h"
@@ -18,14 +19,12 @@
 #include "nrf_sdh.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
-#include "ruuvi_interface_power.h"
 #include "sdk_errors.h"
 
 
 static bool m_is_init = false;
 
-ruuvi_driver_status_t ri_power_regulators_enable (const
-        ri_power_regulators_t regulators)
+rd_status_t ri_power_regulators_enable (const ri_power_regulators_t regulators)
 {
     ret_code_t err_code = NRF_SUCCESS;
     nrfx_power_config_t config = {0};
@@ -40,7 +39,7 @@ ruuvi_driver_status_t ri_power_regulators_enable (const
 #if NRF_POWER_HAS_VDDH
         config.dcdcenhv = true;
 #else
-        err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+        err_code |= RD_ERROR_NOT_SUPPORTED;
 #endif
     }
 
@@ -57,7 +56,14 @@ ruuvi_driver_status_t ri_power_regulators_enable (const
 
 void ri_power_reset (void)
 {
-    NVIC_SystemReset();
+    if (nrf_sdh_is_enabled())
+    {
+        sd_nvic_SystemReset();
+    }
+    else
+    {
+        NVIC_SystemReset();
+    }
 }
 
 void ri_power_enter_bootloader (void)
