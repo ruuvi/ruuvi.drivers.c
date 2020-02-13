@@ -142,6 +142,10 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.1.6
+ - Integration test DC/DC
+ - Use SD reset function if SD is enabled in power interface reset.
+
 ## 0.1.5
  - Add nrf15_sdk log enable macro to ruuvi_interface_log.h
  - Fix nRF5 SDK15 watchdog reinitialization assert

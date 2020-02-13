@@ -13,6 +13,11 @@
  * Interface for controlling CPU-integrated regulators and system power modes.
  *
  */
+#include "ruuvi_driver_enabled_modules.h"
+/** @brief Enable implementation selected by application */
+#if RI_POWER_ENABLED
+#  define RUUVI_NRF5_SDK15_POWER_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -37,8 +42,7 @@ typedef struct
  * @param[in] regulators binary flags of regulators to enable.
  * @return RD_SUCCESS on success, error code from stack in case of a error.
  */
-rd_status_t ri_power_regulators_enable (const
-                                        ri_power_regulators_t regulators);
+rd_status_t ri_power_regulators_enable (const ri_power_regulators_t regulators);
 
 /**
  * @brief Reset IC.
