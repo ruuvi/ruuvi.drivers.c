@@ -24,7 +24,7 @@ static uint8_t executions;
 
 static void test_handler (void * p_event_data, uint16_t event_size)
 {
-    memcpy(test_output, p_event_data, event_size);
+    memcpy (test_output, p_event_data, event_size);
     executions++;
 }
 
@@ -41,11 +41,12 @@ static void test_handler (void * p_event_data, uint16_t event_size)
  */
 static bool ri_scheduler_init_test (const rd_test_print_fp printfp)
 {
-    printfp("\"init:\"");
+    printfp ("\"init:\"");
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
-    err_code = ri_scheduler_init(RI_SCHEDULER_SIZE, RI_SCHEDULER_LENGTH);
-    if(RD_SUCCESS != err_code)
+    err_code = ri_scheduler_init (RI_SCHEDULER_SIZE, RI_SCHEDULER_LENGTH);
+
+    if (RD_SUCCESS != err_code)
     {
         status = true;
     }
@@ -56,33 +57,38 @@ static bool ri_scheduler_init_test (const rd_test_print_fp printfp)
         ri_scheduler_uninit();
         err_code = ri_scheduler_init();
         ri_scheduler_execute();
-        if(executions)
+
+        if (executions)
         {
-          status = true;
+            status = true;
         }
+
         // Dual-init.
         err_code = ri_scheduler_init();
-        if(RD_ERROR_INVALID_STATE != err_code)
+
+        if (RD_ERROR_INVALID_STATE != err_code)
         {
             status = true;
         }
     }
-    if(status)
+
+    if (status)
     {
-      printfp("\"fail\",\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-      printfp("\"pass\",\r\n");
+        printfp ("\"pass\",\r\n");
     }
+
     ri_scheduler_uninit();
     return status;
 }
 
 /**
- *  @brief Executes all scheduled tasks. 
+ *  @brief Executes all scheduled tasks.
  *
- *  If task schedules itself to be run immediately this will be run in a 
+ *  If task schedules itself to be run immediately this will be run in a
  *  never-ending loop, without sleeping.
  *
  * @param[in] printfp Function to which test JSON is passed.
@@ -95,21 +101,23 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     char test_input[] = "Hello scheduler";
-    printfp("\"execute:\"");
+    printfp ("\"execute:\"");
     err_code |= ri_scheduler_init();
-    err_code |= ri_scheduler_event_put (&test_input, sizeof(test_input), test_handler);
+    err_code |= ri_scheduler_event_put (&test_input, sizeof (test_input), test_handler);
     err_code |= ri_scheduler_event_put (NULL, 0, test_handler);
     err_code |= ri_scheduler_event_put (NULL, 0, test_handler);
     ri_scheduler_execute();
-    if(RD_SUCCESS != err_code || strcmp(test_output, test_input) || (3 != executions))
+
+    if (RD_SUCCESS != err_code || strcmp (test_output, test_input) || (3 != executions))
     {
         status = true;
-        printfp("\"fail\",\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-      printfp("\"pass\",\r\n");
+        printfp ("\"pass\",\r\n");
     }
+
     ri_scheduler_uninit();
     return status;
 }
@@ -124,58 +132,68 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
  */
 static bool ri_scheduler_event_put_test (const rd_test_print_fp printfp)
 {
-    printfp("\"put:\"");
+    printfp ("\"put:\"");
     char test_input[] = "Hello scheduler";
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     // Verify that scheduler will end up filled.
     executions = 0;
     err_code |= ri_scheduler_init();
-    for(size_t ii = 0; ii <= RI_SCHEDULER_LENGTH; ii++)
+
+    for (size_t ii = 0; ii <= RI_SCHEDULER_LENGTH; ii++)
     {
         err_code |= ri_scheduler_event_put (NULL, 0, test_handler);
     }
+
     ri_scheduler_execute();
-    if(RD_ERROR_NO_MEM != err_code || RI_SCHEDULER_LENGTH != executions)
+
+    if (RD_ERROR_NO_MEM != err_code || RI_SCHEDULER_LENGTH != executions)
     {
         status = true;
     }
+
     err_code = ri_scheduler_event_put (NULL, RI_SCHEDULER_SIZE + 1, test_handler);
-    if(RD_ERROR_INVALID_LENGTH != err_code)
+
+    if (RD_ERROR_INVALID_LENGTH != err_code)
     {
         status = true;
     }
+
     err_code = ri_scheduler_event_put (NULL, 0, NULL);
-    if(RD_ERROR_NULL != err_code)
+
+    if (RD_ERROR_NULL != err_code)
     {
         status = true;
     }
+
     ri_scheduler_uninit();
     err_code = ri_scheduler_event_put (NULL, 0, test_handler);
-    if(RD_ERROR_INVALID_STATE != err_code)
+
+    if (RD_ERROR_INVALID_STATE != err_code)
     {
         status = true;
     }
-    if(status)
+
+    if (status)
     {
-      printfp("\"fail\",\r\n");
+        printfp ("\"fail\",\r\n");
     }
     else
     {
-      printfp("\"pass\",\r\n");
+        printfp ("\"pass\",\r\n");
     }
-    
+
     return status;
 }
 
 bool ri_scheduler_run_integration_test (const rd_test_print_fp printfp)
 {
-    printfp("\"scheduler:{\"\r\n");
+    printfp ("\"scheduler:{\"\r\n");
     bool status = false;
     status |= ri_scheduler_init_test (printfp);
     status |= ri_scheduler_execute_test (printfp);
     status |= ri_scheduler_event_put_test (printfp);
-    printfp("\"},\"\r\n");
+    printfp ("\"},\"\r\n");
     return status;
 }
 #endif
