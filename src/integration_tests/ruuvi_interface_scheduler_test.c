@@ -6,8 +6,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#if 0
->>>>>>> Add integration tests
 /**
  * @addtogroup scheduler
  *
@@ -47,7 +45,7 @@ static bool ri_scheduler_init_test (const rd_test_print_fp printfp)
     printfp ("\"init:\"");
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
-    err_code = ri_scheduler_init (RI_SCHEDULER_SIZE, RI_SCHEDULER_LENGTH);
+    err_code = ri_scheduler_init ();
 
     if (RD_SUCCESS != err_code)
     {
@@ -120,7 +118,6 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
     {
         printfp ("\"pass\",\r\n");
     }
-
     ri_scheduler_uninit();
     return status;
 }
@@ -136,7 +133,6 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
 static bool ri_scheduler_event_put_test (const rd_test_print_fp printfp)
 {
     printfp ("\"put:\"");
-    char test_input[] = "Hello scheduler";
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     // Verify that scheduler will end up filled.
@@ -200,5 +196,3 @@ bool ri_scheduler_run_integration_test (const rd_test_print_fp printfp)
     return status;
 }
 #endif
-#endif
-
