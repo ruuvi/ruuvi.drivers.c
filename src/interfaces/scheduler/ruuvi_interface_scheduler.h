@@ -69,10 +69,18 @@ rd_status_t ri_scheduler_execute (void);
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_NULL if handler is NULL
- * @retval RD_ERROR_DATA_SIZE if event data is larger than task queue event size.
+ * @retval RD_ERROR_INVALID_LENGTH if event data is larger than task queue event size.
  * @retval RD_ERROR_NO_MEM if the task cannot be added to queue due to queue full.
  */
 rd_status_t ri_scheduler_event_put (const void * const p_event_data,
                                     const uint16_t event_size, const ruuvi_scheduler_event_handler_t handler);
+
+/*
+ * @brief Uninitialize scheduler.
+ *
+ * Scheduler has to be re-initialized after uninitialization, and all the previous
+ * tasks not yet executed are discarded.
+ */
+rd_status_t ri_scheduler_uninit(void);
 /* @} */
 #endif

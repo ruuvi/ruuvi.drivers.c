@@ -27,15 +27,36 @@ rd_status_t ri_scheduler_init ()
 
 rd_status_t ri_scheduler_execute (void)
 {
-    app_sched_execute();
-    return RD_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
+    if(m_is_init)
+    {
+        app_sched_execute();
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    
+    return err_code;
 }
 
 rd_status_t ri_scheduler_event_put (void const * p_event_data,
                                     uint16_t event_size, ruuvi_scheduler_event_handler_t handler)
 {
-    ret_code_t err_code = app_sched_event_put (p_event_data, event_size,
+    ret_code_t err_code = NRF_SUCCESS;
+    if(NULL == handler)
+    {
+        err_code |= NRF_ERROR_NULL;
+    }
+    else if(m_is_init)
+    {
+        err_code = app_sched_event_put (p_event_data, event_size,
                           (app_sched_event_handler_t) handler);
+    }
+    else
+    {
+        err_code |= NRF_ERROR_INVALID_STATE;
+    }
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
