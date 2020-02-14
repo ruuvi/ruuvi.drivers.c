@@ -1,3 +1,5 @@
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_RUN_TESTS
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_gpio.h"
@@ -138,3 +140,4 @@ rd_status_t rd_test_status (size_t * const total, size_t * const passed)
     *passed = tests_passed;
     return RD_SUCCESS;
 }
+#endif

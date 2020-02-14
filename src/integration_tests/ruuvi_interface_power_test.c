@@ -1,3 +1,5 @@
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_RUN_TESTS
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_power.h"
@@ -12,7 +14,7 @@ bool ri_power_run_integration_test (const rd_test_print_fp printfp,
 
     if (regulators.DCDC_INTERNAL)
     {
-        printfp ("\"dcdc_internal:\"{\r\n");
+        printfp ("\"dcdc_internal:\"");
         ri_power_regulators_t test = {0};
         test.DCDC_INTERNAL = 1;
         err_code = ri_power_regulators_enable (test);
@@ -60,3 +62,4 @@ bool ri_power_run_integration_test (const rd_test_print_fp printfp,
     printfp ("},\r\n");
     return (status || (RD_SUCCESS != err_code));
 }
+#endif

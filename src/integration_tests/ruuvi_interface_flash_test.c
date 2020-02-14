@@ -1,3 +1,5 @@
+#include "ruuvi_driver_enabled_modules.h"
+#if RUUVI_RUN_TESTS
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_flash_test.h"
@@ -350,3 +352,4 @@ bool ri_flash_run_integration_test (const rd_test_print_fp printfp)
 }
 
 /* @} */
+#endif
