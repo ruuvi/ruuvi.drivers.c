@@ -8,19 +8,21 @@
 #include "sdk_errors.h"
 #include "app_scheduler.h"
 
-// Ignore given parameters to call the macro with #defined constants
-rd_status_t ri_scheduler_init (size_t event_size,
-                               size_t queue_length)
-{
-    // Event size and queue length must be fixed at compile time. Warn user if other values are going to be used.
-    if ( (event_size !=  RI_SCHEDULER_SIZE) || (queue_length != RI_SCHEDULER_SIZE))
-    {
-        RD_ERROR_CHECK (RD_ERROR_INVALID_PARAM, ~RD_ERROR_FATAL);
-    }
+static bool m_is_init = false;
 
-    APP_SCHED_INIT (RI_SCHEDULER_SIZE,
-                    RI_SCHEDULER_LENGTH);
-    return RD_SUCCESS;
+rd_status_t ri_scheduler_init ()
+{
+    rd_status_t err_code = RD_SUCCESS;
+    if(m_is_init)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+    m_is_init = true;
+    APP_SCHED_INIT (RI_SCHEDULER_SIZE, RI_SCHEDULER_LENGTH);
+    }
+    return err_code;
 }
 
 rd_status_t ri_scheduler_execute (void)
@@ -35,6 +37,13 @@ rd_status_t ri_scheduler_event_put (void const * p_event_data,
     ret_code_t err_code = app_sched_event_put (p_event_data, event_size,
                           (app_sched_event_handler_t) handler);
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+}
+
+// No implementation needed.
+rd_status_t ri_scheduler_uninit (void)
+{
+    m_is_init = false;
+    return RD_SUCCESS;
 }
 
 #endif

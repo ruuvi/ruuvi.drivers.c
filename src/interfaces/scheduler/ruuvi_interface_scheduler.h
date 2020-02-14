@@ -25,22 +25,21 @@
 #endif
 
 /**
- * Initialize scheduler.
+ * @brief Initialize scheduler.
  *
- * Allocates memory for scheduler task queue if dynamically allocated,
- * verifies expected size if statically allocated.
+ * Allocates memory for scheduler task queue. Because memory allocation is static,
+ * the size has to be defined in macors RI_SCHEDULER_SIZE and RI_SCHEDULER_LENGTH.
+ * The RI_SCHEDULER_SIZE defines maximum size of scheduler event and 
+ * RI_SCHEDULER_LENGTH defines maximum number of events that can be queued.
  *
- * @param[in] event_size Maximum size for event data.
- * @param[in] queue_size Maximum number of scheduled tasks.
  *
  * @retval RD_SUCCESS on success.
- * @retval error code from stack on error
+ * @retval error code from stack on error.
  */
-rd_status_t ri_scheduler_init (size_t event_size,
-                               size_t queue_size);
+rd_status_t ri_scheduler_init ();
 
 /**
- * Type definition for scheduler event handler.
+ * @brief Type definition for scheduler event handler.
  *
  * @param[in] p_event_data Data for the event handler.
  * @param[in] event_size Size of the event data. Must be smaller than or equal to max_event_size.
@@ -50,7 +49,10 @@ typedef void (*ruuvi_scheduler_event_handler_t) (void * p_event_data,
         uint16_t event_size);
 
 /**
- *  Executes all scheduled tasks. If task schedules itself to be run immediately this will be run in a never-ending loop, without sleeping.
+ *  @brief Executes all scheduled tasks. 
+ *
+ *  If task schedules itself to be run immediately this will be run in a 
+ *  never-ending loop, without sleeping.
  *
  *  @retval RD_SUCCESS if queue was executed successfully.
  *  @retval error code from the stack if error occurs.
@@ -72,7 +74,5 @@ rd_status_t ri_scheduler_execute (void);
  */
 rd_status_t ri_scheduler_event_put (const void * const p_event_data,
                                     const uint16_t event_size, const ruuvi_scheduler_event_handler_t handler);
-
-
 /* @} */
 #endif
