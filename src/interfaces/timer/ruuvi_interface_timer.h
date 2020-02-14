@@ -7,6 +7,7 @@
 #ifndef RUUVI_INTERFACE_TIMER_H
 #define RUUVI_INTERFACE_TIMER_H
 
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_enabled_modules.h"
 #include <stdbool.h>
