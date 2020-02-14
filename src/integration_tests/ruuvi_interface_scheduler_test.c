@@ -118,6 +118,7 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
     {
         printfp ("\"pass\",\r\n");
     }
+
     ri_scheduler_uninit();
     return status;
 }
