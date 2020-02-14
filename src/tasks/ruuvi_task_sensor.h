@@ -21,9 +21,9 @@ typedef struct
     rd_sensor_t sensor;                       //!< Control structure for sensor.
     rd_sensor_init_fp init;                   //!< Initialization function.
     rd_sensor_configuration_t configuration;  //!< Sensor configuration.
-    uint16_t nvm_file;                                  //!< NVM file of configuration.
-    uint16_t nvm_record;                                //!< NVM record of configuration.
-    uint8_t  handle;                                    //!< Handle of sensor.
+    uint16_t nvm_file;                        //!< NVM file of configuration.
+    uint16_t nvm_record;                      //!< NVM record of configuration.
+    uint8_t  handle;                          //!< Handle of sensor.
     rd_bus_t bus;                             //!< Bus of sensor.
 } rt_sensor_ctx_t;
 
@@ -74,14 +74,6 @@ rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor);
  * @return error code from sensor on other error.
  */
 rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor);
-
-/**
- * @brief Read sensors and encode to given buffer in Ruuvi DF5.
- *
- * @param[in] buffer uint8_t array with length of 24 bytes.
- * @return RD_SUCCESS if data was encoded
- */
-//ruuvi_endpoint_status_t task_sensor_encode_to_5 (uint8_t * const buffer);
 
 /**
  * @brief Search for requested sensor backend in given list of sensors.
