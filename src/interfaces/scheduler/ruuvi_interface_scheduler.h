@@ -29,7 +29,7 @@
  *
  * Allocates memory for scheduler task queue. Because memory allocation is static,
  * the size has to be defined in macors RI_SCHEDULER_SIZE and RI_SCHEDULER_LENGTH.
- * The RI_SCHEDULER_SIZE defines maximum size of scheduler event and 
+ * The RI_SCHEDULER_SIZE defines maximum size of scheduler event and
  * RI_SCHEDULER_LENGTH defines maximum number of events that can be queued.
  *
  *
@@ -49,9 +49,9 @@ typedef void (*ruuvi_scheduler_event_handler_t) (void * p_event_data,
         uint16_t event_size);
 
 /**
- *  @brief Executes all scheduled tasks. 
+ *  @brief Executes all scheduled tasks.
  *
- *  If task schedules itself to be run immediately this will be run in a 
+ *  If task schedules itself to be run immediately this will be run in a
  *  never-ending loop, without sleeping.
  *
  *  @retval RD_SUCCESS if queue was executed successfully.
@@ -81,6 +81,6 @@ rd_status_t ri_scheduler_event_put (const void * const p_event_data,
  * Scheduler has to be re-initialized after uninitialization, and all the previous
  * tasks not yet executed are discarded.
  */
-rd_status_t ri_scheduler_uninit(void);
+rd_status_t ri_scheduler_uninit (void);
 /* @} */
 #endif
