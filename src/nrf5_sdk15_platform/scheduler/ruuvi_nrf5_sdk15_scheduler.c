@@ -8,33 +8,68 @@
 #include "sdk_errors.h"
 #include "app_scheduler.h"
 
-// Ignore given parameters to call the macro with #defined constants
-rd_status_t ri_scheduler_init (size_t event_size,
-                               size_t queue_length)
+static bool m_is_init = false;
+
+rd_status_t ri_scheduler_init ()
 {
-    // Event size and queue length must be fixed at compile time. Warn user if other values are going to be used.
-    if ( (event_size !=  RI_SCHEDULER_SIZE) || (queue_length != RI_SCHEDULER_SIZE))
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (m_is_init)
     {
-        RD_ERROR_CHECK (RD_ERROR_INVALID_PARAM, ~RD_ERROR_FATAL);
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        m_is_init = true;
+        APP_SCHED_INIT (RI_SCHEDULER_SIZE, RI_SCHEDULER_LENGTH);
     }
 
-    APP_SCHED_INIT (RI_SCHEDULER_SIZE,
-                    RI_SCHEDULER_LENGTH);
-    return RD_SUCCESS;
+    return err_code;
 }
 
 rd_status_t ri_scheduler_execute (void)
 {
-    app_sched_execute();
-    return RD_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (m_is_init)
+    {
+        app_sched_execute();
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_scheduler_event_put (void const * p_event_data,
                                     uint16_t event_size, ruuvi_scheduler_event_handler_t handler)
 {
-    ret_code_t err_code = app_sched_event_put (p_event_data, event_size,
-                          (app_sched_event_handler_t) handler);
+    ret_code_t err_code = NRF_SUCCESS;
+
+    if (NULL == handler)
+    {
+        err_code |= NRF_ERROR_NULL;
+    }
+    else if (m_is_init)
+    {
+        err_code = app_sched_event_put (p_event_data, event_size,
+                                        (app_sched_event_handler_t) handler);
+    }
+    else
+    {
+        err_code |= NRF_ERROR_INVALID_STATE;
+    }
+
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+}
+
+// No implementation needed.
+rd_status_t ri_scheduler_uninit (void)
+{
+    m_is_init = false;
+    return RD_SUCCESS;
 }
 
 #endif
