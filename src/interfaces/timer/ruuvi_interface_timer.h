@@ -8,7 +8,13 @@
 #define RUUVI_INTERFACE_TIMER_H
 
 #include "ruuvi_driver_error.h"
+#include "ruuvi_driver_enabled_modules.h"
 #include <stdbool.h>
+
+/** @brief Enable implementation selected by application */
+#if RI_TIMER_ENABLED
+#define RUUVI_NRF5_SDK15_TIMER_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 typedef enum
 {
@@ -17,6 +23,7 @@ typedef enum
 } ri_timer_mode_t;
 
 typedef void * ri_timer_id_t; ///< Pointer to timer data
+
 /**
  * Function to be called when timer event occurs.
  */

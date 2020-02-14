@@ -1,9 +1,10 @@
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_timer.h"
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_log.h"
-#include "ruuvi_interface_timer.h"
+
 
 #include "nrf_error.h"
 #include "nrf_drv_clock.h"
@@ -12,40 +13,40 @@
 
 #include <stdbool.h>
 
-#if RD_TIMER_MAX_INSTANCES > 10
+#if RI_TIMER_MAX_INSTANCES > 10
 #error "Allocating over 10 timers is not supported"
 #endif
-#if RD_TIMER_MAX_INSTANCES > 9
+#if RI_TIMER_MAX_INSTANCES > 9
 APP_TIMER_DEF (timer_9);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 8
+#if RI_TIMER_MAX_INSTANCES > 8
 APP_TIMER_DEF (timer_8);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 7
+#if RI_TIMER_MAX_INSTANCES > 7
 APP_TIMER_DEF (timer_7);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 6
+#if RI_TIMER_MAX_INSTANCES > 6
 APP_TIMER_DEF (timer_6);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 5
+#if RI_TIMER_MAX_INSTANCES > 5
 APP_TIMER_DEF (timer_5);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 4
+#if RI_TIMER_MAX_INSTANCES > 4
 APP_TIMER_DEF (timer_4);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 3
+#if RI_TIMER_MAX_INSTANCES > 3
 APP_TIMER_DEF (timer_3);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 2
+#if RI_TIMER_MAX_INSTANCES > 2
 APP_TIMER_DEF (timer_2);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 1
+#if RI_TIMER_MAX_INSTANCES > 1
 APP_TIMER_DEF (timer_1);
 #endif
-#if RD_TIMER_MAX_INSTANCES > 0
+#if RI_TIMER_MAX_INSTANCES > 0
 APP_TIMER_DEF (timer_0);
 #endif
-#if 0 >= RD_TIMER_MAX_INSTANCES
+#if 0 >= RI_TIMER_MAX_INSTANCES
 #error "No instances enabled for application timer"
 #endif
 
@@ -59,52 +60,52 @@ static app_timer_id_t get_timer_id (void)
 {
     switch (timer_idx++)
     {
-#if RD_TIMER_MAX_INSTANCES > 0
+#if RI_TIMER_MAX_INSTANCES > 0
 
         case 0:
             return timer_0;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 1
+#if RI_TIMER_MAX_INSTANCES > 1
 
         case 1:
             return timer_1;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 2
+#if RI_TIMER_MAX_INSTANCES > 2
 
         case 2:
             return timer_2;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 3
+#if RI_TIMER_MAX_INSTANCES > 3
 
         case 3:
             return timer_3;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 4
+#if RI_TIMER_MAX_INSTANCES > 4
 
         case 4:
             return timer_4;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 5
+#if RI_TIMER_MAX_INSTANCES > 5
 
         case 5:
             return timer_5;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 6
+#if RI_TIMER_MAX_INSTANCES > 6
 
         case 6:
             return timer_6;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 7
+#if RI_TIMER_MAX_INSTANCES > 7
 
         case 7:
             return timer_7;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 8
+#if RI_TIMER_MAX_INSTANCES > 8
 
         case 8:
             return timer_8;
 #endif
-#if RD_TIMER_MAX_INSTANCES > 9
+#if RI_TIMER_MAX_INSTANCES > 9
 
         case 9:
             return timer_9;
