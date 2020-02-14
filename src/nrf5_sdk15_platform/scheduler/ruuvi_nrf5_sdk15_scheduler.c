@@ -1,9 +1,10 @@
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_scheduler.h"
 #if RUUVI_NRF5_SDK15_SCHEDULER_ENABLED
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
-#include "ruuvi_interface_scheduler.h"
+
 #include "sdk_errors.h"
 #include "app_scheduler.h"
 
@@ -12,12 +13,13 @@ rd_status_t ri_scheduler_init (size_t event_size,
                                size_t queue_length)
 {
     // Event size and queue length must be fixed at compile time. Warn user if other values are going to be used.
-    if (event_size != RUUVI_NRF5_SDK15_SCHEDULER_DATA_MAX_SIZE
-            || queue_length != RUUVI_NRF5_SDK15_SCHEDULER_QUEUE_MAX_LENGTH)
-    { RD_ERROR_CHECK (RD_ERROR_INVALID_PARAM, ~RD_ERROR_FATAL); }
+    if ( (event_size !=  RI_SCHEDULER_SIZE) || (queue_length != RI_SCHEDULER_SIZE))
+    {
+        RD_ERROR_CHECK (RD_ERROR_INVALID_PARAM, ~RD_ERROR_FATAL);
+    }
 
-    APP_SCHED_INIT (RUUVI_NRF5_SDK15_SCHEDULER_DATA_MAX_SIZE,
-                    RUUVI_NRF5_SDK15_SCHEDULER_QUEUE_MAX_LENGTH);
+    APP_SCHED_INIT (RI_SCHEDULER_SIZE,
+                    RI_SCHEDULER_LENGTH);
     return RD_SUCCESS;
 }
 
