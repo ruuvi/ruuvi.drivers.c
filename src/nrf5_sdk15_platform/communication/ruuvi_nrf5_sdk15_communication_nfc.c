@@ -6,13 +6,12 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-
-#if RUUVI_NRF5_SDK15_COMMUNICATION_NFC_ENABLED
+#include "ruuvi_interface_communication_nfc.h"
+#if RUUVI_NRF5_SDK15_NFC_ENABLED
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
-#include "ruuvi_interface_communication_nfc.h"
 #include "ruuvi_interface_log.h"
 #include <stdint.h>
 
@@ -23,6 +22,8 @@
 #include "nfc_launchapp_rec.h"
 #include "nfc_ndef_msg_parser.h"
 
+#define RUUVI_NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS 4
+
 static struct
 {
     volatile uint8_t connected;    // NFC field is active
@@ -30,12 +31,13 @@ static struct
     volatile uint8_t rx_updated;   // New data received
     volatile uint8_t tx_updated;   // New data should be written to buffer
     volatile uint8_t configurable; // Allow NFC to write configuration
-    uint8_t nfc_ndef_msg[RUUVI_NRF5_SDK15_COMMUNICATION_NFC_NDEF_FILE_SIZE];
+    uint8_t nfc_ndef_msg[ (RUUVI_NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS + 1)
+                          *RI_COMMUNICATION_DIS_STRLEN];
     volatile size_t  nfc_ndef_msg_len;
     uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC (
                                                                 RUUVI_NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
     size_t msg_index;         // Store index of our record
-    ruuvi_interface_communication_evt_handler_fp_t * on_nfc_evt;
+    ri_communication_evt_handler_fp_t * on_nfc_evt;
 } nrf5_sdk15_nfc_state;
 
 /**
@@ -55,7 +57,7 @@ static void nfc_callback (void * context,
             if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)
                     && false == nrf5_sdk15_nfc_state.connected)
             {
-                (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RUUVI_INTERFACE_COMMUNICATION_CONNECTED, NULL, 0);
+                (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMMUNICATION_CONNECTED, NULL, 0);
             }
 
             nrf5_sdk15_nfc_state.connected = true;
@@ -64,7 +66,7 @@ static void nfc_callback (void * context,
         case NFC_T4T_EVENT_FIELD_OFF:
             if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt) && true == nrf5_sdk15_nfc_state.connected)
             {
-                (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED, NULL,
+                (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMMUNICATION_DISCONNECTED, NULL,
                                                        0);
             }
 
@@ -72,7 +74,7 @@ static void nfc_callback (void * context,
             break;
 
         case NFC_T4T_EVENT_NDEF_READ:
-            if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)) { (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0); }
+            if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)) { (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMMUNICATION_SENT, NULL, 0); }
 
             break;
 
@@ -88,7 +90,7 @@ static void nfc_callback (void * context,
                 if (!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true;}
 
                 // Do not process data in interrupt context, you should rather schedule data processing. Note: If incoming data is long, it might exceed max size.
-                if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)) { (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RUUVI_INTERFACE_COMMUNICATION_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength); }
+                if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)) { (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMMUNICATION_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength); }
             }
 
             break;
@@ -102,21 +104,20 @@ NFC_NDEF_MSG_DEF (nfc_ndef_msg,
                   RUUVI_NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS); // max NFC_MAX_NUMBER_OF_RECORDS records
 
 // Setup constant records
-static uint8_t nfc_fw_buf[RUUVI_NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
+static uint8_t nfc_fw_buf[RI_COMMUNICATION_DIS_STRLEN];
 static size_t nfc_fw_length = 0;
-static uint8_t nfc_addr_buf[RUUVI_NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
+static uint8_t nfc_addr_buf[RI_COMMUNICATION_DIS_STRLEN];
 static size_t nfc_addr_length = 0;
-static uint8_t nfc_id_buf[RUUVI_NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE];
+static uint8_t nfc_id_buf[RI_COMMUNICATION_DIS_STRLEN];
 static size_t nfc_id_length = 0;
-static uint8_t nfc_tx_buf[RUUVI_NRF5_SDK15_COMMUNICATION_NFC_DATA_BUFFER_SIZE];
+static uint8_t nfc_tx_buf[RI_COMMUNICATION_DIS_STRLEN];
 static size_t nfc_tx_length = 0;
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_init (
-    ruuvi_interface_communication_t * const channel)
+rd_status_t ri_nfc_init (ri_communication_t * const channel)
 {
-    if (NULL == channel)                  { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == channel)                  { return RD_ERROR_NULL; }
 
-    if (nrf5_sdk15_nfc_state.initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (nrf5_sdk15_nfc_state.initialized) { return RD_ERROR_INVALID_STATE; }
 
     // Set up NFC
     ret_code_t err_code = NRF_SUCCESS;
@@ -130,34 +131,34 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_init (
     nrf5_sdk15_nfc_state.initialized = true;
     nrf5_sdk15_nfc_state.msg_index = 0;
     // Setup communication abstraction fps
-    channel->init   = ruuvi_interface_communication_nfc_init;
-    channel->uninit = ruuvi_interface_communication_nfc_uninit;
-    channel->read   = ruuvi_interface_communication_nfc_receive;
-    channel->send   = ruuvi_interface_communication_nfc_send;
+    channel->init   = ri_nfc_init;
+    channel->uninit = ri_nfc_uninit;
+    channel->read   = ri_nfc_receive;
+    channel->send   = ri_nfc_send;
     channel->on_evt = NULL;
     nrf5_sdk15_nfc_state.on_nfc_evt = & (channel->on_evt);
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_uninit (
-    ruuvi_interface_communication_t * const channel)
+rd_status_t ri_nfc_uninit (
+    ri_communication_t * const channel)
 {
     ret_code_t err_code = nfc_t4t_emulation_stop();
     err_code |= nfc_t4t_done();
     memset (&nrf5_sdk15_nfc_state, 0, sizeof (nrf5_sdk15_nfc_state));
-    memset (channel, 0, sizeof (ruuvi_interface_communication_t));
+    memset (channel, 0, sizeof (ri_communication_t));
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set (void)
+rd_status_t ri_nfc_data_set (void)
 {
     // State check
-    if (!nrf5_sdk15_nfc_state.initialized) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (!nrf5_sdk15_nfc_state.initialized) { return RD_ERROR_INVALID_STATE; }
 
-    if (nrf5_sdk15_nfc_state.connected)   { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (nrf5_sdk15_nfc_state.connected)   { return RD_ERROR_INVALID_STATE; }
 
     // Return success if there is nothing to do
-    if (! (nrf5_sdk15_nfc_state.tx_updated)) { return RUUVI_DRIVER_SUCCESS; }
+    if (! (nrf5_sdk15_nfc_state.tx_updated)) { return RD_SUCCESS; }
 
     // Create NFC NDEF text record description in English
     ret_code_t err_code = NRF_SUCCESS;
@@ -230,56 +231,53 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_data_set (void)
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_send (
-    ruuvi_interface_communication_message_t * message)
+rd_status_t ri_nfc_send (ri_communication_message_t * message)
 {
-    if (NULL == message)                                                       { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == message) { return RD_ERROR_NULL; }
 
-    if (message->data_length >= RUUVI_NRF5_SDK15_COMMUNICATION_NFC_DATA_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+    if (message->data_length >= RI_COMMUNICATION_DIS_STRLEN) { return RD_ERROR_INVALID_LENGTH; }
 
     nfc_tx_length = message->data_length;
     memcpy (nfc_tx_buf, message->data, nfc_tx_length);
     nrf5_sdk15_nfc_state.tx_updated = true;
-    return ruuvi_interface_communication_nfc_data_set();
+    return ri_nfc_data_set();
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_fw_version_set (
-    const uint8_t * const version, const uint8_t length)
+rd_status_t ri_nfc_fw_version_set (const uint8_t * const version, const uint8_t length)
 {
-    if (NULL == version && length)                               { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == version && length) { return RD_ERROR_NULL; }
 
-    if (length >= RUUVI_NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+    if (length >= RI_COMMUNICATION_DIS_STRLEN) { return RD_ERROR_INVALID_LENGTH; }
 
     nfc_fw_length = length;
     memcpy (nfc_fw_buf, version, nfc_fw_length);
     nrf5_sdk15_nfc_state.tx_updated = true;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_address_set (
-    const uint8_t * const address, const uint8_t length)
+rd_status_t ri_nfc_address_set (const uint8_t * const address, const uint8_t length)
 {
-    if (NULL == address && length)                               { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == address && length) { return RD_ERROR_NULL; }
 
-    if (length >= RUUVI_NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+    if (length >= RI_COMMUNICATION_DIS_STRLEN) { return RD_ERROR_INVALID_LENGTH; }
 
     nfc_addr_length = length;
     memcpy (nfc_addr_buf, address, nfc_addr_length);
     nrf5_sdk15_nfc_state.tx_updated = true;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set (const uint8_t * const id,
-        const uint8_t length)
+rd_status_t ri_nfc_id_set (const uint8_t * const id,
+                           const uint8_t length)
 {
-    if (NULL == id && length)                                    { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == id && length) { return RD_ERROR_NULL; }
 
-    if (length >= RUUVI_NRF5_SDK15_COMMUNICATION_NFC_TEXT_BUFFER_SIZE) { return RUUVI_DRIVER_ERROR_INVALID_LENGTH; }
+    if (length >= RI_COMMUNICATION_DIS_STRLEN) { return RD_ERROR_INVALID_LENGTH; }
 
     nfc_id_length = length;
     memcpy (nfc_id_buf, id, nfc_id_length);
     nrf5_sdk15_nfc_state.tx_updated = true;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
 /* Read and parse RX buffer into records. Parse records into Ruuvi Communication messages.
@@ -287,25 +285,24 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_id_set (const uint8_t * 
  *
  * parameter msg: Ruuvi Communication message, received record payload is copied into message payload field.
  *
- * Return RUUVI_DRIVER_STATUS_MORE_AVAILABLE if payload was parsed into msg and more data is available
- * Return RUUVI_SUCCESS if payload was parsed into msg  and no more data is available
- * Return RUUVI_DRIVER_ERROR_NOT_FOUND if no data was buffered and message could not be parsed.
- * Return RUUVI_ERROR_DATA_SIZE if received message could not fit into message payload
+ * Return RD_STATUS_MORE_AVAILABLE if payload was parsed into msg and more data is available
+ * Return RD_SUCCESS if payload was parsed into msg  and no more data is available
+ * Return RD_ERROR_NOT_FOUND if no data was buffered and message could not be parsed.
+ * Return RD_ERROR_DATA_SIZE if received message could not fit into message payload
  */
-ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive (
-    ruuvi_interface_communication_message_t * msg)
+rd_status_t ri_nfc_receive (ri_communication_message_t * msg)
 {
     // Input check
     //ruuvi_platform_log("Getting message, state check");
-    if (NULL == msg) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == msg) { return RD_ERROR_NULL; }
 
     // State check. Do not process data while connection is active, i.e. while
     // data might be received.
-    //  if ( nrf5_sdk15_nfc_state.connected)   { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    //  if ( nrf5_sdk15_nfc_state.connected)   { return RD_ERROR_INVALID_STATE; }
     // If new data is not received, return not found
-    if (!nrf5_sdk15_nfc_state.rx_updated) { return RUUVI_DRIVER_ERROR_NOT_FOUND; }
+    if (!nrf5_sdk15_nfc_state.rx_updated) { return RD_ERROR_NOT_FOUND; }
 
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     // If we're at index 0, parse message into records
     if (0 == nrf5_sdk15_nfc_state.msg_index)
@@ -331,7 +328,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive (
         nfc_ndef_bin_payload_desc_t * p_bin_pay_desc = p_rec_desc->p_payload_descriptor;
 
         // Data length check
-        if (p_bin_pay_desc->payload_length > msg->data_length) { err_code = RUUVI_DRIVER_ERROR_DATA_SIZE; }
+        if (p_bin_pay_desc->payload_length > msg->data_length) { err_code = RD_ERROR_DATA_SIZE; }
         else
         {
             memcpy (msg->data, (uint8_t *) p_bin_pay_desc->p_payload, p_bin_pay_desc->payload_length);
@@ -340,11 +337,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive (
 
         nrf5_sdk15_nfc_state.msg_index++;
 
-        if (RUUVI_DRIVER_SUCCESS == err_code) { err_code = RUUVI_DRIVER_STATUS_MORE_AVAILABLE; }
+        if (RD_SUCCESS == err_code) { err_code = RD_STATUS_MORE_AVAILABLE; }
     }
 
     // If no more records could/can be parsed, reset buffer and message counter
-    if (RUUVI_DRIVER_STATUS_MORE_AVAILABLE != err_code
+    if (RD_STATUS_MORE_AVAILABLE != err_code
             || nrf5_sdk15_nfc_state.msg_index == ( (nfc_ndef_msg_desc_t *)
                     nrf5_sdk15_nfc_state.desc_buf)->record_count)
     {
@@ -354,7 +351,7 @@ ruuvi_driver_status_t ruuvi_interface_communication_nfc_receive (
         // If tag is not writeable, restore original data
         if (nrf5_sdk15_nfc_state.configurable)
         {
-            ruuvi_interface_communication_nfc_data_set();
+            ri_nfc_data_set();
         }
     }
 

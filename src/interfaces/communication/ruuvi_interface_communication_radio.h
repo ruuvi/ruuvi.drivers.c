@@ -9,10 +9,13 @@
  * Commmon definitions and functions for all radio operations.
  *
  */
-
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
 #include <stdint.h>
+#if RI_RADIO_ENABLED
+#define RUUVI_NRF5_SDK15_RADIO_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /**
  * @brief radio activity event type.

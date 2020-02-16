@@ -78,7 +78,7 @@ rd_status_t rt_gatt_dfu_init (void);
  * @retval RD_ERROR_NULL if given NULL as the information.
  * @retval RD_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  */
-rd_status_t rt_gatt_dis_init (const ri_gatt_dis_init_t * const dis);
+rd_status_t rt_gatt_dis_init (const ri_communication_dis_init_t * const dis);
 
 /**
  * @brief Initialize Nordic UART Service

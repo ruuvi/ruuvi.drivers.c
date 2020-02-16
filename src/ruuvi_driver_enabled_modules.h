@@ -116,6 +116,12 @@ data payload length is the maximum length */
 #  endif
 #endif
 
+#ifndef RT_NFC_ENABLED
+#  define RT_NFC_ENABLED RT_NFC_ENABLED
+#endif
+
+#define RI_NFC_ENABLED RT_NFC_ENABLED
+
 #ifndef RI_YIELD_ENABLED
 #define RI_YIELD_ENABLED ENABLE_DEFAULT
 #endif

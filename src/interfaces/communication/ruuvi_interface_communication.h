@@ -8,10 +8,16 @@
 #define RUUVI_INTERFACE_COMMUNICATION_H
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
+#if RI_COMMUNICATION_ENABLED
+#  define RUUVI_NRF5_SDK15_COMMUNICATION_ENABLED  RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+/** @brief maximum length for device information strings */
+#define RI_COMMUNICATION_DIS_STRLEN 32
 
 /** @brief Application message definition. */
 typedef struct ri_communication_message_t
@@ -31,6 +37,16 @@ typedef enum
     RI_COMMUNICATION_TIMEOUT       //!< Operation timed out.
 } ri_communication_evt_t;
 
+typedef struct
+{
+    char fw_version[RI_COMMUNICATION_DIS_STRLEN];
+    char model[RI_COMMUNICATION_DIS_STRLEN];
+    char hw_version[RI_COMMUNICATION_DIS_STRLEN];
+    char manufacturer[RI_COMMUNICATION_DIS_STRLEN];
+    char deviceid[RI_COMMUNICATION_DIS_STRLEN];
+    char deviceaddr[RI_COMMUNICATION_DIS_STRLEN];
+} ri_communication_dis_init_t;
+
 typedef struct ri_communication_t
     ri_communication_t; //!< forward declaration *and* typedef
 
@@ -42,7 +58,8 @@ typedef struct ri_communication_t
  *  @return RD_ERROR_NO_MEM if queue is full and new data cannot be queued.
  *  @return RD_ERROR_NOT_FOUND if queue is empty and no more data can be read.
  */
-typedef rd_status_t (*ri_communication_xfer_fp_t) (ri_communication_message_t * const);
+typedef rd_status_t (*ri_communication_xfer_fp_t) (ri_communication_message_t * const
+        channel);
 
 /** @brief (Un-)Initialization function.
  *  @param[in, out] A control API. Event handler must be set by application.
@@ -50,8 +67,7 @@ typedef rd_status_t (*ri_communication_xfer_fp_t) (ri_communication_message_t * 
  *  @return RD_ERROR_NULL if API is NULL.
  *  @return error driver from stack on other error
  */
-typedef rd_status_t (*ri_communication_init_fp_t) (
-    ri_communication_t * const);
+typedef rd_status_t (*ri_communication_init_fp_t) (ri_communication_t * const channel);
 
 /** @brief Application event handler for communication events.
  *  @param[in] evt Type of event, @ref ri_communication_evt_t.
@@ -60,8 +76,8 @@ typedef rd_status_t (*ri_communication_init_fp_t) (
  *  @return RD_SUCCESS if operation was successful.
  *  @return error driver from stack on other error
  */
-typedef rd_status_t (*ri_communication_evt_handler_fp_t) (
-    const ri_communication_evt_t evt, void * p_data, size_t data_len);
+typedef rd_status_t (*ri_communication_evt_handler_fp_t) (const ri_communication_evt_t
+        evt, void * p_data, size_t data_len);
 
 /** @brief control API for communication via outside world */
 struct ri_communication_t

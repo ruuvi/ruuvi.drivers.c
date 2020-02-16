@@ -143,36 +143,39 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 
 # Changelog
 ## 0.1.6
- - Integration test DC/DC
+ - Integration test DC/DC.
+ - Integration test timer.
+ - Integration test scheduler.
+ - Unit test NFC task.
  - Use SD reset function if SD is enabled in power interface reset.
 
 ## 0.1.5
- - Add nrf15_sdk log enable macro to ruuvi_interface_log.h
- - Fix nRF5 SDK15 watchdog reinitialization assert
+ - Add nrf15_sdk log enable macro to ruuvi_interface_log.h.
+ - Fix nRF5 SDK15 watchdog reinitialization assert.
  - Unit test task_flash, integration test ri_flash.
- - Unit test and integration test GPIO
+ - Unit test and integration test GPIO.
 
 ## 0.1.4
- - Fix button task compilation when button task is not enabled
+ - Fix button task compilation when button task is not enabled.
  - Remove RTC, Power tasks as they unnecessarily wrap interface.
- - Add watchdog
+ - Add watchdog.
 
 ## 0.1.3
- - Add unit tests for tasks
+ - Add unit tests for tasks.
  - Support multiple button initialization.
 
 ## 0.1.2
- - Fix some globally visible names not following the refactored scheme
+ - Fix some globally visible names not following the refactored scheme.
 
 ## 0.1.1
- - Fix some globally visible names not following the refactored scheme
+ - Fix some globally visible names not following the refactored scheme.
  - Pass RI_COMMUNICATION_TIMEOUT to application from BLE Scan.
 
 ## 0.1.0 
  - Change to 0.x Semver to signal that project is in alpha.
 
 ## 3.3.0
- - Add semantic versioning string
+ - Add semantic versioning string.
 
 ## 3.0.0 ... 3.2.0 
 Alpha versions, do not use for anything.

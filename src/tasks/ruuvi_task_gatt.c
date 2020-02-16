@@ -147,7 +147,7 @@ rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
     return RD_SUCCESS;
 }
 
-rd_status_t rt_gatt_dis_init (const ri_gatt_dis_init_t * const p_dis)
+rd_status_t rt_gatt_dis_init (const ri_communication_dis_init_t * const p_dis)
 {
     rd_status_t err_code = RD_SUCCESS;
 

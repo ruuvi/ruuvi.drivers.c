@@ -25,9 +25,9 @@
  * Typical usage:
  *
  * @code{.c}
- *  ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+ *  rd_status_t err_code = RD_SUCCESS;
  *  err_code = task_nfc_init();
- *  RUUVI_DRIVER_ERROR_CHECK(err_code, RUUVI_DRIVER_SUCCESS;
+ *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
  * @endcode
  */
 #include "ruuvi_boards.h"
@@ -40,18 +40,18 @@
 /**
  * @brief Initializes NFC and configures FW, ADDR and ID records according to application_config.h constants.
  *
- * @return RUUVI_DRIVER_SUCCESS on success
- * 2return error code from stack on error
+ * @return RD_SUCCESS on success.
+ * 2return error code from stack on error.
  */
-ruuvi_driver_status_t rt_nfc_init (void);
+rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data);
 
 /**
  * @brief Sets given message to NFC RAM buffer. Clears previous message.
  *
- * @return RUUVI_DRIVER_SUCCESS on success
+ * @return RD_SUCCESS on success
  * @return error code from stack on error
  */
-ruuvi_driver_status_t rt_nfc_send (ruuvi_interface_communication_message_t * message);
+rd_status_t rt_nfc_send (ri_communication_message_t * message);
 
 /**
  * @brief Handle Ruuvi communication events from NFC driver
@@ -60,10 +60,9 @@ ruuvi_driver_status_t rt_nfc_send (ruuvi_interface_communication_message_t * mes
  * @param[in] p_data pointer to data received. NULL if data was not received.
  * @param[in] data_len length of data received. 0 if data was NULL.
  *
- * @return RUUVI_DRIVER_SUCCESS if no error occurred
+ * @return RD_SUCCESS if no error occurred
  * @return error code from stack on error.
  */
-ruuvi_driver_status_t rt_nfc_on_nfc (ruuvi_interface_communication_evt_t evt,
-                                     void * p_data, size_t data_len);
+rd_status_t rt_nfc_on_nfc (ri_communication_evt_t evt, void * p_data, size_t data_len);
 /*@}*/
 #endif

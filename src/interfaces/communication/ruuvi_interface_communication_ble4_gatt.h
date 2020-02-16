@@ -12,15 +12,6 @@
 
 #define HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST 0x16
 
-typedef struct
-{
-    char fw_version[32];
-    char model[32];
-    char hw_version[32];
-    char manufacturer[32];
-    char deviceid[32];
-} ri_gatt_dis_init_t;
-
 /**
  * @brief Initializes GATT stack.
  * Uses default values from sdk_config.h, these can be overridden in nrf5_sdk15_application_config.h
@@ -60,6 +51,6 @@ rd_status_t ri_gatt_dfu_init (void);
  * @return error code from stack in case there is  error.
  */
 rd_status_t ri_gatt_dis_init (
-    const ri_gatt_dis_init_t * const dis);
+    const ri_communication_dis_init_t * const dis);
 
 #endif
