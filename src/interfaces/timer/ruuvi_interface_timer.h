@@ -84,7 +84,7 @@ rd_status_t ri_timer_create (ri_timer_id_t *
  */
 rd_status_t ri_timer_start (ri_timer_id_t timer_id,
                             uint32_t ms,
-                            void* const context);
+                            void * const context);
 
 /**
  * Stop a running timer.

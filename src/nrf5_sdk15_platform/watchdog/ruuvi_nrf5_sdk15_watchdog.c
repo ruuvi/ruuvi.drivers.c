@@ -93,14 +93,16 @@ rd_status_t ri_watchdog_init (const uint32_t interval_ms, const wdt_evt_handler_
         if (NRF_SUCCESS == err_code)
         {
             nrf_drv_wdt_enable();
+
             // Halting the LFCLK while WDT is running hangs the program.
             // Request LFCLK to make sure it's never stopped after this point.
             // https://devzone.nordicsemi.com/f/nordic-q-a/45584/softdevice-hangs-forever-during-disable-while-stopping-lfclk
             // Initialize clock if not already initialized
             if (false == nrf_drv_clock_init_check())
-            { 
-                err_code |= nrf_drv_clock_init(); 
+            {
+                err_code |= nrf_drv_clock_init();
             }
+
             nrf_drv_clock_lfclk_request (NULL);
         }
     }
