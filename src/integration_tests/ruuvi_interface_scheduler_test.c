@@ -7,7 +7,6 @@
 #include <string.h>
 
 #if 0
->>>>>>> Add integration tests
 /**
  * @addtogroup scheduler
  *
