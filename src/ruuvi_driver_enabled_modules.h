@@ -116,6 +116,12 @@ data payload length is the maximum length */
 #  endif
 #endif
 
+#if RI_TIMER_ENABLED
+#  ifndef RI_TIMER_MAX_INSTANCES
+#    define RI_TIMER_MAX_INSTANCES 10
+#  endif
+#endif
+
 #ifndef RI_YIELD_ENABLED
 #define RI_YIELD_ENABLED ENABLE_DEFAULT
 #endif

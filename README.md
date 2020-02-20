@@ -144,7 +144,9 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 # Changelog
 ## 0.1.6
  - Integration test DC/DC
- - Use SD reset function if SD is enabled in power interface reset.
+ - NRF SDK 15: Use SD reset function if SD is enabled in power interface reset.
+ - Integration test scheduler
+ - Integration test timer
 
 ## 0.1.5
  - Add nrf15_sdk log enable macro to ruuvi_interface_log.h
