@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.1.5"
+#define RUUVI_DRIVERS_SEMVER "0.1.6"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -120,7 +120,11 @@ data payload length is the maximum length */
 #  define RT_NFC_ENABLED RT_NFC_ENABLED
 #endif
 
-#define RI_NFC_ENABLED RT_NFC_ENABLED
+#if RI_TIMER_ENABLED
+#  ifndef RI_TIMER_MAX_INSTANCES
+#    define RI_TIMER_MAX_INSTANCES 10
+#  endif
+#endif
 
 #ifndef RI_YIELD_ENABLED
 #define RI_YIELD_ENABLED ENABLE_DEFAULT

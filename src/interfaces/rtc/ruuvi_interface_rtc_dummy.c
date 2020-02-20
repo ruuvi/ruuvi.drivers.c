@@ -41,7 +41,7 @@ rd_status_t ri_rtc_init (void)
                                      counter_handler);
     }
 
-    err_code |= ri_timer_start (counter_timer, DUMMY_RTC_INTERVAL);
+    err_code |= ri_timer_start (counter_timer, DUMMY_RTC_INTERVAL, NULL);
     return (RD_SUCCESS == err_code) ? RD_SUCCESS :
            RD_ERROR_NOT_SUPPORTED;
 }

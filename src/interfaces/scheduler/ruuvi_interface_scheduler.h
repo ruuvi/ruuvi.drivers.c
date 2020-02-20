@@ -75,7 +75,7 @@ rd_status_t ri_scheduler_execute (void);
 rd_status_t ri_scheduler_event_put (const void * const p_event_data,
                                     const uint16_t event_size, const ruuvi_scheduler_event_handler_t handler);
 
-/*
+/**
  * @brief Uninitialize scheduler.
  *
  * Scheduler has to be re-initialized after uninitialization, and all the previous

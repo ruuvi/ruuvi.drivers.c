@@ -147,7 +147,7 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
  - Integration test timer.
  - Integration test scheduler.
  - Unit test NFC task.
- - Use SD reset function if SD is enabled in power interface reset.
+ - NRF SDK 15: Use SD reset function if SD is enabled in power interface reset.
 
 ## 0.1.5
  - Add nrf15_sdk log enable macro to ruuvi_interface_log.h.

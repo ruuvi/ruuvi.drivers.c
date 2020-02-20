@@ -57,8 +57,6 @@ rd_status_t ruuvi_nrf5_sdk15_to_ruuvi_error (const ret_code_t err_code)
         return RD_ERROR_NOT_ACKNOWLEDGED;
     }
 
-    if (NRF_ERROR_RESOURCES == err_code)      { return RD_ERROR_RESOURCES; }
-
     return RD_ERROR_INTERNAL;
 }
 /** @} */

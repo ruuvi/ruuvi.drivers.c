@@ -135,7 +135,7 @@ rd_status_t ri_delay_ms (uint32_t time)
     if (m_lp)
     {
         m_wakeup = false;
-        err_code |= ri_timer_start (wakeup_timer, time);
+        err_code |= ri_timer_start (wakeup_timer, time, NULL);
 
         while (RD_SUCCESS == err_code && !m_wakeup)
         {

@@ -117,7 +117,7 @@ static app_timer_id_t get_timer_id (void)
 
 rd_status_t ri_timer_init (void)
 {
-    if (m_is_init) { return RD_SUCCESS; }
+    if (m_is_init) { return RD_ERROR_INVALID_STATE; }
 
     ret_code_t err_code = NRF_SUCCESS;
 
@@ -142,22 +142,47 @@ rd_status_t ri_timer_create (ri_timer_id_t *
                              p_timer_id, const ri_timer_mode_t mode,
                              const ruuvi_timer_timeout_handler_t timeout_handler)
 {
+    rd_status_t err_code = RD_SUCCESS;
     app_timer_mode_t nrf_mode = APP_TIMER_MODE_SINGLE_SHOT;
 
-    if (RI_TIMER_MODE_REPEATED == mode) { nrf_mode = APP_TIMER_MODE_REPEATED; }
+    if (m_is_init)
+    {
+        if (RI_TIMER_MODE_REPEATED == mode)
+        {
+            nrf_mode = APP_TIMER_MODE_REPEATED;
+        }
 
-    app_timer_id_t tid = get_timer_id();
-    ret_code_t err_code = app_timer_create (&tid,
-                                            nrf_mode,
-                                            (app_timer_timeout_handler_t) timeout_handler);
+        app_timer_id_t tid = get_timer_id();
 
-    if (NRF_SUCCESS == err_code) {*p_timer_id = (void *) tid;}
+        if (NULL != tid)
+        {
+            ret_code_t nrf_code = app_timer_create (&tid,
+                                                    nrf_mode,
+                                                    (app_timer_timeout_handler_t) timeout_handler);
 
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+            if (NRF_SUCCESS == nrf_code)
+            {
+                *p_timer_id = (void *) tid;
+            }
+
+            err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+        }
+        else
+        {
+            err_code |= RD_ERROR_RESOURCES;
+        }
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_timer_start (const ri_timer_id_t
-                            timer_id, const uint32_t ms)
+                            timer_id, const uint32_t ms,
+                            void * const context)
 {
     // Counters are 24 bits
     // nrf5 sdk_config.h has prescaler setting for timer, resolution can be traded for run time
@@ -168,7 +193,7 @@ rd_status_t ri_timer_start (const ri_timer_id_t
     }
 
     ret_code_t err_code = app_timer_start ( (app_timer_id_t) timer_id, APP_TIMER_TICKS (ms),
-                                            NULL);
+                                            context);
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
@@ -176,6 +201,15 @@ rd_status_t ri_timer_stop (ri_timer_id_t timer_id)
 {
     ret_code_t err_code = app_timer_stop ( (app_timer_id_t) timer_id);
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+}
+
+rd_status_t ri_timer_uninit()
+{
+    app_timer_stop_all();
+    nrf_drv_clock_lfclk_release();
+    timer_idx = 0;
+    m_is_init = false;
+    return RD_SUCCESS;
 }
 
 #endif
