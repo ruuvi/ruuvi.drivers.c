@@ -5,6 +5,9 @@
 #include "ruuvi_driver_error.h"
 #include <stddef.h>
 #include <string.h>
+
+#if 0
+>>>>>>> Add integration tests
 /**
  * @addtogroup scheduler
  *
@@ -197,3 +200,5 @@ bool ri_scheduler_run_integration_test (const rd_test_print_fp printfp)
     return status;
 }
 #endif
+#endif
+
