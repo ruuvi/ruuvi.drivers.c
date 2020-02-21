@@ -50,6 +50,9 @@ typedef struct
 typedef struct ri_communication_t
     ri_communication_t; //!< forward declaration *and* typedef
 
+/* @brief Callback handler for communication events */
+typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
+
 /** @brief Asynchronous transfer function. Puts/gets message in driver queue
  *  @param[in, out] A message to put/get to/from driver queue
  *  @return RD_MORE_AVAILABLE if data was read from queue and there is more data available.

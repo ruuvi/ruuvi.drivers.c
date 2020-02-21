@@ -4,6 +4,7 @@
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_task_gatt.h"
+#include "ruuvi_interface_communication.h"
 
 #include "mock_ruuvi_task_advertisement.h"
 #include "mock_ruuvi_interface_atomic.h"

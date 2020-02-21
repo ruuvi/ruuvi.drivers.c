@@ -52,9 +52,18 @@ data payload length is the maximum length */
 #  define RT_ADC_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_COMMUNICATION_ENABLED
+/** @brief Enable communication helper compilation. */
+#  define RI_COMMUNICATION_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RT_ADV_ENABLED
 /** @brief Enable BLE advertising compilation. */
 #  define RT_ADV_ENABLED ENABLE_DEFAULT
+#endif
+
+#if RT_ADV_ENABLED && !(RI_COMMUNICATION_ENABLED)
+#  error "Advertisement task requires communication interface."
 #endif
 
 #ifndef RT_BUTTON_ENABLED
@@ -72,8 +81,8 @@ data payload length is the maximum length */
 #  define RT_GATT_ENABLED ENABLE_DEFAULT
 #endif
 
-#if RT_GATT_ENABLED && (!RT_ADV_ENABLED)
-#  error "GATT task requires Advertisement task"
+#if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMMUNICATION_ENABLED))
+#  error "GATT task requires Advertisement task and communication interface."
 #endif
 
 #ifndef RT_GPIO_ENABLED
@@ -117,7 +126,7 @@ data payload length is the maximum length */
 #endif
 
 #ifndef RT_NFC_ENABLED
-#  define RT_NFC_ENABLED RT_NFC_ENABLED
+#  define RT_NFC_ENABLED ENABLE_DEFAULT
 #endif
 
 #if RI_TIMER_ENABLED

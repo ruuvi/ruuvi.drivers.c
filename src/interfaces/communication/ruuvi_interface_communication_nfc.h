@@ -27,8 +27,7 @@ rd_status_t ri_nfc_init (ri_communication_t * const channel);
 /*
  * Uninitializes NFC hardware.
  *
- * Returns RD_SUCCESS on success or if radio was not initialized.
- * Returns RD_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
+ * Returns RD_SUCCESS on success.
  */
 rd_status_t ri_nfc_uninit (ri_communication_t * const channel);
 
