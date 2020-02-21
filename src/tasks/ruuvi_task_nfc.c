@@ -107,6 +107,7 @@ rd_status_t sw_set (const char * const sw)
                              RI_COMMUNICATION_DIS_STRLEN,
                              "SW: %s",
                              sw);
+
         if ( (0 > written)
                 || (RI_COMMUNICATION_DIS_STRLEN <= written))
         {
@@ -141,6 +142,7 @@ rd_status_t mac_set (const char * const mac)
                              RI_COMMUNICATION_DIS_STRLEN,
                              "MAC: %s",
                              mac);
+
         if ( (0 > written)
                 || (RI_COMMUNICATION_DIS_STRLEN <= written))
         {
@@ -174,6 +176,7 @@ rd_status_t id_set (const char * const id)
                              RI_COMMUNICATION_DIS_STRLEN,
                              "ID: %s",
                              id);
+
         if ( (0 > written)
                 || (RI_COMMUNICATION_DIS_STRLEN <= written))
         {
@@ -241,7 +244,8 @@ rd_status_t rt_nfc_uninit (void)
 rd_status_t rt_nfc_send (ri_communication_message_t * message)
 {
     rd_status_t err_code = RD_SUCCESS;
-    if(NULL == message)
+
+    if (NULL == message)
     {
         err_code |= RD_ERROR_NULL;
     }
@@ -249,6 +253,7 @@ rd_status_t rt_nfc_send (ri_communication_message_t * message)
     {
         err_code |= m_channel.send (message);
     }
+
     return err_code;
 }
 
