@@ -54,7 +54,7 @@ typedef struct ri_communication_t
 typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
 
 /** @brief Asynchronous transfer function. Puts/gets message in driver queue
- *  @param[in, out] A message to put/get to/from driver queue
+ *  @param[in, out] msg A message to put/get to/from driver queue
  *  @return RD_MORE_AVAILABLE if data was read from queue and there is more data available.
  *  @return RD_SUCCESS if queue operation was successful.
  *  @return RD_ERROR_NULL if message is NULL.
@@ -62,7 +62,7 @@ typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
  *  @return RD_ERROR_NOT_FOUND if queue is empty and no more data can be read.
  */
 typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_communication_message_t * const
-        channel);
+        msg);
 
 /** @brief (Un-)Initialization function.
  *  @param[in, out] A control API. Event handler must be set by application.
@@ -87,8 +87,8 @@ struct ri_communication_t
 {
     ri_comm_xfer_fp_t send;    //!< Asynchronous send function
     ri_comm_xfer_fp_t read;    //!< Asynchronous read function
-    ri_comm_xfer_fp_t init;    //!< Initialize and populate channel api control
-    ri_comm_xfer_fp_t uninit;  //!< Uninitialize and depopulate channel api control
+    ri_comm_init_fp_t init;    //!< Initialize and populate channel api control
+    ri_comm_init_fp_t uninit;  //!< Uninitialize and depopulate channel api control
     ri_comm_evt_handler_fp_t
     on_evt;  //!< Callback to application-level event handler, must be set in application.
 };

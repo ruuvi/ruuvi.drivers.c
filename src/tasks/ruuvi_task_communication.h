@@ -44,7 +44,7 @@ typedef rd_status_t (*heartbeat_data_fp_t) (uint8_t * const msg);
 rd_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
                                         const size_t max_len,
                                         const heartbeat_data_fp_t data_src,
-                                        const ri_communication_xfer_fp_t send);
+                                        const ri_comm_xfer_fp_t send);
 
 /**
  * @brief get MAC address of the device from radio driver and write it to given buffer.
