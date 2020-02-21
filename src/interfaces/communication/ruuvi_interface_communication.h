@@ -61,7 +61,7 @@ typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
  *  @return RD_ERROR_NO_MEM if queue is full and new data cannot be queued.
  *  @return RD_ERROR_NOT_FOUND if queue is empty and no more data can be read.
  */
-typedef rd_status_t (*ri_communication_xfer_fp_t) (ri_communication_message_t * const
+typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_communication_message_t * const
         channel);
 
 /** @brief (Un-)Initialization function.
@@ -70,7 +70,7 @@ typedef rd_status_t (*ri_communication_xfer_fp_t) (ri_communication_message_t * 
  *  @return RD_ERROR_NULL if API is NULL.
  *  @return error driver from stack on other error
  */
-typedef rd_status_t (*ri_communication_init_fp_t) (ri_communication_t * const channel);
+typedef rd_status_t (*ri_comm_init_fp_t) (ri_communication_t * const channel);
 
 /** @brief Application event handler for communication events.
  *  @param[in] evt Type of event, @ref ri_communication_evt_t.
@@ -79,17 +79,17 @@ typedef rd_status_t (*ri_communication_init_fp_t) (ri_communication_t * const ch
  *  @return RD_SUCCESS if operation was successful.
  *  @return error driver from stack on other error
  */
-typedef rd_status_t (*ri_communication_evt_handler_fp_t) (const ri_communication_evt_t
+typedef rd_status_t (*ri_comm_evt_handler_fp_t) (const ri_communication_evt_t
         evt, void * p_data, size_t data_len);
 
 /** @brief control API for communication via outside world */
 struct ri_communication_t
 {
-    ri_communication_xfer_fp_t send;    //!< Asynchronous send function
-    ri_communication_xfer_fp_t read;    //!< Asynchronous read function
-    ri_communication_init_fp_t init;    //!< Initialize and populate channel api control
-    ri_communication_init_fp_t uninit;  //!< Uninitialize and depopulate channel api control
-    ri_communication_evt_handler_fp_t
+    ri_comm_xfer_fp_t send;    //!< Asynchronous send function
+    ri_comm_xfer_fp_t read;    //!< Asynchronous read function
+    ri_comm_xfer_fp_t init;    //!< Initialize and populate channel api control
+    ri_comm_xfer_fp_t uninit;  //!< Uninitialize and depopulate channel api control
+    ri_comm_evt_handler_fp_t
     on_evt;  //!< Callback to application-level event handler, must be set in application.
 };
 
