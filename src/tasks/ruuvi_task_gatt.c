@@ -62,10 +62,10 @@ static bool m_dfu_is_init;
 static bool m_nus_is_connected;
 static char m_name[SCAN_RSP_NAME_MAX_LEN + 1] = { 0 };
 
-static rt_gatt_cb_t m_on_connected;    //!< Callback for connection established
-static rt_gatt_cb_t m_on_disconnected; //!< Callback for connection lost
-static rt_gatt_cb_t m_on_received;     //!< Callback for data received
-static rt_gatt_cb_t m_on_sent;         //!< Callback for data sent
+static ri_comm_cb_t m_on_connected;    //!< Callback for connection established
+static ri_comm_cb_t m_on_disconnected; //!< Callback for connection lost
+static ri_comm_cb_t m_on_received;     //!< Callback for data received
+static ri_comm_cb_t m_on_sent;         //!< Callback for data sent
 
 // https://github.com/arm-embedded/gcc-arm-none-eabi.debian/blob/master/src/libiberty/strnlen.c
 // Not included when compiled with std=c99.
@@ -147,7 +147,7 @@ rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
     return RD_SUCCESS;
 }
 
-rd_status_t rt_gatt_dis_init (const ri_gatt_dis_init_t * const p_dis)
+rd_status_t rt_gatt_dis_init (const ri_communication_dis_init_t * const p_dis)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -330,23 +330,23 @@ rd_status_t rt_gatt_send_asynchronous (ri_communication_message_t
     return err_code;
 }
 
-void rt_gatt_set_on_connected_isr (const rt_gatt_cb_t cb)
+void rt_gatt_set_on_connected_isr (const ri_comm_cb_t cb)
 {
     m_on_connected = cb;
 }
 
 
-void rt_gatt_set_on_disconn_isr (const rt_gatt_cb_t cb)
+void rt_gatt_set_on_disconn_isr (const ri_comm_cb_t cb)
 {
     m_on_disconnected = cb;
 }
 
-void rt_gatt_set_on_received_isr (const rt_gatt_cb_t cb)
+void rt_gatt_set_on_received_isr (const ri_comm_cb_t cb)
 {
     m_on_received = cb;
 }
 
-void rt_gatt_set_on_sent_isr (const rt_gatt_cb_t cb)
+void rt_gatt_set_on_sent_isr (const ri_comm_cb_t cb)
 {
     m_on_sent = cb;
 }

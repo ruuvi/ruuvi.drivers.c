@@ -4,6 +4,7 @@
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_task_gatt.h"
+#include "ruuvi_interface_communication.h"
 
 #include "mock_ruuvi_task_advertisement.h"
 #include "mock_ruuvi_interface_atomic.h"
@@ -180,9 +181,8 @@ void test_rt_gatt_dfu_init_twice (void)
 void test_rt_gatt_dis_init_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_gatt_dis_init_t dis = {0};
-    ri_gatt_dis_init_ExpectAndReturn (&dis,
-            RD_SUCCESS);
+    ri_communication_dis_init_t dis = {0};
+    ri_gatt_dis_init_ExpectAndReturn (&dis, RD_SUCCESS);
     err_code = rt_gatt_dis_init (&dis);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -190,7 +190,7 @@ void test_rt_gatt_dis_init_ok (void)
 void test_rt_gatt_dis_init_twice (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_gatt_dis_init_t dis = {0};
+    ri_communication_dis_init_t dis = {0};
     test_rt_gatt_dis_init_ok();
     err_code = rt_gatt_dis_init (&dis);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
@@ -207,7 +207,7 @@ void test_rt_gatt_dis_init_no_gatt (void)
 {
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
-    ri_gatt_dis_init_t dis = {0};
+    ri_communication_dis_init_t dis = {0};
     err_code = rt_gatt_dis_init (&dis);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
@@ -233,10 +233,8 @@ void test_rt_gatt_nus_init_ok()
 {
     rd_status_t err_code = RD_SUCCESS;
     mock_init (&m_mock_gatt);
-    ri_gatt_nus_init_ExpectAnyArgsAndReturn (
-        RD_SUCCESS);
-    ri_gatt_nus_init_ReturnArrayThruPtr_channel (
-        &m_mock_gatt, 1);
+    ri_gatt_nus_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_gatt_nus_init_ReturnArrayThruPtr_channel (&m_mock_gatt, 1);
     err_code = rt_gatt_nus_init ();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }

@@ -163,7 +163,7 @@ bool rt_adv_is_init (void);
  * @note Scanning is stopped on timeout, you can restart the scan on event handler.
  * @warning Event handler is called in interrupt context.
  */
-rd_status_t rt_adv_scan_start (const ri_communication_evt_handler_fp_t on_evt);
+rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt);
 
 /** @brief abort scanning.
 */

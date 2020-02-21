@@ -5,7 +5,6 @@
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_log.h"
 
-
 #include "nrf_error.h"
 #include "nrf_drv_clock.h"
 #include "sdk_errors.h"

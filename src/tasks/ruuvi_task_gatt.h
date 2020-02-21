@@ -28,9 +28,6 @@ rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
 
 #endif
 
-/* @brief Callback handler for GATT communication events */
-typedef void (*rt_gatt_cb_t) (void * p_data, size_t data_len);
-
 /**
  * @brief Send given message via NUS
  *
@@ -78,7 +75,7 @@ rd_status_t rt_gatt_dfu_init (void);
  * @retval RD_ERROR_NULL if given NULL as the information.
  * @retval RD_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  */
-rd_status_t rt_gatt_dis_init (const ri_gatt_dis_init_t * const dis);
+rd_status_t rt_gatt_dis_init (const ri_communication_dis_init_t * const dis);
 
 /**
  * @brief Initialize Nordic UART Service
@@ -171,7 +168,7 @@ bool rt_gatt_is_nus_enabled();
  *
  * @param[in] cb Callback which gets called on connection in interrupt context.
  */
-void rt_gatt_set_on_connected_isr (const rt_gatt_cb_t cb);
+void rt_gatt_set_on_connected_isr (const ri_comm_cb_t cb);
 
 /** @brief Setup disconnection event handler.
  *
@@ -181,7 +178,7 @@ void rt_gatt_set_on_connected_isr (const rt_gatt_cb_t cb);
  *
  * @param[in] cb Callback which gets called on disconnection in interrupt context.
  */
-void rt_gatt_set_on_disconn_isr (const rt_gatt_cb_t cb);
+void rt_gatt_set_on_disconn_isr (const ri_comm_cb_t cb);
 
 /** @brief Setup data received event handler.
  *
@@ -191,7 +188,7 @@ void rt_gatt_set_on_disconn_isr (const rt_gatt_cb_t cb);
  *
  * @param[in] cb Callback which gets called on data received in interrupt context.
  */
-void rt_gatt_set_on_received_isr (const rt_gatt_cb_t cb);
+void rt_gatt_set_on_received_isr (const ri_comm_cb_t cb);
 
 /** @brief Setup data sent event handler.
  *
@@ -201,7 +198,7 @@ void rt_gatt_set_on_received_isr (const rt_gatt_cb_t cb);
  *
  * @param[in] cb Callback which gets called on data sent in interrupt context.
  */
-void rt_gatt_set_on_sent_isr (const rt_gatt_cb_t cb);
+void rt_gatt_set_on_sent_isr (const ri_comm_cb_t cb);
 
 #endif
 /*@}*/

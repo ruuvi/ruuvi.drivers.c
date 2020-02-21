@@ -6,9 +6,9 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_communication.h"
 #if RUUVI_NRF5_SDK15_COMMUNICATION_ENABLED
 
-#include "ruuvi_interface_communication.h"
 #include "ruuvi_driver_error.h"
 
 #include <stdbool.h>
@@ -17,7 +17,7 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 
-ruuvi_driver_status_t ruuvi_interface_communication_id_get (uint64_t * const _id)
+rd_status_t ri_communication_id_get (uint64_t * const _id)
 {
     uint64_t id = 0;
     id |= (uint64_t) ( (NRF_FICR->DEVICEID[0] >> 24) & 0xFF) << 56;
@@ -29,6 +29,6 @@ ruuvi_driver_status_t ruuvi_interface_communication_id_get (uint64_t * const _id
     id |= (uint64_t) ( (NRF_FICR->DEVICEID[1] >> 8) & 0xFF)  << 8;
     id |= (uint64_t) ( (NRF_FICR->DEVICEID[1] >> 0) & 0xFF)  << 0;
     *_id = id;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 #endif

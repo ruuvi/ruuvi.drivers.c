@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.1.5"
+#define RUUVI_DRIVERS_SEMVER "0.1.6"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -52,9 +52,18 @@ data payload length is the maximum length */
 #  define RT_ADC_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_COMMUNICATION_ENABLED
+/** @brief Enable communication helper compilation. */
+#  define RI_COMMUNICATION_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RT_ADV_ENABLED
 /** @brief Enable BLE advertising compilation. */
 #  define RT_ADV_ENABLED ENABLE_DEFAULT
+#endif
+
+#if RT_ADV_ENABLED && !(RI_COMMUNICATION_ENABLED)
+#  error "Advertisement task requires communication interface."
 #endif
 
 #ifndef RT_BUTTON_ENABLED
@@ -72,8 +81,8 @@ data payload length is the maximum length */
 #  define RT_GATT_ENABLED ENABLE_DEFAULT
 #endif
 
-#if RT_GATT_ENABLED && (!RT_ADV_ENABLED)
-#  error "GATT task requires Advertisement task"
+#if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMMUNICATION_ENABLED))
+#  error "GATT task requires Advertisement task and communication interface."
 #endif
 
 #ifndef RT_GPIO_ENABLED
@@ -114,6 +123,10 @@ data payload length is the maximum length */
  */
 #  define RT_MAX_LED_CFG 48
 #  endif
+#endif
+
+#ifndef RT_NFC_ENABLED
+#  define RT_NFC_ENABLED ENABLE_DEFAULT
 #endif
 
 #if RI_TIMER_ENABLED

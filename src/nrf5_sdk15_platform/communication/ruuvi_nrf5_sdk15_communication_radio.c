@@ -9,12 +9,13 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_BLE_STACK_ENABLED
+#include "ruuvi_interface_communication_radio.h"
+#if RUUVI_NRF5_SDK15_RADIO_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication_ble4_advertising.h"
 #include "ruuvi_interface_communication_ble4_gatt.h"
-#include "ruuvi_interface_communication_radio.h"
+
 
 #include <stdbool.h>
 #include <stdint.h>

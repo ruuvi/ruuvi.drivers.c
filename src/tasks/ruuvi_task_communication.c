@@ -19,7 +19,7 @@ static ruuvi_interface_timer_id_t
 heartbeat_timer;   //!< Timer for heartbeat action
 static size_t
 m_heartbeat_data_max_len;  //!< Maximum data length for heartbeat data
-static ruuvi_interface_communication_xfer_fp_t
+static ruuvi_interface_comm_xfer_fp_t
 heartbeat_target; //!< Function to which send the hearbeat data
 static heartbeat_data_fp_t heartbeat_encoder;
 /*

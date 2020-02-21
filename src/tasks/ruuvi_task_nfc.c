@@ -5,7 +5,7 @@
 /**
  * @file task_nfc.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-12-24
+ * @date 2020-02-21
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
 
  * When NFC reader is in range return 4 UTF-textfields with content
@@ -13,154 +13,309 @@
  * SW: version
  * MAC: AA:BB:CC:DD:EE:FF
  * ID: 00:11:22:33:44:55:66:77
- * DATA:
+ * Data:
  * @endcode
  */
 #include "ruuvi_driver_enabled_modules.h"
 #if RT_NFC_ENABLED
 #include "ruuvi_driver_error.h"
-#include "ruuvi_driver_sensor.h"
-#include "ruuvi_interface_communication.h"
+#include "ruuvi_interface_atomic.h"
 #include "ruuvi_interface_communication_nfc.h"
-#include "ruuvi_interface_communication_radio.h"
+#include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_scheduler.h"
 #include "ruuvi_interface_watchdog.h"
 #include "ruuvi_task_nfc.h"
 #include <stdio.h>
 #include <string.h>
 
-static ruuvi_interface_communication_t channel;
+static ri_communication_t m_channel;   //!< Handle for NFC comms.
+static ri_comm_cb_t m_on_connected;    //!< Callback for connection established.
+static ri_comm_cb_t m_on_disconnected; //!< Callback for connection lost.
+static ri_comm_cb_t m_on_received;     //!< Callback for data received.
+static ri_comm_cb_t m_on_sent;         //!< Callback for data sent.
+static bool m_nfc_is_connected;        //!< True while NFC reader is present.
+static bool m_nfc_is_initialized;      //!< True while NFC is initialized.
 
-ruuvi_driver_status_t rt_nfc_init (void)
+/**
+ * @brief Event handler for NFC events
+ *
+ * This function is called in interrupt context, which allows for real-time processing
+ * such as feeding softdevice data buffers during connection event.
+ * Care must be taken to not call any function which requires external peripherals,
+ * such as sensors in this context.
+ *
+ * If sensors must be read / configured as a response to NFC event, schedule
+ * the action and send the results back during next connection event by buffering
+ * the response with rt_nfc_send.
+ *
+ * @param evt Event type
+ * @param p_data pointer to event data, if event is
+ *               @c RI_COMMUNICATION_RECEIVED received data, NULL otherwise.
+ * @param data_len number of bytes in received data, 0 if p_data is NULL.
+ *
+ */
+#ifndef CEEDLING
+static
+#endif
+rd_status_t rt_nfc_isr (ri_communication_evt_t evt,
+                        void * p_data, size_t data_len)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-    int written = 0;
-    uint8_t fw_prefix[] = {'S', 'W', ':', ' '};
-    uint8_t version_string[APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE] = { 0 };
-    memcpy (version_string, fw_prefix, sizeof (fw_prefix));
-    written = snprintf ( (char *) (version_string + sizeof (fw_prefix)),
-                         APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE - sizeof (fw_prefix),
-                         "%s", APPLICATION_FW_VERSION);  // Taken from application_config.h
-
-    if (! (written > 0 && APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE > written))
-    {
-        err_code |= RUUVI_DRIVER_ERROR_DATA_SIZE;
-    }
-
-    err_code |= ruuvi_interface_communication_nfc_fw_version_set (version_string,
-                strlen ( (char *) version_string));
-    uint64_t mac = 0;
-    err_code |=  ruuvi_interface_communication_radio_address_get (&mac);
-    uint8_t mac_buffer[6] = {0};
-    mac_buffer[0] = (mac >> 40) & 0xFF;
-    mac_buffer[1] = (mac >> 32) & 0xFF;
-    mac_buffer[2] = (mac >> 24) & 0xFF;
-    mac_buffer[3] = (mac >> 16) & 0xFF;
-    mac_buffer[4] = (mac >> 8) & 0xFF;
-    mac_buffer[5] = (mac >> 0) & 0xFF;
-    //8 hex bytes
-    uint8_t name[APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE] = { 0 };
-    written = snprintf ( (char *) name,
-                         APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE,
-                         "MAC: %02X:%02X:%02X:%02X:%02X:%02X",
-                         mac_buffer[0], mac_buffer[1], mac_buffer[2], mac_buffer[3], mac_buffer[4], mac_buffer[5]);
-
-    if (! (written > 0 && APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE > written))
-    {
-        err_code |= RUUVI_DRIVER_ERROR_DATA_SIZE;
-    }
-
-    err_code |= ruuvi_interface_communication_nfc_address_set (name, strlen ( (char *) name));
-    uint64_t id = 0;
-    err_code |= ruuvi_interface_communication_id_get (&id);
-    uint8_t prefix[] = {'I', 'D', ':', ' '};
-    uint8_t id_string[APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE] = { 0 };
-    memcpy (id_string, prefix, sizeof (prefix));
-    uint32_t id0 = (id >> 32) & 0xFFFFFFFF;
-    uint32_t id1 = id & 0xFFFFFFFF;
-    written = snprintf ( (char *) (id_string + sizeof (prefix)),
-                         APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE - sizeof (prefix),
-                         "%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X",
-                         (unsigned int) (id0 >> 24) & 0xFF, (unsigned int) (id0 >> 16) & 0xFF,
-                         (unsigned int) (id0 >> 8) & 0xFF, (unsigned int) id0 & 0xFF,
-                         (unsigned int) (id1 >> 24) & 0xFF, (unsigned int) (id1 >> 16) & 0xFF,
-                         (unsigned int) (id1 >> 8) & 0xFF, (unsigned int) id1 & 0xFF);
-
-    if (! (written > 0 && APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE > written))
-    {
-        err_code |= RUUVI_DRIVER_ERROR_DATA_SIZE;
-    }
-
-    err_code |= ruuvi_interface_communication_nfc_id_set (id_string,
-                strlen ( (char *) id_string));
-    err_code |= ruuvi_interface_communication_nfc_init (&channel);
-    // Setup one NULL to DATA to match 1.x and 2.x NFC fields.
-    // TODO @ojousima add text "Data:"
-    ruuvi_interface_communication_message_t msg;
-    msg.data_length = 1;
-    err_code |= channel.send (&msg);
-    channel.on_evt = rt_nfc_on_nfc;
-    return err_code;
-}
-
-ruuvi_driver_status_t rt_nfc_send (ruuvi_interface_communication_message_t * message)
-{
-    return channel.send (message);
-}
-
-void rt_acceleration_scheduler_task (void * p_event_data, uint16_t event_size)
-{
-    // Message + null + <\r>\<n>
-    char str[APPLICATION_COMMUNICATION_NFC_TEXT_BUFFER_SIZE + 3] = { 0 };
-    ruuvi_interface_communication_message_t message = {0};
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-
-    do
-    {
-        message.data_length = sizeof (message.data);
-        memset (& (message.data), 0, sizeof (message.data));
-        err_code = channel.read (&message);
-        snprintf (str, sizeof (str), "%s\r\n", (char *) message.data);
-        ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, str);
-    } while (RUUVI_DRIVER_SUCCESS == err_code
-
-             || RUUVI_DRIVER_STATUS_MORE_AVAILABLE == err_code);
-}
-
-ruuvi_driver_status_t rt_nfc_on_nfc (ruuvi_interface_communication_evt_t evt,
-                                     void * p_data, size_t data_len)
-{
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-
     switch (evt)
     {
-        case RUUVI_INTERFACE_COMMUNICATION_CONNECTED:
-            ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "NFC connected \r\n");
+        // Note: This gets called only after the NFC notifications have been registered.
+        case RI_COMMUNICATION_CONNECTED:
+            m_nfc_is_connected = true;
+            (NULL != m_on_connected) ? m_on_connected (p_data, data_len) : false;
             break;
 
-        case RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED:
-            ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "NFC disconnected \r\n");
+        case RI_COMMUNICATION_DISCONNECTED:
+            m_nfc_is_connected = false;
+            (NULL != m_on_disconnected) ? m_on_disconnected (p_data, data_len) : false;
             break;
 
-        case RUUVI_INTERFACE_COMMUNICATION_SENT:
-            ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "NFC data sent\r\n");
+        case RI_COMMUNICATION_SENT:
+            (NULL != m_on_sent) ? m_on_sent (p_data, data_len) : false;
             break;
 
-        case RUUVI_INTERFACE_COMMUNICATION_RECEIVED:
-            ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "NFC data received\r\n");
+        case RI_COMMUNICATION_RECEIVED:
+            (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
             break;
 
         default:
             break;
     }
 
+    return RD_SUCCESS;
+}
+
+#ifndef CEEDLING
+static
+#endif
+rd_status_t sw_set (const char * const sw)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int written = 0;
+
+    if (NULL == sw)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        uint8_t fw_string[RI_COMMUNICATION_DIS_STRLEN] = { 0 };
+        written = snprintf ( (char *) fw_string,
+                             RI_COMMUNICATION_DIS_STRLEN,
+                             "SW: %s",
+                             sw);
+
+        if ( (0 > written)
+                || (RI_COMMUNICATION_DIS_STRLEN <= written))
+        {
+            err_code |= RD_ERROR_INVALID_LENGTH;
+        }
+        else
+        {
+            err_code |= ri_nfc_fw_version_set (fw_string,
+                                               strlen ( (char *) fw_string));
+        }
+    }
+
     return err_code;
 }
+
+#ifndef CEEDLING
+static
+#endif
+rd_status_t mac_set (const char * const mac)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int written = 0;
+
+    if (NULL == mac)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        uint8_t name[RI_COMMUNICATION_DIS_STRLEN] = { 0 };
+        written = snprintf ( (char *) name,
+                             RI_COMMUNICATION_DIS_STRLEN,
+                             "MAC: %s",
+                             mac);
+
+        if ( (0 > written)
+                || (RI_COMMUNICATION_DIS_STRLEN <= written))
+        {
+            err_code |= RD_ERROR_INVALID_LENGTH;
+        }
+        else
+        {
+            err_code |= ri_nfc_address_set (name, strlen ( (char *) name));
+        }
+    }
+
+    return err_code;
+}
+
+#ifndef CEEDLING
+static
+#endif
+rd_status_t id_set (const char * const id)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int written = 0;
+
+    if (NULL == id)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        uint8_t id_string[RI_COMMUNICATION_DIS_STRLEN] = { 0 };
+        written = snprintf ( (char *) id_string,
+                             RI_COMMUNICATION_DIS_STRLEN,
+                             "ID: %s",
+                             id);
+
+        if ( (0 > written)
+                || (RI_COMMUNICATION_DIS_STRLEN <= written))
+        {
+            err_code |= RD_ERROR_INVALID_LENGTH;
+        }
+        else
+        {
+            err_code |= ri_nfc_id_set (id_string,
+                                       strlen ( (char *) id_string));
+        }
+    }
+
+    return err_code;
+}
+
+rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int written = 0;
+
+    if (NULL == init_data)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (rt_nfc_is_init())
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        err_code |= sw_set (init_data->fw_version);
+        err_code |= mac_set (init_data->deviceaddr);
+        err_code |= id_set (init_data->deviceid);
+        err_code |= ri_nfc_init (&m_channel);
+        ri_communication_message_t msg;
+        memcpy (&msg.data, "Data:", sizeof ("Data:"));
+        msg.data_length = 6;
+        m_channel.on_evt = rt_nfc_isr;
+        err_code |= m_channel.send (&msg);
+    }
+
+    m_nfc_is_initialized = (RD_SUCCESS == err_code);
+    return err_code;
+}
+
+bool rt_nfc_is_init (void)
+{
+    return m_nfc_is_initialized;
+}
+
+/**
+ * @brief Uninitializes NFC.
+ *
+ * After uninitialization device is no longer readable with NFC reader.
+ *
+ * @return RD_SUCCESS on success.
+ * @return error code from stack on error.
+ */
+rd_status_t rt_nfc_uninit (void)
+{
+    m_nfc_is_initialized = false;
+    return ri_nfc_uninit (&m_channel);
+}
+
+rd_status_t rt_nfc_send (ri_communication_message_t * message)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == message)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        err_code |= m_channel.send (message);
+    }
+
+    return err_code;
+}
+
+void rt_nfc_set_on_connected_isr (const ri_comm_cb_t cb)
+{
+    m_on_connected = cb;
+}
+
+
+void rt_nfc_set_on_disconn_isr (const ri_comm_cb_t cb)
+{
+    m_on_disconnected = cb;
+}
+
+void rt_nfc_set_on_received_isr (const ri_comm_cb_t cb)
+{
+    m_on_received = cb;
+}
+
+void rt_nfc_set_on_sent_isr (const ri_comm_cb_t cb)
+{
+    m_on_sent = cb;
+}
+
+bool rt_nfc_is_connected (void)
+{
+    return m_nfc_is_connected;
+}
+
 #else
 #include "ruuvi_driver_error.h"
-rd_status_t rt_nfc_init (void)
+#include "ruuvi_interface_communication.h"
+#include <stdbool.h>
+rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data)
 {
     return  RD_SUCCESS;
+}
+
+void rt_nfc_set_on_connected_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+
+void rt_nfc_set_on_disconn_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+void rt_nfc_set_on_received_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+void rt_nfc_set_on_sent_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+bool rt_nfc_is_connected (void)
+{
+    return false;
 }
 #endif
 
