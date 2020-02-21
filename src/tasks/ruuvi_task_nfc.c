@@ -278,7 +278,7 @@ void rt_nfc_set_on_sent_isr (const ri_comm_cb_t cb)
     m_on_sent = cb;
 }
 
-bool rt_nfc_is_connected(void)
+bool rt_nfc_is_connected (void)
 {
     return m_nfc_is_connected;
 }
@@ -313,7 +313,7 @@ void rt_nfc_set_on_sent_isr (const ri_comm_cb_t cb)
     // No implementation needed
 }
 
-bool rt_nfc_is_connected(void)
+bool rt_nfc_is_connected (void)
 {
     return false;
 }
