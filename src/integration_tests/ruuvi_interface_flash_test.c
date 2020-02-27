@@ -28,9 +28,6 @@ static const char wdt_data[] = "WDT";
 static const char f_data1[] = "Flash test data 1";
 static const char f_data2[] = "Flash test data 2";
 
-
-
-
 /**
  * @brief Test flash initialization.
  *

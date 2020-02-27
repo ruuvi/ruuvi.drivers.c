@@ -24,6 +24,8 @@
 #  define ENABLE_DEFAULT 1
 #elif defined(DOXYGEN)
 #  define ENABLE_DEFAULT 1
+#elif defined(RUUVI_RUN_TESTS)
+#  define ENABLE_DEFAULT 1
 #else
 #  define ENABLE_DEFAULT 0
 #endif
@@ -127,6 +129,25 @@ data payload length is the maximum length */
 
 #ifndef RT_NFC_ENABLED
 #  define RT_NFC_ENABLED ENABLE_DEFAULT
+#endif
+
+#if RT_NFC_ENABLED
+#  ifndef RI_NFC_ENABLED
+#    define RI_NFC_ENABLED 1
+#  endif
+#endif
+
+#ifndef RI_SCHEDULER_ENABLED
+#  define RI_SCHEDULER_ENABLED ENABLE_DEFAULT
+#endif
+
+#if RI_SCHEDULER_ENABLED
+#  ifndef RI_SCHEDULER_LENGTH
+#    define RI_SCHEDULER_LENGTH 10
+#  endif
+#  ifndef RI_SCHEDULER_SIZE
+#    define RI_SCHEDULER_SIZE 32
+#  endif
 #endif
 
 #if RI_TIMER_ENABLED

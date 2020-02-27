@@ -71,6 +71,7 @@
 #  define APP_TIMER_ENABLED 1
 #  define NRF_CLOCK_ENABLED 1
 #  define TIMER_ENABLED 1
+#  define TIMER1_ENABLED 1
 #endif
 
 #if RUUVI_NRF5_SDK15_NFC_ENABLED
