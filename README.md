@@ -146,7 +146,7 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
  - Integration test DC/DC.
  - Integration test timer.
  - Integration test scheduler.
- - Unit test NFC task.
+ - Unit test NFC task. Integration test NFC
  - NRF SDK 15: Use SD reset function if SD is enabled in power interface reset.
 
 ## 0.1.5

@@ -23,6 +23,7 @@
 #include "nfc_ndef_msg_parser.h"
 
 #define RUUVI_NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS 4
+#define BIN_PAY_DESC_HEADER_LEN 3U
 
 static struct
 {
@@ -37,7 +38,7 @@ static struct
     uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC (
                                                                 RUUVI_NRF5_SDK15_COMMUNICATION_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
     size_t msg_index;         // Store index of our record
-    ri_communication_evt_handler_fp_t * on_nfc_evt;
+    ri_comm_evt_handler_fp_t * on_nfc_evt;
 } nrf5_sdk15_nfc_state;
 
 /**
@@ -121,15 +122,18 @@ rd_status_t ri_nfc_init (ri_communication_t * const channel)
 
     // Set up NFC
     ret_code_t err_code = NRF_SUCCESS;
+    // Allow invalid state here as setup will return invalid state on reinit.
     err_code |= nfc_t4t_setup (nfc_callback, NULL);
+
+    if (NRF_ERROR_INVALID_STATE == err_code)
+    {
+        err_code = NRF_SUCCESS;
+    }
+
     memset (nrf5_sdk15_nfc_state.nfc_ndef_msg, 0, sizeof (nrf5_sdk15_nfc_state.nfc_ndef_msg));
     // Run Read-Write mode for Type 4 Tag platform
     err_code |= nfc_t4t_ndef_rwpayload_set (nrf5_sdk15_nfc_state.nfc_ndef_msg,
                                             sizeof (nrf5_sdk15_nfc_state.nfc_ndef_msg));
-    // Start sensing NFC field
-    err_code |= nfc_t4t_emulation_start();
-    nrf5_sdk15_nfc_state.initialized = true;
-    nrf5_sdk15_nfc_state.msg_index = 0;
     // Setup communication abstraction fps
     channel->init   = ri_nfc_init;
     channel->uninit = ri_nfc_uninit;
@@ -137,6 +141,10 @@ rd_status_t ri_nfc_init (ri_communication_t * const channel)
     channel->send   = ri_nfc_send;
     channel->on_evt = NULL;
     nrf5_sdk15_nfc_state.on_nfc_evt = & (channel->on_evt);
+    // Start sensing NFC field
+    err_code |= nfc_t4t_emulation_start();
+    nrf5_sdk15_nfc_state.initialized = true;
+    nrf5_sdk15_nfc_state.msg_index = 0;
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
@@ -326,13 +334,18 @@ rd_status_t ri_nfc_receive (ri_communication_message_t * msg)
         nfc_ndef_record_desc_t * const p_rec_desc = ( (nfc_ndef_msg_desc_t *)
                 nrf5_sdk15_nfc_state.desc_buf)->pp_record[nrf5_sdk15_nfc_state.msg_index];
         nfc_ndef_bin_payload_desc_t * p_bin_pay_desc = p_rec_desc->p_payload_descriptor;
+        // Data length check, skip header
+        size_t payload_len = (p_bin_pay_desc->payload_length - BIN_PAY_DESC_HEADER_LEN);
 
-        // Data length check
-        if (p_bin_pay_desc->payload_length > msg->data_length) { err_code = RD_ERROR_DATA_SIZE; }
+        if (payload_len > msg->data_length)
+        {
+            err_code = RD_ERROR_DATA_SIZE;
+        }
         else
         {
-            memcpy (msg->data, (uint8_t *) p_bin_pay_desc->p_payload, p_bin_pay_desc->payload_length);
-            msg->data_length = p_bin_pay_desc->payload_length;
+            memcpy (msg->data, ( (uint8_t *) p_bin_pay_desc->p_payload + BIN_PAY_DESC_HEADER_LEN),
+                    payload_len);
+            msg->data_length = payload_len;
         }
 
         nrf5_sdk15_nfc_state.msg_index++;
