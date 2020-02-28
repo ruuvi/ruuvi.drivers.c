@@ -38,7 +38,12 @@
 
 #ifndef NRF_SDH_BLE_ENABLED
 /** @brief Required by SDK BLE modules not conditionally compiled */
-#  define NRF_SDH_BLE_ENABLED 1
+#  define NRF_SDH_BLE_ENABLED NRF_SDH_ENABLED
+#endif
+
+#ifndef NRF_SDH_SOC_ENABLED
+/** @brief Required by SDK BLE modules not conditionally compiled */
+#  define NRF_SDH_SOC_ENABLED NRF_SDH_ENABLED
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED
@@ -48,9 +53,6 @@
 #if RUUVI_NRF5_SDK15_FLASH_ENABLED
 #  define FDS_ENABLED 1
 #  define NRF_FSTORAGE_ENABLED 1
-#  ifndef NRF_SDH_SOC_ENABLED
-#    define NRF_SDH_SOC_ENABLED 1
-#  endif
 #endif
 
 #if RUUVI_NRF5_SDK15_LOG_ENABLED
