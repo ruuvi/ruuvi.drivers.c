@@ -60,48 +60,50 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t input,
     if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
     {
         RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
+        status = RD_ERROR_SELFTEST;
     }
-
-    // - When Input is in High-Z mode, and output mode is INPUT_PULLDOWN, input must read as LOW
-    status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_NOPULL);
-    status |= ri_gpio_configure (output,
-                                 RI_GPIO_MODE_INPUT_PULLDOWN);
-    status |= ri_gpio_read (input, &state);
-
-    if (RD_SUCCESS != status || RI_GPIO_LOW != state)
+    else
     {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
+        // - When Input is in High-Z mode, and output mode is INPUT_PULLDOWN, input must read as LOW
+        status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_NOPULL);
+        status |= ri_gpio_configure (output,
+                                     RI_GPIO_MODE_INPUT_PULLDOWN);
+        status |= ri_gpio_read (input, &state);
+
+        if (RD_SUCCESS != status || RI_GPIO_LOW != state)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            status = RD_ERROR_SELFTEST;
+        }
+
+        // - When Input is in INPUT_PULLUP mode, and output is in OUTPUT_LOW mode, input must read as LOW
+        status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_PULLUP);
+        status |= ri_gpio_configure (output,
+                                     RI_GPIO_MODE_OUTPUT_STANDARD);
+        status |= ri_gpio_write (output, RI_GPIO_LOW);
+        status |= ri_gpio_read (input, &state);
+
+        if (RD_SUCCESS != status || RI_GPIO_LOW != state)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            status = RD_ERROR_SELFTEST;
+        }
+
+        // - When Input is in INPUT_PULLDOWN mode, and output is in OUTPUT_HIGH mode, input must read as HIGH
+        status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_PULLDOWN);
+        status |= ri_gpio_configure (output, RI_GPIO_MODE_OUTPUT_STANDARD);
+        status |= ri_gpio_write (output, RI_GPIO_HIGH);
+        status |= ri_gpio_read (input, &state);
+
+        if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            status = RD_ERROR_SELFTEST;
+        }
     }
 
-    // - When Input is in INPUT_PULLUP mode, and output is in OUTPUT_LOW mode, input must read as LOW
-    status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_PULLUP);
-    status |= ri_gpio_configure (output,
-                                 RI_GPIO_MODE_OUTPUT_STANDARD);
-    status |= ri_gpio_write (output, RI_GPIO_LOW);
-    status |= ri_gpio_read (input, &state);
-
-    if (RD_SUCCESS != status || RI_GPIO_LOW != state)
-    {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
-    }
-
-    // - When Input is in INPUT_PULLDOWN mode, and output is in OUTPUT_HIGH mode, input must read as HIGH
-    status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_PULLDOWN);
-    status |= ri_gpio_configure (output, RI_GPIO_MODE_OUTPUT_STANDARD);
-    status |= ri_gpio_write (output, RI_GPIO_HIGH);
-    status |= ri_gpio_read (input, &state);
     status |= ri_gpio_uninit();
-
-    if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
-    {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
-    }
-
-    return RD_SUCCESS;
+    return status;
 }
 
 rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input,
@@ -120,41 +122,43 @@ rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input,
     if (RD_SUCCESS != status || RI_GPIO_LOW != state)
     {
         RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
+        status = RD_ERROR_SELFTEST;
     }
-
-    // Verify low-to-high
-    status |= ri_gpio_toggle (output);
-    status |= ri_gpio_read (input, &state);
-
-    if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
+    else
     {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
+        // Verify low-to-high
+        status |= ri_gpio_toggle (output);
+        status |= ri_gpio_read (input, &state);
+
+        if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            status = RD_ERROR_SELFTEST;
+        }
+
+        // Verify high-to-low
+        status |= ri_gpio_toggle (output);
+        status |= ri_gpio_read (input, &state);
+
+        if (RD_SUCCESS != status || RI_GPIO_LOW != state)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            status = RD_ERROR_SELFTEST;
+        }
+
+        // Verify second low-to-high (after toggle, not static set)
+        status |= ri_gpio_toggle (output);
+        status |= ri_gpio_read (input, &state);
+
+        if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
+        {
+            RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
+            status = RD_ERROR_SELFTEST;
+        }
     }
 
-    // Verify high-to-low
-    status |= ri_gpio_toggle (output);
-    status |= ri_gpio_read (input, &state);
-
-    if (RD_SUCCESS != status || RI_GPIO_LOW != state)
-    {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
-    }
-
-    // Verify second low-to-high (after toggle, not static set)
-    status |= ri_gpio_toggle (output);
-    status |= ri_gpio_read (input, &state);
     status |= ri_gpio_uninit();
-
-    if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
-    {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return RD_ERROR_SELFTEST;
-    }
-
-    return RD_SUCCESS;
+    return status;
 }
 
 bool ri_gpio_run_integration_test (const rd_test_print_fp printfp,
