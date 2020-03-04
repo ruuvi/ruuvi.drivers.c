@@ -12,7 +12,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RT_ADV_ENABLED && 0
+#if RT_ADV_ENABLED
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication_ble_advertising.h"

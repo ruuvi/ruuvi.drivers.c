@@ -15,31 +15,28 @@
 #include "mock_ruuvi_interface_communication_ble_advertising.h"
 #include "mock_ruuvi_interface_log.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #define ADV_INTERVAL_MS (1000U)
 #define ADV_PWR_DBM     (0)
 #define ADV_MANU_ID     (0xFFFFU)
+#define SEND_COUNT_MAX (10U)
+
+static uint32_t send_count = 0;
+static uint32_t read_count = 0;
+static bool m_con_cb;
+static bool m_discon_cb;
+static bool m_tx_cb;
+static bool m_rx_cb;
+static const char m_name[] = "Ceedling";
+
+
 
 rd_status_t mock_send (ri_communication_message_t * const p_msg)
 {
     rd_status_t err_code = RD_SUCCESS;
-    static bool extra_error = false;
-
-    if (send_count < SEND_COUNT_MAX)
-    {
-        send_count++;
-    }
-    else
-    {
-        if (!extra_error)
-        {
-            err_code |= RD_ERROR_RESOURCES;
-            extra_error = true;
-        }
-        else
-        {
-            err_code |= RD_ERROR_INTERNAL;
-        }
-    }
+    send_count++;
 
     return err_code;
 }
@@ -66,16 +63,17 @@ rd_status_t mock_init (ri_communication_t * const p_channel)
     return RD_SUCCESS;
 }
 
-static ri_communication_t m_adv_channel;
+static ri_communication_t m_mock_channel;
 
 
 void setUp (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    mock_init(&m_mock_channel);
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -90,22 +88,23 @@ void setUp (void)
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     err_code = rt_adv_init(&init);
+    send_count = 0;
+    read_count = 0;
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (rt_adv_is_init());
-    mock_init(&m_adv_channel);
 }
 
 void tearDown (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    mock_uninit(&m_mock_channel);
     ri_adv_uninit_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_uninit_ReturnArrayThruPtr_channel (
-        &m_uninit_channel, 1);
+        &m_mock_channel, 1);
     err_code = rt_adv_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adv_is_init());
-    mock_uninit(&m_adv_channel);
 }
 
 /**
@@ -128,7 +127,7 @@ void test_rt_adv_init_ok (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -154,7 +153,7 @@ void test_rt_adv_init_invalid_interval (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_ERROR_INVALID_PARAM);
     int8_t power = ADV_PWR_DBM;
@@ -180,7 +179,7 @@ void test_rt_adv_init_invalid_power (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -206,7 +205,7 @@ void test_rt_adv_init_invalid_type (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -251,10 +250,11 @@ void test_rt_adv_init_twice (void)
 void test_rt_adv_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    mock_uninit(&m_mock_channel);
     ri_adv_uninit_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_uninit_ReturnArrayThruPtr_channel (
-        &m_uninit_channel, 1);
+        &m_mock_channel, 1);
     err_code = rt_adv_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adv_is_init());
