@@ -38,7 +38,7 @@
  */
 
 #include "ruuvi_driver_error.h"
-#include "ruuvi_interface_communication_ble4_advertising.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
 
 #define SCAN_RSP_NAME_MAX_LEN 11 //!< Longer name gets truncated when advertised with UUID.
 

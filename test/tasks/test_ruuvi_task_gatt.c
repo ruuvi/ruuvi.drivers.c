@@ -8,8 +8,8 @@
 
 #include "mock_ruuvi_task_advertisement.h"
 #include "mock_ruuvi_interface_atomic.h"
-#include "mock_ruuvi_interface_communication_ble4_advertising.h"
-#include "mock_ruuvi_interface_communication_ble4_gatt.h"
+#include "mock_ruuvi_interface_communication_ble_advertising.h"
+#include "mock_ruuvi_interface_communication_ble_gatt.h"
 #include "mock_ruuvi_interface_communication_radio.h"
 #include "mock_ruuvi_interface_log.h"
 

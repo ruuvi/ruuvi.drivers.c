@@ -12,7 +12,7 @@
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_radio.h"
-#include "ruuvi_interface_communication_ble4_advertising.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
 #include "ruuvi_interface_log.h"
 #include <stdint.h>
 #include "nordic_common.h"
@@ -185,8 +185,7 @@ static rd_status_t update_settings (void)
 }
 
 // Callback on before / after TX.
-void ri_adv_activity_handler (
-    const ri_radio_activity_evt_t evt)
+static void ri_adv_activity_handler (const ri_radio_activity_evt_t evt)
 {
     // No action needed.
 }

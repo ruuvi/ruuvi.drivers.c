@@ -59,6 +59,12 @@ data payload length is the maximum length */
 #  define RI_COMMUNICATION_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_RADIO_ENABLED
+/** brief enable radio usage */
+#  define RI_RADIO_ENABLED ENABLE_DEFAULT
+#endif
+
+
 #ifndef RT_ADV_ENABLED
 /** @brief Enable BLE advertising compilation. */
 #  define RT_ADV_ENABLED ENABLE_DEFAULT
@@ -66,6 +72,10 @@ data payload length is the maximum length */
 
 #if RT_ADV_ENABLED && !(RI_COMMUNICATION_ENABLED)
 #  error "Advertisement task requires communication interface."
+#endif
+
+#if RT_ADV_ENABLED && !(RI_RADIO_ENABLED)
+#  error "Advertisement task requires radio interface."
 #endif
 
 #ifndef RT_BUTTON_ENABLED
@@ -85,6 +95,10 @@ data payload length is the maximum length */
 
 #if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMMUNICATION_ENABLED))
 #  error "GATT task requires Advertisement task and communication interface."
+#endif
+
+#if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_RADIO_ENABLED))
+#  error "GATT task requires Advertisement task and radio interface."
 #endif
 
 #ifndef RT_GPIO_ENABLED

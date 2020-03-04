@@ -13,8 +13,8 @@
 #if RUUVI_NRF5_SDK15_RADIO_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
-#include "ruuvi_interface_communication_ble4_advertising.h"
-#include "ruuvi_interface_communication_ble4_gatt.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
+#include "ruuvi_interface_communication_ble_gatt.h"
 
 
 #include <stdbool.h>
@@ -28,13 +28,9 @@
 #include "ble_radio_notification.h"
 #include "sdk_errors.h"
 
-/** @brief Handle of module which has "reserved" the radio */
-static ri_radio_user_t handle =
-    RI_RADIO_UNINIT;
-
 /** @brief Application callback for radio events */
-static ri_radio_activity_interrupt_fp_t
-on_radio_activity_callback = NULL;
+static ri_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
+static ri_radio_modulation_t m_modulation;
 
 /**
  * @brief Task to run on radio activity
@@ -49,98 +45,88 @@ static void on_radio_evt (bool active)
     // Convert to Ruuvi enum
     ri_radio_activity_evt_t evt = active ?
                                   RI_RADIO_BEFORE : RI_RADIO_AFTER;
-    // Call module event handlers
-    // ri_adv_activity_handler(evt);
-    //ri_communication_ble4_gatt_activity_handler(evt); - TODO
 
     // Call common event handler if set
     if (NULL != on_radio_activity_callback) { on_radio_activity_callback (evt); }
 }
 
-rd_status_t ri_radio_init (
-    const ri_radio_user_t _handle)
+rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
 {
-    if (RI_RADIO_UNINIT != handle) { return RD_ERROR_INVALID_STATE; }
-
+    rd_status_t status = RD_SUCCESS;
     ret_code_t err_code = NRF_SUCCESS;
-    handle = _handle;
-    err_code = nrf_sdh_enable_request();
-    RD_ERROR_CHECK (err_code, NRF_SUCCESS);
-    // Configure the BLE stack using the default settings.
-    // Fetch the start address of the application RAM.
-    uint32_t ram_start = 0;
-    err_code |= nrf_sdh_ble_default_cfg_set (RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG,
-                &ram_start);
-    RD_ERROR_CHECK (err_code, NRF_SUCCESS);
-    // TODO - find the correct way to define large enough GATT queue for extended GATT event.
-    ble_cfg_t conn_cfg = { 0 };
-    conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
-    conn_cfg.conn_cfg.params.gatts_conn_cfg.hvn_tx_queue_size    = 20;
-    err_code |= sd_ble_cfg_set (BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
-    // Enable BLE stack.
-    err_code |= nrf_sdh_ble_enable (&ram_start);
-    // Enable connection event extension for faster data rate
-    static ble_opt_t  opt = {0};
-    opt.common_opt.conn_evt_ext.enable = true;
-    err_code |= sd_ble_opt_set (BLE_COMMON_OPT_CONN_EVT_EXT, &opt);
-    RD_ERROR_CHECK (err_code, NRF_SUCCESS);
-    // Initialize radio interrupts
-    err_code |= ble_radio_notification_init (RUUVI_NRF5_SDK15_RADIO_IRQ_PRIORITY,
-                NRF_RADIO_NOTIFICATION_DISTANCE_800US,
-                on_radio_evt);
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+
+    if (ri_radio_is_init())
+    {
+        status |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        err_code = nrf_sdh_enable_request();
+        RD_ERROR_CHECK (err_code, NRF_SUCCESS);
+        // Configure the BLE stack using the default settings.
+        // Fetch the start address of the application RAM.
+        uint32_t ram_start = 0;
+        // As of SD 6.1.1, only one advertising configuration is allowed.
+        err_code |= nrf_sdh_ble_default_cfg_set (RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG,
+                    &ram_start);
+        RD_ERROR_CHECK (err_code, NRF_SUCCESS);
+        // TODO - find the correct way to define large enough GATT queue for extended GATT event.
+        ble_cfg_t conn_cfg = { 0 };
+        conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
+        err_code |= sd_ble_cfg_set (BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
+        // Enable BLE stack.
+        err_code |= nrf_sdh_ble_enable (&ram_start);
+        // Enable connection event extension for faster data rate
+        static ble_opt_t  opt = {0};
+        opt.common_opt.conn_evt_ext.enable = true;
+        err_code |= sd_ble_opt_set (BLE_COMMON_OPT_CONN_EVT_EXT, &opt);
+        RD_ERROR_CHECK (err_code, NRF_SUCCESS);
+        // Initialize radio interrupts
+        err_code |= ble_radio_notification_init (RUUVI_NRF5_SDK15_RADIO_IRQ_PRIORITY,
+                    NRF_RADIO_NOTIFICATION_DISTANCE_800US,
+                    on_radio_evt);
+        // Store desired modulation
+        m_modulation = modulation;
+    }
+
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code) | status;
 }
 
-rd_status_t ri_radio_uninit (
-    const ri_radio_user_t _handle)
+rd_status_t ri_radio_uninit (void)
 {
-    if (RI_RADIO_UNINIT == handle) { return RD_SUCCESS; }
-
-    if (_handle != handle) { return RD_ERROR_FORBIDDEN; }
-
     nrf_sdh_disable_request();
     on_radio_activity_callback = NULL;
-    handle = RI_RADIO_UNINIT;
     return RD_SUCCESS;
 }
 
-rd_status_t ri_radio_address_get (
-    uint64_t * const address)
+rd_status_t ri_radio_address_get (uint64_t * const address)
 {
     uint32_t status = NRF_SUCCESS;
     rd_status_t err_code = RD_SUCCESS;
-    uint64_t mac = 0;
-    uint8_t handle = RI_RADIO_UNINIT;
-    ble_gap_addr_t addr;
-    addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
 
-    // Initialize radio to get address if necessary.
     if (!ri_radio_is_init())
     {
-        handle = RI_RADIO_ADV;
-        err_code |= ri_radio_init (handle);
+        err_code |= RD_ERROR_INVALID_STATE;
     }
-
-    status |= sd_ble_gap_addr_get (&addr);
-    mac |= (uint64_t) (addr.addr[5]) << 40;
-    mac |= (uint64_t) (addr.addr[4]) << 32;
-    mac |= (uint64_t) (addr.addr[3]) << 24;
-    mac |= (uint64_t) (addr.addr[2]) << 16;
-    mac |= (uint64_t) (addr.addr[1]) << 8;
-    mac |= (uint64_t) (addr.addr[0]) << 0;
-    *address = mac;
-
-    // Uninitialize radio if it was init here.
-    if (RI_RADIO_ADV == handle)
+    else
     {
-        err_code |= ri_radio_uninit (handle);
+        uint64_t mac = 0;
+        ble_gap_addr_t addr;
+        addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
+        status |= sd_ble_gap_addr_get (&addr);
+        mac |= (uint64_t) (addr.addr[5]) << 40;
+        mac |= (uint64_t) (addr.addr[4]) << 32;
+        mac |= (uint64_t) (addr.addr[3]) << 24;
+        mac |= (uint64_t) (addr.addr[2]) << 16;
+        mac |= (uint64_t) (addr.addr[1]) << 8;
+        mac |= (uint64_t) (addr.addr[0]) << 0;
+        *address = mac;
     }
 
     return ruuvi_nrf5_sdk15_to_ruuvi_error (status) | err_code;
 }
 
-rd_status_t ri_radio_address_set (
-    const uint64_t address)
+rd_status_t ri_radio_address_set (const uint64_t address)
 {
     ble_gap_addr_t addr;
     addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
@@ -154,17 +140,42 @@ rd_status_t ri_radio_address_set (
 }
 
 
-void ri_radio_activity_callback_set (
-    const ri_radio_activity_interrupt_fp_t handler)
+void ri_radio_activity_callback_set (const ri_radio_activity_interrupt_fp_t handler)
 {
     // Warn user if CB is not NULL and non-null pointer is set, do not overwrite previous pointer.
-    if (NULL != handler && NULL != on_radio_activity_callback) { RD_ERROR_CHECK (RD_ERROR_INVALID_STATE, ~RD_ERROR_FATAL); }
-    else { on_radio_activity_callback = handler; }
+    if (NULL != handler && NULL != on_radio_activity_callback)
+    {
+        RD_ERROR_CHECK (RD_ERROR_INVALID_STATE, ~RD_ERROR_FATAL);
+    }
+    else
+    {
+        on_radio_activity_callback = handler;
+    }
 }
 
-bool ri_radio_is_init()
+bool ri_radio_is_init (void)
 {
-    return RI_RADIO_UNINIT != handle;
+    return nrf_sdh_is_enabled();
+}
+
+rd_status_t ri_radio_get_modulation (ri_radio_modulation_t * const p_modulation)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == p_modulation)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else if (!ri_radio_is_init())
+    {
+        err_code = RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *p_modulation = m_modulation;
+    }
+
+    return RD_SUCCESS;
 }
 
 #endif

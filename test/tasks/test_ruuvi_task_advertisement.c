@@ -12,28 +12,61 @@
 #include "ruuvi_driver_error.h"
 
 #include "mock_ruuvi_task_gatt.h"
-#include "mock_ruuvi_interface_communication_ble4_advertising.h"
+#include "mock_ruuvi_interface_communication_ble_advertising.h"
 #include "mock_ruuvi_interface_log.h"
 
 #define ADV_INTERVAL_MS (1000U)
 #define ADV_PWR_DBM     (0)
 #define ADV_MANU_ID     (0xFFFFU)
 
-static ri_communication_t m_adv_channel =
+rd_status_t mock_send (ri_communication_message_t * const p_msg)
 {
-    .send = ri_adv_send,
-    .read = ri_adv_receive,
-    .init = ri_adv_init,
-    .uninit = ri_adv_uninit
-};
+    rd_status_t err_code = RD_SUCCESS;
+    static bool extra_error = false;
 
-static ri_communication_t m_uninit_channel =
+    if (send_count < SEND_COUNT_MAX)
+    {
+        send_count++;
+    }
+    else
+    {
+        if (!extra_error)
+        {
+            err_code |= RD_ERROR_RESOURCES;
+            extra_error = true;
+        }
+        else
+        {
+            err_code |= RD_ERROR_INTERNAL;
+        }
+    }
+
+    return err_code;
+}
+
+rd_status_t mock_read (ri_communication_message_t * const p_msg)
 {
-    .send = NULL,
-    .read = NULL,
-    .init = NULL,
-    .uninit = NULL
-};
+    read_count++;
+    return RD_SUCCESS;
+}
+
+rd_status_t mock_uninit (ri_communication_t * const p_channel)
+{
+    memset (p_channel, 0, sizeof (ri_communication_t));
+    return RD_SUCCESS;
+}
+
+rd_status_t mock_init (ri_communication_t * const p_channel)
+{
+    p_channel->send   = mock_send;
+    p_channel->read   = mock_read;
+    p_channel->uninit = mock_uninit;
+    p_channel->init   = mock_init;
+    p_channel->on_evt = NULL;
+    return RD_SUCCESS;
+}
+
+static ri_communication_t m_adv_channel;
 
 
 void setUp (void)
@@ -59,6 +92,7 @@ void setUp (void)
     err_code = rt_adv_init(&init);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (rt_adv_is_init());
+    mock_init(&m_adv_channel);
 }
 
 void tearDown (void)
@@ -71,6 +105,7 @@ void tearDown (void)
     err_code = rt_adv_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adv_is_init());
+    mock_uninit(&m_adv_channel);
 }
 
 /**

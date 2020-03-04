@@ -16,7 +16,7 @@
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
-#include "ruuvi_interface_communication_ble4_gatt.h"
+#include "ruuvi_interface_communication_ble_gatt.h"
 
 #ifdef CEEDLING
 // Assist function for unit tests.

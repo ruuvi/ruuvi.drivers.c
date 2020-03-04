@@ -8,8 +8,8 @@
 #if RT_GATT_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_atomic.h"
-#include "ruuvi_interface_communication_ble4_advertising.h"
-#include "ruuvi_interface_communication_ble4_gatt.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
+#include "ruuvi_interface_communication_ble_gatt.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_log.h"

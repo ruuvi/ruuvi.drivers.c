@@ -1,14 +1,6 @@
 #ifndef RUUVI_INTERFACE_COMMUNICATION_RADIO_H
 #define RUUVI_INTERFACE_COMMUNICATION_RADIO_H
-/**
- * @file ruuvi_interface_communication_radio.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-09-27
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Commmon definitions and functions for all radio operations.
- *
- */
+
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include <stdbool.h>
@@ -18,24 +10,38 @@
 #endif
 
 /**
+ * @file ruuvi_interface_communication_radio.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2020-03-03
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Commmon definitions and functions for all radio operations.
+ *
+ */
+
+/**
+ * @defgroup Radio Radio operations.
+ */
+
+/*@{*/
+/**
  * @brief radio activity event type.
  */
 typedef enum
 {
-    RI_RADIO_BEFORE,         //!< Event is before radio goes active, i.e. radio turns on soon.
-    RI_RADIO_AFTER           //!< Event is after radio activity, i.e. radio was turned off recently.
+    RI_RADIO_BEFORE, //!< Event is before radio goes active, i.e. radio turns on soon.
+    RI_RADIO_AFTER   //!< Event is after radio activity, i.e. radio was turned off.
 } ri_radio_activity_evt_t;
 
 /**
- * @brief a definition of radio user. - TODO: setup a bitfield for multiusers?
+ *  @brief type of radio modulation to be used.
  */
 typedef enum
 {
-    RI_RADIO_UNINIT = 0,    //!< Radio is not in use
-    RI_RADIO_ADV, //!< Radio is used for advertising
-    RI_RADIO_GATT,          //!< Radio is used for GATT connections
-    RI_RADIO_MESH           //!< Radio is used by a mesh protocol, standard or proprietary
-} ri_radio_user_t;
+    RI_RADIO_BLE_125KBPS,       //!< Also known as BLE Long Range S=8
+    RI_RADIO_BLE_1MBPS,         //!< "Normal" BLE 4 modulation
+    RI_RADIO_BLE_2MBPS          //!< "Fast BLE". Advertising uses 1MBPS instead.
+} ri_radio_modulation_t;
 
 /**
  *  @brief Type of radio activity interrupt.
@@ -43,45 +49,44 @@ typedef enum
  *
  *  @param[in] evt Type of radio event
  */
-typedef void (*ri_radio_activity_interrupt_fp_t) (
-    const ri_radio_activity_evt_t evt);
+typedef void (*ri_radio_activity_interrupt_fp_t) (const ri_radio_activity_evt_t evt);
 
 /**
- *  @brief Enable radio stack for an user
- *  This function also starts radio activity callbacks internally
+ *  @brief Enable radio stack for an user.
+ *  This function also starts radio activity callbacks internally.
  *
- *  @param[in] handle User ID for radio.
- *  @return    RD_SUCCESS on success
- *  @return    RD_ERROR_INVALID_STATE if radio is already initialized.
- *  @note      it's possible to use radio even if the radio is conserved by other user, but there may be concurrency issues.
+ *  @param[in] modulation Modulation for radio operations.
+ *                        If 2MBPS is defined, advertising is done at 1 MBPS and radio
+ *                        tries to switch to 2MBPS on GATT connection.
+ *                        Note: if other end of communication requests different speed,
+ *                        the implementation should support iy if applicable to board.
+ *  @retval    RD_SUCCESS on success
+ *  @retval    RD_ERROR_INVALID_STATE if radio is already initialized.
  */
-rd_status_t ri_radio_init (
-    const ri_radio_user_t handle);
+rd_status_t ri_radio_init (const ri_radio_modulation_t modulation);
+
 /**
- *  @brief Release radio stack
+ *  @brief Release radio stack.
  *
  * This function also stops the internal radio activity callbacks
  *
- *  @param[in] handle User ID for radio.
- *  @return    RD_SUCCESS on success
- *  @return    RD_ERROR_FORBIDDEN if radio is in use by other user
+ *  @retval    RD_SUCCESS on success
+ *  @retval    RD_ERROR_FORBIDDEN if radio is in use by other user
  *  @note      It's not possible to uninitialize radio from another user than original initializer.
  */
-rd_status_t ri_radio_uninit (
-    const ri_radio_user_t handle);
+rd_status_t ri_radio_uninit ();
 
 /**
  * Writes maximum 64-bit unique address of the device to the pointer. This address
  * may be changed during runtime. The address is identifier of the device on radio network,
  * such as BLE MAC address.
  *
- * parameter address: Output, value of address.
+ * @param[out] address Value of radio address, i.e. MAC address.
  *
- * return RD_SUCCESS on success
- * return RD_ERROR_NOT_SUPPORTED if address cannot be returned on given platform
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NOT_SUPPORTED if address cannot be returned on given platform
  */
-rd_status_t ri_radio_address_get (
-    uint64_t * const address);
+rd_status_t ri_radio_address_get (uint64_t * const address);
 
 /**
  * Configures maximum 64-bit unique address of the device to the radio.
@@ -90,25 +95,22 @@ rd_status_t ri_radio_address_get (
  *
  * @param[in] address Address to configure, MSB first.
  *
- * @return RD_SUCCESS on success.
- * @return RD_ERROR_NOT_SUPPORTED if address cannot be configured on given platform.
- * @return RD_ERROR_INVALID_ADDR if the address does not match protocol rules and cannot or is not converted automatically.
- * @return RD_ERRO_BUSY if radio stack is doing some other operation, try later.
- * @return RD_ERROR_INVALID_STATE if radio is in state where address is required, such as advertising, connected or scanning.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NOT_SUPPORTED if address cannot be configured on given platform.
+ * @retval RD_ERROR_INVALID_ADDR if the address does not match protocol rules and cannot or is not converted automatically.
+ * @retval RD_ERRO_BUSY if radio stack is doing some other operation, try later.
+ * @retval RD_ERROR_INVALID_STATE if radio is in state where address is required, such as advertising, connected or scanning.
  * @note   The implementation is allowed to enforce protocol rules, for example BLE MAC will be masked with 0x00 00 [0b11xx]X XX XX XX XX XX XX and sent LSB first.
  */
-rd_status_t ri_radio_address_set (
-    uint64_t const address);
+rd_status_t ri_radio_address_set (uint64_t const address);
 
 /**
  * @brief Setup radio activity interrupt
  *
- * This function allows driver to notify application on all radio activity. Calling this function
- * will not start the callbacks, callbacks are started on radio initialization.
- * @param[in] handler Function to call on radio event. Set to @c NULL to disable radio-level callback, however module-level callbacks (advertising, GATT etc) will be called.
+ * This function allows driver to notify application on all radio activity.
+ * @param[in] handler Function to call on radio event. Set to @c NULL to disable radio-level callback.
  */
-void ri_radio_activity_callback_set (
-    const ri_radio_activity_interrupt_fp_t handler);
+void ri_radio_activity_callback_set (const ri_radio_activity_interrupt_fp_t handler);
 
 /**
  * @brief Check if radio is initialized
@@ -116,5 +118,20 @@ void ri_radio_activity_callback_set (
  * @return true if radio is initialized, false otherwise.
  */
 bool ri_radio_is_init();
+
+/**
+ * @brief Get the modulation used by application.
+ *
+ * Modulation is decided at initialization and used by all radio modules.
+ * However, other modules are allowed to switch to other modulation as a part
+ * of their operation, for example GATT can use 1 MBit/s when setting up connection and
+ * negotiate 2 MBit/s for the remainder of connection.
+ *
+ * @param[out] p_modulation Modulation used by default.
+ * @retval RD_SUCCESS if modulation was written to pointer
+ * @retval RD_ERROR_NULL if p_modulation is NULL
+ * @retval RD_ERROR_INVALID_STATE if radio is not initialized.
+ */
+rd_status_t ri_radio_get_modulation (ri_radio_modulation_t * const p_modulation);
 
 #endif
