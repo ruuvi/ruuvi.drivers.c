@@ -6,13 +6,13 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
 #if RUUVI_NRF5_SDK15_ADV_ENABLED
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_radio.h"
-#include "ruuvi_interface_communication_ble_advertising.h"
 #include "ruuvi_interface_log.h"
 #include <stdint.h>
 #include "nordic_common.h"
@@ -212,95 +212,8 @@ rd_status_t ri_adv_manufacturer_id_set (const uint16_t id)
     return RD_SUCCESS;
 }
 
-/*
- * Initializes radio hardware, advertising module and scanning module
- *
- * Returns RUUVI_DIRVER_SUCCESS on success, RUUVI_DIRVER_ERROR_INVALID_STATE if radio is already initialized
- */
-rd_status_t ri_adv_init (ri_communication_t * const channel)
-{
-    rd_status_t err_code = RD_SUCCESS;
-
-    if (!m_advertisement_is_init)
-    {
-        err_code |= ri_radio_init (RI_RADIO_ADV);
-
-        if (RD_SUCCESS != err_code) { return err_code; }
-    }
-
-    // Initialize advertising parameters (used when starting advertising).
-    memset (&m_adv_params, 0, sizeof (m_adv_params));
-    m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
-    m_adv_params.duration        = 0;       // Never time out.
-    m_adv_params.max_adv_evts    = 0;       // Inifinite repeats
-    //XXX select these in configuration
-#if NRF52811_XXAA
-    m_adv_params.primary_phy     =
-        BLE_GAP_PHY_CODED; // Important: this PHY is used on connection
-    m_adv_params.properties.type =
-        BLE_GAP_ADV_TYPE_EXTENDED_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
-#else
-    m_adv_params.primary_phy     =
-        BLE_GAP_PHY_AUTO; // Important: this PHY is used on connection
-    m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
-#endif
-    m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
-    m_adv_params.interval        = MSEC_TO_UNITS (DEFAULT_ADV_INTERVAL_MS, UNIT_0_625_MS);
-    m_advertisement_is_init = true;
-    m_adv_state.advertisement_interval_ms = DEFAULT_ADV_INTERVAL_MS;
-    m_adv_state.channel = channel;
-    channel->init    = ri_adv_init;
-    channel->uninit  = ri_adv_uninit;
-    channel->send    = ri_adv_send;
-    channel->read    = ri_adv_receive;
-    //channel->on_evt  = NULL; Do not NULL the channel, let application control it.
-    memset (&m_adv_data, 0, sizeof (m_adv_data));
-    memset (&m_advertisement0, 0, sizeof (m_advertisement0));
-    memset (&m_advertisement1, 0, sizeof (m_advertisement1));
-    m_adv0_len = 0;
-    m_adv1_len = 0;
-    m_scannable = false;
-    err_code |= update_settings();
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
-}
-
-/*
- * Uninitializes radio hardware, advertising module and scanning module
- *
- * Returns RUUVI_DIRVER_SUCCESS on success or if radio was not initialized.
- * Returns RD_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
- */
-rd_status_t ri_adv_uninit (
-    ri_communication_t * const channel)
-{
-    rd_status_t err_code = RD_SUCCESS;
-
-    // Stop advertising
-    if (true == m_advertising)
-    {
-        sd_ble_gap_adv_stop (m_adv_handle);
-        m_advertising = false;
-    }
-
-    // Clear advertisement parameters
-    memset (&m_adv_params, 0, sizeof (m_adv_params));
-    // Release radio
-    err_code |= ri_radio_uninit (RI_RADIO_ADV);
-    m_advertisement_is_init = false;
-    // Clear function pointers, including on event
-    memset (channel, 0, sizeof (ri_communication_t));
-    memset (&m_adv_state, 0, sizeof (m_adv_state));
-    return err_code;
-}
-
-
-// Not implemented
-//rd_status_t ri_adv_rx_interval_set(uint32_t* window_interval_ms, uint32_t* window_size_ms);
-//rd_status_t ri_adv_rx_interval_get(uint32_t* window_interval_ms, uint32_t* window_size_ms);
-
 // Set manufacturer specific data to advertise. Clears previous data.
-rd_status_t ri_adv_data_set (
-    const uint8_t * data, const uint8_t data_length)
+rd_status_t ri_adv_data_set (const uint8_t * data, const uint8_t data_length)
 {
     if (NULL == data)     { return RD_ERROR_NULL; }
 
@@ -361,8 +274,7 @@ rd_status_t ri_adv_data_set (
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-rd_status_t ri_adv_send (
-    ri_communication_message_t * message)
+rd_status_t ri_adv_send (ri_communication_message_t * message)
 {
     if (NULL == message) { return RD_ERROR_NULL; }
 
@@ -372,15 +284,128 @@ rd_status_t ri_adv_send (
         return RD_ERROR_INVALID_STATE;
     }
 
-    return ri_adv_data_set (message->data,
-                            message->data_length);
+    return ri_adv_data_set (message->data, message->data_length);
 }
 
-// Not implemented
-rd_status_t ri_adv_receive (
-    ri_communication_message_t * message)
+static rd_status_t ri_adv_receive (ri_communication_message_t * message)
 {
     return RD_ERROR_NOT_IMPLEMENTED;
+}
+
+/**
+ * @brief Initialize Advertising module and scanning module.
+ *
+ * @param[out] channel Interface used for communicating through advertisements.
+ * @param[in]  adv_channels Physical channels used by radio. One or more.
+ * @retval RD_SUCCESS on success,
+ * @retval RD_ERROR_NULL Channel is NULL.
+ * @retval RD_ERROR_INVALID_STATE if radio is not already initialized.
+ * @return error code from stack if modulation is invalid.
+ *
+ * @note Modulation used on the advertisement depends on how radio was initialized.
+ */
+rd_status_t ri_adv_init (ri_communication_t * const channel)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == channel)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (!ri_radio_is_init())
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        // Initialize advertising parameters (used when starting advertising).
+        memset (&m_adv_params, 0, sizeof (m_adv_params));
+        m_adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
+        m_adv_params.duration        = 0;       // Never time out.
+        m_adv_params.max_adv_evts    = 0;       // Inifinite repeats
+        ri_radio_modulation_t modulation;
+        err_code |= ri_radio_get_modulation (&modulation);
+
+        if (RD_SUCCESS != err_code)
+        {
+            err_code |= RD_ERROR_INTERNAL;
+        }
+        else
+        {
+            if (RI_RADIO_BLE_125KBPS == modulation)
+            {
+                m_adv_params.primary_phy     = BLE_GAP_PHY_CODED;
+                m_adv_params.properties.type =
+                    BLE_GAP_ADV_TYPE_EXTENDED_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+            }
+            // 2 MBit / s starts out as 1 MBit / s and switches to 2 MBit / s on connection.
+            else if (RI_RADIO_BLE_2MBPS == modulation)
+            {
+                m_adv_params.primary_phy     = BLE_GAP_PHY_AUTO;
+                m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+            }
+            else if (RI_RADIO_BLE_1MBPS == modulation)
+            {
+                m_adv_params.primary_phy     = BLE_GAP_PHY_1MBPS;
+                m_adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+            }
+            else
+            {
+                err_code |= RD_ERROR_INVALID_PARAM;
+            }
+
+            if (RD_SUCCESS == err_code)
+            {
+                m_adv_params.p_peer_addr     = NULL;    // Undirected advertisement.
+                m_adv_params.interval        = MSEC_TO_UNITS (DEFAULT_ADV_INTERVAL_MS, UNIT_0_625_MS);
+                m_advertisement_is_init = true;
+                m_adv_state.advertisement_interval_ms = DEFAULT_ADV_INTERVAL_MS;
+                m_adv_state.channel = channel;
+                channel->init    = ri_adv_init;
+                channel->uninit  = ri_adv_uninit;
+                channel->send    = ri_adv_send;
+                channel->read    = ri_adv_receive;
+                //channel->on_evt  = NULL; Do not NULL the channel, let application control it.
+                memset (&m_adv_data, 0, sizeof (m_adv_data));
+                memset (&m_advertisement0, 0, sizeof (m_advertisement0));
+                memset (&m_advertisement1, 0, sizeof (m_advertisement1));
+                m_adv0_len = 0;
+                m_adv1_len = 0;
+                m_scannable = false;
+                err_code |= update_settings();
+            }
+        }
+    }
+
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+}
+
+/*
+ * Uninitializes radio hardware, advertising module and scanning module
+ *
+ * Returns RUUVI_DIRVER_SUCCESS on success or if radio was not initialized.
+ * Returns RD_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
+ */
+rd_status_t ri_adv_uninit (ri_communication_t * const channel)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    // Stop advertising
+    if (true == m_advertising)
+    {
+        sd_ble_gap_adv_stop (m_adv_handle);
+        m_advertising = false;
+    }
+
+    // Clear advertisement parameters
+    memset (&m_adv_params, 0, sizeof (m_adv_params));
+    // Release radio
+    err_code |= ri_radio_uninit ();
+    m_advertisement_is_init = false;
+    // Clear function pointers, including on event
+    memset (channel, 0, sizeof (ri_communication_t));
+    memset (&m_adv_state, 0, sizeof (m_adv_state));
+    return err_code;
 }
 
 rd_status_t ri_adv_rx_interval_set (
@@ -394,7 +419,6 @@ rd_status_t ri_adv_rx_interval_get (
 {
     return RD_ERROR_NOT_IMPLEMENTED;
 }
-
 rd_status_t ri_adv_scan_start (void)
 {
     ret_code_t status = NRF_SUCCESS;
@@ -404,14 +428,11 @@ rd_status_t ri_adv_scan_start (void)
     status |= nrf_ble_scan_start (&m_scan);
     return ruuvi_nrf5_sdk15_to_ruuvi_error (status);
 }
-
 rd_status_t ri_adv_scan_stop (void)
 {
     nrf_ble_scan_stop();
     return RD_SUCCESS;
 }
-
-// TODO: Device-specific TX powers
 rd_status_t ri_adv_tx_power_set (
     int8_t * dbm)
 {
@@ -425,7 +446,11 @@ rd_status_t ri_adv_tx_power_set (
     else if (*dbm <= -4) { m_tx_power = -4; }
     else if (*dbm <= 0) { m_tx_power = 0; }
     else if (*dbm <= 4) { m_tx_power = 4; }
+
+#ifdef S140
     else if (*dbm <= 8) { m_tx_power = 8; }
+
+#endif
     else { return RD_ERROR_INVALID_PARAM; }
 
     err_code = sd_ble_gap_tx_power_set (BLE_GAP_TX_POWER_ROLE_ADV,
@@ -437,15 +462,12 @@ rd_status_t ri_adv_tx_power_set (
 
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
-
-
 rd_status_t ri_adv_tx_power_get (
     int8_t * dbm)
 {
     *dbm = m_tx_power;
     return RD_SUCCESS;
 }
-
 rd_status_t ri_adv_scan_response_setup
 (const char * const name,
  const bool advertise_nus)
@@ -486,9 +508,6 @@ rd_status_t ri_adv_scan_response_setup
 
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
-
-
-
 rd_status_t ri_adv_type_set (ri_adv_type_t type)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -520,12 +539,10 @@ rd_status_t ri_adv_type_set (ri_adv_type_t type)
 
     return err_code;
 }
-
 void ri_adv_notify_stop (void)
 {
     m_advertising = false;
 }
-
 rd_status_t ri_adv_start()
 {
     if (m_advertising) { return RD_ERROR_INVALID_STATE; }
@@ -551,12 +568,10 @@ rd_status_t ri_adv_stop()
         false; // SD returns error if advertisement wasn't ongoing, ignore error and mark as stopped.
     return err_code;
 }
-
 rd_status_t ri_adv_ongoing (void)
 {
     return m_advertising;
 }
-
 rd_status_t ri_adv_send_raw (
     uint8_t * data, size_t data_length)
 {
@@ -577,5 +592,4 @@ rd_status_t ri_adv_send_raw (
                 RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG));
     return err_code;
 }
-
 #endif

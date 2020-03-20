@@ -2,6 +2,7 @@
 #define NRF5_SDK5_CONFIG_H
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_interrupt.h"    //!< Check if NRFX GPIOTE is required
 #include "ruuvi_interface_flash.h"             //!< Check if FDS is required
@@ -32,18 +33,40 @@
 #endif
 
 #ifndef NRF_SDH_ENABLED
-/** @brief Required by SDK BLE modules not conditionally compiled */
+/** @brief Required by SDK BLE module conditional compilation */
 #define NRF_SDH_ENABLED 1
 #endif
 
 #ifndef NRF_SDH_BLE_ENABLED
-/** @brief Required by SDK BLE modules not conditionally compiled */
+/** @brief Required by SDK BLE module conditional compilation */
 #  define NRF_SDH_BLE_ENABLED NRF_SDH_ENABLED
 #endif
 
 #ifndef NRF_SDH_SOC_ENABLED
-/** @brief Required by SDK BLE modules not conditionally compiled */
+/** @brief Required by SDK BLE module conditional compilation */
 #  define NRF_SDH_SOC_ENABLED NRF_SDH_ENABLED
+#endif
+
+#if RUUVI_NRF5_SDK15_ADV_ENABLED
+   /** @brief Required by SDK BLE module conditional compilation */
+#  define NRF_BLE_SCAN_ENABLED 1 
+#  define NRF_BLE_SCAN_SCAN_INTERVAL (1000U) //!< Scan interval in 625 us units.
+   /**
+    * @brief Scan window in 625 us units.
+    * If scan_phys contains both BLE_GAP_PHY_1MBPS and BLE_GAP_PHY_CODED 
+    * interval shall be larger than or equal to twice the scan window.
+    */
+#  define NRF_BLE_SCAN_SCAN_WINDOW   (200U)
+   /** @brief Scan timeout in 10 ms units. */
+#  define NRF_BLE_SCAN_SCAN_DURATION (3U * NRF_BLE_SCAN_SCAN_INTERVAL / 10U) 
+   /** @brief Relevant only to centrals, but required. Milliseconds. */
+#  define NRF_BLE_SCAN_SUPERVISION_TIMEOUT (4000U)
+    /** @brief Relevant only to centrals, but required. Milliseconds. */
+#   define NRF_BLE_SCAN_MIN_CONNECTION_INTERVAL (20U)
+    /** @brief Relevant only to centrals, but required. Milliseconds. */
+#   define NRF_BLE_SCAN_MAX_CONNECTION_INTERVAL (1000U)
+    /** @brief Relevant only to centrals, but required. Allowed skipped intervals. */
+#   define NRF_BLE_SCAN_SLAVE_LATENCY 29
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED

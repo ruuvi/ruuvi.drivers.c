@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.1.6"
+#define RUUVI_DRIVERS_SEMVER "0.2.0"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -69,6 +69,8 @@ data payload length is the maximum length */
 /** @brief Enable BLE advertising compilation. */
 #  define RT_ADV_ENABLED ENABLE_DEFAULT
 #endif
+
+#define RI_ADV_ENABLED RT_ADV_ENABLED
 
 #if RT_ADV_ENABLED && !(RI_COMMUNICATION_ENABLED)
 #  error "Advertisement task requires communication interface."

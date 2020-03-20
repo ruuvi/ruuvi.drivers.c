@@ -45,8 +45,7 @@
 /** @brief Initial configuration for advertisement. PHY will be transferred to GATT.  */
 typedef struct
 {
-    // ri_phy_t,
-    // ri_channels_t,
+    ri_radio_channels_t channels;    //!< Radio channels, typically 37, 38, and/or 39.
     uint16_t adv_interval_ms;  //!< ms / advertisement, not counting random delay
     int8_t   adv_pwr_dbm;      //!< Power to antenna, dBm.
     uint16_t manufacturer_id;  //!< BLE SIG id of board manufacturer
@@ -67,7 +66,7 @@ typedef struct
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if advertising is already initialized.
- * @®etval RD_ERROR_INVALID_PARAM if configuration constant is invalid. Not initialized.
+ * @return RD_ERROR_INVALID_PARAM if configuration constant is invalid. Not initialized.
  */
 rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings);
 
@@ -78,30 +77,15 @@ rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings);
  * Clears previous advertisement data if there was any.
  *
  * @retval RD_SUCCESS on success
- * @retval error code from stack on error
+ * @return error code from stack on error
  */
 rd_status_t rt_adv_uninit (void);
 
 /**
- * @brief Starts advertising.
- *
- * Before this function is called, you must initialize advertising and should
- * set some data into advertisement buffer. Otherwise empty advertisement packets are sent.
- * It might be desirable to send empty advertisement payloads as GATT connection
- * advertisements piggyback on data advertisements.
+ * @brief Stops advertising. This is relevant only if the message was on repeat.
  *
  * @retval RD_SUCCESS on success
- * @retval RD_ERROR_INVALID_STATE if advertising is not initialized.
- * returns error code from stack on error
- *
- */
-rd_status_t rt_adv_start (void);
-
-/**
- * @brief Stops advertising.
- *
- * @retval RD_SUCCESS on success
- * @retval error code from stack on error
+ * @return error code from stack on error
  */
 rd_status_t rt_adv_stop (void);
 
@@ -114,11 +98,13 @@ rd_status_t rt_adv_stop (void);
  *  If the device is connectable, call @code rd_adv_connectability_set @endcode to setup the
  *  scan response and flags to advertise connectability.
  *
+ *  Call @ref rt_adv_stop to stop advertisements on repeat.
+ *
  *  @param[in] msg message to be sent as manufacturer specific data payload
  *  @retval    RD_ERROR_NULL if msg is NULL
  *  @retval    RD_ERROR_INVALID_STATE if advertising isn't initialized or started.
  *  @retval    RD_ERROR_DATA_SIZE if payload size is larger than 24 bytes
- *  @retval    error code from stack on other error.
+ *  @return    error code from stack on other error.
  */
 rd_status_t rt_adv_send_data (ri_communication_message_t * const msg);
 
@@ -137,7 +123,7 @@ rd_status_t rt_adv_send_data (ri_communication_message_t * const msg);
  *  @retval    RD_ERROR_NULL if name is NULL and trying to enable the scan response
  *  @retval    RD_ERROR_INVALID_STATE if advertising isn't initialized or started.
  *  @retval    RD_ERROR_INVALID_LENGTH if name size exceeds 10 bytes + NULL
- *  @retval    error code from stack on other error.
+ *  @return    error code from stack on other error.
  */
 rd_status_t rt_adv_connectability_set (const bool enable,
                                        const char * const device_name);
@@ -155,10 +141,10 @@ bool rt_adv_is_init (void);
  *   - on_evt(RI_COMMUNICATION_RECEIVED, scan, sizeof(ri_adv_scan_t));
  *   - on_evt(RI_COMMUNICATION_TIMEOUT, NULL, 0);
  *
- *  @param[in] on_evt event handler for scan results,
- *  @retval    RD_SUCCESS if scanning was started
- *  @retval    RD_ERROR_INVALID_STATE if advertising isn't initialized.
- *  @retval    error code from stack on other error.
+ *  @param[in] on_evt Event handler for scan results.
+ *  @retval    RD_SUCCESS Scanning was started.
+ *  @retval    RD_ERROR_INVALID_STATE Advertising isn't initialized.
+ *  @return    error code from stack on other error.
  *
  * @note Scanning is stopped on timeout, you can restart the scan on event handler.
  * @warning Event handler is called in interrupt context.

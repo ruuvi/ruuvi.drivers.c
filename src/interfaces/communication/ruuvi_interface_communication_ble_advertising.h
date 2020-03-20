@@ -10,10 +10,15 @@
  * Commmon definitions and functions for all BLE advertising.
  *
  */
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_radio.h"
 #include <stdint.h>
+
+#if RI_ADV_ENABLED
+#define RUUVI_NRF5_SDK15_ADV_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /* @brief number of bytes in a MAC address */
 #define BLE_MAC_ADDRESS_LENGTH 6
@@ -45,13 +50,21 @@ typedef struct
     size_t data_len;  //!< Length of received data
 } ri_adv_scan_t;
 
-/*
- * @brief Initialize radio hardware, advertising module and scanning module.
+/**
+ * @brief Initialize Advertising module and scanning module.
  *
+ * Initially channels 37, 38 and 39 are enabled. Modulation is decided by 
+ * radio initialization. If @ref RI_RADIO_BLE_125KBPS or @ref  RI_RADIO_BLE_1MBPS is set, 
+ * primary phy is the configured one and no secondary PHY is used. If modulation is
+ * @ref  RI_RADIO_BLE_2MBPS primary PHY is @ref  RI_RADIO_BLE_1MBPS and secondary PHY is
+ * @ref RI_RADIO_BLE_2MBPS.
+ *
+ * @param[out] channel Interface used for communicating through advertisements.
  * @retval RD_SUCCESS on success,
- * @retval RD_ERROR_INVALID_STATE if radio is already initialized.
+ * @retval RD_ERROR_NULL Channel is NULL.
+ * @retval RD_ERROR_INVALID_STATE if radio is not already initialized.
  *
- * @note This function calls ri_radio_init internally, calling separate radio initialization is not required.
+ * @note Modulation used on the advertisement depends on how radio was initialized.
  */
 rd_status_t ri_adv_init (ri_communication_t * const channel);
 
@@ -80,6 +93,7 @@ rd_status_t ri_adv_tx_interval_set (const uint32_t ms);
  *
  * @param[out] ms Milliseconds between transmission, without the random delay.
  * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL If ms is NULL.
  * @retval RD_ERROR_INVALID_STATE if advertisement module is not initialized.
  */
 rd_status_t ri_adv_tx_interval_get (uint32_t * ms);
@@ -95,7 +109,10 @@ rd_status_t ri_adv_manufacturer_id_set (const uint16_t id);
 /**
  * @brief Set radio TX power.
  *
- * @param[in] dbm Radio power. Supported values are board-dependent.
+ * @param[in,out] dbm Radio power. Supported values are board-dependent.
+ *                    Value is interpreted as "at least", power is set to smallest
+ *                    value which satisfies the desired level. Actual value is set to
+ *                    pointed parameter as an output.
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_NULL if dbm is NULL.
  * @retval RD_ERROR_INVALID_STATE  if radio is not initialized.
@@ -170,5 +187,27 @@ rd_status_t ri_adv_scan_response_setup (const char * const name,
  * @retval RD_ERROR_INVALID_STATE if advertisements are not initialized.
  */
 rd_status_t ri_adv_type_set (ri_adv_type_t type);
+
+/**
+ * @brief Stop ongoing advertisements.
+ *
+ * If advertisement was configured on repeat, calling this function stops advertising
+ * before the repeat counter has been reached. This function can be safely called
+ * even if no advertising is ongoing.
+ *
+ * @retval RD_SUCCESS if no more advertisements are ongoing.
+ */
+rd_status_t ri_adv_stop (void);
+
+/**
+ * @brief Select active channels.
+ *
+ * If advertisement was configured on repeat, calling this function stops advertising
+ * before the repeat counter has been reached. This function can be safely called
+ * even if no advertising is ongoing.
+ *
+ * @retval RD_SUCCESS if no more advertisements are ongoing.
+ */
+rd_status_t ri_adv_channels_enable(const ri_radio_channels_t channel);
 
 #endif

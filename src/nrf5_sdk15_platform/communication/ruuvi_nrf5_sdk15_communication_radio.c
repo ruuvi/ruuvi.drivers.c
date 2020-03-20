@@ -31,6 +31,7 @@
 /** @brief Application callback for radio events */
 static ri_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
 static ri_radio_modulation_t m_modulation;
+static ri_radio_modulation_t m_modulation; //<! Modulation for radio ops.
 
 /**
  * @brief Task to run on radio activity

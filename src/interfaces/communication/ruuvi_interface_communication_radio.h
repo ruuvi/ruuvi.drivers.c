@@ -44,6 +44,16 @@ typedef enum
 } ri_radio_modulation_t;
 
 /**
+ * @brief Bitfield to describe related sensor data
+ */
+typedef struct
+{
+    unsigned int channel_37 : 1; //!< BLE channel 37, 2402 MHz.
+    unsigned int channel_38 : 1; //!< BLE channel 38, 2426 MHz.
+    unsigned int channel_39 : 1; //!< BLE channel 39, 2480 MHz.
+} ri_radio_channels_t;
+
+/**
  *  @brief Type of radio activity interrupt.
  *  This is common to all radio modules, i,e, the callback gets called for every radio action.
  *
@@ -56,10 +66,10 @@ typedef void (*ri_radio_activity_interrupt_fp_t) (const ri_radio_activity_evt_t 
  *  This function also starts radio activity callbacks internally.
  *
  *  @param[in] modulation Modulation for radio operations.
- *                        If 2MBPS is defined, advertising is done at 1 MBPS and radio
- *                        tries to switch to 2MBPS on GATT connection.
+ *                        If 2 MBPS is defined, primary advertising PHY is 1 MBPS and
+ *                        secondary PHY is 2 MBPS. 
  *                        Note: if other end of communication requests different speed,
- *                        the implementation should support iy if applicable to board.
+ *                        the implementation should support it if applicable to board.
  *  @retval    RD_SUCCESS on success
  *  @retval    RD_ERROR_INVALID_STATE if radio is already initialized.
  */

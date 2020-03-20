@@ -67,22 +67,6 @@ rd_status_t rt_adv_uninit (void)
     return ri_adv_uninit (&m_channel);
 }
 
-rd_status_t rt_adv_start (void)
-{
-    rd_status_t err_code = RD_SUCCESS;
-
-    if (!m_is_init)
-    {
-        err_code |= RD_ERROR_INVALID_STATE;
-    }
-    else
-    {
-        err_code |= ri_adv_start();
-    }
-
-    return err_code;
-}
-
 rd_status_t rt_adv_stop (void)
 {
     rd_status_t err_code = RD_SUCCESS;

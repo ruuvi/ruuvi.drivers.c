@@ -180,8 +180,8 @@ rd_status_t ri_gpio_interrupt_test_enable (
         status |= ri_gpio_write (cfg.output, RI_GPIO_HIGH);
         status |= ri_gpio_write (cfg.output, RI_GPIO_LOW);
 
-        if (RD_SUCCESS != status 
-           || ((1 != num_int_trigs) && (2 != num_int_trigs)))
+        if (RD_SUCCESS != status
+                || ( (1 != num_int_trigs) && (2 != num_int_trigs)))
         {
             RD_ERROR_CHECK (status, ~RD_ERROR_FATAL);
             status |= RD_ERROR_SELFTEST;
