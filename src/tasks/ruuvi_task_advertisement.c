@@ -33,7 +33,7 @@ static size_t safe_strlen (const char * s, size_t maxlen)
     return i;
 }
 
-static ri_communication_t m_channel;
+static ri_comm_channel_t m_channel;
 static bool m_is_init;
 
 rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings)
@@ -84,7 +84,7 @@ rd_status_t rt_adv_stop (void)
 }
 
 rd_status_t rt_adv_send_data (
-    ri_communication_message_t * const msg)
+    ri_comm_message_t * const msg)
 {
     rd_status_t err_code = RD_SUCCESS;
 

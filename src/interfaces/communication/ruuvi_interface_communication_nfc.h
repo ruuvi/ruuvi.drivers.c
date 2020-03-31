@@ -22,14 +22,14 @@
  * @retval RD_SUCCESS on success,
  * @retval RD_ERROR_INVALID_STATE if NFC is already initialized
  */
-rd_status_t ri_nfc_init (ri_communication_t * const channel);
+rd_status_t ri_nfc_init (ri_comm_channel_t * const channel);
 
 /*
  * Uninitializes NFC hardware.
  *
  * Returns RD_SUCCESS on success.
  */
-rd_status_t ri_nfc_uninit (ri_communication_t * const channel);
+rd_status_t ri_nfc_uninit (ri_comm_channel_t * const channel);
 
 // Encodes the given data fields into NFC buffer. Clears previous data.
 rd_status_t ri_nfc_data_set (void);
@@ -40,7 +40,7 @@ rd_status_t ri_nfc_data_set (void);
  * Returns RD_SUCCESS if the data was placed in buffer
  * Returns error code from the stack if data could not be placed to the buffer
  */
-rd_status_t ri_nfc_send (ri_communication_message_t * messge);
+rd_status_t ri_nfc_send (ri_comm_message_t * messge);
 
 /**
  * Sets the device firmware version into "FW" text field.
@@ -77,6 +77,6 @@ rd_status_t ri_nfc_id_set (const uint8_t * const id,
                            const uint8_t length);
 
 // Not implemented
-rd_status_t ri_nfc_receive (ri_communication_message_t * messge);
+rd_status_t ri_nfc_receive (ri_comm_message_t * messge);
 
 #endif

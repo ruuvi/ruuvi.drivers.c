@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static ri_communication_t m_channel;   //!< Handle for NFC comms.
+static ri_comm_channel_t m_channel;   //!< Handle for NFC comms.
 static ri_comm_cb_t m_on_connected;    //!< Callback for connection established.
 static ri_comm_cb_t m_on_disconnected; //!< Callback for connection lost.
 static ri_comm_cb_t m_on_received;     //!< Callback for data received.
@@ -57,27 +57,26 @@ static bool m_nfc_is_initialized;      //!< True while NFC is initialized.
 #ifndef CEEDLING
 static
 #endif
-rd_status_t rt_nfc_isr (ri_communication_evt_t evt,
-                        void * p_data, size_t data_len)
+rd_status_t rt_nfc_isr (ri_comm_evt_t evt,void * p_data, size_t data_len)
 {
     switch (evt)
     {
         // Note: This gets called only after the NFC notifications have been registered.
-        case RI_COMMUNICATION_CONNECTED:
+        case RI_COMM_CONNECTED:
             m_nfc_is_connected = true;
             (NULL != m_on_connected) ? m_on_connected (p_data, data_len) : false;
             break;
 
-        case RI_COMMUNICATION_DISCONNECTED:
+        case RI_COMM_DISCONNECTED:
             m_nfc_is_connected = false;
             (NULL != m_on_disconnected) ? m_on_disconnected (p_data, data_len) : false;
             break;
 
-        case RI_COMMUNICATION_SENT:
+        case RI_COMM_SENT:
             (NULL != m_on_sent) ? m_on_sent (p_data, data_len) : false;
             break;
 
-        case RI_COMMUNICATION_RECEIVED:
+        case RI_COMM_RECEIVED:
             (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
             break;
 
@@ -102,14 +101,14 @@ rd_status_t sw_set (const char * const sw)
     }
     else
     {
-        uint8_t fw_string[RI_COMMUNICATION_DIS_STRLEN] = { 0 };
+        uint8_t fw_string[RI_COMM_DIS_STRLEN] = { 0 };
         written = snprintf ( (char *) fw_string,
-                             RI_COMMUNICATION_DIS_STRLEN,
+                             RI_COMM_DIS_STRLEN,
                              "SW: %s",
                              sw);
 
         if ( (0 > written)
-                || (RI_COMMUNICATION_DIS_STRLEN <= written))
+                || (RI_COMM_DIS_STRLEN <= written))
         {
             err_code |= RD_ERROR_INVALID_LENGTH;
         }
@@ -137,14 +136,14 @@ rd_status_t mac_set (const char * const mac)
     }
     else
     {
-        uint8_t name[RI_COMMUNICATION_DIS_STRLEN] = { 0 };
+        uint8_t name[RI_COMM_DIS_STRLEN] = { 0 };
         written = snprintf ( (char *) name,
-                             RI_COMMUNICATION_DIS_STRLEN,
+                             RI_COMM_DIS_STRLEN,
                              "MAC: %s",
                              mac);
 
         if ( (0 > written)
-                || (RI_COMMUNICATION_DIS_STRLEN <= written))
+                || (RI_COMM_DIS_STRLEN <= written))
         {
             err_code |= RD_ERROR_INVALID_LENGTH;
         }
@@ -171,14 +170,14 @@ rd_status_t id_set (const char * const id)
     }
     else
     {
-        uint8_t id_string[RI_COMMUNICATION_DIS_STRLEN] = { 0 };
+        uint8_t id_string[RI_COMM_DIS_STRLEN] = { 0 };
         written = snprintf ( (char *) id_string,
-                             RI_COMMUNICATION_DIS_STRLEN,
+                             RI_COMM_DIS_STRLEN,
                              "ID: %s",
                              id);
 
         if ( (0 > written)
-                || (RI_COMMUNICATION_DIS_STRLEN <= written))
+                || (RI_COMM_DIS_STRLEN <= written))
         {
             err_code |= RD_ERROR_INVALID_LENGTH;
         }
@@ -192,7 +191,7 @@ rd_status_t id_set (const char * const id)
     return err_code;
 }
 
-rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data)
+rd_status_t rt_nfc_init (ri_comm_dis_init_t * const init_data)
 {
     rd_status_t err_code = RD_SUCCESS;
     int written = 0;
@@ -211,7 +210,7 @@ rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data)
         err_code |= mac_set (init_data->deviceaddr);
         err_code |= id_set (init_data->deviceid);
         err_code |= ri_nfc_init (&m_channel);
-        ri_communication_message_t msg;
+        ri_comm_message_t msg;
         memcpy (&msg.data, "Data:", sizeof ("Data:"));
         msg.data_length = 6;
         m_channel.on_evt = rt_nfc_isr;
@@ -241,7 +240,7 @@ rd_status_t rt_nfc_uninit (void)
     return ri_nfc_uninit (&m_channel);
 }
 
-rd_status_t rt_nfc_send (ri_communication_message_t * message)
+rd_status_t rt_nfc_send (ri_comm_message_t * message)
 {
     rd_status_t err_code = RD_SUCCESS;
 

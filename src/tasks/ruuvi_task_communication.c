@@ -182,7 +182,7 @@ ruuvi_driver_status_t rt_com_get_mac (uint8_t * const mac_buffer)
     if (NULL != mac_buffer)
     {
         uint64_t mac;
-        status |= ruuvi_interface_communication_radio_address_get (&mac);
+        status |= ri_comm_radio_address_get (&mac);
         mac_buffer[0U] = (mac >> 40U) & 0xFFU;
         mac_buffer[1U] = (mac >> 32U) & 0xFFU;
         mac_buffer[2U] = (mac >> 24U) & 0xFFU;
@@ -200,7 +200,7 @@ ruuvi_driver_status_t rt_com_get_mac (uint8_t * const mac_buffer)
 
 static void heartbeat_send (void * p_event_data, uint16_t event_size)
 {
-    ruuvi_interface_communication_message_t msg = {0};
+    ri_comm_message_t msg = {0};
     msg.data_length = m_heartbeat_data_max_len;
     ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 
@@ -228,7 +228,7 @@ static void heartbeat_schedule_isr (void * p_context)
 ruuvi_driver_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
         const size_t max_len,
         const heartbeat_data_fp_t data_src,
-        const ruuvi_interface_communication_xfer_fp_t send)
+        const ri_comm_xfer_fp_t send)
 {
     ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
 

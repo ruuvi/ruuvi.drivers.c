@@ -32,8 +32,7 @@ rd_status_t ri_gatt_init (void);
  *                                          or if ri_gatt_init has not been called.
  * @return error code from stack in case there is other error.
  */
-rd_status_t ri_gatt_nus_init (
-    ri_communication_t * const channel);
+rd_status_t ri_gatt_nus_init (ri_comm_channel_t * const channel);
 
 /**
  * @brief Initialize BLE4 Device firmware update service.
@@ -51,6 +50,6 @@ rd_status_t ri_gatt_dfu_init (void);
  * @return error code from stack in case there is  error.
  */
 rd_status_t ri_gatt_dis_init (
-    const ri_communication_dis_init_t * const dis);
+    const ri_comm_dis_init_t * const dis);
 
 #endif

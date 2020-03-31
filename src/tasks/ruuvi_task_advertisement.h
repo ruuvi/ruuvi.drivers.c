@@ -106,7 +106,7 @@ rd_status_t rt_adv_stop (void);
  *  @retval    RD_ERROR_DATA_SIZE if payload size is larger than 24 bytes
  *  @return    error code from stack on other error.
  */
-rd_status_t rt_adv_send_data (ri_communication_message_t * const msg);
+rd_status_t rt_adv_send_data (ri_comm_message_t * const msg);
 
 /** @brief Start advertising BLE GATT connection
  *
@@ -138,8 +138,8 @@ bool rt_adv_is_init (void);
  * This is non-blocking, you'll need to handle incoming events.
  *
  * Events are:
- *   - on_evt(RI_COMMUNICATION_RECEIVED, scan, sizeof(ri_adv_scan_t));
- *   - on_evt(RI_COMMUNICATION_TIMEOUT, NULL, 0);
+ *   - on_evt(RI_COMM_RECEIVED, scan, sizeof(ri_adv_scan_t));
+ *   - on_evt(RI_COMM_TIMEOUT, NULL, 0);
  *
  *  @param[in] on_evt Event handler for scan results.
  *  @retval    RD_SUCCESS Scanning was started.

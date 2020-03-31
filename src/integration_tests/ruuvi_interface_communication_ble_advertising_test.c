@@ -24,33 +24,38 @@
  * Integration test BLE advertising implementation.
  */
 
-static ri_communication_t m_channel;
+static ri_comm_channel_t m_channel;
 static volatile bool m_has_connected;
 static volatile bool m_has_disconnected;
 static volatile bool m_has_sent;
 static volatile bool m_has_received;
-static ri_communication_message_t rx_data;
+static volatile bool m_timeout;
+static ri_comm_message_t rx_data;
 
-static rd_status_t ble_isr (ri_communication_evt_t evt,
+static rd_status_t ble_isr (ri_comm_evt_t evt,
                             void * p_data, size_t data_len)
 {
     switch (evt)
     {
         // Note: This gets called only after the NFC notifications have been registered.
-        case RI_COMMUNICATION_CONNECTED:
+        case RI_COMM_CONNECTED:
             m_has_connected = true;
             break;
 
-        case RI_COMMUNICATION_DISCONNECTED:
+        case RI_COMM_DISCONNECTED:
             m_has_disconnected = true;
             break;
 
-        case RI_COMMUNICATION_SENT:
+        case RI_COMM_SENT:
             m_has_sent = true;
             break;
 
-        case RI_COMMUNICATION_RECEIVED:
+        case RI_COMM_RECEIVED:
             m_has_received = true;
+            break;
+        
+        case RI_COMM_TIMEOUT:
+            m_timeout = true;
             break;
 
         default:
@@ -160,19 +165,21 @@ static bool ri_adv_interval_long_test (void)
     return (RD_ERROR_INVALID_PARAM != err_code);
 }
 
-static bool ri_adv_interval_test (const rd_test_print_fp printfp)
+static bool ri_adv_interval_test (const rd_test_print_fp printfp,
+                                  const ri_radio_modulation_t modulation)
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     uint32_t interval = 0;
-    ri_communication_message_t msg;
-    msg.repeat = 2;
+    ri_comm_message_t msg;
+    msg.repeat_count = 2;
     snprintf ( (char *) & (msg.data), sizeof (msg.data), "Ave mundi!");
     msg.data_length = strlen (msg.data);
     printfp ("\"interval\":");
     err_code |= ri_rtc_init();
-    err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
+    err_code |= ri_radio_init (modulation);
     err_code |= ri_adv_init (&m_channel);
+    m_channel.on_evt = &ble_isr;
     status |= ri_adv_interval_short_test();
     status |= ri_adv_interval_long_test();
     err_code |= ri_adv_tx_interval_set (RI_TEST_ADV_FAST);
@@ -180,9 +187,11 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp)
     if (RD_SUCCESS == err_code)
     {
         uint64_t start = ri_rtc_millis();
+        m_has_sent = false;
         m_channel.send (&msg);
 
-        while (!m_has_sent)
+        while (!m_has_sent 
+               && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
         {
             ri_yield();
         }
@@ -190,7 +199,7 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp)
         uint64_t end = ri_rtc_millis();
 
         if ( (RI_TEST_ADV_FAST > (end - start))
-                || (RI_TEST_ADV_FAST + RI_ADV_RND_DELAY) < (end - start))
+                || (RI_TEST_ADV_FAST + (2*RI_ADV_RND_DELAY)) < (end - start))
         {
             status = true;
         }
@@ -243,15 +252,16 @@ static bool ri_adv_pwr_test_null (void)
     return (RD_ERROR_NULL != err_code);
 }
 
-static bool ri_adv_power_test (const rd_test_print_fp printfp)
+static bool ri_adv_power_test (const rd_test_print_fp printfp,
+                               const ri_radio_modulation_t modulation)
 {
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
     printfp ("\"power\":");
     int8_t pwr = -127;
-    int8_t original = -127;
+    int8_t original = pwr;
     status |= ri_adv_pwr_test_noinit();
-    err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
+    err_code |= ri_radio_init (modulation);
     err_code |= ri_adv_init (&m_channel);
     status |= ri_adv_pwr_test_null();
     err_code = ri_adv_tx_power_set (&pwr);
@@ -261,7 +271,7 @@ static bool ri_adv_power_test (const rd_test_print_fp printfp)
     pwr = 126;
     // Check invalid param.
     err_code = ri_adv_tx_power_set (&pwr);
-    status |= (RD_ERROR_INVALID_PARAM != pwr);
+    status |= (RD_ERROR_INVALID_PARAM != err_code);
     // Check that power was not modified with invalid param.
     err_code = ri_adv_tx_power_get (&pwr);
     status |= (original != pwr);
@@ -304,27 +314,51 @@ static bool ri_adv_power_test (const rd_test_print_fp printfp)
  *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  */
-static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp) 
-rd_status_t ri_adv_rx_interval_set (const uint32_t window_interval_ms,
-                                    const uint32_t window_size_ms)
+static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp,
+                                    const ri_radio_modulation_t modulation)
 {
+    bool status = false;
+    rd_status_t err_code = RD_SUCCESS;
+    uint64_t test_start = 0;
+    uint64_t test_end = 0;
+    printfp ("\"scan\":");
+    err_code |= ri_rtc_init();
+    err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
+    err_code |= ri_adv_init (&m_channel);
+    err_code |= ri_adv_rx_interval_set (RI_TEST_ADV_SCAN_INTERVAL,
+                                        RI_TEST_ADV_SCAN_WINDOW);
+    test_start = ri_rtc_millis();
+    m_timeout = false;
+    while(!m_timeout 
+          && (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) > (ri_rtc_millis() - test_start)){
+        // Sleep - woken up on event
+        // ri_yield();
+        // Prevent loop being optimized away
+        __asm__ ("");
+    }
+    test_end = ri_rtc_millis();
+    if((RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) < (test_end - test_start)
+      || ((RI_TEST_ADV_SCAN_CH_NUM-1) * RI_TEST_ADV_SCAN_INTERVAL + RI_TEST_ADV_SCAN_WINDOW) > (test_end - test_start)
+      || (RD_SUCCESS != err_code))
+    {
+        status = true;
+    }
 
-}
+    if (status)
+    {
+        printfp ("\"fail\",\r\n");
+    }
+    else
+    {
+        printfp ("\"pass\",\r\n");
+    }
 
-/**
- *  @brief get scan window interval and window size.
- *
- *  @param[out] window_interval_ms interval of the window.
- *  @param[out] window_size_ms     window size within interval.
- *  @return RD_SUCCESS  on success.
- *  @return RD_ERROR_NULL if either pointer is NULL.
- *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are
- *                                 otherwise invalid.
- */
-rd_status_t ri_adv_rx_interval_get (uint32_t * window_interval_ms,
-                                    uint32_t * window_size_ms);
+    (void) ri_rtc_uninit();
+    (void) ri_adv_uninit (&m_channel);
+    (void) ri_radio_uninit();
 
-
+    return status;
+} 
 
 /**
  * @brief Configure advertising data with a scan response.
@@ -340,8 +374,8 @@ rd_status_t ri_adv_rx_interval_get (uint32_t * window_interval_ms,
  * @retval @ref RD_ERROR_DATA_SIZE if name will be cut. However the abbreviated name will
  *              be set.
  */
-rd_status_t ri_adv_scan_response_setup (const char * const name,
-                                        const bool advertise_nus);
+//rd_status_t ri_adv_scan_response_setup (const char * const name,
+//                                        const bool advertise_nus);
 
 /**
  * @brief Configure the type of advertisement.
@@ -353,25 +387,7 @@ rd_status_t ri_adv_scan_response_setup (const char * const name,
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if advertisements are not initialized.
  */
-rd_status_t ri_adv_type_set (ri_adv_type_t type);
-
-/**
- * @brief Start scanning for BLE advertisements.
- *
- * After calling this function, the communication channel structure .on_evt will
- * get called with scan reports:
- * on_evt(RI_COMMUNICATION_RECEIVED, void* p_data, size_t data_len) where p_data points
- * to @ref ri_adv_scan_t and data_len is size of scan data.
- *
- * The modulation is determined by how radio was initialized, uninitialize radio and
- * re-initialize with a different modulation if needed.
- * Channels depend on advertisement initialization values, uninitialize and re-initialize
- * radio if needed.
- *
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_INVALID_STATE if advertising is not initialized or scanning is ongoing.
- */
-rd_status_t ri_adv_scan_start (void);
+//rd_status_t ri_adv_type_set (ri_adv_type_t type);
 
 /**
  * @brief Start scanning for BLE advertisements.
@@ -391,15 +407,41 @@ rd_status_t ri_adv_scan_start (void);
  */
 rd_status_t ri_adv_scan_stop (void);
 
+static void print_modulation(const rd_test_print_fp printfp,
+        const ri_radio_modulation_t modulation)
+{
+    switch(modulation)
+    {
+        case RI_RADIO_BLE_125KBPS:
+          printfp("coded");
+          break;
+
+        case RI_RADIO_BLE_1MBPS:
+          printfp("1_mbit");
+          break;
+
+        case RI_RADIO_BLE_2MBPS:
+          printfp("2_mbit");
+          break;
+
+        default:
+          printfp("error");
+          break;
+    }
+}
+
 bool ri_communication_ble_advertising_run_integration_test (const rd_test_print_fp
         printfp,
         const ri_radio_modulation_t modulation)
 {
     bool status = false;
-    printfp ("\"ble\":{\r\n");
+    printfp ("\"ble_");
+    print_modulation(printfp, modulation);
+    printfp("\":{\r\n");
     status |= ri_adv_init_test (printfp, modulation);
-    status |= ri_adv_interval_test(printfp);
-    status |= ri_adv_power_test(printfp);
+    status |= ri_adv_interval_test(printfp, modulation);
+    status |= ri_adv_power_test(printfp, modulation);
+    status |= ri_adv_rx_interval_test(printfp, modulation);
     printfp ("},\r\n");
     return status;
 }

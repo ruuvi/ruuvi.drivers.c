@@ -16,7 +16,12 @@
 
 #ifndef RUUVI_INTERFACE_RTC_H
 #define RUUVI_INTERFACE_RTC_H
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
+
+#if RI_RTC_ENABLED
+#  define RUUVI_NRF5_SDK15_RTC_ENABLED  RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /**
  * @brief Initializes RTC at 0 ms.

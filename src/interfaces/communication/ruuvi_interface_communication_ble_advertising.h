@@ -4,7 +4,7 @@
 /**
  * @file ruuvi_interface_communication_ble_advertising.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-03-02
+ * @date 2020-03-26
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Commmon definitions and functions for all BLE advertising.
@@ -36,19 +36,15 @@ typedef enum
     CONNECTABLE_NONSCANNABLE,    //!< Connectable, nonscannable
     CONNECTABLE_SCANNABLE,       //!< Connectable, scannable
     NONCONNECTABLE_SCANNABLE     //!< Nonconnectable, scannable
-} ri_adv_type_t;
+} ri_adv_type_t;                 //!< Allowed advertisement types. The implementation uses extended type if required. 
 
-/**
- * @brief Advertisement report from scanner
- *
- */
 typedef struct
 {
     uint8_t addr[BLE_MAC_ADDRESS_LENGTH];  //<! MAC address, MSB first
     int8_t rssi;      //!< RSSI of advertisement
     uint8_t data[BLE_SCAN_DATA_LENGTH]; //!< Full payload of the advertisement
     size_t data_len;  //!< Length of received data
-} ri_adv_scan_t;
+} ri_adv_scan_t;      //!< Advertisement report from scanner
 
 /**
  * @brief Initialize Advertising module and scanning module.
@@ -66,20 +62,22 @@ typedef struct
  *
  * @note Modulation used on the advertisement depends on how radio was initialized.
  */
-rd_status_t ri_adv_init (ri_communication_t * const channel);
+rd_status_t ri_adv_init (ri_comm_channel_t * const channel);
 
 /*
  * @brief Uninitializes radio hardware, advertising module and scanning module.
  *
- * @param[out] channel Communication api to send and receive data via advertisements.
+ * @param[out] channel comm api to send and receive data via advertisements.
  *
  * @retval RD_SUCCESS on success or if radio was not initialized.
  * @retval RD_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
  */
-rd_status_t ri_adv_uninit (ri_communication_t * const channel);
+rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel);
 
 /*
  * @brief Setter for broadcast advertisement interval.
+ *
+ * Will take effect on next send. Has no effect on messages already queued.
  *
  * @param[in] ms Milliseconds, random delay of 0 - 10 ms will be added to the interval on
  *               every TX to avoid collisions. min 100 ms, max 10 000 ms.
@@ -99,7 +97,9 @@ rd_status_t ri_adv_tx_interval_set (const uint32_t ms);
 rd_status_t ri_adv_tx_interval_get (uint32_t * ms);
 
 /**
- * @brief Set manufacturer ID of manufacturer specific advertisement
+ * @brief Set manufacturer ID of manufacturer specific advertisement.
+ *
+ * Will take effect on next send. Has no effect on already queued messages. 
  *
  * @param[in] id ID of manufacturer, MSB first. E.g. 0x0499 for Ruuvi Innovations.
  * @retval RD_SUCCESS
@@ -108,6 +108,9 @@ rd_status_t ri_adv_manufacturer_id_set (const uint16_t id);
 
 /**
  * @brief Set radio TX power.
+ *
+ * Takes effect on next call to send. May or may not change power of ongoing transmission,
+ * if you need different power levels for advertisements adjust power 
  *
  * @param[in,out] dbm Radio power. Supported values are board-dependent.
  *                    Value is interpreted as "at least", power is set to smallest
@@ -135,7 +138,10 @@ rd_status_t ri_adv_tx_power_get (int8_t * dbm);
  *  The scan window interval must be larger or equivalent to window size.
  *  Example: Interval 1000 ms, window size 100 ms.
  *  The scanning will scan 100 ms at channel 37, wait 900 ms, scan 100 ms at channel 38,
- *  wait 900 ms, scan 100 ms at channel 39, wait 900 ms and start again at channel 37.
+ *  wait 900 ms, scan 100 ms at channel 39. After scan has finished RI_COMM_TIMEOUT event is triggered
+ *  if initialized channel has event handler. 
+ *
+ *  Scan is started immediately after calling this function and ended once timeout occurs or @ref ri_adv_scan_stop is called.
  *
  *  @param[in] window_interval_ms interval of the window.
  *  @param[in] window_size_ms     window size within interval.
@@ -179,9 +185,11 @@ rd_status_t ri_adv_scan_response_setup (const char * const name,
 /**
  * @brief Configure the type of advertisement.
  *
- * Advertisement can be connectable, scannable, both or neither.
+ * Advertisement can be connectable, scannable, both or neither: @ref ri_adv_type_t.
  * It is possible to setup scannable advertisement before setting up scan response,
  * in this case scan response will be 0-length and empty until scan resonse if configured.
+ * If the advertisement has to be extended type, the implementation will automatically select
+ * extended advertisement.
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if advertisements are not initialized.

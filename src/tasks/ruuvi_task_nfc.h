@@ -49,7 +49,7 @@
  * @retval RD_ERROR_INVALID_STATE if NFC is already initialized.
  * @return error code from stack on error.
  */
-rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data);
+rd_status_t rt_nfc_init (ri_comm_dis_init_t * const init_data);
 
 /**
  * @brief Uninitializes NFC.
@@ -76,7 +76,7 @@ bool rt_nfc_is_init (void);
  * @return RD_SUCCESS on success
  * @return error code from stack on error
  */
-rd_status_t rt_nfc_send (ri_communication_message_t * message);
+rd_status_t rt_nfc_send (ri_comm_message_t * message);
 
 /**
  * @brief Handle Ruuvi communication events from NFC driver
@@ -88,7 +88,7 @@ rd_status_t rt_nfc_send (ri_communication_message_t * message);
  * @return RD_SUCCESS if no error occurred
  * @return error code from stack on error.
  */
-rd_status_t rt_nfc_on_nfc (ri_communication_evt_t evt, void * p_data, size_t data_len);
+rd_status_t rt_nfc_on_nfc (ri_comm_evt_t evt, void * p_data, size_t data_len);
 
 /** @brief Setup connection event handler.
  *
