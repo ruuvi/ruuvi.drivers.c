@@ -71,9 +71,15 @@
     /** @brief Relevant only to centrals, but required. Allowed skipped intervals. */
 #   define NRF_BLE_SCAN_SLAVE_LATENCY 29
 
-#   define RUUVI_NRF5_SDK15_ADV_QUEUE_LENGTH  3  //!< Number of advertisements that can be queued.
-#   define RUUVI_NRF5_SDK15_SCAN_QUEUE_LENGTH 3  //!< Number of scans that can be queued.
-#   define RUUVI_NRF5_SDK15_ADV_LENGTH        31 //!< TODO: Up to 238 for extended connectable.
+#   define RUUVI_NRF5_SDK15_ADV_QUEUE_LENGTH  3   //!< Number of advertisements that can be queued.
+#   define RUUVI_NRF5_SDK15_SCAN_QUEUE_LENGTH 3   //!< Number of scans that can be queued.
+#   if RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED
+#       define RUUVI_NRF5_SDK15_ADV_LENGTH    238 //!< Extended connectable data length
+#       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Cannot have extended data + scanrsp
+#   else
+#       define RUUVI_NRF5_SDK15_ADV_LENGTH    31  //!< Standard message length
+#       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Standard message length
+#   endif
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED

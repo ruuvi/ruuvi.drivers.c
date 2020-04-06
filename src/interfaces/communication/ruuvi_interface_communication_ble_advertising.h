@@ -17,17 +17,21 @@
 #include <stdint.h>
 
 #if RI_ADV_ENABLED
-#define RUUVI_NRF5_SDK15_ADV_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#   define RUUVI_NRF5_SDK15_ADV_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#   define RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED RI_ADV_EXTENDED_ENABLED
 #endif
 
 /* @brief number of bytes in a MAC address */
 #define BLE_MAC_ADDRESS_LENGTH 6
 
-/* @brief Number of bytes in a BLE scan data.
+/** @brief Number of bytes in a BLE scan data.
  *
- * @note This van be up to 256 if using extended advertising.
-  */
-#define BLE_SCAN_DATA_LENGTH   31
+ */
+#if RI_ADV_EXTENDED_ENABLED
+#    define BLE_SCAN_DATA_LENGTH   238
+#else
+#    define BLE_SCAN_DATA_LENGTH   31
+#endif
 
 /** @brief Alloved advertisement types */
 typedef enum
@@ -109,8 +113,8 @@ rd_status_t ri_adv_manufacturer_id_set (const uint16_t id);
 /**
  * @brief Set radio TX power.
  *
- * Takes effect on next call to send. May or may not change power of ongoing transmission,
- * if you need different power levels for advertisements adjust power 
+ * Takes effect on next call to send, messages already in send queue are not 
+ * affected. 
  *
  * @param[in,out] dbm Radio power. Supported values are board-dependent.
  *                    Value is interpreted as "at least", power is set to smallest
@@ -133,42 +137,11 @@ rd_status_t ri_adv_tx_power_set (int8_t * dbm);
  */
 rd_status_t ri_adv_tx_power_get (int8_t * dbm);
 
-/** @brief setup scan window interval and window size.
- *
- *  The scan window interval must be larger or equivalent to window size.
- *  Example: Interval 1000 ms, window size 100 ms.
- *  The scanning will scan 100 ms at channel 37, wait 900 ms, scan 100 ms at channel 38,
- *  wait 900 ms, scan 100 ms at channel 39. After scan has finished RI_COMM_TIMEOUT event is triggered
- *  if initialized channel has event handler. 
- *
- *  Scan is started immediately after calling this function and ended once timeout occurs or @ref ri_adv_scan_stop is called.
- *
- *  @param[in] window_interval_ms interval of the window.
- *  @param[in] window_size_ms     window size within interval.
- *  @return RD_SUCCESS  on success.
- *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
- *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
- */
-rd_status_t ri_adv_rx_interval_set (const uint32_t window_interval_ms,
-                                    const uint32_t window_size_ms);
-
-/** @brief get scan window interval and window size.
- *
- *
- *  @param[out] window_interval_ms interval of the window.
- *  @param[out] window_size_ms     window size within interval.
- *  @return RD_SUCCESS  on success.
- *  @return RD_ERROR_NULL if either pointer is NULL.
- *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are
- *                                 otherwise invalid.
- */
-rd_status_t ri_adv_rx_interval_get (uint32_t * window_interval_ms,
-                                    uint32_t * window_size_ms);
-
 /**
  * @brief Configure advertising data with a scan response.
+ *
  * The scan response must be separately enabled by setting advertisement type as
- * scannable.
+ * scannable. This setting has effect starting from the next time send is called.
  *
  * @param[in] name Name to advertise, NULL-terminated string.
  *                 Max 27 characters if not advertising NUS, 10 characters if NUS is
@@ -200,19 +173,49 @@ rd_status_t ri_adv_type_set (ri_adv_type_t type);
  * @brief Stop ongoing advertisements.
  *
  * If advertisement was configured on repeat, calling this function stops advertising
- * before the repeat counter has been reached. This function can be safely called
- * even if no advertising is ongoing.
+ * before the repeat counter has been reached. Any queued advertisements are cancelled.
+ * This function can be safely called even if no advertising is ongoing.
  *
  * @retval RD_SUCCESS if no more advertisements are ongoing.
  */
 rd_status_t ri_adv_stop (void);
 
+/** @brief setup scan window interval and window size.
+ *
+ *  The scan window interval must be larger or equivalent to window size.
+ *  Example: Interval 1000 ms, window size 100 ms.
+ *  The scanning will scan 100 ms at channel 37, wait 900 ms, scan 100 ms at channel 38,
+ *  wait 900 ms, scan 100 ms at channel 39. After scan has finished RI_COMM_TIMEOUT event is triggered
+ *  if initialized channel has event handler. 
+ *
+ *  Scan is started immediately after calling this function and ended once timeout occurs or @ref ri_adv_scan_stop is called.
+ *
+ *  @param[in] window_interval_ms interval of the window.
+ *  @param[in] window_size_ms     window size within interval.
+ *  @return RD_SUCCESS  on success.
+ *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
+ *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
+ *
+rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
+                               const uint32_t window_size_ms,
+                               );*/
+
 /**
- * @brief Select active channels.
+ * @brief Stop ongoing scanning.
  *
  * If advertisement was configured on repeat, calling this function stops advertising
  * before the repeat counter has been reached. This function can be safely called
  * even if no advertising is ongoing.
+ *
+ * @retval RD_SUCCESS if no more advertisements are ongoing.
+ */
+rd_status_t ri_adv_scan_stop (void);
+
+/**
+ * @brief Select active channels.
+ *
+ * If advertisement was configured on repeat, calling this function has no effect
+ * to advertisements on send queue. 
  *
  * @retval RD_SUCCESS if no more advertisements are ongoing.
  */

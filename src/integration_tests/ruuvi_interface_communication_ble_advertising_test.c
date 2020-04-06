@@ -186,9 +186,76 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
 
     if (RD_SUCCESS == err_code)
     {
-        uint64_t start = ri_rtc_millis();
         m_has_sent = false;
         m_channel.send (&msg);
+        uint64_t start = ri_rtc_millis();
+
+        while (!m_has_sent 
+               && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
+        {
+            ri_yield();
+        }
+
+        uint64_t end = ri_rtc_millis();
+
+        if ( (RI_TEST_ADV_FAST > (end - start))
+                || (RI_TEST_ADV_FAST + (2*RI_ADV_RND_DELAY)) < (end - start))
+        {
+            status = true;
+        }
+    }
+    else
+    {
+        status = true;
+    }
+
+    err_code |= ri_adv_tx_interval_get (NULL);
+    status |= (RD_ERROR_NULL != err_code);
+    err_code = ri_adv_tx_interval_get (&interval);
+    status |= (RD_SUCCESS != err_code);
+    status |= (RI_TEST_ADV_FAST != interval);
+
+    if (status)
+    {
+        printfp ("\"fail\",\r\n");
+    }
+    else
+    {
+        printfp ("\"pass\",\r\n");
+    }
+
+    (void) ri_rtc_uninit();
+    (void) ri_adv_uninit (&m_channel);
+    (void) ri_radio_uninit();
+    return status;
+}
+
+static bool ri_adv_extended_test (const rd_test_print_fp printfp,
+                                  const ri_radio_modulation_t modulation)
+{
+    bool status = false;
+    rd_status_t err_code = RD_SUCCESS;
+    uint32_t interval = 0;
+    ri_comm_message_t msg;
+    msg.repeat_count = 2;
+    snprintf ( (char *) & (msg.data), sizeof (msg.data), 
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nisl "
+               "ligula, lacinia malesuada pellentesque molestie, venenatis "
+               "non neque. Cras eget ligula eget nunc pharetra tincidunt. "
+               "Etiam volutpat.");
+    msg.data_length = strlen (msg.data);
+    printfp ("\"extended\":");
+    err_code |= ri_rtc_init();
+    err_code |= ri_radio_init (modulation);
+    err_code |= ri_adv_init (&m_channel);
+    m_channel.on_evt = &ble_isr;
+    err_code |= ri_adv_tx_interval_set (RI_TEST_ADV_FAST);
+
+    if (RD_SUCCESS == err_code)
+    {
+        m_has_sent = false;
+        m_channel.send (&msg);
+        uint64_t start = ri_rtc_millis();
 
         while (!m_has_sent 
                && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
@@ -325,8 +392,9 @@ static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp,
     err_code |= ri_rtc_init();
     err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
     err_code |= ri_adv_init (&m_channel);
-    err_code |= ri_adv_rx_interval_set (RI_TEST_ADV_SCAN_INTERVAL,
-                                        RI_TEST_ADV_SCAN_WINDOW);
+    m_channel.on_evt = ble_isr;
+/*    err_code |= ri_adv_rx_interval_set (RI_TEST_ADV_SCAN_INTERVAL,
+                                        RI_TEST_ADV_SCAN_WINDOW);*/
     test_start = ri_rtc_millis();
     m_timeout = false;
     while(!m_timeout 
@@ -440,6 +508,7 @@ bool ri_communication_ble_advertising_run_integration_test (const rd_test_print_
     printfp("\":{\r\n");
     status |= ri_adv_init_test (printfp, modulation);
     status |= ri_adv_interval_test(printfp, modulation);
+    status |= ri_adv_extended_test(printfp, modulation);
     status |= ri_adv_power_test(printfp, modulation);
     status |= ri_adv_rx_interval_test(printfp, modulation);
     printfp ("},\r\n");

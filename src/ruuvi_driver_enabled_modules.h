@@ -38,10 +38,18 @@
 #include "nrf5_sdk15_app_config.h"
 #endif
 
+#ifndef RI_ADV_EXTENDED_ENABLED
+#   define RI_ADV_EXTENDED_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RI_COMM_MESSAGE_MAX_LENGTH
 /** @brief Standard BLE Broadcast manufacturer specific
 data payload length is the maximum length */
-#  define RI_COMM_MESSAGE_MAX_LENGTH 24
+#   if RI_ADV_EXTENDED_ENABLED
+#       define RI_COMM_MESSAGE_MAX_LENGTH 230
+#   else
+#       define RI_COMM_MESSAGE_MAX_LENGTH 24
+#   endif
 #endif
 
 #ifndef RD_LOG_BUFFER_SIZE
