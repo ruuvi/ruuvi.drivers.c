@@ -8,8 +8,8 @@
 #if RT_GATT_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_atomic.h"
-#include "ruuvi_interface_communication_ble4_advertising.h"
-#include "ruuvi_interface_communication_ble4_gatt.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
+#include "ruuvi_interface_communication_ble_gatt.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_log.h"
@@ -54,7 +54,7 @@ static inline void LOGDHEX (const uint8_t * const msg, const size_t len)
     ri_log_hex (RI_LOG_LEVEL_DEBUG, msg, len);
 }
 
-static ri_communication_t m_channel;   //!< API for sending data.
+static ri_comm_channel_t m_channel;   //!< API for sending data.
 static bool m_is_init;
 static bool m_nus_is_init;
 static bool m_dis_is_init;
@@ -90,7 +90,7 @@ void rt_gatt_mock_state_reset()
     m_dfu_is_init = false;
     m_dis_is_init = false;
     m_nus_is_connected = false;
-    memset (&m_channel, 0, sizeof (ri_communication_t));
+    memset (&m_channel, 0, sizeof (ri_comm_channel_t));
     memset (m_name, 0, sizeof (m_name));
 }
 #endif
@@ -116,27 +116,27 @@ void rt_gatt_mock_state_reset()
 #ifndef CEEDLING
 static
 #endif
-rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
+rd_status_t rt_gatt_on_nus_isr (ri_comm_evt_t evt,
                                 void * p_data, size_t data_len)
 {
     switch (evt)
     {
         // Note: This gets called only after the NUS notifications have been registered.
-        case RI_COMMUNICATION_CONNECTED:
+        case RI_COMM_CONNECTED:
             m_nus_is_connected = true;
             (NULL != m_on_connected) ? m_on_connected (p_data, data_len) : false;
             break;
 
-        case RI_COMMUNICATION_DISCONNECTED:
+        case RI_COMM_DISCONNECTED:
             m_nus_is_connected = false;
             (NULL != m_on_disconnected) ? m_on_disconnected (p_data, data_len) : false;
             break;
 
-        case RI_COMMUNICATION_SENT:
+        case RI_COMM_SENT:
             (NULL != m_on_sent) ? m_on_sent (p_data, data_len) : false;
             break;
 
-        case RI_COMMUNICATION_RECEIVED:
+        case RI_COMM_RECEIVED:
             (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
             break;
 
@@ -147,7 +147,7 @@ rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
     return RD_SUCCESS;
 }
 
-rd_status_t rt_gatt_dis_init (const ri_communication_dis_init_t * const p_dis)
+rd_status_t rt_gatt_dis_init (const ri_comm_dis_init_t * const p_dis)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -290,7 +290,7 @@ bool rt_gatt_nus_is_connected (void)
     return m_nus_is_connected && (NULL != m_channel.send);
 }
 
-rd_status_t rt_gatt_send_asynchronous (ri_communication_message_t
+rd_status_t rt_gatt_send_asynchronous (ri_comm_message_t
                                        * const p_msg)
 {
     rd_status_t err_code = RD_SUCCESS;

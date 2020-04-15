@@ -23,34 +23,34 @@
  * Integration test NFC implementation.
  */
 
-static ri_communication_t m_channel;
+static ri_comm_channel_t m_channel;
 static bool m_has_connected;
 static bool m_has_disconnected;
 static bool m_has_sent;
 static bool m_has_received;
-static ri_communication_message_t rx_data;
+static ri_comm_message_t rx_data;
 
-static rd_status_t nfc_isr (ri_communication_evt_t evt,
+static rd_status_t nfc_isr (ri_comm_evt_t evt,
                             void * p_data, size_t data_len)
 {
     switch (evt)
     {
         // Note: This gets called only after the NFC notifications have been registered.
-        case RI_COMMUNICATION_CONNECTED:
+        case RI_COMM_CONNECTED:
             m_has_connected = true;
             break;
 
-        case RI_COMMUNICATION_DISCONNECTED:
+        case RI_COMM_DISCONNECTED:
             m_has_disconnected = true;
             break;
 
-        case RI_COMMUNICATION_SENT:
+        case RI_COMM_SENT:
             m_has_sent = true;
             break;
 
-        case RI_COMMUNICATION_RECEIVED:
+        case RI_COMM_RECEIVED:
             m_has_received = true;
-            rx_data.data_length = RI_COMMUNICATION_MESSAGE_MAX_LENGTH;
+            rx_data.data_length = RI_COMM_MESSAGE_MAX_LENGTH;
             m_channel.read (&rx_data);
             break;
 
@@ -124,8 +124,8 @@ bool ri_nfc_rx_test (const rd_test_print_fp printfp)
     printfp ("\"tx_rx\":");
     err_code |= ri_nfc_init (&m_channel);
     const char test_data[] = "Lorem Ipsum";
-    ri_communication_message_t msg = {0};
-    snprintf (msg.data, RI_COMMUNICATION_MESSAGE_MAX_LENGTH, "%s", test_data);
+    ri_comm_message_t msg = {0};
+    snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
     msg.data_length = strlen (msg.data);
 
     if (RD_SUCCESS == err_code)
@@ -142,7 +142,7 @@ bool ri_nfc_rx_test (const rd_test_print_fp printfp)
         }
 
         if ( (RD_SUCCESS != err_code)
-                || memcmp (&rx_data, &msg, sizeof (ri_communication_message_t)))
+                || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t)))
         {
             status = true;
         }

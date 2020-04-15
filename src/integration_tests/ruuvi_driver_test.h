@@ -49,7 +49,7 @@ bool rd_test_all_run (const rd_test_print_fp printfp);
  *
  * @param expect[in] Expected value.
  * @param precision[in] Number of decimals which must match.
- * @param check[in] Value to check
+ * @param check[in] Value to check.
  *
  */
 bool rd_expect_close (const float expect, const int8_t precision,

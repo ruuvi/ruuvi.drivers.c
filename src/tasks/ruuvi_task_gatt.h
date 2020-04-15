@@ -16,14 +16,14 @@
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
-#include "ruuvi_interface_communication_ble4_gatt.h"
+#include "ruuvi_interface_communication_ble_gatt.h"
 
 #ifdef CEEDLING
 // Assist function for unit tests.
 void rt_gatt_mock_state_reset();
 
 // Expose callback to Ceedling
-rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
+rd_status_t rt_gatt_on_nus_isr (ri_comm_evt_t evt,
                                 void * p_data, size_t data_len);
 
 #endif
@@ -41,7 +41,7 @@ rd_status_t rt_gatt_on_nus_isr (ri_communication_evt_t evt,
  * @retval error code from stack on other error
  *
  */
-rd_status_t rt_gatt_send_asynchronous (ri_communication_message_t * const msg);
+rd_status_t rt_gatt_send_asynchronous (ri_comm_message_t * const msg);
 
 /**
  * @brief Initialize Device Firmware Update service
@@ -75,7 +75,7 @@ rd_status_t rt_gatt_dfu_init (void);
  * @retval RD_ERROR_NULL if given NULL as the information.
  * @retval RD_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  */
-rd_status_t rt_gatt_dis_init (const ri_communication_dis_init_t * const dis);
+rd_status_t rt_gatt_dis_init (const ri_comm_dis_init_t * const dis);
 
 /**
  * @brief Initialize Nordic UART Service

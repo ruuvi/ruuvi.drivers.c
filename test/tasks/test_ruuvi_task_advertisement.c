@@ -12,51 +12,78 @@
 #include "ruuvi_driver_error.h"
 
 #include "mock_ruuvi_task_gatt.h"
-#include "mock_ruuvi_interface_communication_ble4_advertising.h"
+#include "mock_ruuvi_interface_communication_ble_advertising.h"
 #include "mock_ruuvi_interface_log.h"
+
+#include <stdio.h>
+#include <string.h>
 
 #define ADV_INTERVAL_MS (1000U)
 #define ADV_PWR_DBM     (0)
 #define ADV_MANU_ID     (0xFFFFU)
+#define SEND_COUNT_MAX (10U)
 
-static ri_communication_t m_adv_channel =
-{
-    .send = ri_adv_send,
-    .read = ri_adv_receive,
-    .init = ri_adv_init,
-    .uninit = ri_adv_uninit
-};
+static uint32_t send_count = 0;
+static uint32_t read_count = 0;
+static bool m_con_cb;
+static bool m_discon_cb;
+static bool m_tx_cb;
+static bool m_rx_cb;
+static const char m_name[] = "Ceedling";
 
-static ri_communication_t m_uninit_channel =
+
+
+rd_status_t mock_send (ri_comm_message_t * const p_msg)
 {
-    .send = NULL,
-    .read = NULL,
-    .init = NULL,
-    .uninit = NULL
-};
+    rd_status_t err_code = RD_SUCCESS;
+    send_count++;
+
+    return err_code;
+}
+
+rd_status_t mock_read (ri_comm_message_t * const p_msg)
+{
+    read_count++;
+    return RD_SUCCESS;
+}
+
+rd_status_t mock_uninit (ri_comm_channel_t * const p_channel)
+{
+    memset (p_channel, 0, sizeof (ri_comm_channel_t));
+    return RD_SUCCESS;
+}
+
+rd_status_t mock_init (ri_comm_channel_t * const p_channel)
+{
+    p_channel->send   = mock_send;
+    p_channel->read   = mock_read;
+    p_channel->uninit = mock_uninit;
+    p_channel->init   = mock_init;
+    p_channel->on_evt = NULL;
+    return RD_SUCCESS;
+}
+
+static ri_comm_channel_t m_mock_channel;
 
 
 void setUp (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_adv_init_ExpectAnyArgsAndReturn (
-        RD_SUCCESS);
-    ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+    mock_init(&m_mock_channel);
+    ri_adv_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adv_init_ReturnArrayThruPtr_channel (&m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
-    ri_adv_tx_interval_set_ExpectAndReturn (
-        ADV_INTERVAL_MS, RD_SUCCESS);
-    ri_adv_tx_power_set_ExpectWithArrayAndReturn (
-        &power, sizeof (power), RD_SUCCESS);
-    ri_adv_type_set_ExpectAndReturn (
-        NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
-    ri_adv_manufacturer_id_set_ExpectAndReturn (
-        ADV_MANU_ID, RD_SUCCESS);
+    ri_adv_tx_interval_set_ExpectAndReturn (ADV_INTERVAL_MS, RD_SUCCESS);
+    ri_adv_tx_power_set_ExpectWithArrayAndReturn (&power, sizeof (power), RD_SUCCESS);
+    ri_adv_type_set_ExpectAndReturn (NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
+    ri_adv_manufacturer_id_set_ExpectAndReturn (ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     err_code = rt_adv_init(&init);
+    send_count = 0;
+    read_count = 0;
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (rt_adv_is_init());
 }
@@ -64,10 +91,11 @@ void setUp (void)
 void tearDown (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    mock_uninit(&m_mock_channel);
     ri_adv_uninit_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_uninit_ReturnArrayThruPtr_channel (
-        &m_uninit_channel, 1);
+        &m_mock_channel, 1);
     err_code = rt_adv_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adv_is_init());
@@ -89,11 +117,12 @@ void tearDown (void)
 void test_rt_adv_init_ok (void)
 {
     tearDown();
+    mock_init(&m_mock_channel);
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -119,7 +148,7 @@ void test_rt_adv_init_invalid_interval (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_ERROR_INVALID_PARAM);
     int8_t power = ADV_PWR_DBM;
@@ -145,7 +174,7 @@ void test_rt_adv_init_invalid_power (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -171,7 +200,7 @@ void test_rt_adv_init_invalid_type (void)
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
-        &m_adv_channel, 1);
+        &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
@@ -216,43 +245,14 @@ void test_rt_adv_init_twice (void)
 void test_rt_adv_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    mock_uninit(&m_mock_channel);
     ri_adv_uninit_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_uninit_ReturnArrayThruPtr_channel (
-        &m_uninit_channel, 1);
+        &m_mock_channel, 1);
     err_code = rt_adv_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adv_is_init());
-}
-
-/**
- * @brief Starts advertising.
- *
- * Before this function is called, you must initialize advertising and should
- * set some data into advertisement buffer. Otherwise empty advertisement packets are sent.
- * It might be desirable to send empty advertisement payloads as GATT connection
- * advertisements piggyback on data advertisements.
- *
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_INVALID_STATE if advertising is not initialized.
- * returns error code from stack on error
- *
- */
-void test_rt_adv_start_ok (void)
-{
-    rd_status_t err_code = RD_SUCCESS;
-    ri_adv_start_ExpectAndReturn (
-        RD_SUCCESS);
-    err_code = rt_adv_start();
-    TEST_ASSERT (RD_SUCCESS == err_code);
-}
-
-void test_rt_adv_start_not_init (void)
-{
-    tearDown();
-    rd_status_t err_code = RD_SUCCESS;
-    err_code = rt_adv_start();
-    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
 /**
@@ -285,18 +285,6 @@ void test_rt_adv_stop_ok (void)
  *  @retval    RD_ERROR_DATA_SIZE if payload size is larger than 24 bytes
  *  @retval    error code from stack on other error.
  */
-
-void test_rt_adv_send_data_ok (void)
-{
-    rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t message;
-    message.data_length = 10;
-    ri_adv_send_ExpectWithArrayAndReturn (&message,
-            sizeof (message), RD_SUCCESS);
-    err_code = rt_adv_send_data (&message);
-    TEST_ASSERT (RD_SUCCESS == err_code);
-}
-
 void test_rt_adv_send_data_null (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -308,7 +296,7 @@ void test_rt_adv_send_data_not_init (void)
 {
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t message;
+    ri_comm_message_t message;
     message.data_length = 10;
     err_code = rt_adv_send_data (&message);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
@@ -317,7 +305,7 @@ void test_rt_adv_send_data_not_init (void)
 void test_rt_adv_send_data_excess_size_25 (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t message;
+    ri_comm_message_t message;
     message.data_length = 25;
     err_code = rt_adv_send_data (&message);
     TEST_ASSERT (RD_ERROR_DATA_SIZE == err_code);

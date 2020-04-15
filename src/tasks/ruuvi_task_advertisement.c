@@ -15,7 +15,7 @@
 #if RT_ADV_ENABLED
 
 #include "ruuvi_driver_error.h"
-#include "ruuvi_interface_communication_ble4_advertising.h"
+#include "ruuvi_interface_communication_ble_advertising.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_task_advertisement.h"
 #include "ruuvi_task_gatt.h"
@@ -33,7 +33,7 @@ static size_t safe_strlen (const char * s, size_t maxlen)
     return i;
 }
 
-static ri_communication_t m_channel;
+static ri_comm_channel_t m_channel;
 static bool m_is_init;
 
 rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings)
@@ -67,22 +67,6 @@ rd_status_t rt_adv_uninit (void)
     return ri_adv_uninit (&m_channel);
 }
 
-rd_status_t rt_adv_start (void)
-{
-    rd_status_t err_code = RD_SUCCESS;
-
-    if (!m_is_init)
-    {
-        err_code |= RD_ERROR_INVALID_STATE;
-    }
-    else
-    {
-        err_code |= ri_adv_start();
-    }
-
-    return err_code;
-}
-
 rd_status_t rt_adv_stop (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -99,8 +83,7 @@ rd_status_t rt_adv_stop (void)
     return err_code;
 }
 
-rd_status_t rt_adv_send_data (
-    ri_communication_message_t * const msg)
+rd_status_t rt_adv_send_data (ri_comm_message_t * const msg)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -146,7 +129,6 @@ rd_status_t rt_adv_connectability_set (const bool enable, const char * const dev
     }
     else
     {
-        // TODO @ojousima: ensure that advertisement type is extended if necessary.
         err_code |= ri_adv_type_set (CONNECTABLE_SCANNABLE);
         err_code |= ri_adv_scan_response_setup (device_name, rt_gatt_is_nus_enabled());
     }
@@ -170,7 +152,7 @@ rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt)
     else
     {
         m_channel.on_evt = on_evt;
-        err_code |= ri_adv_scan_start();
+        err_code |= ri_adv_scan_start (1000, 2000); //XXX
     }
 
     return err_code;

@@ -8,8 +8,8 @@
 
 #include "mock_ruuvi_task_advertisement.h"
 #include "mock_ruuvi_interface_atomic.h"
-#include "mock_ruuvi_interface_communication_ble4_advertising.h"
-#include "mock_ruuvi_interface_communication_ble4_gatt.h"
+#include "mock_ruuvi_interface_communication_ble_advertising.h"
+#include "mock_ruuvi_interface_communication_ble_gatt.h"
 #include "mock_ruuvi_interface_communication_radio.h"
 #include "mock_ruuvi_interface_log.h"
 
@@ -25,7 +25,7 @@ static const char m_name[] = "Ceedling";
 
 #define SEND_COUNT_MAX (10U)
 
-rd_status_t mock_send (ri_communication_message_t * const p_msg)
+rd_status_t mock_send (ri_comm_message_t * const p_msg)
 {
     rd_status_t err_code = RD_SUCCESS;
     static bool extra_error = false;
@@ -50,15 +50,15 @@ rd_status_t mock_send (ri_communication_message_t * const p_msg)
     return err_code;
 }
 
-rd_status_t mock_read (ri_communication_message_t * const p_msg)
+rd_status_t mock_read (ri_comm_message_t * const p_msg)
 {
     read_count++;
     return RD_SUCCESS;
 }
 
-rd_status_t mock_uninit (ri_communication_t * const p_channel)
+rd_status_t mock_uninit (ri_comm_channel_t * const p_channel)
 {
-    memset (p_channel, 0, sizeof (ri_communication_t));
+    memset (p_channel, 0, sizeof (ri_comm_channel_t));
     return RD_SUCCESS;
 }
 
@@ -82,7 +82,7 @@ void on_tx_isr (void * p_data, size_t data_len)
     m_tx_cb = true;
 }
 
-rd_status_t mock_init (ri_communication_t * const p_channel)
+rd_status_t mock_init (ri_comm_channel_t * const p_channel)
 {
     p_channel->send   = mock_send;
     p_channel->read   = mock_read;
@@ -92,7 +92,7 @@ rd_status_t mock_init (ri_communication_t * const p_channel)
     return RD_SUCCESS;
 }
 
-static ri_communication_t m_mock_gatt;
+static ri_comm_channel_t m_mock_gatt;
 
 void setUp (void)
 {
@@ -109,7 +109,7 @@ void setUp (void)
 
 void tearDown (void)
 {
-    memset (&m_mock_gatt, 0, sizeof (ri_communication_t));
+    memset (&m_mock_gatt, 0, sizeof (ri_comm_channel_t));
     send_count = 0;
     read_count = 0;
     m_con_cb = false;
@@ -181,7 +181,7 @@ void test_rt_gatt_dfu_init_twice (void)
 void test_rt_gatt_dis_init_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_dis_init_t dis = {0};
+    ri_comm_dis_init_t dis = {0};
     ri_gatt_dis_init_ExpectAndReturn (&dis, RD_SUCCESS);
     err_code = rt_gatt_dis_init (&dis);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -190,7 +190,7 @@ void test_rt_gatt_dis_init_ok (void)
 void test_rt_gatt_dis_init_twice (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_dis_init_t dis = {0};
+    ri_comm_dis_init_t dis = {0};
     test_rt_gatt_dis_init_ok();
     err_code = rt_gatt_dis_init (&dis);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
@@ -207,7 +207,7 @@ void test_rt_gatt_dis_init_no_gatt (void)
 {
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_dis_init_t dis = {0};
+    ri_comm_dis_init_t dis = {0};
     err_code = rt_gatt_dis_init (&dis);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
@@ -388,10 +388,10 @@ void test_rt_gatt_disable_not_init (void)
 void test_rt_gatt_send_asynchronous_ok()
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t msg = { 0 };
+    ri_comm_message_t msg = { 0 };
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_CONNECTED, NULL, 0);
+    rt_gatt_on_nus_isr (RI_COMM_CONNECTED, NULL, 0);
     err_code = rt_gatt_send_asynchronous (&msg);
     TEST_ASSERT (1 == send_count);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -400,10 +400,10 @@ void test_rt_gatt_send_asynchronous_ok()
 void test_rt_gatt_send_asynchronous_null()
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t msg = { 0 };
+    ri_comm_message_t msg = { 0 };
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_CONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
                           NULL, 0);
     err_code = rt_gatt_send_asynchronous (NULL);
     TEST_ASSERT (0 == send_count);
@@ -413,7 +413,7 @@ void test_rt_gatt_send_asynchronous_null()
 void test_rt_gatt_send_asynchronous_no_nus()
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t msg = { 0 };
+    ri_comm_message_t msg = { 0 };
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
     err_code = rt_gatt_send_asynchronous (&msg);
@@ -424,10 +424,10 @@ void test_rt_gatt_send_asynchronous_no_nus()
 void test_rt_gatt_send_asynchronous_no_mem()
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t msg = { 0 };
+    ri_comm_message_t msg = { 0 };
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_CONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
                           NULL, 0);
 
     for (uint32_t ii = 0; ii <= SEND_COUNT_MAX; ii++)
@@ -442,10 +442,10 @@ void test_rt_gatt_send_asynchronous_no_mem()
 void test_rt_gatt_send_asynchronous_unknown_error()
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_communication_message_t msg = { 0 };
+    ri_comm_message_t msg = { 0 };
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_CONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
                           NULL, 0);
 
     for (uint32_t ii = 0; ii < SEND_COUNT_MAX; ii++)
@@ -464,13 +464,13 @@ void test_rt_gatt_callbacks_ok()
     rt_gatt_set_on_sent_isr (on_tx_isr);
     rt_gatt_set_on_connected_isr (on_con_isr);
     rt_gatt_set_on_disconn_isr (on_discon_isr);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_CONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
                           NULL, 0);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_DISCONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_DISCONNECTED,
                           NULL, 0);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_SENT,
+    rt_gatt_on_nus_isr (RI_COMM_SENT,
                           NULL, 0);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_RECEIVED,
+    rt_gatt_on_nus_isr (RI_COMM_RECEIVED,
                           NULL, 0);
     TEST_ASSERT (m_rx_cb);
     TEST_ASSERT (m_tx_cb);
@@ -480,13 +480,13 @@ void test_rt_gatt_callbacks_ok()
 void test_rt_gatt_callbacks_null()
 {
     test_rt_gatt_nus_init_ok();
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_CONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
                           NULL, 0);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_DISCONNECTED,
+    rt_gatt_on_nus_isr (RI_COMM_DISCONNECTED,
                           NULL, 0);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_SENT,
+    rt_gatt_on_nus_isr (RI_COMM_SENT,
                           NULL, 0);
-    rt_gatt_on_nus_isr (RI_COMMUNICATION_RECEIVED,
+    rt_gatt_on_nus_isr (RI_COMM_RECEIVED,
                           NULL, 0);
     TEST_ASSERT_FALSE (m_rx_cb);
     TEST_ASSERT_FALSE (m_tx_cb);

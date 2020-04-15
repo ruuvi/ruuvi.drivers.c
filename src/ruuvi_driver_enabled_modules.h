@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.1.6"
+#define RUUVI_DRIVERS_SEMVER "0.2.0"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -38,10 +38,18 @@
 #include "nrf5_sdk15_app_config.h"
 #endif
 
-#ifndef RI_COMMUNICATION_MESSAGE_MAX_LENGTH
+#ifndef RI_ADV_EXTENDED_ENABLED
+#   define RI_ADV_EXTENDED_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_COMM_MESSAGE_MAX_LENGTH
 /** @brief Standard BLE Broadcast manufacturer specific
 data payload length is the maximum length */
-#  define RI_COMMUNICATION_MESSAGE_MAX_LENGTH 24
+#   if RI_ADV_EXTENDED_ENABLED
+#       define RI_COMM_MESSAGE_MAX_LENGTH 230
+#   else
+#       define RI_COMM_MESSAGE_MAX_LENGTH 24
+#   endif
 #endif
 
 #ifndef RD_LOG_BUFFER_SIZE
@@ -54,18 +62,30 @@ data payload length is the maximum length */
 #  define RT_ADC_ENABLED ENABLE_DEFAULT
 #endif
 
-#ifndef RI_COMMUNICATION_ENABLED
+#ifndef RI_COMM_ENABLED
 /** @brief Enable communication helper compilation. */
-#  define RI_COMMUNICATION_ENABLED ENABLE_DEFAULT
+#  define RI_COMM_ENABLED ENABLE_DEFAULT
 #endif
+
+#ifndef RI_RADIO_ENABLED
+/** brief enable radio usage */
+#  define RI_RADIO_ENABLED ENABLE_DEFAULT
+#endif
+
 
 #ifndef RT_ADV_ENABLED
 /** @brief Enable BLE advertising compilation. */
 #  define RT_ADV_ENABLED ENABLE_DEFAULT
 #endif
 
-#if RT_ADV_ENABLED && !(RI_COMMUNICATION_ENABLED)
+#define RI_ADV_ENABLED RT_ADV_ENABLED
+
+#if RT_ADV_ENABLED && !(RI_COMM_ENABLED)
 #  error "Advertisement task requires communication interface."
+#endif
+
+#if RT_ADV_ENABLED && !(RI_RADIO_ENABLED)
+#  error "Advertisement task requires radio interface."
 #endif
 
 #ifndef RT_BUTTON_ENABLED
@@ -83,8 +103,12 @@ data payload length is the maximum length */
 #  define RT_GATT_ENABLED ENABLE_DEFAULT
 #endif
 
-#if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMMUNICATION_ENABLED))
+#if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMM_ENABLED))
 #  error "GATT task requires Advertisement task and communication interface."
+#endif
+
+#if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_RADIO_ENABLED))
+#  error "GATT task requires Advertisement task and radio interface."
 #endif
 
 #ifndef RT_GPIO_ENABLED
@@ -135,6 +159,10 @@ data payload length is the maximum length */
 #  ifndef RI_NFC_ENABLED
 #    define RI_NFC_ENABLED 1
 #  endif
+#endif
+
+#ifndef RI_RTC_ENABLED
+#  define RI_RTC_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RI_SCHEDULER_ENABLED

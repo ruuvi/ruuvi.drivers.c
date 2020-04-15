@@ -17,7 +17,7 @@
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 
-rd_status_t ri_communication_id_get (uint64_t * const _id)
+rd_status_t ri_comm_id_get (uint64_t * const _id)
 {
     uint64_t id = 0;
     id |= (uint64_t) ( (NRF_FICR->DEVICEID[0] >> 24) & 0xFF) << 56;

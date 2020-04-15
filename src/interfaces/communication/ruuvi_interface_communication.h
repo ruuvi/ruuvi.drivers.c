@@ -1,14 +1,19 @@
-/**
- * Ruuvi communication interface
- *
- * License: BSD-3
- * Author: Otso Jousimaa <otso@ojousima.net>
- */
 #ifndef RUUVI_INTERFACE_COMMUNICATION_H
 #define RUUVI_INTERFACE_COMMUNICATION_H
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
-#if RI_COMMUNICATION_ENABLED
+
+/**
+ * @file ruuvi_interface_communication.h
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2020-03-26
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Commmon definitions and functions for all radio operations.
+ *
+ */
+
+#if RI_COMM_ENABLED
 #  define RUUVI_NRF5_SDK15_COMMUNICATION_ENABLED  RUUVI_NRF5_SDK15_ENABLED
 #endif
 
@@ -17,51 +22,54 @@
 #include <stdint.h>
 
 /** @brief maximum length for device information strings */
-#define RI_COMMUNICATION_DIS_STRLEN 32
+#define RI_COMM_DIS_STRLEN 32
 
 /** @brief Application message definition. */
-typedef struct ri_communication_message_t
+typedef struct ri_comm_message_t
 {
-    uint8_t data[RI_COMMUNICATION_MESSAGE_MAX_LENGTH]; //!< Data payload.
-    uint8_t data_length;                               //!< Length of data
-    uint8_t repeat;                                    //!< Number of times to repeat the message, 0 for infinite sends, 1 for send once.
-} ri_communication_message_t;
+    uint8_t data[RI_COMM_MESSAGE_MAX_LENGTH]; //!< Data payload.
+    uint8_t data_length;                      //!< Length of data
+    uint8_t repeat_count;                     //!< Number of times to repeat the message,
+    //   0 for infinite sends, 1 for send once.
+} ri_comm_message_t;
 
 /** @brief Communication event type */
 typedef enum
 {
-    RI_COMMUNICATION_CONNECTED,    //!< Connection established, OK to send, may receive data.
-    RI_COMMUNICATION_DISCONNECTED, //!< Connection lost, cannot send, may not receive data.
-    RI_COMMUNICATION_SENT,         //!< One queued message was sent with all repetitions.
-    RI_COMMUNICATION_RECEIVED,     //!< New data received, available to read with read function
-    RI_COMMUNICATION_TIMEOUT       //!< Operation timed out.
-} ri_communication_evt_t;
+    RI_COMM_CONNECTED,    //!< Connection established, OK to send, may receive data.
+    RI_COMM_DISCONNECTED, //!< Connection lost, cannot send, may not receive data.
+    RI_COMM_SENT,         //!< One queued message was sent with all repetitions.
+    RI_COMM_RECEIVED,     //!< New data received, available to read with read function
+    RI_COMM_TIMEOUT       //!< Operation timed out.
+} ri_comm_evt_t;          //!< Events @ref ri_comm_channel_t may receive.
 
 typedef struct
 {
-    char fw_version[RI_COMMUNICATION_DIS_STRLEN];
-    char model[RI_COMMUNICATION_DIS_STRLEN];
-    char hw_version[RI_COMMUNICATION_DIS_STRLEN];
-    char manufacturer[RI_COMMUNICATION_DIS_STRLEN];
-    char deviceid[RI_COMMUNICATION_DIS_STRLEN];
-    char deviceaddr[RI_COMMUNICATION_DIS_STRLEN];
-} ri_communication_dis_init_t;
+    char fw_version[RI_COMM_DIS_STRLEN];   //!< Human readable firmware version.
+    char model[RI_COMM_DIS_STRLEN];        //!< Human readable board model.
+    char hw_version[RI_COMM_DIS_STRLEN];   //!< Human readable hardware version.
+    char manufacturer[RI_COMM_DIS_STRLEN]; //!< Human readable manufacturer name.
+    char deviceid[RI_COMM_DIS_STRLEN];     //!< Human readable device ID.
+    char deviceaddr[RI_COMM_DIS_STRLEN];   //!< Human readable device address, e.g. MAC.
+} ri_comm_dis_init_t;                      //!< Basic device information structure.
 
-typedef struct ri_communication_t
-    ri_communication_t; //!< forward declaration *and* typedef
+typedef struct ri_comm_channel_t ri_comm_channel_t;
 
 /* @brief Callback handler for communication events */
 typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
 
-/** @brief Asynchronous transfer function. Puts/gets message in driver queue
+/**
+ *  @brief Asynchronous transfer function. Puts/gets message in driver queue
+ *
  *  @param[in, out] msg A message to put/get to/from driver queue
  *  @return RD_MORE_AVAILABLE if data was read from queue and there is more data available.
  *  @return RD_SUCCESS if queue operation was successful.
  *  @return RD_ERROR_NULL if message is NULL.
+ *  @return RD_ERROR_DATA_SIZE if message length is larger than queue supports.
  *  @return RD_ERROR_NO_MEM if queue is full and new data cannot be queued.
  *  @return RD_ERROR_NOT_FOUND if queue is empty and no more data can be read.
  */
-typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_communication_message_t * const
+typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_comm_message_t * const
         msg);
 
 /** @brief (Un-)Initialization function.
@@ -70,20 +78,21 @@ typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_communication_message_t * const
  *  @return RD_ERROR_NULL if API is NULL.
  *  @return error driver from stack on other error
  */
-typedef rd_status_t (*ri_comm_init_fp_t) (ri_communication_t * const channel);
+typedef rd_status_t (*ri_comm_init_fp_t) (ri_comm_channel_t * const channel);
 
 /** @brief Application event handler for communication events.
  *  @param[in] evt Type of event, @ref ri_communication_evt_t.
  *  @param[in] data Data associated with the event. May be NULL.
- *  @param[in] data_len Length of event data. Must be 0 if data is NULL. Must be at maximum @ref RI_COMMUNICATION_MESSAGE_MAX_LENGTH.
+ *  @param[in] data_len Length of event data. Must be 0 if data is NULL.
+ *                      Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH.
  *  @return RD_SUCCESS if operation was successful.
  *  @return error driver from stack on other error
  */
-typedef rd_status_t (*ri_comm_evt_handler_fp_t) (const ri_communication_evt_t
+typedef rd_status_t (*ri_comm_evt_handler_fp_t) (const ri_comm_evt_t
         evt, void * p_data, size_t data_len);
 
 /** @brief control API for communication via outside world */
-struct ri_communication_t
+struct ri_comm_channel_t
 {
     ri_comm_xfer_fp_t send;    //!< Asynchronous send function
     ri_comm_xfer_fp_t read;    //!< Asynchronous read function
@@ -102,6 +111,6 @@ struct ri_communication_t
  * return RD_ERROR_NOT_SUPPORTED if ID cannot be returned on given platform
  *
  */
-rd_status_t ri_communication_id_get (uint64_t * const id);
+rd_status_t ri_comm_id_get (uint64_t * const id);
 
 #endif
