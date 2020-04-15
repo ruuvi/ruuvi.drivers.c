@@ -57,7 +57,7 @@ static bool m_nfc_is_initialized;      //!< True while NFC is initialized.
 #ifndef CEEDLING
 static
 #endif
-rd_status_t rt_nfc_isr (ri_comm_evt_t evt,void * p_data, size_t data_len)
+rd_status_t rt_nfc_isr (ri_comm_evt_t evt, void * p_data, size_t data_len)
 {
     switch (evt)
     {

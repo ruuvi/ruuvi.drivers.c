@@ -179,4 +179,42 @@ rd_status_t ri_radio_get_modulation (ri_radio_modulation_t * const p_modulation)
     return RD_SUCCESS;
 }
 
+
+uint8_t ruuvi_nrf5_sdk15_radio_phy_get (void)
+{
+    uint8_t nrf_modulation = BLE_GAP_PHY_NOT_SET;
+    ri_radio_modulation_t modulation;
+    rd_status_t err_code = ri_radio_get_modulation (&modulation);
+
+    if (RD_SUCCESS == err_code)
+    {
+        switch (modulation)
+        {
+            case RI_RADIO_BLE_125KBPS:
+                nrf_modulation = BLE_GAP_PHY_CODED;
+
+            case RI_RADIO_BLE_1MBPS:
+                nrf_modulation = BLE_GAP_PHY_1MBPS;
+
+            case RI_RADIO_BLE_2MBPS:
+                nrf_modulation = BLE_GAP_PHY_2MBPS;
+
+            default:
+                nrf_modulation = BLE_GAP_PHY_NOT_SET;
+                break;
+        }
+    }
+
+    return modulation;
+}
+
+void ruuvi_nrf5_sdk15_radio_channels_set (uint8_t * const nrf_channels,
+        const ri_radio_channels_t channels)
+{
+    memset (nrf_channels, 0, sizeof (ble_gap_ch_mask_t));
+    nrf_channels[4] |= (!channels.channel_37) << 5;
+    nrf_channels[4] |= (!channels.channel_38) << 6;
+    nrf_channels[4] |= (!channels.channel_39) << 7;
+}
+
 #endif

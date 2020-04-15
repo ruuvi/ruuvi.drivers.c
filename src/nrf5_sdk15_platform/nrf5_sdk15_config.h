@@ -19,11 +19,6 @@
 #        warning "NRF5 SDK15 is not configured, using defaults."
 #endif
 
-#ifndef NRF_BLE_SCAN_BUFFER
-/** @brief maximum data in a BLE packet */
-#define NRF_BLE_SCAN_BUFFER 31
-#endif
-
 #ifndef RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG
 #define RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG 1
 #endif
@@ -44,31 +39,31 @@
 #endif
 
 #ifndef NRF_SDH_SOC_ENABLED
-    /** @brief Required by SDK BLE module conditional compilation */
+/** @brief Required by SDK BLE module conditional compilation */
 #   define NRF_SDH_SOC_ENABLED NRF_SDH_ENABLED
 #endif
 
 #if RUUVI_NRF5_SDK15_ADV_ENABLED
-    /** @brief Required by SDK BLE module conditional compilation */
+/** @brief Required by SDK BLE module conditional compilation */
 #   define NRF_QUEUE_ENABLED 1
-    /** @brief Required by SDK BLE module conditional compilation */
-#   define NRF_BLE_SCAN_ENABLED 1 
+/** @brief Required by SDK BLE module conditional compilation */
+#   define NRF_BLE_SCAN_ENABLED 1
 #   define NRF_BLE_SCAN_SCAN_INTERVAL (1000U) //!< Scan interval in 625 us units.
-    /**
-     * @brief Scan window in 625 us units.
-     * If scan_phys contains both BLE_GAP_PHY_1MBPS and BLE_GAP_PHY_CODED 
-     * interval shall be larger than or equal to twice the scan window.
-     */
+/**
+ * @brief Scan window in 625 us units.
+ * If scan_phys contains both BLE_GAP_PHY_1MBPS and BLE_GAP_PHY_CODED
+ * interval shall be larger than or equal to twice the scan window.
+ */
 #   define NRF_BLE_SCAN_SCAN_WINDOW   (200U)
-    /** @brief Scan timeout in 10 ms units. */
-#   define NRF_BLE_SCAN_SCAN_DURATION (3U * NRF_BLE_SCAN_SCAN_INTERVAL / 10U) 
-    /** @brief Relevant only to centrals, but required. Milliseconds. */
+/** @brief Scan timeout in 10 ms units. */
+#   define NRF_BLE_SCAN_SCAN_DURATION (3U * NRF_BLE_SCAN_SCAN_INTERVAL / 10U)
+/** @brief Relevant only to centrals, but required. Milliseconds. */
 #   define NRF_BLE_SCAN_SUPERVISION_TIMEOUT (4000U)
-    /** @brief Relevant only to centrals, but required. Milliseconds. */
+/** @brief Relevant only to centrals, but required. Milliseconds. */
 #   define NRF_BLE_SCAN_MIN_CONNECTION_INTERVAL (20U)
-    /** @brief Relevant only to centrals, but required. Milliseconds. */
+/** @brief Relevant only to centrals, but required. Milliseconds. */
 #   define NRF_BLE_SCAN_MAX_CONNECTION_INTERVAL (1000U)
-    /** @brief Relevant only to centrals, but required. Allowed skipped intervals. */
+/** @brief Relevant only to centrals, but required. Allowed skipped intervals. */
 #   define NRF_BLE_SCAN_SLAVE_LATENCY 29
 
 #   define RUUVI_NRF5_SDK15_ADV_QUEUE_LENGTH  3   //!< Number of advertisements that can be queued.
@@ -76,9 +71,11 @@
 #   if RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED
 #       define RUUVI_NRF5_SDK15_ADV_LENGTH    238 //!< Extended connectable data length
 #       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Cannot have extended data + scanrsp
+#       define NRF_BLE_SCAN_BUFFER            255 //!< Maximum scannable extended advertisement.
 #   else
 #       define RUUVI_NRF5_SDK15_ADV_LENGTH    31  //!< Standard message length
 #       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Standard message length
+#       define NRF_BLE_SCAN_BUFFER            31  //!< Standard advertisement legth
 #   endif
 #endif
 

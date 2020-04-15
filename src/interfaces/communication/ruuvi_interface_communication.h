@@ -29,8 +29,8 @@ typedef struct ri_comm_message_t
 {
     uint8_t data[RI_COMM_MESSAGE_MAX_LENGTH]; //!< Data payload.
     uint8_t data_length;                      //!< Length of data
-    uint8_t repeat_count;                     //!< Number of times to repeat the message, 
-                                              //   0 for infinite sends, 1 for send once.
+    uint8_t repeat_count;                     //!< Number of times to repeat the message,
+    //   0 for infinite sends, 1 for send once.
 } ri_comm_message_t;
 
 /** @brief Communication event type */
@@ -58,7 +58,7 @@ typedef struct ri_comm_channel_t ri_comm_channel_t;
 /* @brief Callback handler for communication events */
 typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
 
-/** 
+/**
  *  @brief Asynchronous transfer function. Puts/gets message in driver queue
  *
  *  @param[in, out] msg A message to put/get to/from driver queue
@@ -83,7 +83,7 @@ typedef rd_status_t (*ri_comm_init_fp_t) (ri_comm_channel_t * const channel);
 /** @brief Application event handler for communication events.
  *  @param[in] evt Type of event, @ref ri_communication_evt_t.
  *  @param[in] data Data associated with the event. May be NULL.
- *  @param[in] data_len Length of event data. Must be 0 if data is NULL. 
+ *  @param[in] data_len Length of event data. Must be 0 if data is NULL.
  *                      Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH.
  *  @return RD_SUCCESS if operation was successful.
  *  @return error driver from stack on other error

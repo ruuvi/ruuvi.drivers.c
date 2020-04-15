@@ -53,7 +53,7 @@ static rd_status_t ble_isr (ri_comm_evt_t evt,
         case RI_COMM_RECEIVED:
             m_has_received = true;
             break;
-        
+
         case RI_COMM_TIMEOUT:
             m_timeout = true;
             break;
@@ -190,8 +190,8 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
         m_channel.send (&msg);
         uint64_t start = ri_rtc_millis();
 
-        while (!m_has_sent 
-               && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
+        while (!m_has_sent
+                && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
         {
             ri_yield();
         }
@@ -199,7 +199,7 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
         uint64_t end = ri_rtc_millis();
 
         if ( (RI_TEST_ADV_FAST > (end - start))
-                || (RI_TEST_ADV_FAST + (2*RI_ADV_RND_DELAY)) < (end - start))
+                || (RI_TEST_ADV_FAST + (2 * RI_ADV_RND_DELAY)) < (end - start))
         {
             status = true;
         }
@@ -238,8 +238,8 @@ static bool ri_adv_extended_test (const rd_test_print_fp printfp,
     uint32_t interval = 0;
     ri_comm_message_t msg;
     msg.repeat_count = 2;
-    snprintf ( (char *) & (msg.data), sizeof (msg.data), 
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nisl "
+    snprintf ( (char *) & (msg.data), sizeof (msg.data),
+               "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nisl "
                "ligula, lacinia malesuada pellentesque molestie, venenatis "
                "non neque. Cras eget ligula eget nunc pharetra tincidunt. "
                "Etiam volutpat.");
@@ -257,8 +257,8 @@ static bool ri_adv_extended_test (const rd_test_print_fp printfp,
         m_channel.send (&msg);
         uint64_t start = ri_rtc_millis();
 
-        while (!m_has_sent 
-               && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
+        while (!m_has_sent
+                && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
         {
             ri_yield();
         }
@@ -266,7 +266,7 @@ static bool ri_adv_extended_test (const rd_test_print_fp printfp,
         uint64_t end = ri_rtc_millis();
 
         if ( (RI_TEST_ADV_FAST > (end - start))
-                || (RI_TEST_ADV_FAST + (2*RI_ADV_RND_DELAY)) < (end - start))
+                || (RI_TEST_ADV_FAST + (2 * RI_ADV_RND_DELAY)) < (end - start))
         {
             status = true;
         }
@@ -381,8 +381,8 @@ static bool ri_adv_power_test (const rd_test_print_fp printfp,
  *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  */
-static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp,
-                                    const ri_radio_modulation_t modulation)
+static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
+                                     const ri_radio_modulation_t modulation)
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
@@ -393,21 +393,29 @@ static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp,
     err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
     err_code |= ri_adv_init (&m_channel);
     m_channel.on_evt = ble_isr;
-/*    err_code |= ri_adv_rx_interval_set (RI_TEST_ADV_SCAN_INTERVAL,
-                                        RI_TEST_ADV_SCAN_WINDOW);*/
-    test_start = ri_rtc_millis();
     m_timeout = false;
-    while(!m_timeout 
-          && (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) > (ri_rtc_millis() - test_start)){
+    m_has_received;
+    test_start = ri_rtc_millis();
+    err_code |= ri_adv_scan_start (RI_TEST_ADV_SCAN_INTERVAL,
+                                   RI_TEST_ADV_SCAN_WINDOW);
+
+    while (!m_timeout
+            && (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) > (ri_rtc_millis() -
+                    test_start))
+    {
         // Sleep - woken up on event
         // ri_yield();
         // Prevent loop being optimized away
         __asm__ ("");
     }
+
     test_end = ri_rtc_millis();
-    if((RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) < (test_end - test_start)
-      || ((RI_TEST_ADV_SCAN_CH_NUM-1) * RI_TEST_ADV_SCAN_INTERVAL + RI_TEST_ADV_SCAN_WINDOW) > (test_end - test_start)
-      || (RD_SUCCESS != err_code))
+
+    if ( (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) < (test_end - test_start)
+            || ( (RI_TEST_ADV_SCAN_CH_NUM - 1) * RI_TEST_ADV_SCAN_INTERVAL + RI_TEST_ADV_SCAN_WINDOW)
+            > (test_end - test_start)
+            || (RD_SUCCESS != err_code)
+            || !m_has_received)
     {
         status = true;
     }
@@ -424,9 +432,8 @@ static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp,
     (void) ri_rtc_uninit();
     (void) ri_adv_uninit (&m_channel);
     (void) ri_radio_uninit();
-
     return status;
-} 
+}
 
 /**
  * @brief Configure advertising data with a scan response.
@@ -475,26 +482,26 @@ static bool ri_adv_rx_interval_test(const rd_test_print_fp printfp,
  */
 rd_status_t ri_adv_scan_stop (void);
 
-static void print_modulation(const rd_test_print_fp printfp,
-        const ri_radio_modulation_t modulation)
+static void print_modulation (const rd_test_print_fp printfp,
+                              const ri_radio_modulation_t modulation)
 {
-    switch(modulation)
+    switch (modulation)
     {
         case RI_RADIO_BLE_125KBPS:
-          printfp("coded");
-          break;
+            printfp ("coded");
+            break;
 
         case RI_RADIO_BLE_1MBPS:
-          printfp("1_mbit");
-          break;
+            printfp ("1_mbit");
+            break;
 
         case RI_RADIO_BLE_2MBPS:
-          printfp("2_mbit");
-          break;
+            printfp ("2_mbit");
+            break;
 
         default:
-          printfp("error");
-          break;
+            printfp ("error");
+            break;
     }
 }
 
@@ -504,13 +511,13 @@ bool ri_communication_ble_advertising_run_integration_test (const rd_test_print_
 {
     bool status = false;
     printfp ("\"ble_");
-    print_modulation(printfp, modulation);
-    printfp("\":{\r\n");
+    print_modulation (printfp, modulation);
+    printfp ("\":{\r\n");
     status |= ri_adv_init_test (printfp, modulation);
-    status |= ri_adv_interval_test(printfp, modulation);
-    status |= ri_adv_extended_test(printfp, modulation);
-    status |= ri_adv_power_test(printfp, modulation);
-    status |= ri_adv_rx_interval_test(printfp, modulation);
+    status |= ri_adv_interval_test (printfp, modulation);
+    status |= ri_adv_extended_test (printfp, modulation);
+    status |= ri_adv_power_test (printfp, modulation);
+    status |= ri_adv_rx_interval_test (printfp, modulation);
     printfp ("},\r\n");
     return status;
 }

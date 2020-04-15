@@ -52,9 +52,9 @@
 #include "ruuvi_interface_log.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "nrf.h"
-static inline void LOGW(const char* const msg)
+static inline void LOGW (const char * const msg)
 {
-  ri_log(RI_LOG_LEVEL_WARNING, msg);
+    ri_log (RI_LOG_LEVEL_WARNING, msg);
 }
 
 #ifdef NRF5_SDK15_RTC_INSTANCE
@@ -63,11 +63,11 @@ static inline void LOGW(const char* const msg)
 #include <stdint.h>
 #include <stdbool.h>
 
-/** 
- *  RTC0 is reserved by the softdevice, 
- *  RTC1 is reserved by application timer. 
+/**
+ *  RTC0 is reserved by the softdevice,
+ *  RTC1 is reserved by application timer.
  */
-const nrf_drv_rtc_t rtc = NRF_DRV_RTC_INSTANCE (NRF5_SDK15_RTC_INSTANCE); 
+const nrf_drv_rtc_t rtc = NRF_DRV_RTC_INSTANCE (NRF5_SDK15_RTC_INSTANCE);
 static uint64_t ticks = 0;
 static bool m_is_init = false;
 
@@ -163,7 +163,7 @@ static void counter_handler (void * p_context)
 rd_status_t ri_rtc_init (void)
 {
     m_dummy = 0;
-    LOGW("Using timer-tick based RTC\r\n");
+    LOGW ("Using timer-tick based RTC\r\n");
     // Use timer interrupts at 1024 ms to increment RTC.
     rd_status_t err_code = RD_SUCCESS;
 

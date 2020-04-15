@@ -130,7 +130,6 @@ rd_status_t rt_adv_connectability_set (const bool enable, const char * const dev
     }
     else
     {
-        // TODO @ojousima: ensure that advertisement type is extended if necessary.
         err_code |= ri_adv_type_set (CONNECTABLE_SCANNABLE);
         err_code |= ri_adv_scan_response_setup (device_name, rt_gatt_is_nus_enabled());
     }
@@ -154,7 +153,7 @@ rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt)
     else
     {
         m_channel.on_evt = on_evt;
-        err_code |= ri_adv_scan_start();
+        err_code |= ri_adv_scan_start (1000, 2000); //XXX
     }
 
     return err_code;

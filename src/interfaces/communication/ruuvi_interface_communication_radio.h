@@ -67,7 +67,7 @@ typedef void (*ri_radio_activity_interrupt_fp_t) (const ri_radio_activity_evt_t 
  *
  *  @param[in] modulation Modulation for radio operations.
  *                        If 2 MBPS is defined, primary advertising PHY is 1 MBPS and
- *                        secondary PHY is 2 MBPS. 
+ *                        secondary PHY is 2 MBPS.
  *                        Note: if other end of communication requests different speed,
  *                        the implementation should support it if applicable to board.
  *  @retval    RD_SUCCESS on success

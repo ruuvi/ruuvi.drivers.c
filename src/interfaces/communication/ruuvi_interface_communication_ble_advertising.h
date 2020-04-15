@@ -40,7 +40,7 @@ typedef enum
     CONNECTABLE_NONSCANNABLE,    //!< Connectable, nonscannable
     CONNECTABLE_SCANNABLE,       //!< Connectable, scannable
     NONCONNECTABLE_SCANNABLE     //!< Nonconnectable, scannable
-} ri_adv_type_t;                 //!< Allowed advertisement types. The implementation uses extended type if required. 
+} ri_adv_type_t;                 //!< Allowed advertisement types. The implementation uses extended type if required.
 
 typedef struct
 {
@@ -53,8 +53,8 @@ typedef struct
 /**
  * @brief Initialize Advertising module and scanning module.
  *
- * Initially channels 37, 38 and 39 are enabled. Modulation is decided by 
- * radio initialization. If @ref RI_RADIO_BLE_125KBPS or @ref  RI_RADIO_BLE_1MBPS is set, 
+ * Initially channels 37, 38 and 39 are enabled. Modulation is decided by
+ * radio initialization. If @ref RI_RADIO_BLE_125KBPS or @ref  RI_RADIO_BLE_1MBPS is set,
  * primary phy is the configured one and no secondary PHY is used. If modulation is
  * @ref  RI_RADIO_BLE_2MBPS primary PHY is @ref  RI_RADIO_BLE_1MBPS and secondary PHY is
  * @ref RI_RADIO_BLE_2MBPS.
@@ -103,7 +103,7 @@ rd_status_t ri_adv_tx_interval_get (uint32_t * ms);
 /**
  * @brief Set manufacturer ID of manufacturer specific advertisement.
  *
- * Will take effect on next send. Has no effect on already queued messages. 
+ * Will take effect on next send. Has no effect on already queued messages.
  *
  * @param[in] id ID of manufacturer, MSB first. E.g. 0x0499 for Ruuvi Innovations.
  * @retval RD_SUCCESS
@@ -113,8 +113,8 @@ rd_status_t ri_adv_manufacturer_id_set (const uint16_t id);
 /**
  * @brief Set radio TX power.
  *
- * Takes effect on next call to send, messages already in send queue are not 
- * affected. 
+ * Takes effect on next call to send, messages already in send queue are not
+ * affected.
  *
  * @param[in,out] dbm Radio power. Supported values are board-dependent.
  *                    Value is interpreted as "at least", power is set to smallest
@@ -186,9 +186,18 @@ rd_status_t ri_adv_stop (void);
  *  Example: Interval 1000 ms, window size 100 ms.
  *  The scanning will scan 100 ms at channel 37, wait 900 ms, scan 100 ms at channel 38,
  *  wait 900 ms, scan 100 ms at channel 39. After scan has finished RI_COMM_TIMEOUT event is triggered
- *  if initialized channel has event handler. 
+ *  if initialized channel has event handler.
  *
  *  Scan is started immediately after calling this function and ended once timeout occurs or @ref ri_adv_scan_stop is called.
+ *
+ *  Raw scan results are passed to given event handler as on_received events with @ref ri_adv_scan_t
+ *  as a parameter.
+ *
+ *  If the message contains Ruuvi-specific advertisement data, the payload is inserted into a
+ *  ri_comm_message_t with repeat = 0 and it can be read via
+ *
+ *  This function is not suitable for establishing connections to peripherals, if central mode
+ *  is supported in the future a separate connection initialization function is implemented.
  *
  *  @param[in] window_interval_ms interval of the window.
  *  @param[in] window_size_ms     window size within interval.
@@ -196,9 +205,9 @@ rd_status_t ri_adv_stop (void);
  *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  *
+ */
 rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
-                               const uint32_t window_size_ms,
-                               );*/
+                               const uint32_t window_size_ms);
 
 /**
  * @brief Stop ongoing scanning.
@@ -215,10 +224,10 @@ rd_status_t ri_adv_scan_stop (void);
  * @brief Select active channels.
  *
  * If advertisement was configured on repeat, calling this function has no effect
- * to advertisements on send queue. 
+ * to advertisements on send queue.
  *
  * @retval RD_SUCCESS if no more advertisements are ongoing.
  */
-rd_status_t ri_adv_channels_enable(const ri_radio_channels_t channel);
+rd_status_t ri_adv_channels_enable (const ri_radio_channels_t channel);
 
 #endif
