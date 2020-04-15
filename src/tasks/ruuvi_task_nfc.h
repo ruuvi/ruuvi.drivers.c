@@ -141,8 +141,7 @@ bool rt_nfc_is_connected();
 
 // Let Ceedling test internal functions
 #ifdef CEEDLING
-rd_status_t rt_nfc_isr (ri_communication_evt_t evt,
-                        void * p_data, size_t data_len);
+rd_status_t rt_nfc_isr (ri_comm_evt_t evt, void * p_data, size_t data_len);
 rd_status_t sw_set (const char * const sw);
 rd_status_t mac_set (const char * const mac);
 rd_status_t id_set (const char * const id);

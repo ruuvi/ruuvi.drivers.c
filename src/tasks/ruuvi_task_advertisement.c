@@ -83,8 +83,7 @@ rd_status_t rt_adv_stop (void)
     return err_code;
 }
 
-rd_status_t rt_adv_send_data (
-    ri_comm_message_t * const msg)
+rd_status_t rt_adv_send_data (ri_comm_message_t * const msg)
 {
     rd_status_t err_code = RD_SUCCESS;
 
