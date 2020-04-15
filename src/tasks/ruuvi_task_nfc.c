@@ -286,7 +286,7 @@ bool rt_nfc_is_connected (void)
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
 #include <stdbool.h>
-rd_status_t rt_nfc_init (ri_communication_dis_init_t * const init_data)
+rd_status_t rt_nfc_init (ri_comm_dis_init_t * const init_data)
 {
     return  RD_SUCCESS;
 }
