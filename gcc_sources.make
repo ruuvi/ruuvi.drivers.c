@@ -102,23 +102,14 @@ NRF_LIB_SOURCES= \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
 RUUVI_LIB_SOURCES= \
-  $(PROJ_DIR)BME280_driver/bme280.c \
-  $(PROJ_DIR)BME280_driver/selftest/bme280_selftest.c \
-  $(PROJ_DIR)embedded-sht/embedded-common/sensirion_common.c \
-  $(PROJ_DIR)/src/embedded-sht/shtc1/shtc1.c \
   $(PROJ_DIR)/src/interfaces/acceleration/ruuvi_interface_lis2dh12.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_bme280.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_shtcx.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_tmp117.c \
-  $(PROJ_DIR)/src/interfaces/gpio/ruuvi_interface_gpio_interrupt_test.c \
-  $(PROJ_DIR)/src/interfaces/gpio/ruuvi_interface_gpio_test.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_bme280.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_shtcx.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_tmp117.c \
   $(PROJ_DIR)/src/interfaces/log/ruuvi_interface_log.c \
-  $(PROJ_DIR)/src/interfaces/log/ruuvi_interface_log_dummy.c \
-  $(PROJ_DIR)/src/interfaces/power/ruuvi_interface_power_dummy.c \
-  $(PROJ_DIR)/src/interfaces/rtc/ruuvi_interface_rtc_dummy.c \
   $(PROJ_DIR)/src/interfaces/spi/ruuvi_interface_spi_bme280.c \
   $(PROJ_DIR)/src/interfaces/spi/ruuvi_interface_spi_lis2dh12.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/adc/ruuvi_nrf5_sdk15_adc_mcu.c \
@@ -138,27 +129,12 @@ RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/rtc/ruuvi_nrf5_sdk15_rtc_mcu.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi_nrf5_sdk15_error.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/scheduler/ruuvi_nrf5_sdk15_scheduler.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/nrfx_wdt.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/ble_dfu.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/ble_dfu_bonded.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/ble_dfu_unbonded.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/spi/ruuvi_nrf5_sdk15_spi.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/timer/ruuvi_nrf5_sdk15_timer.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/watchdog/ruuvi_nrf5_sdk15_watchdog.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/yield/ruuvi_nrf5_sdk15_yield.c \
-  $(PROJ_DIR)/src/STMems_Standard_C_drivers/lis2dh12_STdC/driver/lis2dh12_reg.c \
   $(PROJ_DIR)/src/ruuvi_driver_error.c \
-  $(PROJ_DIR)/src/ruuvi_driver_sensor.c \
-  $(PROJ_DIR)/src/test_sensor.c \
-  $(PROJ_DIR)/src/ruuvi.endpoints.c/ruuvi_endpoint_3.c \
-  $(PROJ_DIR)/src/ruuvi.endpoints.c/ruuvi_endpoint_5.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/analysis/ruuvi_library_peak2peak.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/analysis/ruuvi_library_rms.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/analysis/ruuvi_library_test_analysis.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/analysis/ruuvi_library_variance.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/data_structures/ruuvi_library_ringbuffer.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/data_structures/ruuvi_library_ringbuffer_test.c \
-  $(PROJ_DIR)/src/ruuvi.libraries.c/ruuvi_library_test.c
+  $(PROJ_DIR)/src/ruuvi_driver_sensor.c
   
 RUUVI_PRJ_SOURCES= \
   $(PROJ_DIR)/src/tasks/ruuvi_task_adc.c \
