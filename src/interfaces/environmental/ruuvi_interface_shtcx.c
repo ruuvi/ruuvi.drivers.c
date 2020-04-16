@@ -33,18 +33,18 @@
 
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
-            if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
-               RUUVI_DRIVER_SENSOR_CFG_MIN       == param ||\
-               RUUVI_DRIVER_SENSOR_CFG_MAX       == param ||\
-               RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == param   \
-             ) return RUUVI_DRIVER_SUCCESS;\
+            if(RD_SENSOR_CFG_DEFAULT   == param ||\
+               RD_SENSOR_CFG_MIN       == param ||\
+               RD_SENSOR_CFG_MAX       == param ||\
+               RD_SENSOR_CFG_NO_CHANGE == param   \
+             ) return RD_SUCCESS;\
            } while(0)
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
           uint8_t MACRO_MODE = 0; \
-          ruuvi_interface_shtcx_mode_get(&MACRO_MODE); \
-          if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
+          ri_shtcx_mode_get(&MACRO_MODE); \
+          if(RD_SENSOR_CFG_SLEEP != MACRO_MODE) { return RD_ERROR_INVALID_STATE; } \
           } while(0)
 
 
@@ -69,250 +69,250 @@ static const char m_sensor_name[] = "SHTCX"; //!< Human-readable name of the sen
  * @param[in] rslt error code from SHTCX driver
  * @return    Ruuvi error code corresponding to SHTCX error code
  */
-static ruuvi_driver_status_t SHTCX_TO_RUUVI_ERROR (const int16_t rslt)
+static rd_status_t SHTCX_TO_RUUVI_ERROR (const int16_t rslt)
 {
-    if (STATUS_OK == rslt)                 { return RUUVI_DRIVER_SUCCESS; }
+    if (STATUS_OK == rslt)                 { return RD_SUCCESS; }
 
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_ERROR_INTERNAL;
+    rd_status_t err_code = RD_ERROR_INTERNAL;
 
-    if (STATUS_UNKNOWN_DEVICE == rslt)     { err_code = RUUVI_DRIVER_ERROR_NOT_FOUND; }
-    else if (STATUS_ERR_BAD_DATA == rslt)  { err_code = RUUVI_DRIVER_ERROR_INVALID_DATA; }
-    else if (STATUS_CRC_FAIL == rslt)      { err_code = RUUVI_DRIVER_ERROR_INVALID_DATA; }
-    else if (STATUS_WAKEUP_FAILED == rslt) { err_code = RUUVI_DRIVER_ERROR_INTERNAL; }
-    else if (STATUS_SLEEP_FAILED == rslt)  { err_code = RUUVI_DRIVER_ERROR_INTERNAL; }
+    if (STATUS_UNKNOWN_DEVICE == rslt)     { err_code = RD_ERROR_NOT_FOUND; }
+    else if (STATUS_ERR_BAD_DATA == rslt)  { err_code = RD_ERROR_INVALID_DATA; }
+    else if (STATUS_CRC_FAIL == rslt)      { err_code = RD_ERROR_INVALID_DATA; }
+    else if (STATUS_WAKEUP_FAILED == rslt) { err_code = RD_ERROR_INTERNAL; }
+    else if (STATUS_SLEEP_FAILED == rslt)  { err_code = RD_ERROR_INTERNAL; }
 
     return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_init (ruuvi_driver_sensor_t *
-        environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
+rd_status_t ri_shtcx_init (rd_sensor_t *
+        environmental_sensor, rd_bus_t bus, uint8_t handle)
 {
-    if (NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
 
-    if (m_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (m_is_init) { return RD_ERROR_INVALID_STATE; }
 
-    ruuvi_driver_sensor_initialize (environmental_sensor);
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_sensor_initialize (environmental_sensor);
+    rd_status_t err_code = RD_SUCCESS;
     size_t retries = 0;
 
     switch (bus)
     {
-        case RUUVI_DRIVER_BUS_I2C:
+        case RD_BUS_I2C:
             do
             {
                 err_code = SHTCX_TO_RUUVI_ERROR (shtc1_probe());
                 retries++;
-            } while (RUUVI_DRIVER_ERROR_INVALID_DATA == err_code && retries < 5);
+            } while (RD_ERROR_INVALID_DATA == err_code && retries < 5);
 
             break;
 
         default:
-            return  RUUVI_DRIVER_ERROR_INVALID_PARAM;
+            return  RD_ERROR_INVALID_PARAM;
     }
 
-    if (RUUVI_DRIVER_SUCCESS != err_code) { err_code = RUUVI_DRIVER_ERROR_NOT_FOUND; }
+    if (RD_SUCCESS != err_code) { err_code = RD_ERROR_NOT_FOUND; }
 
-    if (RUUVI_DRIVER_SUCCESS == err_code)
+    if (RD_SUCCESS == err_code)
     {
         // Sensirion driver delays high-power mode time in any case.
         // Explicitly entering low-power mode has no effect.
         shtc1_enable_low_power_mode (0);
-        environmental_sensor->init              = ruuvi_interface_shtcx_init;
-        environmental_sensor->uninit            = ruuvi_interface_shtcx_uninit;
-        environmental_sensor->samplerate_set    = ruuvi_interface_shtcx_samplerate_set;
-        environmental_sensor->samplerate_get    = ruuvi_interface_shtcx_samplerate_get;
-        environmental_sensor->resolution_set    = ruuvi_interface_shtcx_resolution_set;
-        environmental_sensor->resolution_get    = ruuvi_interface_shtcx_resolution_get;
-        environmental_sensor->scale_set         = ruuvi_interface_shtcx_scale_set;
-        environmental_sensor->scale_get         = ruuvi_interface_shtcx_scale_get;
-        environmental_sensor->dsp_set           = ruuvi_interface_shtcx_dsp_set;
-        environmental_sensor->dsp_get           = ruuvi_interface_shtcx_dsp_get;
-        environmental_sensor->mode_set          = ruuvi_interface_shtcx_mode_set;
-        environmental_sensor->mode_get          = ruuvi_interface_shtcx_mode_get;
-        environmental_sensor->data_get          = ruuvi_interface_shtcx_data_get;
-        environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
-        environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
+        environmental_sensor->init              = ri_shtcx_init;
+        environmental_sensor->uninit            = ri_shtcx_uninit;
+        environmental_sensor->samplerate_set    = ri_shtcx_samplerate_set;
+        environmental_sensor->samplerate_get    = ri_shtcx_samplerate_get;
+        environmental_sensor->resolution_set    = ri_shtcx_resolution_set;
+        environmental_sensor->resolution_get    = ri_shtcx_resolution_get;
+        environmental_sensor->scale_set         = ri_shtcx_scale_set;
+        environmental_sensor->scale_get         = ri_shtcx_scale_get;
+        environmental_sensor->dsp_set           = ri_shtcx_dsp_set;
+        environmental_sensor->dsp_get           = ri_shtcx_dsp_get;
+        environmental_sensor->mode_set          = ri_shtcx_mode_set;
+        environmental_sensor->mode_get          = ri_shtcx_mode_get;
+        environmental_sensor->data_get          = ri_shtcx_data_get;
+        environmental_sensor->configuration_set = rd_sensor_configuration_set;
+        environmental_sensor->configuration_get = rd_sensor_configuration_get;
         environmental_sensor->name              = m_sensor_name;
         environmental_sensor->provides.datas.temperature_c = 1;
         environmental_sensor->provides.datas.humidity_rh = 1;
-        m_tsample = RUUVI_DRIVER_UINT64_INVALID;
+        m_tsample = RD_UINT64_INVALID;
         m_is_init = true;
     }
 
     return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_uninit (ruuvi_driver_sensor_t * sensor,
-        ruuvi_driver_bus_t bus, uint8_t handle)
+rd_status_t ri_shtcx_uninit (rd_sensor_t * sensor,
+        rd_bus_t bus, uint8_t handle)
 {
-    if (NULL == sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == sensor) { return RD_ERROR_NULL; }
 
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     shtc1_enable_low_power_mode (1);
-    ruuvi_driver_sensor_uninitialize (sensor);
-    m_tsample = RUUVI_DRIVER_UINT64_INVALID;
-    m_temperature = RUUVI_DRIVER_INT32_INVALID;
-    m_humidity = RUUVI_DRIVER_INT32_INVALID;
+    rd_sensor_uninitialize (sensor);
+    m_tsample = RD_UINT64_INVALID;
+    m_temperature = RD_INT32_INVALID;
+    m_humidity = RD_INT32_INVALID;
     m_is_init = false;
     return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_samplerate_set (uint8_t * samplerate)
+rd_status_t ri_shtcx_samplerate_set (uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == samplerate) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *samplerate)  { *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT; }
-    else if (RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == *samplerate) { *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT; }
-    else if (RUUVI_DRIVER_SENSOR_CFG_MIN == *samplerate) { *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT; }
-    else if (RUUVI_DRIVER_SENSOR_CFG_MAX == *samplerate) {*samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT; }
-    else { *samplerate = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED; err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED; }
+    if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { *samplerate = RD_SENSOR_CFG_DEFAULT; }
+    else if (RD_SENSOR_CFG_NO_CHANGE == *samplerate) { *samplerate = RD_SENSOR_CFG_DEFAULT; }
+    else if (RD_SENSOR_CFG_MIN == *samplerate) { *samplerate = RD_SENSOR_CFG_DEFAULT; }
+    else if (RD_SENSOR_CFG_MAX == *samplerate) {*samplerate = RD_SENSOR_CFG_DEFAULT; }
+    else { *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED; err_code |= RD_ERROR_NOT_SUPPORTED; }
 
     return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_samplerate_get (uint8_t * samplerate)
+rd_status_t ri_shtcx_samplerate_get (uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == samplerate) { return RD_ERROR_NULL; }
 
-    *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    return RUUVI_DRIVER_SUCCESS;
+    *samplerate = RD_SENSOR_CFG_DEFAULT;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_resolution_set (uint8_t * resolution)
+rd_status_t ri_shtcx_resolution_set (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == resolution) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
     uint8_t original = *resolution;
-    *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+    *resolution = RD_SENSOR_CFG_DEFAULT;
     RETURN_SUCCESS_ON_VALID (original);
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+    return RD_ERROR_NOT_SUPPORTED;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_resolution_get (uint8_t * resolution)
+rd_status_t ri_shtcx_resolution_get (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == resolution) { return RD_ERROR_NULL; }
 
-    *resolution = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    return RUUVI_DRIVER_SUCCESS;
+    *resolution = RD_SENSOR_CFG_DEFAULT;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_scale_set (uint8_t * scale)
+rd_status_t ri_shtcx_scale_set (uint8_t * scale)
 {
-    if (NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == scale) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
     uint8_t original = *scale;
-    *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
+    *scale = RD_SENSOR_CFG_DEFAULT;
     RETURN_SUCCESS_ON_VALID (original);
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+    return RD_ERROR_NOT_SUPPORTED;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_scale_get (uint8_t * scale)
+rd_status_t ri_shtcx_scale_get (uint8_t * scale)
 {
-    if (NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == scale) { return RD_ERROR_NULL; }
 
-    *scale = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    return RUUVI_DRIVER_SUCCESS;
+    *scale = RD_SENSOR_CFG_DEFAULT;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_dsp_set (uint8_t * dsp, uint8_t * parameter)
+rd_status_t ri_shtcx_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
     // Validate configuration
-    if ( (RUUVI_DRIVER_SENSOR_CFG_DEFAULT  != *parameter
-            && RUUVI_DRIVER_SENSOR_CFG_MIN   != *parameter
-            && RUUVI_DRIVER_SENSOR_CFG_MAX   != *parameter) ||
-            (RUUVI_DRIVER_SENSOR_DSP_LAST  != *dsp))
+    if ( (RD_SENSOR_CFG_DEFAULT  != *parameter
+            && RD_SENSOR_CFG_MIN   != *parameter
+            && RD_SENSOR_CFG_MAX   != *parameter) ||
+            (RD_SENSOR_DSP_LAST  != *dsp))
     {
-        return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+        return RD_ERROR_NOT_SUPPORTED;
     }
 
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_dsp_get (uint8_t * dsp, uint8_t * parameter)
+rd_status_t ri_shtcx_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
 
     // Only default is available
-    *dsp       = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    *parameter = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    return RUUVI_DRIVER_SUCCESS;
+    *dsp       = RD_SENSOR_CFG_DEFAULT;
+    *parameter = RD_SENSOR_CFG_DEFAULT;
+    return RD_SUCCESS;
 }
 
 // Start single on command, mark autorefresh with continuous
-ruuvi_driver_status_t ruuvi_interface_shtcx_mode_set (uint8_t * mode)
+rd_status_t ri_shtcx_mode_set (uint8_t * mode)
 {
-    if (NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == mode) { return RD_ERROR_NULL; }
 
     // Enter sleep by default and by explicit sleep commmand
-    if (RUUVI_DRIVER_SENSOR_CFG_SLEEP == *mode || RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *mode)
+    if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
     {
         m_autorefresh = false;
-        *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-        return RUUVI_DRIVER_SUCCESS;
+        *mode = RD_SENSOR_CFG_SLEEP;
+        return RD_SUCCESS;
     }
 
-    if (RUUVI_DRIVER_SENSOR_CFG_SINGLE == *mode)
+    if (RD_SENSOR_CFG_SINGLE == *mode)
     {
         // Do nothing if sensor is in continuous mode
         uint8_t current_mode;
-        ruuvi_interface_shtcx_mode_get (&current_mode);
+        ri_shtcx_mode_get (&current_mode);
 
-        if (RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == current_mode)
+        if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
         {
-            *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
+            *mode = RD_SENSOR_CFG_CONTINUOUS;
             // Start first measurement
             shtc1_measure();
-            return RUUVI_DRIVER_ERROR_INVALID_STATE;
+            return RD_ERROR_INVALID_STATE;
         }
 
         // Enter sleep after measurement
         m_autorefresh = false;
-        *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-        m_tsample = ruuvi_driver_sensor_timestamp_get();
+        *mode = RD_SENSOR_CFG_SLEEP;
+        m_tsample = rd_sensor_timestamp_get();
         return SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature, &m_humidity));
     }
 
-    if (RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == *mode)
+    if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         m_autorefresh = true;
-        return RUUVI_DRIVER_SUCCESS;
+        return RD_SUCCESS;
     }
 
-    return RUUVI_DRIVER_ERROR_INVALID_PARAM;
+    return RD_ERROR_INVALID_PARAM;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_mode_get (uint8_t * mode)
+rd_status_t ri_shtcx_mode_get (uint8_t * mode)
 {
-    if (NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == mode) { return RD_ERROR_NULL; }
 
     if (m_autorefresh)
     {
-        *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
     }
 
     if (!m_autorefresh)
     {
-        *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
+        *mode = RD_SENSOR_CFG_SLEEP;
     }
 
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
-ruuvi_driver_status_t ruuvi_interface_shtcx_data_get (ruuvi_driver_sensor_data_t * const
+rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
         p_data)
 {
-    if (NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == p_data) { return RD_ERROR_NULL; }
 
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (m_autorefresh)
     {
@@ -324,13 +324,13 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_data_get (ruuvi_driver_sensor_data_t
         */
         err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature,
                                           &m_humidity));
-        m_tsample = ruuvi_driver_sensor_timestamp_get();
+        m_tsample = rd_sensor_timestamp_get();
     }
 
-    if (RUUVI_DRIVER_SUCCESS == err_code && RUUVI_DRIVER_UINT64_INVALID != m_tsample)
+    if (RD_SUCCESS == err_code && RD_UINT64_INVALID != m_tsample)
     {
-        ruuvi_driver_sensor_data_t d_environmental;
-        ruuvi_driver_sensor_data_fields_t env_fields = {.bitfield = 0};
+        rd_sensor_data_t d_environmental;
+        rd_sensor_data_fields_t env_fields = {.bitfield = 0};
         float env_values[2];
         env_values[0] = m_humidity / 1000.0f;
         env_values[1] = m_temperature / 1000.0f;
@@ -339,7 +339,7 @@ ruuvi_driver_status_t ruuvi_interface_shtcx_data_get (ruuvi_driver_sensor_data_t
         d_environmental.data = env_values;
         d_environmental.valid  = env_fields;
         d_environmental.fields = env_fields;
-        ruuvi_driver_sensor_data_populate (p_data,
+        rd_sensor_data_populate (p_data,
                                            &d_environmental,
                                            p_data->fields);
         p_data->timestamp_ms = m_tsample;
@@ -365,11 +365,11 @@ void sensirion_sleep_usec (uint32_t useconds)
 {
     if (useconds < 1000)
     {
-        ruuvi_interface_delay_us (useconds);
+        ri_delay_us (useconds);
     }
     else
     {
-        ruuvi_interface_delay_ms ( (useconds / 1000) + 1);
+        ri_delay_ms ( (useconds / 1000) + 1);
     }
 }
 
