@@ -165,7 +165,7 @@ static bool ri_adv_interval_long_test (void)
     return (RD_ERROR_INVALID_PARAM != err_code);
 }
 
-static bool ri_adv_tx_test (ri_comm_message_t* const msg)
+static bool ri_adv_tx_test (ri_comm_message_t * const msg)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint32_t interval = 0;
@@ -221,7 +221,7 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
     m_channel.on_evt = &ble_isr;
     status |= ri_adv_interval_short_test();
     status |= ri_adv_interval_long_test();
-    status |= ri_adv_tx_test(&msg);
+    status |= ri_adv_tx_test (&msg);
 
     if (status)
     {
@@ -257,7 +257,7 @@ static bool ri_adv_extended_test (const rd_test_print_fp printfp,
     err_code |= ri_radio_init (modulation);
     err_code |= ri_adv_init (&m_channel);
     m_channel.on_evt = &ble_isr;
-    status |= ri_adv_tx_test(&msg);
+    status |= ri_adv_tx_test (&msg);
 
     if (status)
     {
