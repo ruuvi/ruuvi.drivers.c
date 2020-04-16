@@ -36,7 +36,7 @@
  * @retval RD_SUCCESS on success.
  * @retval error code from stack on error.
  */
-rd_status_t ri_scheduler_init ();
+rd_status_t ri_scheduler_init (void);
 
 /**
  * @brief Type definition for scheduler event handler.
@@ -79,7 +79,8 @@ rd_status_t ri_scheduler_event_put (const void * const p_event_data,
  * @brief Uninitialize scheduler.
  *
  * Scheduler has to be re-initialized after uninitialization, and all the previous
- * tasks not yet executed are discarded.
+ * tasks not yet executed are discarded. As the memory is statically allocated,
+ * no memory is freed.
  */
 rd_status_t ri_scheduler_uninit (void);
 /* @} */
