@@ -85,7 +85,7 @@ static rd_status_t SHTCX_TO_RUUVI_ERROR (const int16_t rslt)
 }
 
 rd_status_t ri_shtcx_init (rd_sensor_t *
-        environmental_sensor, rd_bus_t bus, uint8_t handle)
+                           environmental_sensor, rd_bus_t bus, uint8_t handle)
 {
     if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
 
@@ -143,7 +143,7 @@ rd_status_t ri_shtcx_init (rd_sensor_t *
 }
 
 rd_status_t ri_shtcx_uninit (rd_sensor_t * sensor,
-        rd_bus_t bus, uint8_t handle)
+                             rd_bus_t bus, uint8_t handle)
 {
     if (NULL == sensor) { return RD_ERROR_NULL; }
 
@@ -308,7 +308,7 @@ rd_status_t ri_shtcx_mode_get (uint8_t * mode)
 }
 
 rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
-        p_data)
+                               p_data)
 {
     if (NULL == p_data) { return RD_ERROR_NULL; }
 
@@ -340,8 +340,8 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
         d_environmental.valid  = env_fields;
         d_environmental.fields = env_fields;
         rd_sensor_data_populate (p_data,
-                                           &d_environmental,
-                                           p_data->fields);
+                                 &d_environmental,
+                                 p_data->fields);
         p_data->timestamp_ms = m_tsample;
     }
 
