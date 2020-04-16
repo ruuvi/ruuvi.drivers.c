@@ -23,15 +23,6 @@
 typedef void (*rd_test_print_fp) (const char * const msg);
 
 /**
- * @brief Runs the tests.
- *
- * @param printfp[in] Pointer to function which will print out test results. Takes
- *                    a null terminated string as a parameter and returns void.
- * @return True if all tests passed, false otherwise
- */
-bool rd_test_all_run (const rd_test_print_fp printfp);
-
-/**
  * @brief Check if given value is "near enough" to what user expects.
  *
  * Check if two floats are close to another, down to precision.
@@ -48,7 +39,7 @@ bool rd_test_all_run (const rd_test_print_fp printfp);
  * @endcode
  *
  * @param expect[in] Expected value.
- * @param precision[in] Number of decimals which must match.
+ * @param precision[in] Number of decimals which must match. Negative values are allowed.
  * @param check[in] Value to check.
  *
  */
