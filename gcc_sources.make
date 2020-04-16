@@ -106,15 +106,10 @@ RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_bme280.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_shtcx.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_tmp117.c \
-  $(PROJ_DIR)/src/interfaces/gpio/ruuvi_interface_gpio_interrupt_test.c \
-  $(PROJ_DIR)/src/interfaces/gpio/ruuvi_interface_gpio_test.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_bme280.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_shtcx.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_tmp117.c \
   $(PROJ_DIR)/src/interfaces/log/ruuvi_interface_log.c \
-  $(PROJ_DIR)/src/interfaces/log/ruuvi_interface_log_dummy.c \
-  $(PROJ_DIR)/src/interfaces/power/ruuvi_interface_power_dummy.c \
-  $(PROJ_DIR)/src/interfaces/rtc/ruuvi_interface_rtc_dummy.c \
   $(PROJ_DIR)/src/interfaces/spi/ruuvi_interface_spi_bme280.c \
   $(PROJ_DIR)/src/interfaces/spi/ruuvi_interface_spi_lis2dh12.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/adc/ruuvi_nrf5_sdk15_adc_mcu.c \
@@ -134,10 +129,6 @@ RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/rtc/ruuvi_nrf5_sdk15_rtc_mcu.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi_nrf5_sdk15_error.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/scheduler/ruuvi_nrf5_sdk15_scheduler.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/nrfx_wdt.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/ble_dfu.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/ble_dfu_bonded.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/ble_dfu_unbonded.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/spi/ruuvi_nrf5_sdk15_spi.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/timer/ruuvi_nrf5_sdk15_timer.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/watchdog/ruuvi_nrf5_sdk15_watchdog.c \
