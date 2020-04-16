@@ -165,20 +165,21 @@ static bool ri_adv_interval_long_test (void)
     return (RD_ERROR_INVALID_PARAM != err_code);
 }
 
-static bool ri_adv_tx_test (void)
+static bool ri_adv_tx_test (ri_comm_message_t * const msg)
 {
     rd_status_t err_code = RD_SUCCESS;
+    uint32_t interval = 0;
     bool status = false;
     err_code |= ri_adv_tx_interval_set (RI_TEST_ADV_FAST);
 
     if (RD_SUCCESS == err_code)
     {
         m_has_sent = false;
-        m_channel.send (&msg);
+        m_channel.send (msg);
         uint64_t start = ri_rtc_millis();
 
         while (!m_has_sent
-                && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg.repeat_count))
+                && (ri_rtc_millis() - start) < (RI_TEST_ADV_FAST * msg->repeat_count))
         {
             ri_yield();
         }
@@ -209,7 +210,6 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
-    uint32_t interval = 0;
     ri_comm_message_t msg;
     msg.repeat_count = 2;
     snprintf ( (char *) & (msg.data), sizeof (msg.data), "Ave mundi!");
@@ -221,7 +221,7 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
     m_channel.on_evt = &ble_isr;
     status |= ri_adv_interval_short_test();
     status |= ri_adv_interval_long_test();
-    status |= ri_adv_tx_test();
+    status |= ri_adv_tx_test (&msg);
 
     if (status)
     {
@@ -257,7 +257,7 @@ static bool ri_adv_extended_test (const rd_test_print_fp printfp,
     err_code |= ri_radio_init (modulation);
     err_code |= ri_adv_init (&m_channel);
     m_channel.on_evt = &ble_isr;
-    status |= ri_adv_tx_test();
+    status |= ri_adv_tx_test (&msg);
 
     if (status)
     {
