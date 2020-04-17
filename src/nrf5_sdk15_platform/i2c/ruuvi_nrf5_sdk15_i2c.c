@@ -101,14 +101,15 @@ static void byte_timeout_set (const
 
 #ifdef NRF_FIX_TWI_ISSUE_209
 static void byte_freq_set (nrf_drv_twi_t const * p_instance,
-			   const ri_i2c_frequency_t freq)
+                           const ri_i2c_frequency_t freq)
 {
-    NRF_TWI_Type* p_reg_twi = &p_instance->u.twi;
-    NRF_TWIM_Type* p_reg_twim = &p_instance->u.twim;
+    NRF_TWI_Type * p_reg_twi = &p_instance->u.twi;
+    NRF_TWIM_Type * p_reg_twim = &p_instance->u.twim;
+
     if (freq == RI_I2C_FREQUENCY_400k)
     {
-	if (NRF_DRV_TWI_USE_TWIM) { p_reg_twim->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
-	else { p_reg_twi->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
+        if (NRF_DRV_TWI_USE_TWIM) { p_reg_twim->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
+        else { p_reg_twi->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
     }
 }
 #endif
@@ -152,7 +153,7 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
 
     err_code = nrf_drv_twi_init (&m_twi, &twi_config, on_complete, NULL);
 #ifdef NRF_FIX_TWI_ISSUE_209
-    byte_freq_set(&m_twi, frequency);
+    byte_freq_set (&m_twi, frequency);
 #endif
     nrf_drv_twi_enable (&m_twi);
     m_i2c_is_init = true;
