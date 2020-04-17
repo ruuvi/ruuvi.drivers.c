@@ -51,6 +51,14 @@
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 
+#ifndef NRF_FIX_TWI_ISSUE_209
+#define NRF_FIX_TWI_ISSUE_209
+#endif
+
+#ifdef NRF_FIX_TWI_ISSUE_209
+#define NRF_DRV_TWI_FREQ_390K (0x06200000UL) /*!< 390 kbps */
+#endif
+
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE (I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
 static volatile bool m_tx_in_progress     = false;
@@ -91,6 +99,21 @@ static void byte_timeout_set (const
     }
 }
 
+#ifdef NRF_FIX_TWI_ISSUE_209
+static void byte_freq_set (nrf_drv_twi_t const * p_instance,
+                           const ri_i2c_frequency_t freq)
+{
+    NRF_TWI_Type * p_reg_twi = &p_instance->u.twi;
+    NRF_TWIM_Type * p_reg_twim = &p_instance->u.twim;
+
+    if (freq == RI_I2C_FREQUENCY_400k)
+    {
+        if (NRF_DRV_TWI_USE_TWIM) { p_reg_twim->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
+        else { p_reg_twi->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
+    }
+}
+#endif
+
 static void on_complete (nrf_drv_twi_evt_t const * p_event, void * p_context)
 {
     m_tx_in_progress = false;
@@ -129,6 +152,9 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
     }
 
     err_code = nrf_drv_twi_init (&m_twi, &twi_config, on_complete, NULL);
+#ifdef NRF_FIX_TWI_ISSUE_209
+    byte_freq_set (&m_twi, frequency);
+#endif
     nrf_drv_twi_enable (&m_twi);
     m_i2c_is_init = true;
     m_tx_in_progress = false;
