@@ -134,8 +134,8 @@ typedef struct
     unsigned int gyro_y_dps : 1;       //!< Rotation along Y-axis, degrees per second.
     unsigned int gyro_z_dps : 1;       //!< Rotation along Z-axis, degrees per second.
     unsigned int humidity_rh : 1;      //!< Relative humidity, %.
-unsigned int luminosity  :
-    1;      //!< Light level, dimensionless. Comparable only between identical devices.
+    /** @brief Light level, dimensionless. Comparable only between identical devices. */
+    unsigned int luminosity  : 1;
     unsigned int magnetometer_x_g : 1; //!< Magnetic flux along X-axis, Gauss.
     unsigned int magnetometer_y_g : 1; //!< Magnetic flux along Y-axis, Gauss.
     unsigned int magnetometer_z_g : 1; //!< Magnetic flux along Z-axis, Gauss.
@@ -162,7 +162,7 @@ typedef union
  */
 typedef struct rd_sensor_data_t
 {
-    uint64_t timestamp_ms;          //!< Timestamp of the event, @ref rd_sensor_timestamp_get.
+    uint64_t timestamp_ms;      //!< Timestamp of the event, @ref rd_sensor_timestamp_get.
     rd_sensor_data_fields_t
     fields; //!< Description of datafields which may be contained in this sample.
     rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample.

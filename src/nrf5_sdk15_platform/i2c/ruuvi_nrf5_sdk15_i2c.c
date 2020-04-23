@@ -38,6 +38,7 @@
  *
  */
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_i2c.h"
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
 #include <stdint.h>
 #include <string.h> //memcpy
@@ -46,7 +47,6 @@
 #include "nrf_drv_twi.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
-#include "ruuvi_interface_i2c.h"
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
@@ -63,7 +63,7 @@ static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE (I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
 static volatile bool m_tx_in_progress     = false;
 static volatile ret_code_t xfer_status    = NRF_SUCCESS;
-static uint16_t timeout_us_per_byte       = 400;
+static uint16_t timeout_us_per_byte       = 1000; //!< Longest time per byte by default
 
 static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency (const
         ri_i2c_frequency_t freq)
@@ -134,7 +134,7 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
         .scl                = ruuvi_to_nrf_pin_map (config->scl),
         .sda                = ruuvi_to_nrf_pin_map (config->sda),
         .frequency          = frequency,
-        .interrupt_priority = I2C_IRQ_PRIORITY,
+        .interrupt_priority = APP_IRQ_PRIORITY_LOW,
         .clear_bus_init     = true
     };
     // Verify that lines can be pulled up
@@ -167,8 +167,9 @@ bool ri_i2c_is_init()
 }
 
 /**
- * @brief uninitialize I2C driver with default settings
- * @return RD_SUCCESS on success, ruuvi error code on error
+ * @brief Uninitialize I2C driver with default settings.
+ *
+ * @return RD_SUCCESS on success, ruuvi error code on error.
  */
 rd_status_t i2c_uninit (void)
 {
@@ -177,7 +178,7 @@ rd_status_t i2c_uninit (void)
 
 
 /**
- * @breif I2C Write function
+ * @brief I2C Write function.
  *
  * @param[in] address I2C address of slave, without R/W bit
  * @param[in] tx_len length of data to be sent
@@ -213,12 +214,15 @@ rd_status_t ri_i2c_write_blocking (const uint8_t address,
 }
 
 /**
- * I2C Read function
+ * @brief I2C Read function.
  *
- * parameter address: I2C address of slave, without or without R/W bit set
- * parameter rx_len: length of data to be received
- * parameter data: pointer to data to be received.
+ * @param[in] address I2C address of slave, without or without R/W bit set.
+ * @param[in] rx_len Length of data to be received.
+ * @param[our] data Pointer to data to be received.
  *
+ * @retval
+ * @retval RD_ERROR_NULL
+ * @retval RD_ERROR_INVALID_STATE if I2C is not initialized
  **/
 rd_status_t ri_i2c_read_blocking (const uint8_t address,
                                   uint8_t * const p_rx, const size_t rx_len)

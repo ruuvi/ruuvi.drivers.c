@@ -1,5 +1,5 @@
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_SHTCX_ENABLED || DOXYGEN
+#if RI_SHTCX_ENABLED || DOXYGEN
 // Ruuvi headers
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -154,6 +154,7 @@ rd_status_t ri_shtcx_uninit (rd_sensor_t * sensor,
     m_temperature = RD_INT32_INVALID;
     m_humidity = RD_INT32_INVALID;
     m_is_init = false;
+    m_autorefresh = false;
     return err_code;
 }
 
