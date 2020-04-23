@@ -92,7 +92,7 @@
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
 #    define TWI_ENABLED 1
 #    define TWI1_ENABLED 1
-#    define TWI1_USE_EASYDMA 1
+#    define TWI1_USE_EASYDMA 0
 #    define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
 #endif
 
