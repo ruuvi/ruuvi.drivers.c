@@ -28,7 +28,7 @@ static bool ri_radio_init_test (const rd_test_print_fp printfp)
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
     ri_radio_modulation_t modulation = 0;
-    printfp ("\"init:\"");
+    printfp ("\"init\":");
     err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
 
     if (RD_SUCCESS != err_code)
@@ -88,7 +88,7 @@ static bool ri_radio_address_test (const rd_test_print_fp printfp)
     const uint64_t addr_set = 0xCFEDAABBCCDDU;
     uint64_t addr_old = 0;
     uint64_t addr_new = 0;
-    printfp ("\"address_set_get:\"");
+    printfp ("\"address_set_get\":");
     err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
 
     if (RD_SUCCESS != err_code)

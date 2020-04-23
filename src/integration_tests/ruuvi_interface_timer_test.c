@@ -40,7 +40,7 @@ static void test_handler (void * context)
  */
 static bool ri_timer_init_test (const rd_test_print_fp printfp)
 {
-    printfp ("\"init:\"");
+    printfp ("\"init\":");
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     err_code = ri_timer_init();
@@ -95,7 +95,7 @@ static bool ri_timer_create_test (const rd_test_print_fp printfp)
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
-    printfp ("\"create:\"");
+    printfp ("\"create\":");
     err_code |= ri_timer_init();
     ri_timer_id_t tids[RI_TIMER_MAX_INSTANCES];
     err_code |= ri_timer_create (&tids[0], RI_TIMER_MODE_SINGLE_SHOT, &test_handler);
@@ -166,7 +166,7 @@ static bool ri_timer_single_shot_test (const rd_test_print_fp printfp)
     rd_status_t err_code = RD_SUCCESS;
     executions = 0;
     char data[] = "0123456789ABCDEF";
-    printfp ("\"single_shot:\"");
+    printfp ("\"single_shot\":");
     char expected_output[RI_TIMER_MAX_INSTANCES + 1] = {0};
     memcpy (expected_output, data, RI_TIMER_MAX_INSTANCES);
     ri_timer_id_t tids[RI_TIMER_MAX_INSTANCES];
@@ -217,7 +217,7 @@ static bool ri_timer_repeat_test (const rd_test_print_fp printfp)
     rd_status_t err_code = RD_SUCCESS;
     executions = 0;
     char data[] = "ABC";
-    printfp ("\"repeat:\"");
+    printfp ("\"repeat\":");
     char expected_output[] = "ABCABACBACBA";
     memset (test_output, 0, sizeof (test_output));
     ri_timer_id_t tids[RI_TIMER_MAX_INSTANCES];
@@ -263,13 +263,13 @@ static bool ri_timer_repeat_test (const rd_test_print_fp printfp)
 
 bool ri_timer_integration_test_run (const rd_test_print_fp printfp)
 {
-    printfp ("\"timer:{\"\r\n");
+    printfp ("\"timer\":{\r\n");
     bool status = false;
     status |= ri_timer_init_test (printfp);
     status |= ri_timer_create_test (printfp);
     status |= ri_timer_single_shot_test (printfp);
     status |= ri_timer_repeat_test (printfp);
-    printfp ("\"},\"\r\n");
+    printfp ("},\r\n");
     return status;
 }
 #endif

@@ -48,13 +48,20 @@ typedef struct
 } ri_i2c_init_config_t;
 
 /**
- * @brief Initialize I2C driver with given settings
+ * @brief Initialize I2C driver with given settings.
  *
  * @param[in] config Configuration of the I2C peripheral.
  * @return error code from the stack, RD_SUCCESS if no error occurred
  **/
 rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
                          const config);
+
+/**
+ * @brief Uninitialize I2C.
+ *
+ * @return error code from the stack, RD_SUCCESS if no error occurred
+ **/
+rd_status_t ri_i2c_uninit (void);
 
 /**
  * @brief Check if i2c driver is initialized

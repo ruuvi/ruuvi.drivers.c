@@ -399,11 +399,11 @@ static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
 
     if (status)
     {
-        printfp ("\"fail\",\r\n");
+        printfp ("\"fail\"\r\n");
     }
     else
     {
-        printfp ("\"pass\",\r\n");
+        printfp ("\"pass\"\r\n");
     }
 
     (void) ri_rtc_uninit();

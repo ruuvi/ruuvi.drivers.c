@@ -42,7 +42,7 @@ static void test_handler (void * p_event_data, uint16_t event_size)
  */
 static bool ri_scheduler_init_test (const rd_test_print_fp printfp)
 {
-    printfp ("\"init:\"");
+    printfp ("\"init\":");
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     err_code = ri_scheduler_init ();
@@ -102,7 +102,7 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     char test_input[] = "Hello scheduler";
-    printfp ("\"execute:\"");
+    printfp ("\"execute\":");
     err_code |= ri_scheduler_init();
     err_code |= ri_scheduler_event_put (&test_input, sizeof (test_input), test_handler);
     err_code |= ri_scheduler_event_put (NULL, 0, test_handler);
@@ -133,7 +133,7 @@ static bool ri_scheduler_execute_test (const rd_test_print_fp printfp)
  */
 static bool ri_scheduler_event_put_test (const rd_test_print_fp printfp)
 {
-    printfp ("\"put:\"");
+    printfp ("\"put\":");
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
     // Verify that scheduler will end up filled.
@@ -176,11 +176,11 @@ static bool ri_scheduler_event_put_test (const rd_test_print_fp printfp)
 
     if (status)
     {
-        printfp ("\"fail\",\r\n");
+        printfp ("\"fail\"\r\n");
     }
     else
     {
-        printfp ("\"pass\",\r\n");
+        printfp ("\"pass\"\r\n");
     }
 
     return status;
@@ -188,12 +188,12 @@ static bool ri_scheduler_event_put_test (const rd_test_print_fp printfp)
 
 bool ri_scheduler_run_integration_test (const rd_test_print_fp printfp)
 {
-    printfp ("\"scheduler:{\"\r\n");
+    printfp ("\"scheduler\":{\r\n");
     bool status = false;
     status |= ri_scheduler_init_test (printfp);
     status |= ri_scheduler_execute_test (printfp);
     status |= ri_scheduler_event_put_test (printfp);
-    printfp ("\"},\"\r\n");
+    printfp ("},\r\n");
     return status;
 }
 #endif

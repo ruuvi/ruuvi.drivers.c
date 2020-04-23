@@ -103,8 +103,8 @@ static void byte_timeout_set (const
 static void byte_freq_set (nrf_drv_twi_t const * p_instance,
                            const ri_i2c_frequency_t freq)
 {
-    NRF_TWI_Type * p_reg_twi = &p_instance->u.twi;
-    NRF_TWIM_Type * p_reg_twim = &p_instance->u.twim;
+    NRF_TWI_Type * p_reg_twi = p_instance->u.twi.p_twi;
+    NRF_TWIM_Type * p_reg_twim = p_instance->u.twim.p_twim;
 
     if (freq == RI_I2C_FREQUENCY_400k)
     {
@@ -171,9 +171,11 @@ bool ri_i2c_is_init()
  *
  * @return RD_SUCCESS on success, ruuvi error code on error.
  */
-rd_status_t i2c_uninit (void)
+rd_status_t ri_i2c_uninit (void)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    nrf_drv_twi_disable (&m_twi);
+    nrf_drv_twi_uninit (&m_twi);
+    return RD_SUCCESS;
 }
 
 
