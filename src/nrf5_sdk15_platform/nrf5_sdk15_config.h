@@ -7,11 +7,12 @@
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_interrupt.h"    //!< Check if NRFX GPIOTE is required
 #include "ruuvi_interface_flash.h"             //!< Check if FDS is required
-#include "ruuvi_interface_i2c.h"               //!< Check if TWIM is required.
+#include "ruuvi_interface_i2c.h"               //!< Check if TWI is required.
 #include "ruuvi_interface_log.h"               //!< Check if NRF_LOG is required
 #include "ruuvi_interface_power.h"             //!< Check if POWER is required
 #include "ruuvi_interface_rtc.h"               //!< Check if RTC is required
 #include "ruuvi_interface_scheduler.h"         //!< Check if APP_SCHEDULER is required 
+#include "ruuvi_interface_spi.h"               //!< Check if SPI is required
 #include "ruuvi_interface_timer.h"             //!< Check if NRF_CLOCK, APP_TIMER required 
 #include "ruuvi_interface_watchdog.h"          //!< Check if WDT is required
 #include "ruuvi_interface_yield.h"             //!< Check if NRF_PWR_MGMT is required
@@ -94,6 +95,13 @@
 #    define TWI1_ENABLED 1
 #    define TWI1_USE_EASYDMA 0
 #    define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
+#endif
+
+#if RUUVI_NRF5_SDK15_SPI_ENABLED
+#    define SPI_ENABLED 1
+#    define SPI0_ENABLED 1
+#    define SPI0_USE_EASYDMA 1
+#    define SPI_INSTANCE 0
 #endif
 
 #if RUUVI_NRF5_SDK15_LOG_ENABLED

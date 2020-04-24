@@ -133,7 +133,6 @@ data payload length is the maximum length */
 #   define RI_I2C_ENABLED ENABLE_DEFAULT
 #endif
 
-
 #ifndef RT_LED_ENABLED
 /** @brief Enable LED task compilation. */
 #  define RT_LED_ENABLED ENABLE_DEFAULT
@@ -182,12 +181,8 @@ data payload length is the maximum length */
 #  endif
 #endif
 
-#ifndef RT_SENSOR_ENABLED
-#   define RT_SENSOR_ENABLED ENABLE_DEFAULT
-#endif
-
-#ifndef RI_SHTCX_ENABLED
-#   define RI_SHTCX_ENABLED ENABLE_DEFAULT
+#ifndef RI_SPI_ENABLED
+#   define RI_SPI_ENABLED ENABLE_DEFAULT
 #endif
 
 #if RI_TIMER_ENABLED
@@ -202,6 +197,19 @@ data payload length is the maximum length */
 
 #ifndef RI_WATCHDOG_ENABLED
 #define RI_WATCHDOG_ENABLED ENABLE_DEFAULT
+#endif
+
+/** SENSORS **/
+#ifndef RT_SENSOR_ENABLED
+#   define RT_SENSOR_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_SHTCX_ENABLED
+#   define RI_SHTCX_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_LIS2DH12_ENABLED
+#   define RI_LIS2DH12_ENABLED ENABLE_DEFAULT
 #endif
 
 #endif

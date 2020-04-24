@@ -1,8 +1,7 @@
 #include "ruuvi_driver_enabled_modules.h"
-#if (RUUVI_INTERFACE_ACCELERATION_LIS2DH12_ENABLED || DOXYGEN)
+#if (RI_LIS2DH12_ENABLED || DOXYGEN)
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
-#include "ruuvi_interface_acceleration.h"
 #include "ruuvi_interface_lis2dh12.h"
 #include "ruuvi_interface_spi_lis2dh12.h"
 #include "ruuvi_interface_yield.h"

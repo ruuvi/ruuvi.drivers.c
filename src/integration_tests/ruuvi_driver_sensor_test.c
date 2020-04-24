@@ -17,7 +17,9 @@
 #if RUUVI_RUN_TESTS
 
 #define RETURN_ON_ERROR(status) if(status) {return status;}
-#define MAX_RETRIES 50 //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
+#define MAX_RETRIES    (50U) //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
+#define MAX_FIFO_DEPTH (32U) //!< How many samples to fetch from FIFO at max
+#define MAX_SENSOR_PROVIDED_FIELDS (4U) //!< Largest number of different fields tested sensor can have.
 static volatile bool fifo_int  = false;
 static volatile bool level_int = false;
 
@@ -387,10 +389,12 @@ static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const
         DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
-    float values_new[32]; // conserve excess space for simplicity.
-    rd_sensor_data_t new_data = {.fields = DUT->provides,
-                                 .data = values_new
-                                };
+    float values_new[MAX_SENSOR_PROVIDED_FIELDS];
+    rd_sensor_data_t new_data =
+    {
+        .fields = DUT->provides,
+        .data = values_new
+    };
     err_code = DUT->data_get (&new_data);
 
     if (RD_SUCCESS != err_code || new_data.valid.bitfield)
@@ -423,7 +427,7 @@ static bool sensor_returns_valid_data (const rd_sensor_t * const DUT)
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode;
     rd_sensor_data_t data = {0};
-    float values [32];
+    float values [MAX_SENSOR_PROVIDED_FIELDS];
     data.fields = DUT->provides;
     data.data = values;
     mode = RD_SENSOR_CFG_SINGLE;
@@ -445,8 +449,8 @@ static bool single_sample_stays_valid (const rd_sensor_t * const DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
-    float old_values[32] = {0};
-    float new_values[32] = {0};
+    float old_values[MAX_SENSOR_PROVIDED_FIELDS] = {0};
+    float new_values[MAX_SENSOR_PROVIDED_FIELDS] = {0};
     rd_sensor_data_t old_data = {.fields = DUT->provides,
                                  .data   = old_values
                                 };
@@ -525,8 +529,8 @@ static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SLEEP;
-    float old_values[32];
-    float new_values[32];
+    float old_values[MAX_SENSOR_PROVIDED_FIELDS];
+    float new_values[MAX_SENSOR_PROVIDED_FIELDS];
     rd_sensor_data_t old_data = {.fields = DUT->provides,
                                  .data   = old_values
                                 };
@@ -692,8 +696,16 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
     ri_delay_ms (100);
-    size_t num_samples = 32;
-    rd_sensor_data_t data[32] = { 0 };
+    size_t num_samples = MAX_FIFO_DEPTH;
+    rd_sensor_data_t data[MAX_FIFO_DEPTH] = { 0 };
+    float values[num_samples][MAX_SENSOR_PROVIDED_FIELDS];
+
+    for (size_t ii = 0; ii < num_samples; ii++)
+    {
+        data[ii].data = values[ii];
+        data[ii].fields.bitfield = DUT->provides.bitfield;
+    }
+
     bool valid_data = false;
     DUT->fifo_read (&num_samples, data);
 
@@ -823,8 +835,8 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
         if (RI_GPIO_ID_UNUSED != p_sensor_ctx->fifo_pin
                 && RI_GPIO_ID_UNUSED != p_sensor_ctx->level_pin)
         {
-            status = test_sensor_interrupts (p_sensor_ctx->init, p_sensor_ctx->bus, false,
-                                             p_sensor_ctx->handle,
+            status = test_sensor_interrupts (p_sensor_ctx->init, p_sensor_ctx->bus,
+                                             p_sensor_ctx->handle, false,
                                              p_sensor_ctx->fifo_pin, p_sensor_ctx->level_pin);
 
             if (status)
