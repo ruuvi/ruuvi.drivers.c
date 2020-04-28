@@ -204,12 +204,22 @@ data payload length is the maximum length */
 #   define RT_SENSOR_ENABLED ENABLE_DEFAULT
 #endif
 
-#ifndef RI_SHTCX_ENABLED
-#   define RI_SHTCX_ENABLED ENABLE_DEFAULT
+#ifndef RI_BME280_ENABLED
+#   define RI_BME280_ENABLED ENABLE_DEFAULT
+#   ifndef RI_BME280_SPI_ENABLED
+#       define RI_BME280_SPI_ENABLED ENABLE_DEFAULT
+#   endif
+#   ifndef RI_BME280_I2C_ENABLED
+#       define RI_BME280_I2C_ENABLED ENABLE_DEFAULT
+#   endif
 #endif
 
 #ifndef RI_LIS2DH12_ENABLED
 #   define RI_LIS2DH12_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_SHTCX_ENABLED
+#   define RI_SHTCX_ENABLED ENABLE_DEFAULT
 #endif
 
 #endif

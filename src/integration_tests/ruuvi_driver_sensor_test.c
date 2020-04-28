@@ -696,6 +696,10 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
     ri_delay_ms (100);
+    rd_sensor_data_t old;
+    float old_values[MAX_SENSOR_PROVIDED_FIELDS];
+    old.data = old_values;
+    old.fields.bitfield = DUT->provides.bitfield;
     size_t num_samples = MAX_FIFO_DEPTH;
     rd_sensor_data_t data[MAX_FIFO_DEPTH] = { 0 };
     float values[num_samples][MAX_SENSOR_PROVIDED_FIELDS];
@@ -715,7 +719,6 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     }
 
     // Check that FIFO has new values
-    rd_sensor_data_t old;
     value_has_changed (&old, & (data[0]));
 
     for (size_t iii = 1; iii < num_samples; iii++)
@@ -854,7 +857,7 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
         }
     }
 
-    printfp ("}\r\n");
+    printfp ("}");
     return status;
 }
 
