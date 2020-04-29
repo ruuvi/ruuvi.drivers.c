@@ -83,9 +83,9 @@
 
 // DSP functions, complemented by DSP parameter
 #define RD_SENSOR_DSP_LAST            (0U)    //!< Return last value from sensor. Parameter: No effect. Use default
-#define RD_SENSOR_DSP_LOW_PASS        (1<<1U) //!< Low pass sensor values Parameter: coefficient
-#define RD_SENSOR_DSP_HIGH_PASS       (1<<2U) //!< High pass sensor values Parameter: coefficient
-#define RD_SENSOR_DSP_OS              (1<<3U) //!< Oversample sensor values. Parameter: Number of samples
+#define RD_SENSOR_DSP_LOW_PASS        (1U<<1U) //!< Low pass sensor values Parameter: coefficient
+#define RD_SENSOR_DSP_HIGH_PASS       (1U<<2U) //!< High pass sensor values Parameter: coefficient
+#define RD_SENSOR_DSP_OS              (1U<<3U) //!< Oversample sensor values. Parameter: Number of samples
 
 /** @brief convert Ruuvi GPIO into uint8_t */
 #define RD_GPIO_TO_HANDLE(handle) ((((handle) >> 3U) & 0xE0U) + ((handle) & 0x1FU))
