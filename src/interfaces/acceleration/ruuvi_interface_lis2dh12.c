@@ -181,7 +181,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
     ri_delay_ms (9);
     // Check self-test result
     lis2dh12_acceleration_raw_get (dev_ctx, data_raw_acceleration_new.u8bit);
-    lis_ret_code = lis2dh12_verify_selftest_difference (&data_raw_acceleration_new,
+    lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     // turn self-test off, keep error code in case we "lose" sensor after self-test
@@ -198,7 +198,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
     ri_delay_ms (9);
     // Check self-test result
     lis2dh12_acceleration_raw_get (dev_ctx, data_raw_acceleration_new.u8bit);
-    lis_ret_code = lis2dh12_verify_selftest_difference (&data_raw_acceleration_new,
+    lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     // turn self-test off, keep error code in case we "lose" sensor after self-test
@@ -988,7 +988,7 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable)
         ctrl.i1_wtm = PROPERTY_ENABLE;
     }
 
-    lis_ret_code = is2dh12_pin_int1_config_set (& (dev.ctx), &ctrl);
+    lis_ret_code = lis2dh12_pin_int1_config_set (& (dev.ctx), &ctrl);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     return err_code;
 }
