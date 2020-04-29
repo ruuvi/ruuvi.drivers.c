@@ -84,11 +84,11 @@ void bosch_delay_ms (uint32_t time_ms)
 static uint32_t bme280_max_meas_time (uint8_t oversampling)
 {
     // Time
-    float time = 1.25f + \
-                 2.3 * 3 * oversampling + \
-                 2 * 0.575;
+    float time = 1.25F + \
+                 2.3F * 3.0F * oversampling + \
+                 2.0F * 0.575F;
     // Roundoff + margin
-    return (uint32_t) (2 + (uint32_t) time);
+    return (uint32_t) (2U + (uint32_t) time);
 }
 
 /** Initialize BME280 into low-power mode **/
@@ -196,13 +196,13 @@ rd_status_t ri_bme280_samplerate_set (uint8_t * samplerate)
     rd_status_t err_code = RD_SUCCESS;
 
     if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-    else if (*samplerate == 1)                           { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-    else if (*samplerate == 2)                           { dev.settings.standby_time = BME280_STANDBY_TIME_500_MS; }
-    else if (*samplerate <= 8)                           { dev.settings.standby_time = BME280_STANDBY_TIME_125_MS; }
-    else if (*samplerate <= 16)                          { dev.settings.standby_time = BME280_STANDBY_TIME_62_5_MS; }
-    else if (*samplerate <= 50)                          { dev.settings.standby_time = BME280_STANDBY_TIME_20_MS; }
-    else if (*samplerate <= 100)                         { dev.settings.standby_time = BME280_STANDBY_TIME_10_MS; }
-    else if (*samplerate <= 200)                         { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
+    else if (*samplerate == 1U)                           { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
+    else if (*samplerate == 2U)                           { dev.settings.standby_time = BME280_STANDBY_TIME_500_MS; }
+    else if (*samplerate <= 8U)                           { dev.settings.standby_time = BME280_STANDBY_TIME_125_MS; }
+    else if (*samplerate <= 16U)                          { dev.settings.standby_time = BME280_STANDBY_TIME_62_5_MS; }
+    else if (*samplerate <= 50U)                          { dev.settings.standby_time = BME280_STANDBY_TIME_20_MS; }
+    else if (*samplerate <= 100U)                         { dev.settings.standby_time = BME280_STANDBY_TIME_10_MS; }
+    else if (*samplerate <= 200U)                         { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
     else if (RD_SENSOR_CFG_MIN == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
     else if (RD_SENSOR_CFG_MAX == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
     else if (RD_SENSOR_CFG_NO_CHANGE == *samplerate) {} // do nothing
@@ -282,11 +282,11 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter)
     VERIFY_SENSOR_SLEEPS();
 
     // Validate configuration
-    if (1  != *parameter
-            && 2  != *parameter
-            && 4  != *parameter
-            && 8  != *parameter
-            && 16 != *parameter
+    if (1U  != *parameter
+            && 2U  != *parameter
+            && 4U  != *parameter
+            && 8U  != *parameter
+            && 16U != *parameter
             && RD_SENSOR_CFG_DEFAULT != *parameter
             && RD_SENSOR_CFG_MIN     != *parameter
             && RD_SENSOR_CFG_MAX     != *parameter
@@ -303,7 +303,7 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter)
     }
 
     // Clear setup
-    uint8_t settings_sel = 0;
+    uint8_t settings_sel = 0U;
     // Always 1x oversampling to keep sensing element enabled
     dev.settings.osr_h = BME280_OVERSAMPLING_1X;
     dev.settings.osr_p = BME280_OVERSAMPLING_1X;
@@ -319,32 +319,32 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter)
     {
         if (RD_SENSOR_CFG_DEFAULT == *parameter || \
                 RD_SENSOR_CFG_MIN     == *parameter || \
-                1 == *parameter
+                1U == *parameter
            )
         {
             dev.settings.filter = BME280_FILTER_COEFF_OFF;
-            *parameter = 1;
+            *parameter = 1U;
         }
         else if (2 == *parameter)
         {
             dev.settings.filter = BME280_FILTER_COEFF_2;
-            *parameter = 2;
+            *parameter = 2U;
         }
-        else if (4 >= *parameter)
+        else if (4U >= *parameter)
         {
             dev.settings.filter = BME280_FILTER_COEFF_4;
-            *parameter = 4;
+            *parameter = 4U;
         }
-        else if (8 >= *parameter)
+        else if (8U >= *parameter)
         {
             dev.settings.filter = BME280_FILTER_COEFF_8;
-            *parameter = 8;
+            *parameter = 8U;
         }
         else if (RD_SENSOR_CFG_MAX == *parameter || \
-                 16 >= *parameter)
+                 16U >= *parameter)
         {
             dev.settings.filter = BME280_FILTER_COEFF_16;
-            *parameter = 16;
+            *parameter = 16U;
         }
         else
         {
@@ -358,41 +358,41 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter)
     {
         if (RD_SENSOR_CFG_DEFAULT == *parameter || \
                 RD_SENSOR_CFG_MIN     == *parameter || \
-                1 == *parameter)
+                1U == *parameter)
         {
             dev.settings.osr_h = BME280_OVERSAMPLING_1X;
             dev.settings.osr_p = BME280_OVERSAMPLING_1X;
             dev.settings.osr_t = BME280_OVERSAMPLING_1X;
-            *parameter = 1;
+            *parameter = 1U;
         }
         else if (2 == *parameter)
         {
             dev.settings.osr_h = BME280_OVERSAMPLING_2X;
             dev.settings.osr_p = BME280_OVERSAMPLING_2X;
             dev.settings.osr_t = BME280_OVERSAMPLING_2X;
-            *parameter = 2;
+            *parameter = 2U;
         }
-        else if (4 >= *parameter)
+        else if (4U >= *parameter)
         {
             dev.settings.osr_h = BME280_OVERSAMPLING_4X;
             dev.settings.osr_p = BME280_OVERSAMPLING_4X;
             dev.settings.osr_t = BME280_OVERSAMPLING_4X;
-            *parameter = 4;
+            *parameter = 4U;
         }
-        else if (8 >= *parameter)
+        else if (8U >= *parameter)
         {
             dev.settings.osr_h = BME280_OVERSAMPLING_8X;
             dev.settings.osr_p = BME280_OVERSAMPLING_8X;
             dev.settings.osr_t = BME280_OVERSAMPLING_8X;
-            *parameter = 8;
+            *parameter = 8U;
         }
-        else if (16 >= *parameter || \
+        else if (16U >= *parameter || \
                  RD_SENSOR_CFG_MAX)
         {
             dev.settings.osr_h = BME280_OVERSAMPLING_16X;
             dev.settings.osr_p = BME280_OVERSAMPLING_16X;
             dev.settings.osr_t = BME280_OVERSAMPLING_16X;
-            *parameter = 16;
+            *parameter = 16U;
         }
         else
         {
@@ -427,19 +427,19 @@ rd_status_t ri_bme280_dsp_get (uint8_t * dsp, uint8_t * parameter)
         switch (dev.settings.filter)
         {
             case BME280_FILTER_COEFF_2:
-                *parameter = 2;
+                *parameter = 2U;
                 break;
 
             case BME280_FILTER_COEFF_4:
-                *parameter = 4;
+                *parameter = 4U;
                 break;
 
             case BME280_FILTER_COEFF_8:
-                *parameter = 8;
+                *parameter = 8U;
                 break;
 
             case BME280_FILTER_COEFF_16:
-                *parameter = 16;
+                *parameter = 16U;
                 break;
         }
     }
@@ -455,19 +455,19 @@ rd_status_t ri_bme280_dsp_get (uint8_t * dsp, uint8_t * parameter)
         switch (dev.settings.osr_h)
         {
             case BME280_OVERSAMPLING_2X:
-                *parameter = 2;
+                *parameter = 2U;
                 break;
 
             case BME280_OVERSAMPLING_4X:
-                *parameter = 4;
+                *parameter = 4U;
                 break;
 
             case BME280_OVERSAMPLING_8X:
-                *parameter = 8;
+                *parameter = 8U;
                 break;
 
             case BME280_OVERSAMPLING_16X:
-                *parameter = 16;
+                *parameter = 16U;
                 break;
         }
     }
@@ -502,7 +502,7 @@ rd_status_t ri_bme280_mode_set (uint8_t * mode)
             // We assume that dev struct is in sync with the state of the BME280 and underlying interface
             // which has the number of settings as 2^OSR is not changed.
             // We also assume that each element runs same OSR
-            uint8_t samples = 1 << (dev.settings.osr_h - 1);
+            uint8_t samples = 1U << (dev.settings.osr_h - 1U);
             ri_delay_ms (bme280_max_meas_time (samples));
             tsample = rd_sensor_timestamp_get();
             // BME280 returns to SLEEP after forced sample
@@ -526,7 +526,7 @@ rd_status_t ri_bme280_mode_get (uint8_t * mode)
     if (NULL == mode) { return RD_ERROR_NULL; }
 
     rd_status_t err_code = RD_SUCCESS;
-    uint8_t bme_mode = 0;
+    uint8_t bme_mode = 0U;
     err_code = BME_TO_RUUVI_ERROR (bme280_get_sensor_mode (&bme_mode, &dev));
 
     if (RD_SUCCESS != err_code) { return err_code; }
@@ -569,7 +569,7 @@ rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
 
     // Write tsample if we're in single mode, current time if we're in continuous mode
     // Leave sample time as invalid if forced mode is ongoing.
-    uint8_t mode = 0;
+    uint8_t mode = 0U;
     err_code |= ri_bme280_mode_get (&mode);
 
     if (RD_SENSOR_CFG_SLEEP == mode)           { p_data->timestamp_ms = tsample; }
@@ -585,9 +585,9 @@ rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
         env_values[0] = (float) comp_data.humidity;
         env_values[1] = (float) comp_data.pressure;
         env_values[2] = (float) comp_data.temperature;
-        env_fields.datas.humidity_rh = 1;
-        env_fields.datas.pressure_pa = 1;
-        env_fields.datas.temperature_c = 1;
+        env_fields.datas.humidity_rh = 1U;
+        env_fields.datas.pressure_pa = 1U;
+        env_fields.datas.temperature_c = 1U;
         d_environmental.data = env_values;
         d_environmental.fields = env_fields;
         d_environmental.valid  = env_fields;

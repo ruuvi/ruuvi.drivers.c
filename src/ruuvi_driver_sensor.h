@@ -64,33 +64,33 @@
 #define RD_SENSOR_INVALID_TIMSTAMP RD_UINT64_INVALID //!< Signal this timestamp value is erroneous
 
 // Constants for sensor configuration and status
-#define RD_SENSOR_CFG_DEFAULT         0      //!< Default value, always valid for the sensor.
-#define RD_SENSOR_CFG_CUSTOM_1        0xC9   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_2        0xCA   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_3        0xCB   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_4        0xCC   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_5        0xCD   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_6        0xCE   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_ERR_INVALID         0xE0   //!< Error code, given parameter is invalid
-#define RD_SENSOR_ERR_NOT_IMPLEMENTED 0xE1   //!< Error code, given parameter is not implemented (todo)
-#define RD_SENSOR_ERR_NOT_SUPPORTED   0xE2   //!< Error code, given parameter is not supported by sensor
-#define RD_SENSOR_CFG_MIN             0xF0   //!< Configure smallest supported and implemented value
-#define RD_SENSOR_CFG_MAX             0xF1   //!< Configure largest supported and implemented value
-#define RD_SENSOR_CFG_SLEEP           0xF2   //!< Sensor should go to sleep immediately
-#define RD_SENSOR_CFG_SINGLE          0xF3   //!< Sensor should go to sleep after single measurement
-#define RD_SENSOR_CFG_CONTINUOUS      0xF4   //!< Sensor will keep sampling at defined sample rate
-#define RD_SENSOR_CFG_NO_CHANGE       0xFF   //!< Do not change configured value
+#define RD_SENSOR_CFG_DEFAULT         (0U)      //!< Default value, always valid for the sensor.
+#define RD_SENSOR_CFG_CUSTOM_1        (0xC9U)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_2        (0xCAU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_3        (0xCBU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_4        (0xCCU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_5        (0xCDU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_6        (0xCEU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_ERR_INVALID         (0xE0U)   //!< Error code, given parameter is invalid
+#define RD_SENSOR_ERR_NOT_IMPLEMENTED (0xE1U)   //!< Error code, given parameter is not implemented (todo)
+#define RD_SENSOR_ERR_NOT_SUPPORTED   (0xE2U)   //!< Error code, given parameter is not supported by sensor
+#define RD_SENSOR_CFG_MIN             (0xF0U)   //!< Configure smallest supported and implemented value
+#define RD_SENSOR_CFG_MAX             (0xF1U)   //!< Configure largest supported and implemented value
+#define RD_SENSOR_CFG_SLEEP           (0xF2U)   //!< Sensor should go to sleep immediately
+#define RD_SENSOR_CFG_SINGLE          (0xF3U)   //!< Sensor should go to sleep after single measurement
+#define RD_SENSOR_CFG_CONTINUOUS      (0xF4U)   //!< Sensor will keep sampling at defined sample rate
+#define RD_SENSOR_CFG_NO_CHANGE       (0xFFU)   //!< Do not change configured value
 
 // DSP functions, complemented by DSP parameter
-#define RD_SENSOR_DSP_LAST            0      //!< Return last value from sensor. Parameter: No effect. Use default
-#define RD_SENSOR_DSP_LOW_PASS        (1<<1) //!< Low pass sensor values Parameter: coefficient
-#define RD_SENSOR_DSP_HIGH_PASS       (1<<2) //!< High pass sensor values Parameter: coefficient
-#define RD_SENSOR_DSP_OS              (1<<3) //!< Oversample sensor values. Parameter: Number of samples
+#define RD_SENSOR_DSP_LAST            (0U)    //!< Return last value from sensor. Parameter: No effect. Use default
+#define RD_SENSOR_DSP_LOW_PASS        (1<<1U) //!< Low pass sensor values Parameter: coefficient
+#define RD_SENSOR_DSP_HIGH_PASS       (1<<2U) //!< High pass sensor values Parameter: coefficient
+#define RD_SENSOR_DSP_OS              (1<<3U) //!< Oversample sensor values. Parameter: Number of samples
 
 /** @brief convert Ruuvi GPIO into uint8_t */
-#define RD_GPIO_TO_HANDLE(handle) ((((handle) >> 3) & 0xE0) + ((handle) & 0x1F))
+#define RD_GPIO_TO_HANDLE(handle) ((((handle) >> 3U) & 0xE0U) + ((handle) & 0x1FU))
 /** @brief convert uint8_t into Ruuvi GPIO */
-#define RD_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0) << 3) + ((handle) & 0x1F))
+#define RD_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0U) << 3U) + ((handle) & 0x1FU))
 
 /**
  * @brief All sensors must implement configuration functions which accepts this struct.
@@ -113,12 +113,12 @@ rd_sensor_configuration_t;
  */
 typedef enum
 {
-    RD_BUS_NONE = 0, //!< No bus, internal to IC
-    RD_BUS_SPI  = 1, //!< SPI bus
-    RD_BUS_I2C  = 2, //!< I2C bus
-    RD_BUS_UART = 3, //!< UART bus
-    RD_BUS_PDM  = 4, //!< PDM bus
-    RD_BUS_FAIL = 5  //!< Test behaviour on invalid bus with this value.
+    RD_BUS_NONE = 0U, //!< No bus, internal to IC
+    RD_BUS_SPI  = 1U, //!< SPI bus
+    RD_BUS_I2C  = 2U, //!< I2C bus
+    RD_BUS_UART = 3U, //!< UART bus
+    RD_BUS_PDM  = 4U, //!< PDM bus
+    RD_BUS_FAIL = 5U  //!< Test behaviour on invalid bus with this value.
 } rd_bus_t;
 
 /**
