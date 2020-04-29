@@ -74,26 +74,33 @@ static struct
 static const char m_acc_name[] = "LIS2DH12";
 
 // Check that self-test values differ enough
-static rd_status_t lis2dh12_verify_selftest_difference (const axis3bit16_t * const new,
+static rd_status_t lis2dh12_verify_selftest (const axis3bit16_t * const new,
         const axis3bit16_t * const old)
 {
-    if (LIS2DH12_2g != dev.scale || LIS2DH12_NM_10bit != dev.resolution) { return RD_ERROR_INVALID_STATE; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    // Calculate positive diffs of each axes and compare to expected change
-    for (size_t ii = 0; ii < NUM_AXIS; ii++)
+    if (LIS2DH12_2g != dev.scale || LIS2DH12_NM_10bit != dev.resolution)
     {
-        int16_t diff = new->i16bit[ii] - old->i16bit[ii];
-        //Compensate justification, check absolute difference
-        diff /= NM_BIT_DIVEDER;
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        // Calculate positive diffs of each axes and compare to expected change
+        for (size_t ii = 0; ii < NUM_AXIS; ii++)
+        {
+            int16_t diff = new->i16bit[ii] - old->i16bit[ii];
+            //Compensate justification, check absolute difference
+            diff /= NM_BIT_DIVEDER;
 
-        if (0 > diff) { diff = 0 - diff; }
+            if (0 > diff) { diff = 0 - diff; }
 
-        if (RI_LIS2DH12_SELFTEST_DIFF_MIN > diff) { return RD_ERROR_SELFTEST; }
+            if (RI_LIS2DH12_SELFTEST_DIFF_MIN > diff) { err_code |= RD_ERROR_SELFTEST; }
 
-        if (RI_LIS2DH12_SELFTEST_DIFF_MAX < diff) { return RD_ERROR_SELFTEST; }
+            if (RI_LIS2DH12_SELFTEST_DIFF_MAX < diff) { err_code |= RD_ERROR_SELFTEST; }
+        }
     }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
