@@ -217,6 +217,7 @@ include ${PROJ_DIR}/gcc_sources.make
 
 CFLAGS  = -c -Wall -pedantic -Wno-variadic-macros -Wno-long-long -Wno-shadow -std=c11
 CFLAGS += -DRUUVI_RUN_TESTS
+CFLAGS += -DBME280_FLOAT_ENABLE
 #CFLAGS += -DBOARD_RUUVITAG_B
 #CFLAGS += -DFLOAT_ABI_HARD
 #CFLAGS += -DNRF52
