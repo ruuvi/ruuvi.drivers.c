@@ -26,30 +26,30 @@
 #define RD_INT64_INVALID  INT64_MIN      //!< Signal that value should not be used.
 #define RD_INT32_INVALID  INT32_MIN      //!< Signal that value should not be used.
 
-#define RD_SUCCESS                0       ///< Internal Error
-#define RD_ERROR_INTERNAL         (1<<0)  ///< Internal Error
-#define RD_ERROR_NO_MEM           (1<<1)  ///< No Memory for operation
-#define RD_ERROR_NOT_FOUND        (1<<2)  ///< Not found
-#define RD_ERROR_NOT_SUPPORTED    (1<<3)  ///< Not supported
-#define RD_ERROR_INVALID_PARAM    (1<<4)  ///< Invalid Parameter
-#define RD_ERROR_INVALID_STATE    (1<<5)  ///< Invalid state, operation disallowed in this state
-#define RD_ERROR_INVALID_LENGTH   (1<<6)  ///< Invalid Length
-#define RD_ERROR_INVALID_FLAGS    (1<<7)  ///< Invalid Flags
-#define RD_ERROR_INVALID_DATA     (1<<8)  ///< Invalid Data
-#define RD_ERROR_DATA_SIZE        (1<<9)  ///< Invalid Data size
-#define RD_ERROR_TIMEOUT          (1<<10) ///< Operation timed out
-#define RD_ERROR_NULL             (1<<11) ///< Null Pointer
-#define RD_ERROR_FORBIDDEN        (1<<12) ///< Forbidden Operation
-#define RD_ERROR_INVALID_ADDR     (1<<13) ///< Bad Memory Address
-#define RD_ERROR_BUSY             (1<<14) ///< Busy
-#define RD_ERROR_RESOURCES        (1<<15) ///< Not enough resources for operation
-#define RD_ERROR_NOT_IMPLEMENTED  (1<<16) ///< Not implemented yet
-#define RD_ERROR_SELFTEST         (1<<17) ///< Self-test fail
-#define RD_STATUS_MORE_AVAILABLE  (1<<18) ///< Driver has more data queued
-#define RD_ERROR_NOT_INITIALIZED  (1<<19) ///< Driver is not initialized.
-#define RD_ERROR_NOT_ACKNOWLEDGED (1<<20) ///< Ack was expected but not received
-#define RD_ERROR_NOT_ENABLED      (1<<21) ///< Driver is not enabled
-#define RD_ERROR_FATAL            (1<<31) ///< Program should always reset after this
+#define RD_SUCCESS                (0U)       ///< Internal Error
+#define RD_ERROR_INTERNAL         (1U<<0U)   ///< Internal Error
+#define RD_ERROR_NO_MEM           (1U<<1U)   ///< No Memory for operation
+#define RD_ERROR_NOT_FOUND        (1U<<2U)   ///< Not found
+#define RD_ERROR_NOT_SUPPORTED    (1U<<3U)   ///< Not supported
+#define RD_ERROR_INVALID_PARAM    (1U<<4U)   ///< Invalid Parameter
+#define RD_ERROR_INVALID_STATE    (1U<<5U)   ///< Invalid state, operation disallowed in this state
+#define RD_ERROR_INVALID_LENGTH   (1U<<6U)   ///< Invalid Length
+#define RD_ERROR_INVALID_FLAGS    (1U<<7U)   ///< Invalid Flags
+#define RD_ERROR_INVALID_DATA     (1U<<8U)   ///< Invalid Data
+#define RD_ERROR_DATA_SIZE        (1U<<9U)   ///< Invalid Data size
+#define RD_ERROR_TIMEOUT          (1U<<10U)  ///< Operation timed out
+#define RD_ERROR_NULL             (1U<<11U)  ///< Null Pointer
+#define RD_ERROR_FORBIDDEN        (1U<<12U)  ///< Forbidden Operation
+#define RD_ERROR_INVALID_ADDR     (1U<<13U)  ///< Bad Memory Address
+#define RD_ERROR_BUSY             (1U<<14U)  ///< Busy
+#define RD_ERROR_RESOURCES        (1U<<15U)  ///< Not enough resources for operation
+#define RD_ERROR_NOT_IMPLEMENTED  (1U<<16U)  ///< Not implemented yet
+#define RD_ERROR_SELFTEST         (1U<<17U)  ///< Self-test fail
+#define RD_STATUS_MORE_AVAILABLE  (1U<<18U)  ///< Driver has more data queued
+#define RD_ERROR_NOT_INITIALIZED  (1U<<19U)  ///< Driver is not initialized.
+#define RD_ERROR_NOT_ACKNOWLEDGED (1U<<20U)  ///< Ack was expected but not received
+#define RD_ERROR_NOT_ENABLED      (1U<<21U)  ///< Driver is not enabled
+#define RD_ERROR_FATAL            (1U<<31U)  ///< Program should always reset after this
 
 typedef uint32_t rd_status_t; ///< bitfield for representing errors
 
