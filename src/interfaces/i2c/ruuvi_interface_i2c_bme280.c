@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ruuvi_boards.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_i2c.h"
