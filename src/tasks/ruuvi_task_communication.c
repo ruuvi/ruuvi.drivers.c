@@ -3,262 +3,81 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_communication.h"
-#include "ruuvi_interface_log.h"
-#include "ruuvi_interface_rtc.h"
-#include "ruuvi_interface_scheduler.h"
-#include "ruuvi_interface_timer.h"
-#include "ruuvi_interface_yield.h"
+#include "ruuvi_interface_communication_radio.h"
+#include "ruuvi_task_communication.h"
 
-#include <math.h>
-#include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include <inttypes.h>
 
-static ruuvi_interface_timer_id_t
-heartbeat_timer;   //!< Timer for heartbeat action
-static size_t
-m_heartbeat_data_max_len;  //!< Maximum data length for heartbeat data
-static ruuvi_interface_comm_xfer_fp_t
-heartbeat_target; //!< Function to which send the hearbeat data
-static heartbeat_data_fp_t heartbeat_encoder;
-/*
-static ruuvi_driver_status_t task_communication_target_api_get (
-    task_communication_api_t ** api, uint8_t target)
+#define MAC_BYTES (6U) //!< Number of bytes in MAC address
+#define ID_BYTES (8U)  //!< Number of bytes in device ID
+
+rd_status_t rt_com_get_mac_str (char * const mac_str, const size_t mac_len)
 {
-    if (NULL == api)
+    rd_status_t status = RD_SUCCESS;
+
+    if(NULL == mac_str)
     {
-        return RUUVI_DRIVER_ERROR_NULL;
+        status = RD_ERROR_NULL;
     }
-
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-
-    switch (target)
+    else if(!ri_radio_is_init())
     {
-        // All environmental values are controlled through the same API
-        case RUUVI_ENDPOINT_STANDARD_DESTINATION_ENVIRONMENTAL:
-        case RUUVI_ENDPOINT_STANDARD_DESTINATION_TEMPERATURE:
-        case RUUVI_ENDPOINT_STANDARD_DESTINATION_HUMIDITY:
-        case RUUVI_ENDPOINT_STANDARD_DESTINATION_PRESSURE:
-            task_environmental_api_get (api);
-            break;
-
-        default:
-            err_code = RUUVI_DRIVER_ERROR_INVALID_PARAM;
+        status |= RD_ERROR_INVALID_STATE;
     }
-
-    return err_code;
-}
-
-
-ruuvi_driver_status_t task_communication_on_data (const
-        ruuvi_interface_communication_message_t * const incoming,
-        ruuvi_interface_communication_xfer_fp_t reply_fp)
-{
-    // return error if data is not understood.
-    ruuvi_interface_communication_message_t reply = {0};
-    // Get target API
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-    task_communication_api_t * api;
-    err_code |= task_communication_target_api_get (&api,
-                incoming->data[RUUVI_ENDPOINT_STANDARD_DESTINATION_INDEX]);
-    ruuvi_driver_sensor_configuration_t config;
-    uint8_t payload[RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH];
-    // Unless something was done with the data, assume error
-    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-
-    if (RUUVI_DRIVER_SUCCESS == err_code)
+    else if(RT_COMM_MAC_STRLEN > mac_len)
     {
-        switch (incoming->data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX])
-        {
-            case RUUVI_ENDPOINT_STANDARD_SENSOR_CONFIGURATION_WRITE:
-                if (NULL == api->sensor)
-                {
-                    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                    break;
-                }
-
-                memcpy (&config, & (incoming->data[RUUVI_ENDPOINT_STANDARD_PAYLOAD_START_INDEX]),
-                        RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH);
-                (* (api->sensor))->configuration_set (* (api->sensor), &config);
-
-            // Intentional fallthrough to configuration read
-
-            case RUUVI_ENDPOINT_STANDARD_SENSOR_CONFIGURATION_READ:
-                if (NULL == api->sensor)
-                {
-                    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                    break;
-                }
-
-                (* (api->sensor))->configuration_get (* (api->sensor), &config);
-                memcpy (& (reply.data[RUUVI_ENDPOINT_STANDARD_PAYLOAD_START_INDEX]), &config,
-                        RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH);
-                // Write state of sensor back to application
-                reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] =
-                    RUUVI_ENDPOINT_STANDARD_SENSOR_CONFIGURATION_WRITE;
-                break;
-
-            case RUUVI_ENDPOINT_STANDARD_SENSOR_OFFSET_WRITE:
-                if (NULL == api->offset_set)
-                {
-                    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                    break;
-                }
-
-                memcpy (payload, & (incoming->data[RUUVI_ENDPOINT_STANDARD_PAYLOAD_START_INDEX]),
-                        RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH);
-                api->offset_set (payload);
-
-            // Intentional fallthrough to offset read
-
-            case RUUVI_ENDPOINT_STANDARD_SENSOR_OFFSET_READ:
-                if (NULL == api->offset_get)
-                {
-                    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                    break;
-                }
-
-                api->offset_get (payload);
-                memcpy (& (reply.data[RUUVI_ENDPOINT_STANDARD_PAYLOAD_START_INDEX]), payload,
-                        RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH);
-                // Write state of sensor back to application
-                reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] =
-                    RUUVI_ENDPOINT_STANDARD_SENSOR_OFFSET_WRITE;
-                break;
-
-            case RUUVI_ENDPOINT_STANDARD_VALUE_READ:
-                if (NULL == api->data_get)
-                {
-                    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                    break;
-                }
-
-                api->data_get (payload);
-                memcpy (& (reply.data[RUUVI_ENDPOINT_STANDARD_PAYLOAD_START_INDEX]), payload,
-                        RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH);
-                reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_VALUE_WRITE;
-                break;
-
-            case RUUVI_ENDPOINT_STANDARD_LOG_VALUE_READ:
-                if (NULL == api->log_read)
-                {
-                    reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                    break;
-                }
-
-                // This call blocks until error occurs or all the requested data has been sent.
-                api->log_read (reply_fp, incoming);
-                // Send end of data element
-                reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_LOG_VALUE_WRITE;
-                memset (& (reply.data[3]), 0xFF, RUUVI_ENDPOINT_STANDARD_PAYLOAD_LENGTH);
-                break;
-
-            default:
-                reply.data[RUUVI_ENDPOINT_STANDARD_TYPE_INDEX] = RUUVI_ENDPOINT_STANDARD_TYPE_ERROR;
-                err_code |= RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
-        }
+        status = RD_ERROR_INVALID_LENGTH;
     }
-
-    reply.data[RUUVI_ENDPOINT_STANDARD_DESTINATION_INDEX] =
-        incoming->data[RUUVI_ENDPOINT_STANDARD_SOURCE_INDEX];
-    reply.data[RUUVI_ENDPOINT_STANDARD_SOURCE_INDEX] =
-        incoming->data[RUUVI_ENDPOINT_STANDARD_DESTINATION_INDEX];
-    reply.data_length = RUUVI_ENDPOINT_STANDARD_MESSAGE_LENGTH;
-
-    while (RUUVI_DRIVER_ERROR_NO_MEM == reply_fp (&reply))
-    {
-        ruuvi_interface_yield();
-    }
-
-    return err_code;
-}
-*/
-
-ruuvi_driver_status_t rt_com_get_mac (uint8_t * const mac_buffer)
-{
-    ruuvi_driver_status_t status = RUUVI_DRIVER_SUCCESS;
-
-    if (NULL != mac_buffer)
+    else
     {
         uint64_t mac;
-        status |= ri_comm_radio_address_get (&mac);
+        uint8_t mac_buffer[MAC_BYTES];
+        status |= ri_radio_address_get (&mac);
         mac_buffer[0U] = (mac >> 40U) & 0xFFU;
         mac_buffer[1U] = (mac >> 32U) & 0xFFU;
         mac_buffer[2U] = (mac >> 24U) & 0xFFU;
         mac_buffer[3U] = (mac >> 16U) & 0xFFU;
         mac_buffer[4U] = (mac >> 8U) & 0xFFU;
         mac_buffer[5U] = (mac >> 0U) & 0xFFU;
-    }
-    else
-    {
-        status = RUUVI_DRIVER_ERROR_NULL;
+        snprintf(mac_str, mac_len, "%02X:%02X:%02X:%02X:%02X:%02X",
+                 mac_buffer[0], mac_buffer[1], mac_buffer[2],
+                 mac_buffer[3], mac_buffer[4], mac_buffer[5]);
     }
 
     return status;
 }
 
-static void heartbeat_send (void * p_event_data, uint16_t event_size)
+rd_status_t rt_com_get_id_str (char * const id_str, const size_t id_len)
 {
-    ri_comm_message_t msg = {0};
-    msg.data_length = m_heartbeat_data_max_len;
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t status = RD_SUCCESS;
 
-    if ( (NULL != heartbeat_target) && (NULL != heartbeat_encoder))
+    if(NULL == id_str)
     {
-        // get message to send
-        err_code |= heartbeat_encoder (msg.data);
-        // send sensor data
-        err_code |= heartbeat_target (&msg);
+        status = RD_ERROR_NULL;
+    }
+    else if(RT_COMM_ID_STRLEN > id_len)
+    {
+        status = RD_ERROR_INVALID_LENGTH;
+    }
+    else
+    {
+        uint64_t id;
+        uint8_t id_buffer[ID_BYTES];
+        status |= ri_comm_id_get (&id);
+        id_buffer[0U] = (id >> 56U) & 0xFFU;
+        id_buffer[1U] = (id >> 48U) & 0xFFU;
+        id_buffer[2U] = (id >> 40U) & 0xFFU;
+        id_buffer[3U] = (id >> 32U) & 0xFFU;
+        id_buffer[4U] = (id >> 24U) & 0xFFU;
+        id_buffer[5U] = (id >> 16U) & 0xFFU;
+        id_buffer[6U] = (id >> 8U) & 0xFFU;
+        id_buffer[7U] = (id >> 0U) & 0xFFU;
+        snprintf(id_str, id_len, "%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X",
+                 id_buffer[0], id_buffer[1], id_buffer[2], id_buffer[3],
+                 id_buffer[4], id_buffer[5], id_buffer[6], id_buffer[7]);
     }
 
-    if (RUUVI_DRIVER_SUCCESS == err_code)
-    {
-        ruuvi_interface_watchdog_feed();
-    }
-
-    RUUVI_DRIVER_ERROR_CHECK (err_code, ~RUUVI_DRIVER_ERROR_FATAL);
+    return status;
 }
 
-static void heartbeat_schedule_isr (void * p_context)
-{
-    ruuvi_interface_scheduler_event_put (NULL, 0, heartbeat_send);
-}
-
-ruuvi_driver_status_t rt_com_heartbeat_configure (const uint32_t interval_ms,
-        const size_t max_len,
-        const heartbeat_data_fp_t data_src,
-        const ri_comm_xfer_fp_t send)
-{
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-
-    if (NULL == heartbeat_timer)
-    {
-        err_code |= ruuvi_interface_timer_create (&heartbeat_timer,
-                    RUUVI_INTERFACE_TIMER_MODE_REPEATED, heartbeat_schedule_isr);
-
-        if (RUUVI_DRIVER_SUCCESS != err_code)
-        {
-            return err_code;
-        }
-    }
-
-    ruuvi_interface_timer_stop (heartbeat_timer);
-
-    if (NULL == send || NULL == data_src)
-    {
-        return RUUVI_DRIVER_ERROR_NULL;
-    }
-
-    m_heartbeat_data_max_len = max_len;
-    heartbeat_target = send;
-    heartbeat_encoder = data_src;
-
-    if (0 != interval_ms)
-    {
-        err_code |= ruuvi_interface_timer_start (heartbeat_timer, interval_ms);
-    }
-
-    return err_code;
-}
 #endif
