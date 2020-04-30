@@ -93,6 +93,10 @@ data payload length is the maximum length */
 #  define RT_BUTTON_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RT_COMMUNICATION_ENABLED
+#   define RT_COMMUNICATION_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RT_FLASH_ENABLED
 /** @brief Enable Flash storage compilation. */
 #  define RT_FLASH_ENABLED ENABLE_DEFAULT
@@ -102,6 +106,10 @@ data payload length is the maximum length */
 /** @brief Enable GATT task compilation. */
 #  define RT_GATT_ENABLED ENABLE_DEFAULT
 #endif
+
+#if RT_GATT_ENABLED
+#   define RI_GATT_ENABLED (1U)
+#endif 
 
 #if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMM_ENABLED))
 #  error "GATT task requires Advertisement task and communication interface."

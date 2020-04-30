@@ -45,12 +45,12 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_ENABLED
+#include "ruuvi_interface_communication_ble_gatt.h"
+#if RUUVI_NRF5_SDK15_GATT_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
-#include "ruuvi_interface_communication_ble_gatt.h"
 #include "ruuvi_interface_communication_radio.h"
 #include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_log.h"
@@ -97,22 +97,26 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
-#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RUUVI_INTERFACE_LOG_DEBUG
+#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_DEBUG
 #endif
-#define LOG(msg) ruuvi_interface_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
-#define LOGD(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, msg)
-#define LOGW(msg) ruuvi_interface_log(RUUVI_INTERFACE_LOG_WARNING, msg)
-#define LOGHEX(msg, len) ruuvi_interface_log_hex(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg, len)
+#define LOG(msg) ri_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
+#define LOGD(msg) ri_log(RI_LOG_LEVEL_DEBUG, msg)
+#define LOGW(msg) ri_log(RI_LOG_LEVEL_WARNING, msg)
+#define LOGHEX(msg, len) ri_log_hex(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg, len)
 
 NRF_BLE_GATT_DEF (m_gatt);                               /**< GATT module instance. */
-NRF_BLE_QWR_DEF (
-    m_qwr);                                  /**< Context for the Queued Write module.*/
+NRF_BLE_QWR_DEF (m_qwr);                                  /**< Context for the Queued Write module.*/
 BLE_NUS_DEF (m_nus, NRF_SDH_BLE_TOTAL_LINK_COUNT);       /**< BLE NUS service instance. */
-static uint16_t m_conn_handle =
-    BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
+static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 static bool     m_gatt_is_init = false;
-static ruuvi_interface_communication_t * channel =
-    NULL;  /**< Pointer to application communication interface, given at initialization */
+/**< Pointer to application communication interface, given at initialization */
+static ri_comm_channel_t * channel = NULL;  
+
+// XXX
+#define MIN_CONN_INTERVAL 100
+#define MAX_CONN_INTERVAL 200
+#define SLAVE_LATENCY     0
+#define CONN_SUP_TIMEOUT  5000
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
@@ -170,8 +174,8 @@ static ret_code_t gap_params_init (void)
  */
 static void conn_params_error_handler (uint32_t nrf_error)
 {
-    RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_error),
-                              RUUVI_DRIVER_SUCCESS);
+    RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_error),
+                              RD_SUCCESS);
 }
 
 /**@brief Function for handling an event from the Connection Parameters Module.
@@ -192,8 +196,8 @@ static void on_conn_params_evt (ble_conn_params_evt_t * p_evt)
     if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
     {
         err_code = sd_ble_gap_disconnect (m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
-        RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                  RUUVI_DRIVER_SUCCESS);
+        RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                  RD_SUCCESS);
     }
 }
 
@@ -228,8 +232,7 @@ static ret_code_t conn_params_init (void)
 /**@snippet [Handling the data received over BLE] */
 static void nus_data_handler (ble_nus_evt_t * p_evt)
 {
-    if (NULL == channel ||
-            NULL == channel->on_evt)
+    if (NULL == channel || NULL == channel->on_evt)
     {
         return;
     }
@@ -237,23 +240,23 @@ static void nus_data_handler (ble_nus_evt_t * p_evt)
     switch (p_evt->type)
     {
         case BLE_NUS_EVT_RX_DATA:
-            channel->on_evt (RUUVI_INTERFACE_COMMUNICATION_RECEIVED,
+            channel->on_evt (RI_COMM_RECEIVED,
                              (void *) p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
             break;
 
         case BLE_NUS_EVT_COMM_STARTED:
             LOG ("NUS Started\r\n");
-            channel->on_evt (RUUVI_INTERFACE_COMMUNICATION_CONNECTED, NULL, 0);
+            channel->on_evt (RI_COMM_CONNECTED, NULL, 0);
             break;
 
         case BLE_NUS_EVT_COMM_STOPPED:
             LOG ("NUS Finished\r\n");
-            channel->on_evt (RUUVI_INTERFACE_COMMUNICATION_DISCONNECTED, NULL, 0);
+            channel->on_evt (RI_COMM_DISCONNECTED, NULL, 0);
             break;
 
         case BLE_NUS_EVT_TX_RDY:
             LOG ("NUS TX Done\r\n");
-            channel->on_evt (RUUVI_INTERFACE_COMMUNICATION_SENT, NULL, 0);
+            channel->on_evt (RI_COMM_SENT, NULL, 0);
             break;
 
         default:
@@ -284,18 +287,15 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             err_code = nrf_ble_qwr_conn_handle_assign (&m_qwr, m_conn_handle);
             LOG ("BLE Connected \r\n");
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                      RD_SUCCESS);
             // Request 2MBPS connection - Fails on Mac osx / web bluetooth
             // err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-            // ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Requested 2MBPS connection\r\n");
-            ruuvi_interface_communication_ble4_advertising_notify_stop();
+            // ri_log(RI_LOG_INFO, "Requested 2MBPS connection\r\n");
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
-            // On connection and timeout advertising stops, notify advertisement module.
             LOG ("BLE GAP timeout \r\n");
-            ruuvi_interface_communication_ble4_advertising_notify_stop();
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
@@ -310,8 +310,8 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
             err_code = sd_ble_gap_phy_update (p_ble_evt->evt.gap_evt.conn_handle, &phys);
             LOG ("BLE PHY update requested \r\n");
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                      RD_SUCCESS);
             break;
 
         case BLE_GAP_EVT_PHY_UPDATE:
@@ -342,16 +342,16 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             err_code = sd_ble_gap_sec_params_reply (m_conn_handle,
                                                     BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
                                                     NULL, NULL);
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                      RD_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
             // No system attributes have been stored.
             LOG ("BLE System attributes missing\r\n");
             err_code = sd_ble_gatts_sys_attr_set (m_conn_handle, NULL, 0, 0);
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                      RD_SUCCESS);
             break;
 
         case BLE_GATTC_EVT_TIMEOUT:
@@ -359,8 +359,8 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             LOG ("BLE GATT Client timeout\r\n");
             err_code = sd_ble_gap_disconnect (p_ble_evt->evt.gattc_evt.conn_handle,
                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                      RD_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_TIMEOUT:
@@ -368,13 +368,8 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             LOG ("BLE GATT Server timeout\r\n");
             err_code = sd_ble_gap_disconnect (p_ble_evt->evt.gatts_evt.conn_handle,
                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RUUVI_DRIVER_SUCCESS);
-            break;
-
-        // TODO: Move to advertisement?
-        case BLE_GAP_EVT_ADV_REPORT:
-            ruuvi_interface_log (RUUVI_INTERFACE_LOG_INFO, "RX'd scan data\r\n");
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                                      RD_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_HVN_TX_COMPLETE:
@@ -408,8 +403,8 @@ static void gatt_evt_handler (nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const 
  */
 static void nrf_qwr_error_handler (uint32_t nrf_error)
 {
-    RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_error),
-                              RUUVI_DRIVER_SUCCESS);
+    RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_error),
+                              RD_SUCCESS);
 }
 
 // YOUR_JOB: Update this code if you want to do anything given a DFU event (optional).
@@ -506,32 +501,32 @@ static void pm_evt_handler (pm_evt_t const * p_evt)
         case PM_EVT_PEER_DATA_UPDATE_FAILED:
         {
             // Assert.
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.peer_data_update_failed.error), RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
+                                          p_evt->params.peer_data_update_failed.error), RD_SUCCESS);
         }
         break;
 
         case PM_EVT_PEER_DELETE_FAILED:
         {
             // Assert.
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.peer_delete_failed.error), RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
+                                          p_evt->params.peer_delete_failed.error), RD_SUCCESS);
         }
         break;
 
         case PM_EVT_PEERS_DELETE_FAILED:
         {
             // Assert.
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.peers_delete_failed_evt.error), RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
+                                          p_evt->params.peers_delete_failed_evt.error), RD_SUCCESS);
         }
         break;
 
         case PM_EVT_ERROR_UNEXPECTED:
         {
             // Assert.
-            RUUVI_DRIVER_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.error_unexpected.error), RUUVI_DRIVER_SUCCESS);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
+                                          p_evt->params.error_unexpected.error), RD_SUCCESS);
         }
         break;
 
@@ -549,7 +544,8 @@ static void pm_evt_handler (pm_evt_t const * p_evt)
 
 
 
-/**@brief Function for the Peer Manager initialization.
+/**
+ * @brief Function for the Peer Manager initialization.
  */
 static ret_code_t peer_manager_init()
 {
@@ -560,11 +556,8 @@ static ret_code_t peer_manager_init()
     // Failed because storage cannot be initialized.
     if (NRF_SUCCESS != err_code)
     {
-        ruuvi_interface_communication_radio_uninit (
-            RUUVI_INTERFACE_COMMUNICATION_RADIO_ADVERTISEMENT);
-        ruuvi_interface_flash_purge();
-        ruuvi_interface_power_reset();
-        RUUVI_DRIVER_ERROR_CHECK (err_code, RUUVI_DRIVER_SUCCESS);
+        ri_flash_purge();
+        ri_power_reset();
     }
 
     memset (&sec_param, 0, sizeof (ble_gap_sec_params_t));
@@ -592,34 +585,26 @@ static ret_code_t peer_manager_init()
     return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init (void)
+rd_status_t ri_gatt_init (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
-    ruuvi_driver_status_t radio_status = RUUVI_DRIVER_SUCCESS;
+    rd_status_t radio_status = RD_SUCCESS;
 
     if (m_gatt_is_init)
     {
-        return RUUVI_DRIVER_ERROR_INVALID_STATE;
+        return RD_ERROR_INVALID_STATE;
     }
 
-    if (!ruuvi_interface_communication_radio_is_init())
+    if (!ri_radio_is_init())
     {
-        radio_status = ruuvi_interface_communication_radio_init (
-                           RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
-        RUUVI_DRIVER_ERROR_CHECK (radio_status, RUUVI_DRIVER_SUCCESS);
-    }
-    else
-    {
-        ruuvi_interface_log (RUUVI_INTERFACE_LOG_WARNING,
-                             "Radio is already in use by other module - beware coexistence issues\r\n");
+        return RD_ERROR_INVALID_STATE;
     }
 
     // Connection param module requires timers
-    if (!ruuvi_interface_timer_is_init())
+    if (!ri_timer_is_init())
     {
-        ruuvi_interface_log (RUUVI_INTERFACE_LOG_ERROR,
-                             "NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
-        return RUUVI_DRIVER_ERROR_INVALID_STATE;
+        LOGW("NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
+        return RD_ERROR_INVALID_STATE;
     }
 
     nrf_ble_qwr_init_t qwr_init = {0};
@@ -645,12 +630,11 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_init (void)
 /**
  *
  */
-static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_uninit (
-    ruuvi_interface_communication_t * const _channel)
+static rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
 {
-    if (NULL == _channel) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == _channel) { return RD_ERROR_NULL; }
 
-    memset (_channel, 0, sizeof (ruuvi_interface_communication_t));
+    memset (_channel, 0, sizeof (ri_comm_channel_t));
     m_gatt_is_init = false;
 
     // disconnect
@@ -660,25 +644,23 @@ static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_uninit 
     }
 
     // Services cannot be uninitialized
-    ruuvi_interface_communication_radio_uninit (RUUVI_INTERFACE_COMMUNICATION_RADIO_GATT);
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
 /**
  *
  */
-static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_send (
-    ruuvi_interface_communication_message_t * const message)
+static rd_status_t ri_gatt_nus_send (ri_comm_message_t * const message)
 {
-    if (NULL == message) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == message) { return RD_ERROR_NULL; }
 
-    if (BLE_NUS_MAX_DATA_LEN < message->data_length) { return RUUVI_DRIVER_ERROR_DATA_SIZE; }
+    if (BLE_NUS_MAX_DATA_LEN < message->data_length) { return RD_ERROR_DATA_SIZE; }
 
-    if (BLE_CONN_HANDLE_INVALID == m_conn_handle) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (BLE_CONN_HANDLE_INVALID == m_conn_handle) { return RD_ERROR_INVALID_STATE; }
 
-    if (message->repeat)
+    if (message->repeat_count)
     {
-        return RUUVI_DRIVER_ERROR_NOT_IMPLEMENTED;
+        return RD_ERROR_NOT_IMPLEMENTED;
     }
 
     ret_code_t err_code = NRF_SUCCESS;
@@ -687,16 +669,14 @@ static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_send (
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-static ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_read (
-    ruuvi_interface_communication_message_t * const message)
+static rd_status_t ri_gatt_nus_read (ri_comm_message_t * const message)
 {
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+    return RD_ERROR_NOT_SUPPORTED;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init (
-    ruuvi_interface_communication_t * const _channel)
+rd_status_t ri_gatt_nus_init (ri_comm_channel_t * const _channel)
 {
-    if (NULL == _channel) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == _channel) { return RD_ERROR_NULL; }
 
     uint32_t           err_code;
     ble_nus_init_t     nus_init;
@@ -705,15 +685,15 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_nus_init (
     nus_init.data_handler = nus_data_handler;
     err_code = ble_nus_init (&m_nus, &nus_init);
     channel = _channel;
-    channel->init   = ruuvi_interface_communication_ble4_gatt_nus_init;
-    channel->uninit = ruuvi_interface_communication_ble4_gatt_nus_uninit;
-    channel->send   = ruuvi_interface_communication_ble4_gatt_nus_send;
-    channel->read   = ruuvi_interface_communication_ble4_gatt_nus_read;
+    channel->init   = ri_gatt_nus_init;
+    channel->uninit = ri_gatt_nus_uninit;
+    channel->send   = ri_gatt_nus_send;
+    channel->read   = ri_gatt_nus_read;
     m_gatt_is_init = true;
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-bool ble4_nus_is_connected (void)
+bool ble_nus_is_connected (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
     ble_nus_client_context_t * p_client;
@@ -738,7 +718,7 @@ bool ble4_nus_is_connected (void)
     return true;
 }
 
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init (void)
+rd_status_t ri_gatt_dfu_init (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
     ble_dfu_buttonless_init_t dfus_init = {0};
@@ -756,25 +736,19 @@ ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init (void)
 }
 
 /**
- * Initialize BLE4 Device firmware update service.
- */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dfu_init();
-
-/**
- * @brief Initialize BLE4 Device Information service
+ * @brief Initialize BLE Device Information Service
  *
  * @param[in] dis pointer to data which should be presented over DIS. Memory will be deep-copied
  */
-ruuvi_driver_status_t ruuvi_interface_communication_ble4_gatt_dis_init (
-    const ruuvi_interface_communication_ble4_gatt_dis_init_t * const dis)
+rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const p_dis)
 {
-    if (NULL == dis) { return RUUVI_DRIVER_ERROR_NULL; }
+    if (NULL == p_dis) { return RD_ERROR_NULL; }
 
     ret_code_t err_code = NRF_SUCCESS;
     ble_dis_init_t dis_init;
+    ri_comm_dis_init_t dis_local;
     memset (&dis_init, 0, sizeof (dis_init));
-    ruuvi_interface_communication_ble4_gatt_dis_init_t dis_local;
-    memcpy (&dis_local, dis, sizeof (dis_local));
+    memcpy (&dis_local, p_dis, sizeof (dis_local));
     ble_srv_ascii_to_utf8 (&dis_init.manufact_name_str, dis_local.manufacturer);
     ble_srv_ascii_to_utf8 (&dis_init.model_num_str, dis_local.model);
     ble_srv_ascii_to_utf8 (&dis_init.serial_num_str, dis_local.deviceid);

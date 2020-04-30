@@ -9,6 +9,11 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_communication_radio.h"
+#include "ruuvi_driver_enabled_modules.h"
+
+#if RI_GATT_ENABLED
+#   define RUUVI_NRF5_SDK15_GATT_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 #define HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST 0x16
 
@@ -49,7 +54,6 @@ rd_status_t ri_gatt_dfu_init (void);
  * @return RD_SUCCESS on success
  * @return error code from stack in case there is  error.
  */
-rd_status_t ri_gatt_dis_init (
-    const ri_comm_dis_init_t * const dis);
+rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const dis);
 
 #endif
