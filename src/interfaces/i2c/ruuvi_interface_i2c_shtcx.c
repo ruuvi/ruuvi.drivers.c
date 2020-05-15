@@ -30,7 +30,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_SHTCX_ENABLED || DOXYGEN
+#if RI_SHTCX_ENABLED || DOXYGEN
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_i2c.h"
 #include "ruuvi_interface_yield.h"
@@ -62,16 +62,16 @@
 int16_t sensirion_i2c_select_bus (uint8_t bus_idx)
 {
     // IMPLEMENT or leave empty if all sensors are located on one single bus
-    RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
+    RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
     return 0;
 }
 
 /**
- * Driver file does not know about the board configuration, use ruuvi_interface_i2c_init instead.
+ * Driver file does not know about the board configuration, use ri_i2c_init instead.
  */
 void sensirion_i2c_init (void)
 {
-    RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
+    RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
 }
 
 /**
@@ -80,7 +80,7 @@ void sensirion_i2c_init (void)
 void sensirion_i2c_release (void)
 {
     // IMPLEMENT or leave empty if no resources need to be freed
-    RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_NOT_SUPPORTED, ~RUUVI_DRIVER_ERROR_FATAL);
+    RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
 }
 
 /**
@@ -95,9 +95,9 @@ void sensirion_i2c_release (void)
  */
 int8_t sensirion_i2c_read (uint8_t address, uint8_t * data, uint16_t count)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-    err_code |= ruuvi_interface_i2c_read_blocking (address, data, count);
-    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -STATUS_ERR_BAD_DATA;
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_read_blocking (address, data, count);
+    return (RD_SUCCESS == err_code) ? 0 : -STATUS_ERR_BAD_DATA;
 }
 
 /**
@@ -114,18 +114,18 @@ int8_t sensirion_i2c_read (uint8_t address, uint8_t * data, uint16_t count)
 int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data,
                             uint16_t count)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     // data is const, NRF function is not. Make local copy
     if (count > SENSIRION_COMMAND_SIZE || count < SENSIRION_COMMAND_SIZE)
     {
-        RUUVI_DRIVER_ERROR_CHECK (RUUVI_DRIVER_ERROR_INVALID_LENGTH, RUUVI_DRIVER_SUCCESS);
+        RD_ERROR_CHECK (RD_ERROR_INVALID_LENGTH, RD_SUCCESS);
     }
 
     uint8_t deepcpy[SENSIRION_COMMAND_SIZE];
     memcpy (deepcpy, data, SENSIRION_COMMAND_SIZE);
-    err_code |= ruuvi_interface_i2c_write_blocking (address, deepcpy, count, true);
-    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
+    err_code |= ri_i2c_write_blocking (address, deepcpy, count, true);
+    return (RD_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
 }
 
 #endif

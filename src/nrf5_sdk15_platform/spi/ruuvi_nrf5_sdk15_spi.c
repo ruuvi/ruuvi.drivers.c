@@ -38,6 +38,7 @@
  *
  */
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_spi.h"
 #if RUUVI_NRF5_SDK15_SPI_ENABLED
 
 #include <stdint.h>
@@ -46,7 +47,6 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_interface_gpio.h"
-#include "ruuvi_interface_spi.h"
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
 

@@ -1,5 +1,6 @@
 #ifndef RUUVI_INTERFACE_SPI_H
 #define RUUVI_INTERFACE_SPI_H
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
@@ -20,6 +21,10 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  */
+
+#if RI_SPI_ENABLED
+#  define RUUVI_NRF5_SDK15_SPI_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 /**
  * SPI modes. Defines clock polarity and phase
@@ -81,10 +86,10 @@ bool ri_spi_is_init();
  * @brief Uninitialize SPI driver.
  *
  * This function might not uninitialize the SPI GPIO pins, only the underlying peripheral.
- * Uninitialized GPIOs explicitly if that is required.
+ * Uninitialize GPIOs explicitly if that is required.
  *
  * @return RD_SUCCESS
- * @warning Uninitializes the SPI peripheral, may or may not uninitialize the associated gpio pins
+ * @warning Uninitializes the SPI peripheral, may or may not uninitialize the associated gpio pins.
  **/
 rd_status_t ri_spi_uninit();
 

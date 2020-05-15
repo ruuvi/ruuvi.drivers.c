@@ -10,11 +10,11 @@ bool ri_power_run_integration_test (const rd_test_print_fp printfp,
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
-    printfp ("\"power:\"{\r\n");
+    printfp ("\"power\":{\r\n");
 
     if (regulators.DCDC_INTERNAL)
     {
-        printfp ("\"dcdc_internal:\"");
+        printfp ("\"dcdc_internal\":");
         ri_power_regulators_t test = {0};
         test.DCDC_INTERNAL = 1;
         err_code = ri_power_regulators_enable (test);

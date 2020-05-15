@@ -1,5 +1,5 @@
 #include "ruuvi_driver_enabled_modules.h"
-#if RUUVI_INTERFACE_ENVIRONMENTAL_BME280_ENABLED && RUUVI_INTERFACE_ENVIRONMENTAL_BME280_I2C_ENABLED
+#if RI_BME280_ENABLED && RI_BME280_I2C_ENABLED
 /**
  * @addtogroup I2C
  *
@@ -8,7 +8,7 @@
 /**
  * @file ruuvi_interface_i2c_bme280.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-03-04
+ * @date 2020-04-28
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Wrapper for BME280 I2C calls
  *
@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ruuvi_boards.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_i2c.h"
@@ -35,10 +34,10 @@
  * | Stop       | -                   |
  * |------------+---------------------|
  */
-int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
-        uint8_t * reg_data, uint16_t len)
+int8_t ri_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
+                            uint8_t * reg_data, uint16_t len)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
 
     // Support only 1-byte writes
     if (1 > len || 2 < len) { return -1; }
@@ -46,8 +45,8 @@ int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
     uint8_t wbuf[2] = {0};
     wbuf[0] = reg_addr;
     wbuf[1] = reg_data[0];
-    err_code |= ruuvi_interface_i2c_write_blocking (dev_id, wbuf, 2, true);
-    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
+    err_code |= ri_i2c_write_blocking (dev_id, wbuf, 2, true);
+    return (RD_SUCCESS == err_code) ? 0 : -1;
 }
 
 /*
@@ -66,12 +65,12 @@ int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
  * |------------+---------------------|
  */
 
-int8_t ruuvi_interface_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t * reg_data, uint16_t len)
+int8_t ri_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
+                           uint8_t * reg_data, uint16_t len)
 {
-    ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
-    err_code |= ruuvi_interface_i2c_write_blocking (dev_id, &reg_addr, 1, true);
-    err_code |= ruuvi_interface_i2c_read_blocking (dev_id, reg_data, len);
-    return (RUUVI_DRIVER_SUCCESS == err_code) ? 0 : -1;
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_write_blocking (dev_id, &reg_addr, 1, true);
+    err_code |= ri_i2c_read_blocking (dev_id, reg_data, len);
+    return (RD_SUCCESS == err_code) ? 0 : -1;
 }
 #endif

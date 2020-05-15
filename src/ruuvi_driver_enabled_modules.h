@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.2.0"
+#define RUUVI_DRIVERS_SEMVER "0.2.1"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -129,6 +129,9 @@ data payload length is the maximum length */
 #  endif
 #endif
 
+#ifndef RI_I2C_ENABLED
+#   define RI_I2C_ENABLED ENABLE_DEFAULT
+#endif
 
 #ifndef RT_LED_ENABLED
 /** @brief Enable LED task compilation. */
@@ -178,6 +181,10 @@ data payload length is the maximum length */
 #  endif
 #endif
 
+#ifndef RI_SPI_ENABLED
+#   define RI_SPI_ENABLED ENABLE_DEFAULT
+#endif
+
 #if RI_TIMER_ENABLED
 #  ifndef RI_TIMER_MAX_INSTANCES
 #    define RI_TIMER_MAX_INSTANCES 10
@@ -190,6 +197,29 @@ data payload length is the maximum length */
 
 #ifndef RI_WATCHDOG_ENABLED
 #define RI_WATCHDOG_ENABLED ENABLE_DEFAULT
+#endif
+
+/** SENSORS **/
+#ifndef RT_SENSOR_ENABLED
+#   define RT_SENSOR_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_BME280_ENABLED
+#   define RI_BME280_ENABLED ENABLE_DEFAULT
+#   ifndef RI_BME280_SPI_ENABLED
+#       define RI_BME280_SPI_ENABLED ENABLE_DEFAULT
+#   endif
+#   ifndef RI_BME280_I2C_ENABLED
+#       define RI_BME280_I2C_ENABLED ENABLE_DEFAULT
+#   endif
+#endif
+
+#ifndef RI_LIS2DH12_ENABLED
+#   define RI_LIS2DH12_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_SHTCX_ENABLED
+#   define RI_SHTCX_ENABLED ENABLE_DEFAULT
 #endif
 
 #endif

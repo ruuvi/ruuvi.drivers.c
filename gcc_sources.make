@@ -146,8 +146,7 @@ RUUVI_PRJ_SOURCES= \
   $(PROJ_DIR)/src/tasks/ruuvi_task_adc.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_flash.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_gpio.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_nfc.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_spi.c
+  $(PROJ_DIR)/src/tasks/ruuvi_task_nfc.c
 
 COMMON_SOURCES= \
   $(RUUVI_LIB_SOURCES) \

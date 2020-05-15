@@ -9,7 +9,7 @@
 #include <string.h>
 
 #ifndef TASK_SENSOR_LOG_LEVEL
-#define TASK_SENSOR_LOG_LEVEL RI_LOG_LEVEL_INFO
+#define TASK_SENSOR_LOG_LEVEL RI_LOG_LEVEL_DEBUG
 #endif
 
 static inline void LOG (const char * const msg)

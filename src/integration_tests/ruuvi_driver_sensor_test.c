@@ -7,7 +7,7 @@
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
-#include "sensor_test.h"
+#include "ruuvi_driver_sensor_test.h"
 
 #include <float.h>
 #include <stdbool.h>
@@ -16,10 +16,10 @@
 
 #if RUUVI_RUN_TESTS
 
-#define RETURN_ON_ERROR(status) if(RD_SUCCESS != status) {return status;}
-#define MAX_RETRIES 50 //!< brief Number of times to run test on statistics-dependent tests, such as sampling noise.
-static size_t m_total  = 0;
-static size_t m_passed = 0;
+#define RETURN_ON_ERROR(status) if(status) {return status;}
+#define MAX_RETRIES    (50U) //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
+#define MAX_FIFO_DEPTH (32U) //!< How many samples to fetch from FIFO at max
+#define MAX_SENSOR_PROVIDED_FIELDS (4U) //!< Largest number of different fields tested sensor can have.
 static volatile bool fifo_int  = false;
 static volatile bool level_int = false;
 
@@ -32,11 +32,10 @@ static bool initialize_sensor_once (rd_sensor_t * DUT,
 
     if (RD_SUCCESS != err_code)
     {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool uninitialize_sensor (rd_sensor_t * DUT,
@@ -48,11 +47,10 @@ static bool uninitialize_sensor (rd_sensor_t * DUT,
 
     if (RD_SUCCESS != err_code)
     {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool initialize_sensor_twice (rd_sensor_t * DUT,
@@ -66,10 +64,10 @@ static bool initialize_sensor_twice (rd_sensor_t * DUT,
     if (RD_SUCCESS == err_code)
     {
         RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool validate_sensor_setup (rd_sensor_t * DUT)
@@ -97,60 +95,41 @@ static bool validate_sensor_setup (rd_sensor_t * DUT)
             DUT->name                  == NULL ||
             DUT->provides.bitfield     == 0)
     {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool validate_sensor_teardown (rd_sensor_t * DUT)
 {
     bool failed = false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->init (NULL, 0,
-               0))                 ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->uninit (NULL, 0,
-               0))               ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->init (NULL, 0, 0))   ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->uninit (NULL, 0, 0)) ? true : false;
     failed |= (RD_ERROR_NOT_INITIALIZED != DUT->configuration_get (NULL,
-               NULL))    ? true : false;
+               NULL)) ? true : false;
     failed |= (RD_ERROR_NOT_INITIALIZED != DUT->configuration_set (NULL,
-               NULL))    ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->data_get (
-                   NULL))                   ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->dsp_get (NULL,
-               NULL))              ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->dsp_set (NULL,
-               NULL))              ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->fifo_enable (
-                   false))               ? true : false;
+               NULL))  ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->data_get (NULL))     ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->dsp_get (NULL, NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->dsp_set (NULL, NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->fifo_enable (false)) ? true : false;
     failed |= (RD_ERROR_NOT_INITIALIZED != DUT->fifo_interrupt_enable (
                    false))     ? true : false;
     failed |= (RD_ERROR_NOT_INITIALIZED != DUT->fifo_read (NULL,
                NULL))            ? true : false;
     failed |= (RD_ERROR_NOT_INITIALIZED != DUT->level_interrupt_set (false,
                NULL)) ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->mode_get (
-                   NULL))                   ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->mode_set (
-                   NULL))                   ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->resolution_get (
-                   NULL))             ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->resolution_set (
-                   NULL))             ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->samplerate_get (
-                   NULL))             ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->samplerate_set (
-                   NULL))             ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->scale_get (
-                   NULL))                  ? true : false;
-    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->scale_set (
-                   NULL))                  ? true : false;
-    failed |= (0                                  != DUT->provides.bitfield)                ?
-              true : false;
-
-    if (failed) { RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL); }
-
-    return !failed;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->mode_get (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->mode_set (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->resolution_get (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->resolution_set (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->samplerate_get (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->samplerate_set (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->scale_get (NULL)) ? true : false;
+    failed |= (RD_ERROR_NOT_INITIALIZED != DUT->scale_set (NULL)) ? true : false;
+    failed |= (0 != DUT->provides.bitfield) ? true : false;
+    return failed;
 }
 
 static bool validate_sensor_mode_after_init (rd_sensor_t * DUT)
@@ -161,10 +140,10 @@ static bool validate_sensor_mode_after_init (rd_sensor_t * DUT)
     if (RD_SUCCESS != err_code || RD_SENSOR_CFG_SLEEP != mode)
     {
         RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool test_sensor_init_on_null (rd_sensor_t * DUT,
@@ -176,49 +155,72 @@ static bool test_sensor_init_on_null (rd_sensor_t * DUT,
 
     if (RD_ERROR_NULL != err_init || RD_ERROR_NULL != err_uninit)
     {
-        RD_ERROR_CHECK (RD_ERROR_SELFTEST, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
-rd_status_t test_sensor_init (const rd_sensor_init_fp init,
+/**
+ * @brief Test that sensor init and uninit works as expected.
+ *
+ * - Sensor must return RD_SUCCESS on first init.
+ * - None of the sensor function pointers may be NULL after init
+ * - Sensor should return RD_ERROR_INVALID_STATE when initializing sensor which is already init. May return other error if check for it triggers first.
+ *   - Sensor structure must be not be altered in failed init.
+ *   - This also means that a sensor is "locked" until first successful initializer uninitializes.
+ * - Sensor must return RD_SUCCESS on first uninit
+ * - All of sensor function pointers must return RD_ERROR_NOT_INITIALIZED after uninit
+ * - Sensor configuration is not defined after init, however the sensor must be in lowest-power state available.
+ * - Sensor mode_get must return RD_SENSOR_CFG_SLEEP after init.
+ * - Sensor configuration is not defined after uninit, however the sensor must be in lowest-power state available.
+ *   - Sensor power consumption is not tested by this test.
+ * - Sensor initialization must be successful after uninit.
+ * - Init and Uninit should return RD_ERROR_NULL if pointer to the sensor struct is NULL. May return other error if check for it triggers first.
+ *
+ *
+ * @param[in] init   Function pointer to sensor initialization
+ * @param[in] bus    Bus of the sensor, RD_BUS_NONE, _I2C or _SPI
+ * @param[in] handle Handle of the sensor, such as SPI GPIO pin, I2C address or ADC channel.
+ *
+ * @return false if no errors occurred, true otherwise.
+ */
+static bool test_sensor_init (const rd_sensor_init_fp init,
                               const rd_bus_t bus, const uint8_t handle)
 {
     rd_sensor_t DUT;
-    rd_status_t err_code = RD_SUCCESS;
+    bool failed = false;
     // - Sensor must return RD_SUCCESS on first init.
-    err_code |= test_sensor_register (initialize_sensor_once (&DUT, init, bus, handle));
-    RETURN_ON_ERROR (err_code);
+    failed |= initialize_sensor_once (&DUT, init, bus, handle);
+    RETURN_ON_ERROR (failed);
     // - None of the sensor function pointers may be NULL after init
-    err_code |= test_sensor_register (validate_sensor_setup (&DUT));
+    failed |= validate_sensor_setup (&DUT);
     // - Sensor must return RD_SUCCESS on first uninit
-    err_code |= test_sensor_register (uninitialize_sensor (&DUT, init, bus, handle));
+    failed |= uninitialize_sensor (&DUT, init, bus, handle);
     // - All of sensor function pointers must return RD_ERROR_NOT_INITIALIZED after uninit
-    err_code |= test_sensor_register (validate_sensor_teardown (&DUT));
+    failed |= validate_sensor_teardown (&DUT);
     // - Sensor must return RD_ERROR_INVALID_STATE when initializing sensor which is already init
-    err_code |= test_sensor_register (initialize_sensor_twice (&DUT, init, bus, handle));
+    failed |= initialize_sensor_twice (&DUT, init, bus, handle);
     // - Sensor must return RD_SUCCESS after uninit
-    err_code |= test_sensor_register (uninitialize_sensor (&DUT, init, bus, handle));
+    failed |= uninitialize_sensor (&DUT, init, bus, handle);
     // - Sensor initialization must be successful after uninit.
-    err_code |= test_sensor_register (initialize_sensor_once (&DUT, init, bus, handle));
+    failed |= initialize_sensor_once (&DUT, init, bus, handle);
     // - Sensor mode_get must return RD_SENSOR_CFG_SLEEP after init.
-    err_code |= test_sensor_register (validate_sensor_mode_after_init (&DUT));
+    failed |= validate_sensor_mode_after_init (&DUT);
     // - Init and Uninit must return RD_ERROR_NULL if pointer to sensor struct is NULL
-    err_code |= test_sensor_register (test_sensor_init_on_null (&DUT, init, bus, handle));
+    failed |= test_sensor_init_on_null (&DUT, init, bus, handle);
     // Uninitialise sensor after test
     DUT.uninit (&DUT, bus, handle);
-    return err_code;
+    return failed;
 }
 
-static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
-        const rd_sensor_setup_fp set, const rd_sensor_setup_fp get)
+static bool test_sensor_setup_set_get (const rd_sensor_t * DUT,
+                                       const rd_sensor_setup_fp set, const rd_sensor_setup_fp get)
 {
     rd_status_t err_code = RD_SUCCESS;
+    bool failed = false;
     uint8_t config = 0;
     uint8_t original = 0;
-    bool failed = false;
     // Test constant values
     uint8_t cfg_constants[] = { RD_SENSOR_CFG_DEFAULT, RD_SENSOR_CFG_MAX, RD_SENSOR_CFG_MIN, RD_SENSOR_CFG_NO_CHANGE };
 
@@ -233,13 +235,11 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
                 RD_SUCCESS != err_code)
         {
             failed = true;
-            RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
         }
     }
 
     if (RD_SUCCESS != err_code)
     {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
         failed = true;
     }
 
@@ -252,7 +252,6 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
     if (RD_ERROR_INVALID_STATE != err_code)
     {
         failed = true;
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
     }
 
     mode = RD_SENSOR_CFG_SLEEP;
@@ -270,7 +269,6 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
                 original > config)
         {
             failed = true;
-            RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
         }
 
         // Get must be as what was returned in set
@@ -281,7 +279,6 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
                 RD_SUCCESS == err_code)
         {
             failed = true;
-            RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
             break;
         }
 
@@ -294,7 +291,7 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
         // Return error on any other error code
         if (RD_SUCCESS != err_code)
         {
-            return RD_ERROR_SELFTEST;
+            return failed;
         }
     }
 
@@ -304,7 +301,6 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
     if (RD_ERROR_NULL != err_code)
     {
         failed = true;
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
     }
 
     err_code = get (NULL);
@@ -312,84 +308,54 @@ static rd_status_t test_sensor_setup_set_get (const rd_sensor_t * DUT,
     if (RD_ERROR_NULL != err_code)
     {
         failed = true;
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
     }
 
-    if (failed)
-    {
-        return RD_ERROR_SELFTEST;
-    }
-
-    return RD_SUCCESS;
+    return failed;
 }
 
-rd_status_t test_sensor_setup (const rd_sensor_init_fp init,
+/**
+ *  @brief Test that sensor sample rate, scale and resolution setters and getters work as expected.
+ *
+ * - MIN, MAX, DEFAULT and NO_CHANGE must always return RD_SUCCESS
+ * - On any parameter set between 1 and 200, if driver returns SUCCESS, the returned value must be at least as much as what was set.
+ * - GET must return same value as SET had as an output.
+ * - Get and Set should return RD_ERROR_NULL if pointer to the value is NULL. May return other error if check for it triggers first.
+ * - If setting up parameter is not supported, for example on sensor with fixed resolution or single-shot measurements only, return RD_SENSOR_CFG_DEFAULT
+ * - Sensor must return RD_ERROR_INVALID_STATE if sensor is not in SLEEP mode while one of parameters is being set
+ *
+ * @param[in] init:   Function pointer to sensor initialization
+ * @param[in] bus:    Bus of the sensor, RD_BUS_NONE, _I2C or _SPI
+ * @param[in] handle: Handle of the sensor, such as SPI GPIO pin, I2C address or ADC channel.
+ *
+ * @return RD_SUCCESS if the tests passed, error code from the test otherwise.
+ */
+static bool test_sensor_setup (const rd_sensor_init_fp init,
                                const rd_bus_t bus, const uint8_t handle)
 {
     // - Sensor must return RD_SUCCESS on first init.
     rd_sensor_t DUT;
     memset (&DUT, 0, sizeof (DUT));
-    rd_status_t err_code = RD_SUCCESS;
     bool failed = false;
-    bool test_ok = true;
-    err_code = init (&DUT, bus, handle);
-
-    if (RD_SUCCESS != err_code)
-    {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        failed = true;
-        // Init is test elsewhere, do not register result. return to avoid calling NULL function pointers
-        return RD_ERROR_SELFTEST;
-    }
-
-    // Test scale
-    err_code = test_sensor_setup_set_get (&DUT, DUT.scale_set, DUT.scale_get);
-
-    if (RD_SUCCESS != err_code)
-    {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        failed = true;
-        test_ok = false;
-    }
-
-    test_sensor_register (test_ok);
-    test_ok = true;
-    // Test samplerate
-    err_code = test_sensor_setup_set_get (&DUT, DUT.samplerate_set, DUT.samplerate_get);
-
-    if (RD_SUCCESS != err_code)
-    {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        failed = true;
-        test_ok = false;
-    }
-
-    test_sensor_register (test_ok);
-    test_ok = true;
-    // Test resolution
-    err_code = test_sensor_setup_set_get (&DUT, DUT.resolution_set, DUT.resolution_get);
-
-    if (RD_SUCCESS != err_code)
-    {
-        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-        failed = true;
-        test_ok = false;
-    }
-
-    test_sensor_register (test_ok);
-    test_ok = true;
-    // Uninitialise sensor after test
-    DUT.uninit (&DUT, bus, handle);
+    failed |= init (&DUT, bus, handle);
 
     if (failed)
     {
-        return RD_ERROR_SELFTEST;
+        // Return to avoid calling NULL function pointers
+        return failed;
     }
 
-    return RD_SUCCESS;
+    // Test scale
+    failed |= test_sensor_setup_set_get (&DUT, DUT.scale_set, DUT.scale_get);
+    // Test samplerate
+    failed |= test_sensor_setup_set_get (&DUT, DUT.samplerate_set, DUT.samplerate_get);
+    // Test resolution
+    failed |= test_sensor_setup_set_get (&DUT, DUT.resolution_set, DUT.resolution_get);
+    // Uninitialise sensor after test
+    DUT.uninit (&DUT, bus, handle);
+    return failed;
 }
 
-/** @brief copy new value into old value and return true if new is different from original old value*/
+/** @brief Copy new value into old value and return true if new is different from original old value. */
 static inline bool value_has_changed (rd_sensor_data_t * old,
                                       const rd_sensor_data_t * const new_d)
 {
@@ -413,30 +379,31 @@ static bool sensor_sleeps_after_init (const rd_sensor_t * const DUT)
 
     if (RD_SUCCESS != err_code || RD_SENSOR_CFG_SLEEP != mode)
     {
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const
         DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
-    float values_new[32]; // conserve excess space for simplicity.
-    rd_sensor_data_t new_data = {.fields = DUT->provides,
-                                 .data = values_new
-                                };
+    float values_new[MAX_SENSOR_PROVIDED_FIELDS];
+    rd_sensor_data_t new_data =
+    {
+        .fields = DUT->provides,
+        .data = values_new
+    };
     err_code = DUT->data_get (&new_data);
 
     if (RD_SUCCESS != err_code || new_data.valid.bitfield)
     {
         RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool sensor_returns_to_sleep (const rd_sensor_t * const DUT)
@@ -449,10 +416,10 @@ static bool sensor_returns_to_sleep (const rd_sensor_t * const DUT)
     if (RD_SUCCESS != err_code || RD_SENSOR_CFG_SLEEP != mode)
     {
         RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool sensor_returns_valid_data (const rd_sensor_t * const DUT)
@@ -460,7 +427,7 @@ static bool sensor_returns_valid_data (const rd_sensor_t * const DUT)
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode;
     rd_sensor_data_t data = {0};
-    float values [32];
+    float values [MAX_SENSOR_PROVIDED_FIELDS];
     data.fields = DUT->provides;
     data.data = values;
     mode = RD_SENSOR_CFG_SINGLE;
@@ -472,18 +439,18 @@ static bool sensor_returns_valid_data (const rd_sensor_t * const DUT)
             RD_UINT64_INVALID == data.timestamp_ms)
     {
         RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool single_sample_stays_valid (const rd_sensor_t * const DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
-    float old_values[32] = {0};
-    float new_values[32] = {0};
+    float old_values[MAX_SENSOR_PROVIDED_FIELDS] = {0};
+    float new_values[MAX_SENSOR_PROVIDED_FIELDS] = {0};
     rd_sensor_data_t old_data = {.fields = DUT->provides,
                                  .data   = old_values
                                 };
@@ -500,10 +467,10 @@ static bool single_sample_stays_valid (const rd_sensor_t * const DUT)
             0 != memcmp (old_values, new_values, sizeof (old_values)))
     {
         RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool sensor_remains_continuous (const rd_sensor_t * const DUT)
@@ -517,11 +484,10 @@ static bool sensor_remains_continuous (const rd_sensor_t * const DUT)
 
     if (RD_SUCCESS != err_code || RD_SENSOR_CFG_CONTINUOUS != mode)
     {
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool sensor_rejects_single_on_continuous (const rd_sensor_t * const DUT)
@@ -533,11 +499,10 @@ static bool sensor_rejects_single_on_continuous (const rd_sensor_t * const DUT)
     if (RD_ERROR_INVALID_STATE != err_code
             || RD_SENSOR_CFG_CONTINUOUS != mode)
     {
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool sensor_mode_cannot_be_null (const rd_sensor_t * const DUT)
@@ -547,27 +512,25 @@ static bool sensor_mode_cannot_be_null (const rd_sensor_t * const DUT)
 
     if (RD_ERROR_NULL != err_code)
     {
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
     err_code = DUT->mode_get (NULL);
 
     if (RD_ERROR_NULL != err_code)
     {
-        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-        return false;
+        return true;
     }
 
-    return  true;
+    return false;
 }
 
 static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SLEEP;
-    float old_values[32];
-    float new_values[32];
+    float old_values[MAX_SENSOR_PROVIDED_FIELDS];
+    float new_values[MAX_SENSOR_PROVIDED_FIELDS];
     rd_sensor_data_t old_data = {.fields = DUT->provides,
                                  .data   = old_values
                                 };
@@ -606,8 +569,7 @@ static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
             }
             else
             {
-                RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
-                return false;
+                return true;
             }
         }
 
@@ -616,50 +578,61 @@ static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
 
     if (MAX_RETRIES == retries)
     {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
-rd_status_t test_sensor_modes (const rd_sensor_init_fp init,
+/**
+ * @brief Test that sensor modes work as expected
+ *
+ * - Sensor must be in SLEEP mode after init
+ * - Sensor must return all values as INVALID if sensor is read before first sample
+ * - Sensor must be in SLEEP mode after mode has been set to SINGLE
+ * - Sensor must have new data after setting mode to SINGLE returns
+ * - Sensor must have same values, including timestamp, on successive calls to DATA_GET after SINGLE sample
+ * - Sensor must stay in CONTINUOUS mode after being set to continuous
+ * - Sensor must return RD_ERROR_INVALID_STATE if set to SINGLE while in continuous mode  and remain in continuous mode
+ * - Sensor must return RD_ERROR_NULL if null mode is passed as a parameter
+ * - Sensor must return updated data in CONTINUOUS mode, at least timestamp has to be updated after two ms wait.
+ *   * Sensor is allowed to buffer data in CONTINUOUS mode.
+ *   * if data is buffered and more samples are available, sensor must return RD_STATUS_MORE_AVAILABLE
+ *
+ * @param[in] init     Function pointer to sensor initialization
+ * @param[in] bus      Bus of the sensor, RD_BUS_NONE, _I2C, _UART or _SPI
+ * @param[in] handle   Handle of the sensor, such as SPI GPIO pin, I2C address or ADC channel.
+ *
+ * @return @c RD_SUCCESS if the tests passed, error code from the test otherwise.
+ */
+static bool test_sensor_modes (const rd_sensor_init_fp init,
                                const rd_bus_t bus, const uint8_t handle)
 {
-    rd_status_t err_code = RD_SUCCESS;
+    bool failed = false;
     rd_sensor_t DUT;
     memset (&DUT, 0, sizeof (DUT));
     initialize_sensor_once (&DUT, init, bus, handle);
     // - Sensor must be in SLEEP mode after init
-    err_code = test_sensor_register (sensor_sleeps_after_init (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_sleeps_after_init (&DUT);
     // - Sensor must return all values as INVALID if sensor is read before first sample
-    err_code = test_sensor_register (sensor_returns_invalid_before_sampling (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_returns_invalid_before_sampling (&DUT);
     // - Sensor must be in SLEEP mode after mode has been set to SINGLE
-    err_code = test_sensor_register (sensor_returns_to_sleep (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_returns_to_sleep (&DUT);
     // - Sensor must have new data after setting mode to SINGLE returns
-    err_code = test_sensor_register (sensor_returns_valid_data (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_returns_valid_data (&DUT);
     // - Sensor must have same values, including timestamp, on successive calls to DATA_GET after SINGLE sample
-    err_code = test_sensor_register (single_sample_stays_valid (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= single_sample_stays_valid (&DUT);
     // - Sensor must stay in CONTINUOUS mode after being set to continuous.
-    err_code = test_sensor_register (sensor_remains_continuous (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_remains_continuous (&DUT);
     // - Sensor must return RD_ERROR_INVALID_STATE if set to SINGLE while in continuous mode and remain in continuous mode
-    err_code = test_sensor_register (sensor_rejects_single_on_continuous (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_rejects_single_on_continuous (&DUT);
     // - Sensor must return RD_ERROR_NULL if null mode is passed as a parameter
-    err_code = test_sensor_register (sensor_mode_cannot_be_null (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_mode_cannot_be_null (&DUT);
     // Sensor must return updated data in CONTINUOUS mode, at least timestamp has to be updated after two ms wait.
-    err_code = test_sensor_register (sensor_returns_continuous_data (&DUT));
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+    failed |= sensor_returns_continuous_data (&DUT);
     // Uninitialise sensor after test
-    err_code = DUT.uninit (&DUT, bus, handle);
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-    return err_code;
+    failed |= DUT.uninit (&DUT, bus, handle);
+    return failed;
 }
 
 static void on_fifo (const ri_gpio_evt_t evt)
@@ -672,17 +645,18 @@ static void on_level (const ri_gpio_evt_t evt)
     level_int = true;
 }
 
-/** @brief prepare GPIOs and initialize sensor for tests
+/**
+ *  @brief Prepare GPIOs and initialize sensor for tests.
  *
- *  @param[out] DUT Sensor to configure
- *  @param[in]  init function to initialize sensor
- *  @param[out] interrupt_table Table of function pointers to configure with interrupts
- *  @param[in]  fifo_pin Pin to register FIFO interrupts
- *  @param[in]  levelo_pin Pin to register level interrupts
+ *  @param[out] DUT Sensor to configure.
+ *  @param[in]  init function to initialize sensor.
+ *  @param[out] interrupt_table Table of function pointers to configure with interrupts.
+ *  @param[in]  fifo_pin Pin to register FIFO interrupts.
+ *  @param[in]  levelo_pin Pin to register level interrupts.
  *  @return RD_SUCCESS on successful initialization.
  *  @return RD_ERROR_SELFTEST if initialization fails.
  */
-static rd_status_t test_sensor_interrupts_setup (rd_sensor_t * DUT,
+static bool test_sensor_interrupts_setup (rd_sensor_t * DUT,
         rd_sensor_init_fp const init,
         const rd_bus_t bus, const uint8_t handle,
         ri_gpio_interrupt_fp_t * const interrupt_table,
@@ -699,8 +673,7 @@ static rd_status_t test_sensor_interrupts_setup (rd_sensor_t * DUT,
     memset (DUT, 0, sizeof (rd_sensor_t));
     rd_status_t err_code = RD_SUCCESS;
     err_code = init (DUT, bus, handle);
-    RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
-    return  err_code;
+    return (RD_SUCCESS != err_code);
 }
 
 /** @brief Uninitialize GPIOs and sensor after tests
@@ -714,7 +687,7 @@ static void test_sensor_interrupts_teardown (rd_sensor_t * const DUT,
     ri_gpio_interrupt_uninit();
 }
 
-/* @brief  - FIFO read must return samples with different values (noise) */
+/** @brief  - FIFO read must return samples with different values (noise) */
 static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
 {
     DUT->fifo_enable (true);
@@ -723,8 +696,20 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
     ri_delay_ms (100);
-    size_t num_samples = 32;
-    rd_sensor_data_t data[32] = { 0 };
+    rd_sensor_data_t old;
+    float old_values[MAX_SENSOR_PROVIDED_FIELDS];
+    old.data = old_values;
+    old.fields.bitfield = DUT->provides.bitfield;
+    size_t num_samples = MAX_FIFO_DEPTH;
+    rd_sensor_data_t data[MAX_FIFO_DEPTH] = { 0 };
+    float values[num_samples][MAX_SENSOR_PROVIDED_FIELDS];
+
+    for (size_t ii = 0; ii < num_samples; ii++)
+    {
+        data[ii].data = values[ii];
+        data[ii].fields.bitfield = DUT->provides.bitfield;
+    }
+
     bool valid_data = false;
     DUT->fifo_read (&num_samples, data);
 
@@ -733,8 +718,7 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
         return RD_ERROR_SELFTEST;
     }
 
-    // Initialize has changed with data
-    rd_sensor_data_t old;
+    // Check that FIFO has new values
     value_has_changed (&old, & (data[0]));
 
     for (size_t iii = 1; iii < num_samples; iii++)
@@ -746,20 +730,31 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
         }
     }
 
-    test_sensor_register (valid_data);
-    return (valid_data) ? RD_SUCCESS : RD_ERROR_SELFTEST;
+    return (valid_data) ? false : true;
 }
 
 
 /**
+ * @brief Test that sensor interrupts work as expected
+ *
+ * Tests level and fifo interrupts.
  * Functions may return @c RD_ERROR_NOT_SUPPORTED, otherwise:
  *  - FIFO read must return samples with different values (noise)
  *  - FIFO full interrupt must trigger after some time when in FIFO mode
  *  - FIFO full interrupt must trigger again after FIFO has been read and filled again
  *  - FIFO full interrupt must not trigger if FIFO is read at fast enough interval
  *  - FIFO full interrupt must not
+ *
+ * @param[in] init   Function pointer to sensor initialization
+ * @param[in] bus    Bus of the sensor, RD_BUS_NONE, _I2C, _UART or _SPI
+ * @param[in] handle Handle of the sensor, such as SPI GPIO pin, I2C address or ADC channel.
+ * @param[in] interactive True to enable interactive tests which require user to supply interrupt excitation.
+ * @param[in] fifo_pin @ref ri_gpio_id_t identifying pin used to detect interrupts from FIFO
+ * @param[in] fifo_pin @ref ri_gpio_id_t identifying pin used to detect interrupts from level.
+ *
+ * @return @c RD_SUCCESS if the tests passed, error code from the test otherwise.
  */
-rd_status_t test_sensor_interrupts (const rd_sensor_init_fp init,
+static bool test_sensor_interrupts (const rd_sensor_init_fp init,
                                     const rd_bus_t bus, const uint8_t handle,
                                     const bool interactive,
                                     const ri_gpio_id_t fifo_pin,
@@ -781,28 +776,95 @@ rd_status_t test_sensor_interrupts (const rd_sensor_init_fp init,
     return status;
 }
 
-rd_status_t test_sensor_status (size_t * tests_total, size_t * tests_passed)
+bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
+                                     rt_sensor_ctx_t * p_sensor_ctx)
 {
-    *tests_total =  m_total;
-    *tests_passed = m_passed;
-    return RD_SUCCESS;
-}
+    bool status = false;
+    rd_status_t err_code = RD_SUCCESS;
+    printfp ("\"");
+    printfp (p_sensor_ctx->sensor.name);
+    printfp ("\": {\r\n");
+    printfp ("\"init\":");
+    err_code = p_sensor_ctx->init (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
+                                   p_sensor_ctx->handle);
 
-rd_status_t test_sensor_register (bool passed)
-{
-    m_total++;
+    if (RD_ERROR_NOT_FOUND == err_code)
+    {
+        printfp ("\"skip\",\r\n");
+        p_sensor_ctx->sensor.uninit (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
+                                     p_sensor_ctx->handle);
+    }
+    else
+    {
+        p_sensor_ctx->sensor.uninit (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
+                                     p_sensor_ctx->handle);
+        status = test_sensor_init (p_sensor_ctx->init, p_sensor_ctx->bus, p_sensor_ctx->handle);
 
-    if (passed) { m_passed++; }
+        if (status)
+        {
+            printfp ("\"fail\",\r\n");
+        }
+        else
+        {
+            printfp ("\"pass\",\r\n");
+        }
 
-    return passed ? RD_SUCCESS : RD_ERROR_SELFTEST;
+        printfp ("\"modes\":");
+        status = test_sensor_modes (p_sensor_ctx->init, p_sensor_ctx->bus, p_sensor_ctx->handle);
+
+        if (status)
+        {
+            printfp ("\"fail\",\r\n");
+        }
+        else
+        {
+            printfp ("\"pass\",\r\n");
+        }
+
+        printfp ("\"configuration\":");
+        status = test_sensor_setup (p_sensor_ctx->init, p_sensor_ctx->bus, p_sensor_ctx->handle);
+
+        if (status)
+        {
+            printfp ("\"fail\",\r\n");
+        }
+        else
+        {
+            printfp ("\"pass\",\r\n");
+        }
+
+        printfp ("\"interrupts\":");
+
+        if (RI_GPIO_ID_UNUSED != p_sensor_ctx->fifo_pin
+                && RI_GPIO_ID_UNUSED != p_sensor_ctx->level_pin)
+        {
+            status = test_sensor_interrupts (p_sensor_ctx->init, p_sensor_ctx->bus,
+                                             p_sensor_ctx->handle, false,
+                                             p_sensor_ctx->fifo_pin, p_sensor_ctx->level_pin);
+
+            if (status)
+            {
+                printfp ("\"fail\"\r\n");
+            }
+            else
+            {
+                printfp ("\"pass\"\r\n");
+            }
+        }
+        else
+        {
+            printfp ("\"skipped\"\r\n");
+        }
+    }
+
+    printfp ("}");
+    return status;
 }
 
 #else
 // Dummy implementation
 rd_status_t test_sensor_status (size_t * total, size_t * passed)
 {
-    *total = 0;
-    *passed = 0;
     return RD_SUCCESS;
 }
 void test_sensor_run (void)

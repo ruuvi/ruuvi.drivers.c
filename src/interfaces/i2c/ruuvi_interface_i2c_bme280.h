@@ -12,7 +12,7 @@
  * @file ruuvi_interface_i2c_bme280.h
  * @author Otso Jousimaa <otso@ojousima.net>
  * @brief I2C read/write functions for Bosch BME280.
- * @date 2019-03-04
+ * @date 2020-04-28
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * You'll need to get the official Bosch BME280 driver, available on
@@ -25,8 +25,8 @@
  * static struct bme280_dev dev = {0};
  * dev.dev_id = bme280_cs_pin;
  * dev.intf = BME280_I2C_INTF;
- * dev.read = ruuvi_interface_i2c_bme280_read;
- * dev.write = ruuvi_interface_i2c_bme280_write;
+ * dev.read = ri_i2c_bme280_read;
+ * dev.write = ri_i2c_bme280_write;
  * dev.delay_ms = bosch_delay_ms;
  * bme280_init(&dev);
  * @endcode
@@ -46,8 +46,8 @@
  * @return 0 on success
  * @return positive number on warning
  **/
-int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
-        uint8_t * p_reg_data, uint16_t len);
+int8_t ri_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
+                            uint8_t * p_reg_data, uint16_t len);
 
 /**
  * @brief I2C Read function for BME280
@@ -63,7 +63,7 @@ int8_t ruuvi_interface_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
  * @return 0 on success
  * @return positive number on warning
  **/
-int8_t ruuvi_interface_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
-                                        uint8_t * reg_data, uint16_t len);
+int8_t ri_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
+                           uint8_t * reg_data, uint16_t len);
 /** @} */
 #endif

@@ -1,5 +1,6 @@
 #ifndef RUUVI_INTERFACE_I2C_H
 #define RUUVI_INTERFACE_I2C_H
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
 #include <stdbool.h>
@@ -21,14 +22,18 @@
  *
  */
 
+#if RI_I2C_ENABLED
+#  define RUUVI_NRF5_SDK15_I2C_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
+
 /**
  * Clock speed
  */
 typedef enum
 {
-    RI_I2C_FREQUENCY_100k, //!< 100 kbps
-    RI_I2C_FREQUENCY_250k, //!< 250 kbps
-    RI_I2C_FREQUENCY_400k, //!< 400 kbps
+    RI_I2C_FREQUENCY_100k, //!< 100 kbps.
+    RI_I2C_FREQUENCY_250k, //!< 250 kbps.
+    RI_I2C_FREQUENCY_400k, //!< 400 kbps.
 } ri_i2c_frequency_t;
 
 /**
@@ -43,13 +48,20 @@ typedef struct
 } ri_i2c_init_config_t;
 
 /**
- * @brief Initialize I2C driver with given settings
+ * @brief Initialize I2C driver with given settings.
  *
  * @param[in] config Configuration of the I2C peripheral.
  * @return error code from the stack, RD_SUCCESS if no error occurred
  **/
 rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
                          const config);
+
+/**
+ * @brief Uninitialize I2C.
+ *
+ * @return error code from the stack, RD_SUCCESS if no error occurred
+ **/
+rd_status_t ri_i2c_uninit (void);
 
 /**
  * @brief Check if i2c driver is initialized

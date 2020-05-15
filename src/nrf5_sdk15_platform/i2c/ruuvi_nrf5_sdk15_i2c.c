@@ -38,6 +38,7 @@
  *
  */
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_i2c.h"
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
 #include <stdint.h>
 #include <string.h> //memcpy
@@ -46,16 +47,23 @@
 #include "nrf_drv_twi.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
-#include "ruuvi_interface_i2c.h"
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
 #include "ruuvi_nrf5_sdk15_error.h"
+
+#ifndef NRF_FIX_TWI_ISSUE_209
+#define NRF_FIX_TWI_ISSUE_209
+#endif
+
+#ifdef NRF_FIX_TWI_ISSUE_209
+#define NRF_DRV_TWI_FREQ_390K (0x06200000UL) /*!< 390 kbps */
+#endif
 
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE (I2C_INSTANCE);
 static bool m_i2c_is_init        = false;
 static volatile bool m_tx_in_progress     = false;
 static volatile ret_code_t xfer_status    = NRF_SUCCESS;
-static uint16_t timeout_us_per_byte       = 400;
+static uint16_t timeout_us_per_byte       = 1000; //!< Longest time per byte by default
 
 static nrf_drv_twi_frequency_t ruuvi_to_nrf_frequency (const
         ri_i2c_frequency_t freq)
@@ -91,6 +99,21 @@ static void byte_timeout_set (const
     }
 }
 
+#ifdef NRF_FIX_TWI_ISSUE_209
+static void byte_freq_set (nrf_drv_twi_t const * p_instance,
+                           const ri_i2c_frequency_t freq)
+{
+    NRF_TWI_Type * p_reg_twi = p_instance->u.twi.p_twi;
+    NRF_TWIM_Type * p_reg_twim = p_instance->u.twim.p_twim;
+
+    if (freq == RI_I2C_FREQUENCY_400k)
+    {
+        if (NRF_DRV_TWI_USE_TWIM) { p_reg_twim->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
+        else { p_reg_twi->FREQUENCY = NRF_DRV_TWI_FREQ_390K; }
+    }
+}
+#endif
+
 static void on_complete (nrf_drv_twi_evt_t const * p_event, void * p_context)
 {
     m_tx_in_progress = false;
@@ -111,7 +134,7 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
         .scl                = ruuvi_to_nrf_pin_map (config->scl),
         .sda                = ruuvi_to_nrf_pin_map (config->sda),
         .frequency          = frequency,
-        .interrupt_priority = I2C_IRQ_PRIORITY,
+        .interrupt_priority = APP_IRQ_PRIORITY_LOW,
         .clear_bus_init     = true
     };
     // Verify that lines can be pulled up
@@ -129,6 +152,9 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
     }
 
     err_code = nrf_drv_twi_init (&m_twi, &twi_config, on_complete, NULL);
+#ifdef NRF_FIX_TWI_ISSUE_209
+    byte_freq_set (&m_twi, frequency);
+#endif
     nrf_drv_twi_enable (&m_twi);
     m_i2c_is_init = true;
     m_tx_in_progress = false;
@@ -141,17 +167,20 @@ bool ri_i2c_is_init()
 }
 
 /**
- * @brief uninitialize I2C driver with default settings
- * @return RD_SUCCESS on success, ruuvi error code on error
+ * @brief Uninitialize I2C driver with default settings.
+ *
+ * @return RD_SUCCESS on success, ruuvi error code on error.
  */
-rd_status_t i2c_uninit (void)
+rd_status_t ri_i2c_uninit (void)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    nrf_drv_twi_disable (&m_twi);
+    nrf_drv_twi_uninit (&m_twi);
+    return RD_SUCCESS;
 }
 
 
 /**
- * @breif I2C Write function
+ * @brief I2C Write function.
  *
  * @param[in] address I2C address of slave, without R/W bit
  * @param[in] tx_len length of data to be sent
@@ -187,12 +216,15 @@ rd_status_t ri_i2c_write_blocking (const uint8_t address,
 }
 
 /**
- * I2C Read function
+ * @brief I2C Read function.
  *
- * parameter address: I2C address of slave, without or without R/W bit set
- * parameter rx_len: length of data to be received
- * parameter data: pointer to data to be received.
+ * @param[in] address I2C address of slave, without or without R/W bit set.
+ * @param[in] rx_len Length of data to be received.
+ * @param[our] data Pointer to data to be received.
  *
+ * @retval
+ * @retval RD_ERROR_NULL
+ * @retval RD_ERROR_INVALID_STATE if I2C is not initialized
  **/
 rd_status_t ri_i2c_read_blocking (const uint8_t address,
                                   uint8_t * const p_rx, const size_t rx_len)
