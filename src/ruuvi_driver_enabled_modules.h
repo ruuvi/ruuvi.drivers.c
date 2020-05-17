@@ -174,10 +174,10 @@ data payload length is the maximum length */
 
 #if RI_SCHEDULER_ENABLED
 #  ifndef RI_SCHEDULER_LENGTH
-#    define RI_SCHEDULER_LENGTH 10
+#    define RI_SCHEDULER_LENGTH (10U)
 #  endif
 #  ifndef RI_SCHEDULER_SIZE
-#    define RI_SCHEDULER_SIZE 32
+#    define RI_SCHEDULER_SIZE (32U)
 #  endif
 #endif
 
@@ -187,8 +187,12 @@ data payload length is the maximum length */
 
 #if RI_TIMER_ENABLED
 #  ifndef RI_TIMER_MAX_INSTANCES
-#    define RI_TIMER_MAX_INSTANCES 10
+#    define RI_TIMER_MAX_INSTANCES (10U)
 #  endif
+#endif
+
+#ifndef RI_UART_ENABLED
+#   define RI_UART_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RI_YIELD_ENABLED
