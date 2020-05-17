@@ -154,11 +154,13 @@ rd_status_t ri_gpio_interrupt_enable (const
 
     //  high-accuracy mode consumes excess power
     //  is_watcher is used if we track an output pin.
-    nrf_drv_gpiote_in_config_t in_config = { .is_watcher = false,  \
-                                             .hi_accuracy = false, \
-                                             .pull = pull,         \
-                                             .sense = polarity     \
-                                           };
+    nrf_drv_gpiote_in_config_t in_config =
+    {
+        .is_watcher = false,
+        .hi_accuracy = false,
+        .pull = pull,
+        .sense = polarity
+    };
     pin_event_handlers[nrf_pin] = handler;
     err_code |= nrf_drv_gpiote_in_init (nrf_pin, &in_config, in_pin_handler);
     nrf_drv_gpiote_in_event_enable (nrf_pin, true);
