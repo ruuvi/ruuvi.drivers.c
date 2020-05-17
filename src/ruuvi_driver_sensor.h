@@ -105,7 +105,8 @@ typedef struct __attribute__ ( (packed, aligned (4)))
     uint8_t mode;           //!< Mode, RD_SENSOR_SLEEP, _SINGLE, _CONTINOUS
     uint8_t reserved0;      //!< Reserved for future use
     uint8_t reserved1;      //!< Reserved for future use
-} rd_sensor_configuration_t;
+}
+rd_sensor_configuration_t;
 
 /**
  * @brief Type of bus sensor uses.

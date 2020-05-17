@@ -75,7 +75,7 @@ rd_status_t ri_timer_create (ri_timer_id_t *
                              ruuvi_timer_timeout_handler_t timeout_handler);
 
 /**
- * @brief Start given timer at a mode defined in ri_timer_create. 
+ * @brief Start given timer at a mode defined in ri_timer_create.
  *
  * This operation is ignored if timer is already running.
  *

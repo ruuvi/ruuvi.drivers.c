@@ -109,7 +109,7 @@ data payload length is the maximum length */
 
 #if RT_GATT_ENABLED
 #   define RI_GATT_ENABLED (1U)
-#endif 
+#endif
 
 #if RT_GATT_ENABLED && ((!RT_ADV_ENABLED) || !(RI_COMM_ENABLED))
 #  error "GATT task requires Advertisement task and communication interface."

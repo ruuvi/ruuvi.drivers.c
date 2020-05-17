@@ -105,12 +105,14 @@
 #define LOGHEX(msg, len) ri_log_hex(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg, len)
 
 NRF_BLE_GATT_DEF (m_gatt);                               /**< GATT module instance. */
-NRF_BLE_QWR_DEF (m_qwr);                                  /**< Context for the Queued Write module.*/
+NRF_BLE_QWR_DEF (
+    m_qwr);                                  /**< Context for the Queued Write module.*/
 BLE_NUS_DEF (m_nus, NRF_SDH_BLE_TOTAL_LINK_COUNT);       /**< BLE NUS service instance. */
-static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
+static uint16_t m_conn_handle =
+    BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 static bool     m_gatt_is_init = false;
 /**< Pointer to application communication interface, given at initialization */
-static ri_comm_channel_t * channel = NULL;  
+static ri_comm_channel_t * channel = NULL;
 
 // XXX
 #define MIN_CONN_INTERVAL 100
@@ -175,7 +177,7 @@ static ret_code_t gap_params_init (void)
 static void conn_params_error_handler (uint32_t nrf_error)
 {
     RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_error),
-                              RD_SUCCESS);
+                    RD_SUCCESS);
 }
 
 /**@brief Function for handling an event from the Connection Parameters Module.
@@ -197,7 +199,7 @@ static void on_conn_params_evt (ble_conn_params_evt_t * p_evt)
     {
         err_code = sd_ble_gap_disconnect (m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
         RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                  RD_SUCCESS);
+                        RD_SUCCESS);
     }
 }
 
@@ -288,7 +290,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             err_code = nrf_ble_qwr_conn_handle_assign (&m_qwr, m_conn_handle);
             LOG ("BLE Connected \r\n");
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RD_SUCCESS);
+                            RD_SUCCESS);
             // Request 2MBPS connection - Fails on Mac osx / web bluetooth
             // err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
             // ri_log(RI_LOG_INFO, "Requested 2MBPS connection\r\n");
@@ -311,7 +313,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             err_code = sd_ble_gap_phy_update (p_ble_evt->evt.gap_evt.conn_handle, &phys);
             LOG ("BLE PHY update requested \r\n");
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RD_SUCCESS);
+                            RD_SUCCESS);
             break;
 
         case BLE_GAP_EVT_PHY_UPDATE:
@@ -343,7 +345,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
                                                     BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
                                                     NULL, NULL);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RD_SUCCESS);
+                            RD_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
@@ -351,7 +353,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             LOG ("BLE System attributes missing\r\n");
             err_code = sd_ble_gatts_sys_attr_set (m_conn_handle, NULL, 0, 0);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RD_SUCCESS);
+                            RD_SUCCESS);
             break;
 
         case BLE_GATTC_EVT_TIMEOUT:
@@ -360,7 +362,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             err_code = sd_ble_gap_disconnect (p_ble_evt->evt.gattc_evt.conn_handle,
                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RD_SUCCESS);
+                            RD_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_TIMEOUT:
@@ -369,7 +371,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             err_code = sd_ble_gap_disconnect (p_ble_evt->evt.gatts_evt.conn_handle,
                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                                      RD_SUCCESS);
+                            RD_SUCCESS);
             break;
 
         case BLE_GATTS_EVT_HVN_TX_COMPLETE:
@@ -404,7 +406,7 @@ static void gatt_evt_handler (nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const 
 static void nrf_qwr_error_handler (uint32_t nrf_error)
 {
     RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_error),
-                              RD_SUCCESS);
+                    RD_SUCCESS);
 }
 
 // YOUR_JOB: Update this code if you want to do anything given a DFU event (optional).
@@ -502,7 +504,7 @@ static void pm_evt_handler (pm_evt_t const * p_evt)
         {
             // Assert.
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.peer_data_update_failed.error), RD_SUCCESS);
+                                p_evt->params.peer_data_update_failed.error), RD_SUCCESS);
         }
         break;
 
@@ -510,7 +512,7 @@ static void pm_evt_handler (pm_evt_t const * p_evt)
         {
             // Assert.
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.peer_delete_failed.error), RD_SUCCESS);
+                                p_evt->params.peer_delete_failed.error), RD_SUCCESS);
         }
         break;
 
@@ -518,7 +520,7 @@ static void pm_evt_handler (pm_evt_t const * p_evt)
         {
             // Assert.
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.peers_delete_failed_evt.error), RD_SUCCESS);
+                                p_evt->params.peers_delete_failed_evt.error), RD_SUCCESS);
         }
         break;
 
@@ -526,7 +528,7 @@ static void pm_evt_handler (pm_evt_t const * p_evt)
         {
             // Assert.
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (
-                                          p_evt->params.error_unexpected.error), RD_SUCCESS);
+                                p_evt->params.error_unexpected.error), RD_SUCCESS);
         }
         break;
 
@@ -603,7 +605,7 @@ rd_status_t ri_gatt_init (void)
     // Connection param module requires timers
     if (!ri_timer_is_init())
     {
-        LOGW("NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
+        LOGW ("NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
         return RD_ERROR_INVALID_STATE;
     }
 
