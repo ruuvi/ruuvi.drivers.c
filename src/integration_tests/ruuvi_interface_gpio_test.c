@@ -3,7 +3,10 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_gpio.h"
+#include "ruuvi_interface_yield.h"
 #include <stdbool.h>
+
+#define PULL_DELAY_MS (1U)
 
 rd_status_t ri_gpio_test_init (void)
 {
@@ -55,6 +58,7 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t input,
     status |= ri_gpio_init();
     status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_NOPULL);
     status |= ri_gpio_configure (output, RI_GPIO_MODE_INPUT_PULLUP);
+    status |= ri_delay_ms (PULL_DELAY_MS);
     status |= ri_gpio_read (input, &state);
 
     if (RD_SUCCESS != status || RI_GPIO_HIGH != state)
@@ -68,6 +72,7 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t input,
         status |= ri_gpio_configure (input, RI_GPIO_MODE_INPUT_NOPULL);
         status |= ri_gpio_configure (output,
                                      RI_GPIO_MODE_INPUT_PULLDOWN);
+        status |= ri_delay_ms (PULL_DELAY_MS);
         status |= ri_gpio_read (input, &state);
 
         if (RD_SUCCESS != status || RI_GPIO_LOW != state)
