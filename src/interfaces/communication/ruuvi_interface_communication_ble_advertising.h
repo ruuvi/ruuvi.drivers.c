@@ -69,10 +69,9 @@ typedef struct
 rd_status_t ri_adv_init (ri_comm_channel_t * const channel);
 
 /*
- * @brief Uninitializes radio hardware, advertising module and scanning module.
+ * @brief Uninitializes advertising module and scanning module.
  *
  * @param[out] channel comm api to send and receive data via advertisements.
- *
  * @retval RD_SUCCESS on success or if radio was not initialized.
  * @retval RD_ERROR_INVALID_STATE if radio hardware was initialized by another radio module.
  */

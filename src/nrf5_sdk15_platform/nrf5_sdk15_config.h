@@ -15,6 +15,7 @@
 #include "ruuvi_interface_scheduler.h"         //!< Check if APP_SCHEDULER is required 
 #include "ruuvi_interface_spi.h"               //!< Check if SPI is required
 #include "ruuvi_interface_timer.h"             //!< Check if NRF_CLOCK, APP_TIMER required 
+#include "ruuvi_interface_communication_uart.h"//!< Check if Serial is required
 #include "ruuvi_interface_watchdog.h"          //!< Check if WDT is required
 #include "ruuvi_interface_yield.h"             //!< Check if NRF_PWR_MGMT is required
 
@@ -119,9 +120,9 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_LOG_ENABLED
-#  define NRF_LOG_ENABLED 1
-#  define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED 0
-#  define NRF_LOG_DEFERRED 0
+#   define NRF_LOG_ENABLED 1
+#   define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED 0
+#   define NRF_LOG_DEFERRED 0
 #endif
 
 #if RUUVI_NRF5_SDK15_POWER_ENABLED
@@ -137,39 +138,59 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_SCHEDULER_ENABLED
-#  define APP_SCHEDULER_ENABLED 1
+#   define APP_SCHEDULER_ENABLED 1
 #endif
 
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
-#  define APP_TIMER_ENABLED 1
-#  define NRF_CLOCK_ENABLED 1
-#  define TIMER_ENABLED 1
-#  define TIMER1_ENABLED 1
+#   define APP_TIMER_ENABLED 1
+/** @brief Reserve space for 2 events per timer */
+#   define APP_TIMER_CONFIG_OP_QUEUE_SIZE (RI_TIMER_MAX_INSTANCES * 2U)
+#   define NRF_CLOCK_ENABLED 1
+#   define TIMER_ENABLED 1
+#   define TIMER1_ENABLED 1
 #endif
 
 #if RUUVI_NRF5_SDK15_NFC_ENABLED
-#  define NFC_NDEF_MSG_ENABLED 1
-#  define NFC_NDEF_RECORD_ENABLED 1
-#  define NFC_PLATFORM_ENABLED 1
-#  define NFC_NDEF_TEXT_RECORD_ENABLED 1
-#  define NFC_NDEF_URI_MSG_ENABLED 1
-#  define NFC_NDEF_URI_REC_ENABLED 1
-#  define NFC_NDEF_MSG_PARSER_ENABLED 1
-#  define NFC_NDEF_RECORD_PARSER_ENABLED 1
-#  define NRFX_NFCT_ENABLED 1
-#  define NFC_NDEF_MSG_TAG_TYPE 4
-#  if (!RUUVI_NRF5_SDK15_TIMER_ENABLED)
-#    error "NFC requires timer instance 4"
-#  endif
-#  define TIMER4_ENABLED 1
+#   define NFC_NDEF_MSG_ENABLED 1
+#   define NFC_NDEF_RECORD_ENABLED 1
+#   define NFC_PLATFORM_ENABLED 1
+#   define NFC_NDEF_TEXT_RECORD_ENABLED 1
+#   define NFC_NDEF_URI_MSG_ENABLED 1
+#   define NFC_NDEF_URI_REC_ENABLED 1
+#   define NFC_NDEF_MSG_PARSER_ENABLED 1
+#   define NFC_NDEF_RECORD_PARSER_ENABLED 1
+#   define NRFX_NFCT_ENABLED 1
+#   define NFC_NDEF_MSG_TAG_TYPE 4
+#   if (!RUUVI_NRF5_SDK15_TIMER_ENABLED)
+#       error "NFC requires timer instance 4"
+#   endif
+#   define TIMER4_ENABLED 1
+#endif
+
+#if RUUVI_NRF5_SDK15_UART_ENABLED
+#   define NRF_SERIAL_ENABLED 1
+#   define NRFX_UARTE_ENABLED 1
+#   define NRFX_UARTE0_ENABLED 1
+#   ifdef NRF52811_XXAA
+#       define NRFX_UART_ENABLED 0
+#       define NRFX_UART0_ENABLED 0
+#   endif
+#   ifdef NRF52832_XXAA
+#       define NRFX_UART_ENABLED 1
+#       define NRFX_UART0_ENABLED 1
+#   endif
+#   define UART_EASY_DMA_SUPPORT 1
+#   define UART_LEGACY_SUPPORT 1
+#   define UART0_ENABLED 1
+#   define UART0_CONFIG_USE_EASY_DMA 1
 #endif
 
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED
-#  define NRF_PWR_MGMT_ENABLED 1
+#   define NRF_PWR_MGMT_ENABLED 1
 #endif
 
 #if RUUVI_NRF5_SDK15_WATCHDOG_ENABLED
-#  define WDT_ENABLED 1
+#   define WDT_ENABLED 1
 #endif
 
 

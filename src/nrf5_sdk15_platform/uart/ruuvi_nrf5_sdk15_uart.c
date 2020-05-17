@@ -1,53 +1,49 @@
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_communication_uart.h"
 #if RUUVI_NRF5_SDK15_UART_ENABLED
 #include "ruuvi_driver_error.h"
-#include "ruuvi_interface_uart.h"
+#include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_log.h"
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
-#include "nrfx_uarte.h"
+#include "nrf_serial.h"
 
 #ifndef RUUVI_NRF5_SDK15_UART_LOG_LEVEL
-#define LOG_LEVEL RUUVI_INTERFACE_LOG_INFO
+#define LOG_LEVEL RI_LOG_LEVEL_INFO
 #else
 #define LOG_LEVEL RUUVI_NRF5_SDK15_UART_LOG_LEVEL
 #endif
-#define LOG(msg)  (ruuvi_interface_log(LOG_LEVEL, msg))
-#define LOGD(msg)  (ruuvi_interface_log(RUUVI_INTERFACE_LOG_DEBUG, msg))
+#define LOG(msg)  (ri_log(LOG_LEVEL, msg))
+#define LOGD(msg)  (ri_log(RUUVI_INTERFACE_LOG_DEBUG, msg))
 
-static bool m_uart_is_init = false;
-static nrfx_uarte_t m_uart = NRFX_UARTE_INSTANCE (0);
+#define OP_QUEUES_SIZE          3
+#define APP_TIMER_PRESCALER     NRF_SERIAL_APP_TIMER_PRESCALER
 
-// Convert constants from Ruuvi to nRF52 SDK
-static nrf_uarte_baudrate_t ruuvi_to_nrf_baudrate (const ruuvi_interface_uart_baud_t baud)
+static void sleep_handler (void)
 {
-    switch (baud)
-    {
-        case RUUVI_INTERFACE_UART_BAUD_9600:
-            return NRF_UARTE_BAUDRATE_9600;
-
-        case RUUVI_INTERFACE_UART_BAUD_115200:
-        default:
-            return NRF_UARTE_BAUDRATE_115200;
-    }
+    ri_yield();
 }
 
 // Handle UART events
-static void uart_handler (nrfx_uarte_event_t const * p_event, void * p_context)
+static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event_t event)
 {
-    switch (p_event->type)
+    switch (event)
     {
-        case NRFX_UARTE_EVT_TX_DONE: ///< Requested TX transfer completed.
+        case NRF_SERIAL_EVENT_TX_DONE: ///< Requested TX transfer completed.
             LOG ("TX\r\n");
             break;
 
-        case NRFX_UARTE_EVT_RX_DONE: ///< Requested RX transfer completed.
+        case NRF_SERIAL_EVENT_RX_DATA: ///< Requested RX transfer completed.
             LOG ("RX\r\n");
             break;
 
-        case NRFX_UARTE_EVT_ERROR:   ///< Error reported by UART peripheral.
+        case NRF_SERIAL_EVENT_DRV_ERR:   ///< Error reported by UART peripheral.
             LOG ("!\r\n");
+            break;
+
+        case NRF_SERIAL_EVENT_FIFO_ERR:
+            LOG ("?\r\n");
             break;
 
         default:
@@ -56,51 +52,153 @@ static void uart_handler (nrfx_uarte_event_t const * p_event, void * p_context)
     }
 }
 
-ruuvi_driver_status_t ruuvi_interface_uart_init (const ruuvi_interface_uart_init_config_t *
-        const config)
-{
-    nrfx_err_t nrf_status = NRF_SUCCESS;
-    nrfx_uarte_config_t nrf_config = NRFX_UARTE_DEFAULT_CONFIG;
-    nrf_config.baudrate = ruuvi_to_nrf_baudrate (config->baud);
-    nrf_config.pselcts = ruuvi_to_nrf_pin_map (config->cts);
-    nrf_config.pselcts = ruuvi_to_nrf_pin_map (config->rts);
-    nrf_config.pselcts = ruuvi_to_nrf_pin_map (config->tx);
-    nrf_config.pselcts = ruuvi_to_nrf_pin_map (config->rx);
-    nrf_config.parity  = config->parity ? NRF_UARTE_PARITY_INCLUDED :
-                         NRF_UARTE_PARITY_EXCLUDED;
-    nrf_config.hwfc    = config->hwfc ? NRF_UARTE_HWFC_ENABLED : NRF_UARTE_HWFC_DISABLED;
-    nrf_status |= nrfx_uarte_init (&m_uart, &nrf_config, uart_handler);
+static nrf_drv_uart_config_t m_uart0_drv_config;
 
-    if (NRF_SUCCESS == nrf_status)
+#define SERIAL_FIFO_TX_SIZE (32U)
+#define SERIAL_FIFO_RX_SIZE (32U)
+
+NRF_SERIAL_QUEUES_DEF (serial_queues, SERIAL_FIFO_TX_SIZE, SERIAL_FIFO_RX_SIZE);
+
+
+#define SERIAL_BUFF_TX_SIZE (1U)
+#define SERIAL_BUFF_RX_SIZE (1U)
+
+NRF_SERIAL_BUFFERS_DEF (serial_buffs, SERIAL_BUFF_TX_SIZE, SERIAL_BUFF_RX_SIZE);
+
+NRF_SERIAL_CONFIG_DEF (serial_config, NRF_SERIAL_MODE_IRQ,
+                       &serial_queues, &serial_buffs, uart_handler, sleep_handler);
+
+
+NRF_SERIAL_UART_DEF (serial_uart, 0);
+
+// Convert constants from Ruuvi to nRF52 SDK
+static nrf_uarte_baudrate_t ruuvi_to_nrf_baudrate (const ri_uart_baudrate_t baud)
+{
+    switch (baud)
     {
-        m_uart_is_init = true;
+        case RI_UART_BAUD_9600:
+            return NRF_UARTE_BAUDRATE_9600;
+
+        case RI_UART_BAUD_115200:
+        default:
+            return NRF_UARTE_BAUDRATE_115200;
+    }
+}
+
+static rd_status_t ri_uart_send_async (ri_comm_message_t * const msg)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == msg)
+    {
+        err_code |= RD_ERROR_NULL;
     }
 
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_status);
-}
+    if (1 < msg->repeat_count)
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
+    else
+    {
+        nrfx_err_t status = NRF_SUCCESS;
+        size_t written = 0;
+        status |= nrf_serial_write (&serial_uart, msg->data, msg->data_length, &written, 0);
+        err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
 
-bool ruuvi_interface_uart_is_init()
-{
-    return m_uart_is_init;
-}
-
-ruuvi_driver_status_t ruuvi_interface_uart_uninit()
-{
-    nrfx_uarte_uninit (&m_uart);
-    return RUUVI_DRIVER_SUCCESS;
-}
-
-ruuvi_driver_status_t ruuvi_interface_uart_send_blocking (const uint8_t * const p_tx,
-        const size_t tx_len)
-{
-    if (NULL == p_tx) { return RUUVI_DRIVER_ERROR_NULL; }
-
-    nrfx_err_t err_code = NRF_SUCCESS;
-    err_code |= nrfx_uarte_tx (&m_uart, p_tx, tx_len);
-
-    while (NRF_SUCCESS == err_code && nrfx_uarte_tx_in_progress (&m_uart));
+        if (written != msg->data_length)
+        {
+            err_code |= RD_ERROR_NO_MEM;
+        }
+    }
 
     return err_code;
+}
+
+static rd_status_t ri_uart_read_buf (ri_comm_message_t * const msg)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == msg)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+
+    if (1 < msg->repeat_count)
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
+    else
+    {
+        nrfx_err_t status = NRF_SUCCESS;
+        size_t bytes_read = 0;
+        status |= nrf_serial_read (&serial_uart, msg->data, msg->data_length, &bytes_read, 0);
+        // nrf_serial_read caps read data length to msg->data_length
+        msg->data_length = (uint8_t) (bytes_read & 0xFFU);
+        err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
+    }
+
+    return err_code;
+}
+
+rd_status_t ruuvi_interface_uart_init (ri_comm_channel_t * const channel)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == channel)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        channel->send = ri_uart_send_async;
+        channel->read = ri_uart_read_buf;
+        channel->init = ruuvi_interface_uart_init;
+        channel->uninit = ri_uart_uninit;
+    }
+
+    return err_code;
+}
+
+rd_status_t ri_uart_config (const ri_uart_init_t * const config)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == config)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        nrfx_err_t nrf_status = NRF_SUCCESS;
+        m_uart0_drv_config.baudrate = ruuvi_to_nrf_baudrate (config->baud);
+        m_uart0_drv_config.pseltxd = ruuvi_to_nrf_pin_map (config->tx);
+        m_uart0_drv_config.pselrxd = ruuvi_to_nrf_pin_map (config->rx);
+
+        if (config->hwfc_enabled)
+        {
+            m_uart0_drv_config.pselcts = ruuvi_to_nrf_pin_map (config->cts);
+            m_uart0_drv_config.pselrts = ruuvi_to_nrf_pin_map (config->rts);
+        }
+        else
+        {
+            m_uart0_drv_config.pselcts = NRF_UARTE_PSEL_DISCONNECTED;
+            m_uart0_drv_config.pselrts = NRF_UARTE_PSEL_DISCONNECTED;
+        }
+
+        m_uart0_drv_config.parity  = config->parity_enabled ? NRF_UARTE_PARITY_INCLUDED :
+                                     NRF_UARTE_PARITY_EXCLUDED;
+        m_uart0_drv_config.hwfc    = config->hwfc_enabled ? NRF_UARTE_HWFC_ENABLED :
+                                     NRF_UARTE_HWFC_DISABLED;
+        nrf_status |= nrf_serial_init (&serial_uart, &m_uart0_drv_config, &serial_config);
+        err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_status);
+    }
+
+    return err_code;
+}
+
+rd_status_t ri_uart_uninit (ri_comm_channel_t * const channel)
+{
+    return nrf_serial_uninit (&serial_uart);
 }
 
 #endif
