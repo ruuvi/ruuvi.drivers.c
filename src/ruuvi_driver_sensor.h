@@ -93,7 +93,7 @@
 #define RD_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0U) << 3U) + ((handle) & 0x1FU))
 
 /**
- * @brief All sensors must implement configuration functions which accepts this struct.
+ * @brief All sensors must implement configuration functions which accept this struct.
  */
 typedef struct __attribute__ ( (packed, aligned (4)))
 {

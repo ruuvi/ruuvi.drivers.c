@@ -40,15 +40,15 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
 
-#define SCAN_RSP_NAME_MAX_LEN 11 //!< Longer name gets truncated when advertised with UUID.
+#define SCAN_RSP_NAME_MAX_LEN (11U) //!< Longer name gets truncated when advertised with UUID.
 
 /** @brief Initial configuration for advertisement. PHY will be transferred to GATT.  */
 typedef struct
 {
-    ri_radio_channels_t channels;    //!< Radio channels, typically 37, 38, and/or 39.
-    uint16_t adv_interval_ms;  //!< ms / advertisement, not counting random delay
-    int8_t   adv_pwr_dbm;      //!< Power to antenna, dBm.
-    uint16_t manufacturer_id;  //!< BLE SIG id of board manufacturer
+    ri_radio_channels_t channels; //!< Radio channels, typically 37, 38, and/or 39.
+    uint16_t adv_interval_ms;     //!< ms / advertisement, not counting random delay
+    int8_t   adv_pwr_dbm;         //!< Power to antenna, dBm.
+    uint16_t manufacturer_id;     //!< BLE SIG id of board manufacturer
 } rt_adv_init_t;
 
 /**
@@ -60,13 +60,12 @@ typedef struct
  *
  * It also configures a callback to be executed after advertisement for internal use.
  * After calling this function advertisement data can be queued into advertisement buffer.
- * You should queue at least one message into buffer before starting advertising.
  *
  * @param[in,out] adv_init_settings Input: Desired setup. Output: Configured setup.
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if advertising is already initialized.
- * @return RD_ERROR_INVALID_PARAM if configuration constant is invalid. Not initialized.
+ * @retval RD_ERROR_INVALID_PARAM if configuration constant is invalid. Not initialized.
  */
 rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings);
 

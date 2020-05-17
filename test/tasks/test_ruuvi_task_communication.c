@@ -36,7 +36,6 @@ void test_rt_com_get_mac_str_ok(void)
     char mac_str[18];
     ri_radio_address_get_ExpectAnyArgsAndReturn(RD_SUCCESS);
     ri_radio_address_get_ReturnArrayThruPtr_address(&mac, 1);
-
     err_code = rt_com_get_mac_str (mac_str, sizeof(mac_str));
     TEST_ASSERT(RD_SUCCESS == err_code);
     TEST_ASSERT(!strcmp(mac_str, "AA:BB:CC:DD:EE:FF"));
@@ -53,12 +52,15 @@ void test_rt_com_get_mac_str_radio_not_init(void)
     TEST_ASSERT(RD_ERROR_INVALID_STATE == err_code);
 }
 
+
 void test_rt_com_get_mac_str_too_short(void)
 {
     rd_status_t err_code = RD_SUCCESS;
     ri_radio_is_init_ExpectAndReturn(true);
     uint64_t mac = 0xAABBCCDDEEFF;
     char mac_str[17];
+    ri_radio_address_get_ExpectAnyArgsAndReturn(RD_SUCCESS);
+    ri_radio_address_get_ReturnArrayThruPtr_address(&mac, 1);
     err_code = rt_com_get_mac_str (mac_str, sizeof(mac_str));
     TEST_ASSERT(RD_ERROR_INVALID_LENGTH == err_code);
 }
@@ -88,17 +90,29 @@ void test_rt_com_get_id_str_ok(void)
     char id_str[24];
     ri_comm_id_get_ExpectAnyArgsAndReturn(RD_SUCCESS);
     ri_comm_id_get_ReturnArrayThruPtr_id(&id, 1);
-
     err_code = rt_com_get_id_str (id_str, sizeof(id_str));
     TEST_ASSERT(RD_SUCCESS == err_code);
     TEST_ASSERT(!strcmp(id_str, "AA:BB:CC:DD:EE:FF:00:11"));
 }
 
+void test_rt_com_get_id_radio_fail(void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint64_t id = 0xAABBCCDDEEFF0011;
+    char id_str[24];
+    ri_comm_id_get_ExpectAnyArgsAndReturn(RD_ERROR_INVALID_STATE);
+    ri_comm_id_get_ReturnArrayThruPtr_id(&id, 1);
+    err_code = rt_com_get_id_str (id_str, sizeof(id_str));
+    TEST_ASSERT(RD_ERROR_INVALID_STATE == err_code);
+}
+
 void test_rt_com_get_id_str_too_short(void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    uint64_t id = 0xAABBCCDDEEFF;
-    char id_str[17];
+    uint64_t id = 0xAABBCCDDEEFF0011;
+    char id_str[23];
+    ri_comm_id_get_ExpectAnyArgsAndReturn(RD_SUCCESS);
+    ri_comm_id_get_ReturnArrayThruPtr_id(&id, 1);
     err_code = rt_com_get_id_str (id_str, sizeof(id_str));
     TEST_ASSERT(RD_ERROR_INVALID_LENGTH == err_code);
 }

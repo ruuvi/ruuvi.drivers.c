@@ -3,6 +3,7 @@
 
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
+#include "ruuvi_interface_communication_ble_gatt.h"
 #include "ruuvi_interface_communication_nfc.h" //!< Check if NRF_NFC is required
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_interrupt.h"    //!< Check if NRFX GPIOTE is required
@@ -82,6 +83,19 @@
 #   endif
 #endif
 
+#if RUUVI_NRF5_SDK15_GATT_ENABLED
+#   define NRF_BLE_GATT_ENABLED (1U)
+#   define NRF_BLE_QWR_ENABLED  (1U)
+#   define NRF_BLE_CONN_PARAMS_ENABLED (1U)
+#   define PEER_MANAGER_ENABLED (1U)
+#   define NRF_SDH_BLE_PERIPHERAL_LINK_COUNT (1U) //!< Only 1 allowed in SDK15
+#   define NRF_BLE_CONN_PARAMS_MAX_SLAVE_LATENCY_DEVIATION (1U) //!< Larger deviation will be renegotiated.
+#   define NRF_BLE_CONN_PARAMS_MAX_SUPERVISION_TIMEOUT_DEVIATION (100U) //!< 10 ms units, 1 s deviation allowed
+#   define BLE_DFU_ENABLED (1U)
+#   define BLE_DIS_ENABLED (1U)
+#   define BLE_NUS_ENABLED (1U)
+#endif
+
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED
 #   define GPIOTE_ENABLED 1
 #endif
@@ -92,17 +106,17 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
-#   define TWI_ENABLED 1
-#   define TWI1_ENABLED 1
-#   define TWI1_USE_EASYDMA 0
-#   define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
+#    define TWI_ENABLED 1
+#    define TWI1_ENABLED 1
+#    define TWI1_USE_EASYDMA 0
+#    define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
 #endif
 
 #if RUUVI_NRF5_SDK15_SPI_ENABLED
-#   define SPI_ENABLED 1
-#   define SPI0_ENABLED 1
-#   define SPI0_USE_EASYDMA 1
-#   define SPI_INSTANCE 0
+#    define SPI_ENABLED 1
+#    define SPI0_ENABLED 1
+#    define SPI0_USE_EASYDMA 1
+#    define SPI_INSTANCE 0
 #endif
 
 #if RUUVI_NRF5_SDK15_LOG_ENABLED
