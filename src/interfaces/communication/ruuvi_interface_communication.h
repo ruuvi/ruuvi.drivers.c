@@ -72,7 +72,7 @@ typedef void (*ri_comm_cb_t) (void * p_data, size_t data_len);
 typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_comm_message_t * const
         msg);
 
-/** 
+/**
  *  @brief (Un-)Initialization function.
  *  @param[in, out] A control API. Event handler must be set by application.
  *  @return RD_SUCCESS if operation was successful.

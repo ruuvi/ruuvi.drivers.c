@@ -41,7 +41,7 @@ typedef enum
     RI_RADIO_BLE_125KBPS,       //!< Also known as BLE Long Range S=8
     RI_RADIO_BLE_1MBPS,         //!< "Normal" BLE 4 modulation
     /** @brief "Fast BLE". Advertising uses 1MBPS primary advertisement followed by 2 MBit/s extended advertisement. */
-    RI_RADIO_BLE_2MBPS          
+    RI_RADIO_BLE_2MBPS
 } ri_radio_modulation_t;
 
 /**

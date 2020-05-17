@@ -27,7 +27,7 @@ typedef enum
     RI_UART_BAUD_9600,    //!< Run at 9600 baud.
     RI_UART_BAUD_115200,  //!< Run at 115200 baud.
     RI_UART_BAUDRATE_NUM  //!< Number of options.
-}ri_uart_baudrate_t;
+} ri_uart_baudrate_t;
 
 /** @brief UART initialization data. */
 typedef struct
@@ -39,7 +39,7 @@ typedef struct
     ri_gpio_id_t tx;     //!< TX pin.
     ri_gpio_id_t rx;     //!< RX pin.
     ri_uart_baudrate_t baud; //!< @ref ri_uart_baudrate_t.
-}ri_uart_init_t; 
+} ri_uart_init_t;
 
 /**
  * @brief Initialize UART.
