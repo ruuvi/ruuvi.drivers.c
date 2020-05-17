@@ -31,7 +31,7 @@
  *    .deviceid    = "00:11:22:33:44:55:66:77",
  *    .deviceaddr  = "FF:EE:DD:CC:BB:AA"
  *    };
- *  err_code = task_nfc_init(&dis);
+ *  err_code = rt_nfc_init(&dis);
  *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
  * @endcode
  */
