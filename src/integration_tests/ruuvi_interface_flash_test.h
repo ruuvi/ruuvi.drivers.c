@@ -23,5 +23,5 @@
  **/
 bool ri_flash_run_integration_test (const rd_test_print_fp printfp);
 
-/* @} */
+/** @} */
 #endif

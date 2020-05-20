@@ -4,13 +4,12 @@
  * @defgroup Error Error reporting and handling
  * @brief Functions and definitions for errors and error handling
  *
- *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_driver_error.h
  * @author Otso Jousimaa
- * @date 2019-02-17
+ * @date 2020-05-20
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Ruuvi error codes and error check function
  *

@@ -152,5 +152,5 @@ rd_status_t ri_gpio_read (const ri_gpio_id_t pin,
 
     return RD_SUCCESS;
 }
-/*@}*/
+/** @} */
 #endif

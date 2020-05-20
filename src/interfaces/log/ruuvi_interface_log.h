@@ -5,7 +5,7 @@
  * @brief Functions for printing out logs
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_log.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -103,5 +103,5 @@ size_t ri_error_to_string (rd_status_t error, char * error_string,
  */
 void ri_log_sensor_configuration (const ri_log_severity_t level,
                                   const rd_sensor_configuration_t * const configuration, const char * unit);
-/*@}*/
+/** @} */
 #endif
