@@ -77,7 +77,7 @@ uint8_t ri_radio_num_channels_get (const ri_radio_channels_t channels);
  * @retval true If given modulation is supported by radio.
  * @retval false If given modulation is not supported by radio.
  */
-bool ri_radio_modulation_is_supported (ri_radio_modulation_t modulation);
+bool ri_radio_supports (ri_radio_modulation_t modulation);
 
 /**
  *  @brief Enable radio stack for an user.

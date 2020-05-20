@@ -60,7 +60,7 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
     {
         status |= RD_ERROR_INVALID_STATE;
     }
-    else if (!ri_radio_modulation_is_supported (modulation))
+    else if (!ri_radio_supports (modulation))
     {
         status |= RD_ERROR_INVALID_PARAM;
     }
@@ -224,7 +224,7 @@ void ruuvi_nrf5_sdk15_radio_channels_set (uint8_t * const nrf_channels,
     nrf_channels[4] |= (!channels.channel_39) << 7;
 }
 
-bool ri_radio_modulation_is_supported (ri_radio_modulation_t modulation)
+bool ri_radio_supports (ri_radio_modulation_t modulation)
 {
     bool supported = false;
 
