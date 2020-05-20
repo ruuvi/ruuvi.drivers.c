@@ -12,7 +12,7 @@
 /**
  * @file ruuvi_interface_communication_radio.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-03-03
+ * @date 2020-05-20
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Commmon definitions and functions for all radio operations.
@@ -23,7 +23,7 @@
  * @defgroup Radio Radio operations.
  */
 
-/*@{*/
+/** @{ */
 /**
  * @brief radio activity event type.
  */
@@ -61,6 +61,14 @@ typedef struct
  *  @param[in] evt Type of radio event
  */
 typedef void (*ri_radio_activity_interrupt_fp_t) (const ri_radio_activity_evt_t evt);
+
+/**
+ * @brief Check how many radio channels are enabled.
+ *
+ * @param[in] channels Structure with enabled channels.
+ * @return Number of enabled channels.
+ */
+uint8_t ri_radio_num_channels_get (const ri_radio_channels_t channels);
 
 /**
  *  @brief Enable radio stack for an user.
@@ -145,4 +153,5 @@ bool ri_radio_is_init();
  */
 rd_status_t ri_radio_get_modulation (ri_radio_modulation_t * const p_modulation);
 
+/** @} */
 #endif
