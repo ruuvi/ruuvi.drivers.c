@@ -31,5 +31,5 @@ static inline ri_gpio_id_t nrf_to_ruuvi_pin (const uint8_t pin)
     return ( (pin & 0xE0U) << 3U) + (pin & 0x1FU);
 }
 
-/*@}*/
+/** @} */
 #endif

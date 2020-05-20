@@ -30,5 +30,5 @@
  * @retval False if no errors occured.
  */
 bool ri_communication_radio_run_integration_test (const rd_test_print_fp printfp);
-/* @} */
+/** @} */
 #endif

@@ -39,4 +39,4 @@ ruuvi_driver_status_t ruuvi_interface_i2c_tmp117_read (const uint8_t dev_id,
     return err_code;
 }
 #endif
-/*@}*/
+/** @} */
