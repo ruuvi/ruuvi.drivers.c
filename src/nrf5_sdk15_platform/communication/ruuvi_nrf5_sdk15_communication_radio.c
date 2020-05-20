@@ -192,12 +192,15 @@ uint8_t ruuvi_nrf5_sdk15_radio_phy_get (void)
         {
             case RI_RADIO_BLE_125KBPS:
                 nrf_modulation = BLE_GAP_PHY_CODED;
+                break;
 
             case RI_RADIO_BLE_1MBPS:
                 nrf_modulation = BLE_GAP_PHY_1MBPS;
+                break;
 
             case RI_RADIO_BLE_2MBPS:
                 nrf_modulation = BLE_GAP_PHY_2MBPS;
+                break;
 
             default:
                 nrf_modulation = BLE_GAP_PHY_NOT_SET;
