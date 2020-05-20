@@ -60,6 +60,10 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
     {
         status |= RD_ERROR_INVALID_STATE;
     }
+    else if (!ri_radio_modulation_is_supported (modulation))
+    {
+        status |= RD_ERROR_INVALID_PARAM;
+    }
     else
     {
         err_code = nrf_sdh_enable_request();
@@ -218,6 +222,36 @@ void ruuvi_nrf5_sdk15_radio_channels_set (uint8_t * const nrf_channels,
     nrf_channels[4] |= (!channels.channel_37) << 5;
     nrf_channels[4] |= (!channels.channel_38) << 6;
     nrf_channels[4] |= (!channels.channel_39) << 7;
+}
+
+bool ri_radio_modulation_is_supported (ri_radio_modulation_t modulation)
+{
+    bool supported = false;
+
+    switch (modulation)
+    {
+        case RI_RADIO_BLE_125KBPS:
+#           if S140
+            supported = true;
+#           else
+            supported = false;
+#           endif
+            break;
+
+        case RI_RADIO_BLE_1MBPS:
+            supported = true;
+            break;
+
+        case RI_RADIO_BLE_2MBPS:
+            supported = true;
+            break;
+
+        default:
+            supported = false;
+            break;
+    }
+
+    return supported;
 }
 
 #endif

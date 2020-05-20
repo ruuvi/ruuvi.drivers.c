@@ -71,6 +71,15 @@ typedef void (*ri_radio_activity_interrupt_fp_t) (const ri_radio_activity_evt_t 
 uint8_t ri_radio_num_channels_get (const ri_radio_channels_t channels);
 
 /**
+ * @brief Check if radio supports given modulation.
+ *
+ * @param[in] modulation Modulation to check.
+ * @retval true If given modulation is supported by radio.
+ * @retval false If given modulation is not supported by radio.
+ */
+bool ri_radio_modulation_is_supported (ri_radio_modulation_t modulation);
+
+/**
  *  @brief Enable radio stack for an user.
  *  This function also starts radio activity callbacks internally.
  *
@@ -81,6 +90,7 @@ uint8_t ri_radio_num_channels_get (const ri_radio_channels_t channels);
  *                        the implementation should support it if applicable to board.
  *  @retval    RD_SUCCESS on success
  *  @retval    RD_ERROR_INVALID_STATE if radio is already initialized.
+ *  @retval    RD_ERROR_INVALID_PARAM if trying to initialize radio with unsupported modulation.
  */
 rd_status_t ri_radio_init (const ri_radio_modulation_t modulation);
 
