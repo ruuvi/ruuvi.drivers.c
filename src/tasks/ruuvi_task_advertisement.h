@@ -40,7 +40,12 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
 
-#define SCAN_RSP_NAME_MAX_LEN (11U) //!< Longer name gets truncated when advertised with UUID.
+/** @brief Longer name gets truncated when advertised with UUID. */
+#define SCAN_RSP_NAME_MAX_LEN (11U)
+/** @brief Window of one scan per channel. Scan takes this * num_channels time */
+#define RT_ADV_SCAN_WINDOW_MS (7000U)
+//!< @brief Interval of one scan within a window. Can be at most equal to scan window. */
+#define RT_ADV_SCAN_INTERVAL_MS (7000U)
 
 /** @brief Initial configuration for advertisement. PHY will be transferred to GATT.  */
 typedef struct
@@ -132,9 +137,17 @@ rd_status_t rt_adv_connectability_set (const bool enable,
  */
 bool rt_adv_is_init (void);
 
-/** @brief Start scanning BLE advertisements
+/** @brief Start scanning BLE advertisements.
  *
  * This is non-blocking, you'll need to handle incoming events.
+ *
+ * PHY to be scanned is determined by radio initialization.
+ * If you have selected 2 MBit / s PHY, primary advertisements
+ * are scanned at 1 Mbit / s and secondary extended advertisement
+ * can be scanned at at 2 MBit / s.
+ *
+ * Scan is done at 7000 ms window and interval, this consumes
+ * a lot of power and may collapse a coin cell battery.
  *
  * Events are:
  *   - on_evt(RI_COMM_RECEIVED, scan, sizeof(ri_adv_scan_t));
@@ -150,8 +163,12 @@ bool rt_adv_is_init (void);
  */
 rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt);
 
-/** @brief abort scanning.
-*/
+/**
+ * @brief Abort scanning.
+ *
+ * After calling this function scanning is immediately stopped.
+ *
+ */
 rd_status_t rt_adv_scan_stop (void);
 
 
