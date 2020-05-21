@@ -629,8 +629,8 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
         scan_params.report_incomplete_evts = 0;
         scan_params.scan_phys = scan_phys;
         scan_params.window =  MSEC_TO_UNITS (window_size_ms, UNIT_0_625_MS);
-        scan_params.timeout = ri_radio_num_channels_get (m_radio_channels) * MSEC_TO_UNITS (
-                                  window_interval_ms, UNIT_10_MS);
+        scan_params.timeout = ri_radio_num_channels_get (m_radio_channels) *
+                              MSEC_TO_UNITS (window_interval_ms, UNIT_10_MS);
         scan_init_params.p_scan_param = &scan_params;
         status |= nrf_ble_scan_init (&m_scan,           // Scan control structure
                                      &scan_init_params, // Default params for NULL values.
