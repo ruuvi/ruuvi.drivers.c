@@ -201,7 +201,8 @@ rd_status_t ri_adv_stop (void);
  *  @param[in] window_interval_ms interval of the windows. At most 10s.
  *  @param[in] window_size_ms     window size within interval. Smaller or equal to interval.
  *  @return RD_SUCCESS  on success.
- *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
+ *  @return RD_ERROR_INVALID_STATE  If scan is ongoing or if trying to scan on other than 1 MBit / s
+ *                                  PHY without extended advertising enabled.
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  *
  */

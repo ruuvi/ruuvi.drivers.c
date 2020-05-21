@@ -367,7 +367,7 @@ static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
     uint64_t test_end = 0;
     printfp ("\"scan\":");
     err_code |= ri_rtc_init();
-    err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
+    err_code |= ri_radio_init (modulation);
     err_code |= ri_adv_init (&m_channel);
     m_channel.on_evt = ble_isr;
     m_timeout = false;
