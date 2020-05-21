@@ -604,7 +604,7 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
     scan_params.scan_phys = ruuvi_nrf5_sdk15_radio_phy_get();
     scan_params.window =  MSEC_TO_UNITS (window_size_ms, UNIT_0_625_MS);
     scan_params.timeout = ri_radio_num_channels_get (m_radio_channels) * MSEC_TO_UNITS (
-                              window_size_ms, UNIT_10_MS);
+                              window_interval_ms, UNIT_10_MS);
     scan_init_params.p_scan_param = &scan_params;
     status |= nrf_ble_scan_init (&m_scan,           // Scan control structure
                                  &scan_init_params, // Default params for NULL values.
@@ -618,6 +618,7 @@ rd_status_t ri_adv_scan_stop (void)
     nrf_ble_scan_stop();
     return RD_SUCCESS;
 }
+
 rd_status_t ri_adv_tx_power_set (int8_t * dbm)
 {
     ret_code_t err_code = NRF_SUCCESS;
