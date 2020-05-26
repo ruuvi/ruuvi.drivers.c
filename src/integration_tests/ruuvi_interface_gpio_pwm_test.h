@@ -17,7 +17,11 @@
 #include "ruuvi_interface_gpio_pwm.h"
 #include "ruuvi_interface_gpio_test.h"
 
-#define RI_GPIO_PWM_TEST_FREQ_HZ   (100U) //!< Frequency of test
+#define RI_GPIO_PWM_TEST_FREQ_HZ                (100U) //!< Frequency of test
+#define RI_GPIO_PWM_TEST_FREQ_INVALID_MAX_HZ    (17000000U) //!< Invalid frequency
+#define RI_GPIO_PWM_TEST_FREQ_INVALID_MIN_HZ    (1U)        //!< Invalid frequency
+#define RI_GPIO_PWM_TEST_DUTY_INVALID_MIN_HZ    (-0.1F)     //!< Invalid duty cycle
+#define RI_GPIO_PWM_TEST_DUTY_INVALID_MAX_HZ    (1.1F)     //!< Invalid duty cycle
 /** @brief Period of one PWM cycle in ms. */
 #define RI_GPIO_PWM_TEST_PERIOD_MS (1000U / RI_GPIO_PWM_TEST_FREQ_HZ)
 #define RI_GPIO_PWM_TEST_DC (0.5F) //!< Duty cycle in test. 
