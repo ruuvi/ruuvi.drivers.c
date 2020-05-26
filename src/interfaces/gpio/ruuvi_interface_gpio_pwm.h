@@ -14,16 +14,6 @@
  * @addtogroup GPIO
  * @brief Pulse width modulation of GPIO.
  */
-/** @{ */
-/**
- * @file ruuvi_interface_gpio.h
- * @author TODO
- * @date 2020-05-18
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Pulse Width Modulation functions.
- *
- */
 
 /**
  * @brief Run any necessary initialization for PWM.
@@ -31,12 +21,11 @@
  * After calling this function PWM peripheral may consume power even
  * if no PWM functionality is used.
  *
- * @param[in,out] TODO TODO
  * @retval RD_SUCCESS Initialization was successful.
  * @retval RD_ERROR_INVALID_STATE If PWM was already initialized.
  * @retval TODO Error code on other error.
  */
-rd_status_t ri_gpio_pwm_init (/*TODO*/);
+rd_status_t ri_gpio_pwm_init (void);
 
 /**
  * @brief Uninitialize PWM.
@@ -44,12 +33,10 @@ rd_status_t ri_gpio_pwm_init (/*TODO*/);
  * After calling this function PWM peripheral may no longer consume
  * power. GPIO pins may be configured as Hi-Z or they may leave in previous state.
  *
- * @param[in,out] TODO TODO
  * @retval RD_SUCCESS Initialization was successful.
  * @retval RD_ERROR_INVALID_STATE If PWM was already initialized.
- * @retval TODO Error code on other error.
  */
-rd_status_t ri_gpio_pwm_uninit (/*TODO*/);
+rd_status_t ri_gpio_pwm_uninit (void);
 
 /**
  * @brief Start PWM on given pin at given frequency and duty cycle.
@@ -68,7 +55,6 @@ rd_status_t ri_gpio_pwm_uninit (/*TODO*/);
  * @retval RD_ERROR_NULL one or both of pointers was NULL.
  * @retval RD_ERROR_INVALID_STATE PWM was not initialized.
  * @retval RD_ERROR_INVALID_PARAM Pin, mode, frequency or duty cycle were somehow invalid.
- * @retval TODO other error code on other error.
  */
 rd_status_t ri_gpio_pwm_start (const ri_gpio_id_t pin, const ri_gpio_mode_t mode,
                                float * const frequency, float * const duty_cycle);
@@ -82,9 +68,9 @@ rd_status_t ri_gpio_pwm_start (const ri_gpio_id_t pin, const ri_gpio_mode_t mode
  *
  * @param[in] pin Pin to stop PWM on.
  * @retval RD_SUCCESS If pin was configured as Hi-Z.
- * @retval TODO on any error
+ * @retval RD_ERROR_INVALID_STATE currently not stopped.
  */
-rd_status_t ri_gpio_pwm_stop (const ri_gpio_id_t pin /*, TODO */);
+rd_status_t ri_gpio_pwm_stop (const ri_gpio_id_t pin);
 
 /**
  * @brief Check if PWM is initialized.
