@@ -7,6 +7,7 @@
 #include "ruuvi_interface_communication_nfc.h" //!< Check if NRF_NFC is required
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_interrupt.h"    //!< Check if NRFX GPIOTE is required
+#include "ruuvi_interface_gpio_pwm.h"
 #include "ruuvi_interface_flash.h"             //!< Check if FDS is required
 #include "ruuvi_interface_i2c.h"               //!< Check if TWI is required.
 #include "ruuvi_interface_log.h"               //!< Check if NRF_LOG is required
@@ -99,6 +100,24 @@
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED
 #   define GPIOTE_ENABLED 1
 #   define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS RT_GPIO_INT_TABLE_SIZE
+#   define DUMMY_DEFINE "dummy value" //!< TODO: Add any defines required by SDK here.
+#endif
+
+#if RUUVI_NRF5_SDK15_GPIO_PWM_ENABLED
+#define PWM_ENABLED  1
+#define PWM0_ENABLED 1
+#define PWM1_ENABLED 0
+#define PWM2_ENABLED 0
+#define PWM_DEFAULT_CONFIG_OUT0_PIN 255
+#define PWM_DEFAULT_CONFIG_OUT1_PIN 255
+#define PWM_DEFAULT_CONFIG_OUT2_PIN 255
+#define PWM_DEFAULT_CONFIG_OUT3_PIN 255
+#define PWM_DEFAULT_CONFIG_IRQ_PRIORITY 6
+#define PWM_DEFAULT_CONFIG_BASE_CLOCK 0
+#define PWM_DEFAULT_CONFIG_COUNT_MODE 0
+#define PWM_DEFAULT_CONFIG_TOP_VALUE 1000
+#define PWM_DEFAULT_CONFIG_LOAD_MODE 2
+#define PWM_DEFAULT_CONFIG_STEP_MODE 0
 #endif
 
 #if RUUVI_NRF5_SDK15_FLASH_ENABLED

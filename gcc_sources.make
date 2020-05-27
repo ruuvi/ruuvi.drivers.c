@@ -89,6 +89,7 @@ NRF_LIB_SOURCES= \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_twi.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_nfct.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_power.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_rng.c \
@@ -123,6 +124,7 @@ RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/flash/ruuvi_nrf5_sdk15_flash.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/gpio/ruuvi_nrf5_sdk15_gpio.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/gpio/ruuvi_nrf5_sdk15_gpio_interrupt.c \
+  $(PROJ_DIR)/src/nrf5_sdk15_platform/gpio/ruuvi_nrf5_sdk15_gpio_pwm.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/i2c/ruuvi_nrf5_sdk15_i2c.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/log/ruuvi_nrf5_sdk15_log.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/power/ruuvi_nrf5_sdk15_power.c \
