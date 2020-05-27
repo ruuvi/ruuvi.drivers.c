@@ -26,5 +26,5 @@
  */
 bool ri_power_run_integration_test (const rd_test_print_fp printfp,
                                     const ri_power_regulators_t regulators);
-/* @} */
+/** @} */
 #endif

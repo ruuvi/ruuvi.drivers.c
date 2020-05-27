@@ -63,6 +63,12 @@ rd_status_t mock_init (ri_comm_channel_t * const p_channel)
     return RD_SUCCESS;
 }
 
+rd_status_t on_scan_isr(const ri_comm_evt_t evt, void * p_data, size_t data_len)
+{
+    // No action needed.
+    return RD_SUCCESS;
+}
+
 static ri_comm_channel_t m_mock_channel;
 
 
@@ -264,8 +270,7 @@ void test_rt_adv_uninit (void)
 void test_rt_adv_stop_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_adv_stop_ExpectAndReturn (
-        RD_SUCCESS);
+    ri_adv_stop_ExpectAndReturn (RD_SUCCESS);
     err_code = rt_adv_stop();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -378,4 +383,66 @@ void test_rt_adv_connectability_set_off (void)
         NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     err_code = rt_adv_connectability_set (false, NULL);
     TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+/** @brief Start scanning BLE advertisements.
+ *
+ * This is non-blocking, you'll need to handle incoming events.
+ *
+ * PHY to be scanned is determined by radio initialization. 
+ * If you have selected 2 MBit / s PHY, primary advertisements
+ * are scanned at 1 Mbit / s and secondary extended advertisement
+ * can be scanned at at 2 MBit / s.
+ *
+ * Scan is done at 7000 ms window and interval, this consumes
+ * a lot of power and may collapse a coin cell battery.
+ *
+ * Events are:
+ *   - on_evt(RI_COMM_RECEIVED, scan, sizeof(ri_adv_scan_t));
+ *   - on_evt(RI_COMM_TIMEOUT, NULL, 0);
+ *
+ *  @param[in] on_evt Event handler for scan results.
+ *  @retval    RD_SUCCESS Scanning was started.
+ *  @retval    RD_ERROR_INVALID_STATE Advertising isn't initialized.
+ *  @return    error code from stack on other error.
+ *
+ * @note Scanning is stopped on timeout, you can restart the scan on event handler.
+ * @warning Event handler is called in interrupt context.
+ */
+void test_rt_adv_scan_start_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    ri_adv_scan_start_ExpectAndReturn(RT_ADV_SCAN_INTERVAL_MS, RT_ADV_SCAN_WINDOW_MS, RD_SUCCESS);
+    err_code |= rt_adv_scan_start (on_scan_isr);
+    TEST_ASSERT(RD_SUCCESS == err_code);
+}
+
+void test_rt_adv_scan_start_not_init (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    tearDown();
+    err_code |= rt_adv_scan_start (on_scan_isr);
+    TEST_ASSERT(RD_ERROR_INVALID_STATE == err_code);
+}
+
+/** 
+ * @brief Abort scanning.
+ *
+ * After calling this function scanning is immediately stopped. 
+ * 
+ */
+void test_rt_adv_scan_stop_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    ri_adv_scan_stop_ExpectAndReturn(RD_SUCCESS);
+    err_code |= rt_adv_scan_stop ();
+    TEST_ASSERT(RD_SUCCESS == err_code);
+}
+
+void test_rt_adv_scan_stop_not_init (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    tearDown();
+    err_code |= rt_adv_scan_stop ();
+    TEST_ASSERT(RD_ERROR_INVALID_STATE == err_code);
 }

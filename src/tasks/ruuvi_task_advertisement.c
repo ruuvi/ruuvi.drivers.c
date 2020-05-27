@@ -145,14 +145,14 @@ rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (!m_is_init)
+    if (!rt_adv_is_init())
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
         m_channel.on_evt = on_evt;
-        err_code |= ri_adv_scan_start (1000, 2000); //XXX
+        err_code |= ri_adv_scan_start (RT_ADV_SCAN_INTERVAL_MS, RT_ADV_SCAN_WINDOW_MS);
     }
 
     return err_code;

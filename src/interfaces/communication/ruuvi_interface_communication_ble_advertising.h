@@ -193,15 +193,16 @@ rd_status_t ri_adv_stop (void);
  *  as a parameter.
  *
  *  If the message contains Ruuvi-specific advertisement data, the payload is inserted into a
- *  ri_comm_message_t with repeat = 0 and it can be read via
+ *  ri_comm_message_t with repeat = 0 and it can be read via channel->read
  *
  *  This function is not suitable for establishing connections to peripherals, if central mode
  *  is supported in the future a separate connection initialization function is implemented.
  *
- *  @param[in] window_interval_ms interval of the window.
- *  @param[in] window_size_ms     window size within interval.
+ *  @param[in] window_interval_ms interval of the windows. At most 10s.
+ *  @param[in] window_size_ms     window size within interval. Smaller or equal to interval.
  *  @return RD_SUCCESS  on success.
- *  @return RD_ERROR_INVALID_STATE if scan is ongoing.
+ *  @return RD_ERROR_INVALID_STATE  If scan is ongoing or if trying to scan on other than 1 MBit / s
+ *                                  PHY without extended advertising enabled.
  *  @return RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise invalid.
  *
  */
