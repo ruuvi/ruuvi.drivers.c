@@ -1,3 +1,15 @@
+/**
+ * @addtogroup GPIO
+ * @{
+ */
+/**
+ * @file ruuvi_interface_gpio_pwm.h
+ * @author Oleg Protasevich
+ * @date 2020-05-27
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Pulse Width Modulation control.
+ */
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_interface_gpio_pwm.h"
 #if (RUUVI_NRF5_SDK15_GPIO_PWM_ENABLED || DOXYGEN || CEEDLING)
@@ -238,5 +250,5 @@ rd_status_t ri_gpio_pwm_stop (const ri_gpio_id_t pin)
 
     return res;
 }
-
+/** @} */
 #endif
