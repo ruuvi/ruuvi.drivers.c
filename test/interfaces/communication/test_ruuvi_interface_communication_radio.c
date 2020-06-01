@@ -10,7 +10,7 @@ void tearDown(void)
 {
 }
 
-void test_ruuvi_interface_communication_radio_NeedToImplement(void)
+void test_ruuvi_interface_communication_radio_getChannels(void)
 {
     uint8_t num_ch = 0;
     ri_radio_channels_t channels = { 0 };
