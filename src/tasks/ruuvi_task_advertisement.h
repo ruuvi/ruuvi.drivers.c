@@ -4,21 +4,21 @@
 /**
  * @defgroup communication_tasks Sending and receiving data.
  */
-/*@{*/
+/** @{ */
 /**
  * @defgroup advertisement_tasks Advertisement tasks
  * @brief Bluetooth Low Energy advertising
  *
  */
-/*@}*/
+/** @} */
 /**
  * @addtogroup advertisement_tasks
  */
-/*@{*/
+/** @{ */
 /**
- * @file task_advertisement.h
+ * @file ruuvi_task_advertisement.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-11-19
+ * @date 2020-06-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Advertise data and GATT connection if available.
@@ -28,12 +28,19 @@
  *
  * @code{.c}
  *  rd_status_t err_code = RD_SUCCESS;
- *  err_code = rd_adv_init();
- *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
- *  err_code = rd_adv_send_data();
- *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
- *  err_code = rd_adv_start();
- *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
+ *  err_code |= ri_radio_init(RI_RADIO_BLE_2MBPS);
+ *  ri_radio_channels_t channels;
+ *  channels.channel_37 = 1;
+ *  channels.channel_38 = 1;
+ *  channels.channel_39 = 1;
+ *  rt_adv_init_t adv_settings;
+ *  adv_settings.adv_interval_ms = APP_ADV_INTERVAL_MS;
+ *  adv_settings.adv_pwr_dbm = RB_TX_POWER_MAX;
+ *  adv_settings.channels = channels;
+ *  adv_settings.manufacturer_id = RB_BLE_MANUFACTURER_ID;
+ *  err_code |= rt_adv_init(&adv_settings);
+ *  err_code |= ri_adv_type_set(NONCONNECTABLE_NONSCANNABLE);
+ *  err_code |= rt_adv_send_data (&my_message);
  * @endcode
  */
 
@@ -172,6 +179,6 @@ rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt);
 rd_status_t rt_adv_scan_stop (void);
 
 
-/*@}*/
+/** @} */
 
 #endif
