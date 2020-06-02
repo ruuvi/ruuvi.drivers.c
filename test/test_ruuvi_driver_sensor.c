@@ -181,7 +181,7 @@ void test_ruuvi_driver_sensor_populate_one(void)
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
-
+    bme_data.timestamp_ms = 1;
     mock_bme(&bme_data);
 
     rd_sensor_data_populate (&data,
@@ -189,19 +189,42 @@ void test_ruuvi_driver_sensor_populate_one(void)
                              all_provided);
 
     TEST_ASSERT(!memcmp(&bme280_provided, &data.valid, sizeof(bme280_provided)));
-    TEST_ASSERT(values[3] == bme280_data[0]);
-    TEST_ASSERT(values[4] == bme280_data[1]);
-    TEST_ASSERT(values[5] == bme280_data[2]);
+    TEST_ASSERT(values[3] == bme_data.data[0]);
+    TEST_ASSERT(values[4] == bme_data.data[1]);
+    TEST_ASSERT(values[5] == bme_data.data[2]);
+    TEST_ASSERT(data.timestamp_ms == bme_data.timestamp_ms);
 
 }
-#if 0
+
 void test_ruuvi_driver_sensor_populate_null(void)
 {
-void rd_sensor_data_populate (rd_sensor_data_t * const target,
-                              const rd_sensor_data_t * const provided,
-                              const rd_sensor_data_fields_t requested);
+    float values[6] = {0};
+    rd_sensor_data_t data = {0};
+    data.data = values;
+    data.fields = all_provided;
+
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+
+    rd_sensor_data_fields_t no_fields = {0};
+    mock_bme(&bme_data);
+    // All of these should return without effect.
+    rd_sensor_data_populate (&data,
+                             NULL,
+                             all_provided);
+    rd_sensor_data_populate (NULL,
+                             &bme_data,
+                             all_provided);
+    rd_sensor_data_populate (&data,
+                             &bme_data,
+                             no_fields);
+    TEST_ASSERT(data.timestamp_ms != bme_data.timestamp_ms)
 }
 
+#if 0
 void test_ruuvi_driver_sensor_populate_two_no_overlap(void)
 {
 void rd_sensor_data_populate (rd_sensor_data_t * const target,

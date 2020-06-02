@@ -163,7 +163,7 @@ typedef union
  *
  * The data sensor struct contains a timestamp relative to sensor boot,
  * a list of fields contained within the sensor data and a pointer to array
- * of floats which contain the actual data. 
+ * of floats which contain the actual data.
  */
 typedef struct rd_sensor_data_t
 {
@@ -172,7 +172,7 @@ typedef struct rd_sensor_data_t
     fields; //!< Description of datafields which may be contained in this sample.
     rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample.
     /** @brief Data of sensor. Must contain as many elements as fields has bits set. */
-    float * data; 
+    float * data;
 } rd_sensor_data_t;
 
 /** @brief Forward declare type definition of sensor structure */
@@ -267,7 +267,7 @@ typedef rd_status_t (*rd_configuration_fp) (
 * @retval RD_SUCCESS on success.
 * @retval RD_ERROR_NULL if either parameter is NULL.
 * @retval RD_ERROR_INVALID_STATE if FIFO is not in use.
-* @retval RD_ERROR_NOT_SUPPORTED if the sensor does not have FIFO. 
+* @retval RD_ERROR_NOT_SUPPORTED if the sensor does not have FIFO.
 * @return error code from stack on error.
 */
 typedef rd_status_t (*rd_sensor_fifo_read_fp) (size_t * const num_elements,
@@ -294,8 +294,8 @@ typedef rd_status_t (*rd_sensor_fifo_enable_fp) (const bool enable);
 *
 * On accelerometer data is high-passed to filter out gravity.
 * Axes are examined individually, compound data won't trigger the interrupt. e.g.
-* accelerometer showing 0.8 G along X, Y, Z axes won't trigger at threshold of 1 G, 
-* even though the vector sum of axes is larger than 1 G. 
+* accelerometer showing 0.8 G along X, Y, Z axes won't trigger at threshold of 1 G,
+* even though the vector sum of axes is larger than 1 G.
 *
 * It is responsibility of application to know the GPIO routing and register
 * GPIO interrupts.
@@ -402,7 +402,7 @@ rd_status_t rd_sensor_timestamp_function_set (
 uint64_t rd_sensor_timestamp_get (void);
 
 /**
- * @brief Initialize sensor struct with non-null pointers which 
+ * @brief Initialize sensor struct with non-null pointers which
  *        return RD_ERROR_NOT_INITIALIZED.
  *
  * This function is to ensure that NULL function pointers won't be called.
@@ -439,7 +439,7 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor);
  *  - DPS310 (temperature, pressure)
  *  - LIS2DH12 (acceleration, temperature)
  *
- * If a target with fields for temperature, humidity, pressure and acceleration is 
+ * If a target with fields for temperature, humidity, pressure and acceleration is
  * created and populated from data of the sensors end result will be:
  *
  * -> Temperature, timestamp from TMP117
@@ -450,9 +450,9 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor);
  * If same firmware is run on a board with only LIS2DH12 populated, end result will be
  *
  * -> Temperature, timestamp, acceleration from LIS2DH12
- * -> RD_FLOAT_INVALID on humidity and pressure. 
+ * -> RD_FLOAT_INVALID on humidity and pressure.
  *
- * @param[out] target Data to be populated. Fields must be initially populated with 
+ * @param[out] target Data to be populated. Fields must be initially populated with
  *                    RD_FLOAT_INVALID.
  * @param[in]  provided Data provided by sensor.
  * @param[in]  requested Fields to be filled if possible.
@@ -465,8 +465,8 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
  * @brief Parse data from provided struct.
  *
  * @param[in]  provided Data to be parsed.
- * @param[in]  requested One data field to be parsed. 
- * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't 
+ * @param[in]  requested One data field to be parsed.
+ * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't
  *             have a valid value.
  */
 float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
@@ -487,9 +487,9 @@ uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target);
  * and populates it with provided data. Does nothing if there is no appropriate slot
  * in target data.
  *
- * This is a shorthand for @ref rd_sensor_data_populate for only one data field. 
+ * This is a shorthand for @ref rd_sensor_data_populate for only one data field.
  *
- * @param[out] target 
+ * @param[out] target
  * @param[in]  field  Quantity to set, exactly one must be set to true.
  * @param[in]  value  Value of quantity,
  */

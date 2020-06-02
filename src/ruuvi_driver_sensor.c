@@ -187,19 +187,36 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
                               const rd_sensor_data_t * const provided,
                               const rd_sensor_data_fields_t requested)
 {
-    if (NULL == target || NULL == provided) { return; }
-
-    // Compare provided data to requested data.
-    rd_sensor_data_fields_t available = {.bitfield = (provided->valid).bitfield & requested.bitfield};
-
-    // We have the available, requested fields. Fill the target struct with those
-    while (available.bitfield)
+    if (NULL != target && NULL != provided)
     {
-        // read rightmost field
-        rd_sensor_data_fields_t next = {.bitfield = (1 << __builtin_ctz (available.bitfield)) };
-        float value = rd_sensor_data_parse (provided, next);
-        rd_sensor_data_set (target, next, value);
-        available.bitfield &= (available.bitfield - 1); // set rightmost bit of available to 0
+        // Compare provided data to requested data not yet valid.
+        rd_sensor_data_fields_t available =
+        {
+            .bitfield = (provided->valid).bitfield
+            & (requested.bitfield & ~ (target->valid.bitfield))
+        };
+
+        // Update timestamp if there is not already a valid timestamp
+        if (available.bitfield
+                && ( (0 == target->timestamp_ms)
+                     || (RD_SENSOR_INVALID_TIMSTAMP == target->timestamp_ms)))
+        {
+            target->timestamp_ms = provided->timestamp_ms;
+        }
+
+        // We have the available, requested fields. Fill the target struct with those
+        while (available.bitfield)
+        {
+            // read rightmost field
+            rd_sensor_data_fields_t next =
+            {
+                .bitfield = (1 << __builtin_ctz (available.bitfield))
+            };
+            float value = rd_sensor_data_parse (provided, next);
+            rd_sensor_data_set (target, next, value);
+            // set rightmost bit of available to 0
+            available.bitfield &= (available.bitfield - 1);
+        }
     }
 }
 
