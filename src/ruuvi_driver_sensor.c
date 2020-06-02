@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#define BITS_PER_BYTE (8U) //!< Number of bits in a byte.
+
 static const char m_init_name[] = "NOTINIT";
 
 rd_status_t rd_sensor_configuration_set (const rd_sensor_t *
@@ -161,7 +163,7 @@ float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
 
     // If one value was requested and is available return value.
     if ( (NULL != provided)
-            && (provided->valid.bitfield & requested.bitfield)
+            && (0 != (provided->valid.bitfield & requested.bitfield))
             && (1 == __builtin_popcount (requested.bitfield)))
     {
         rvalue = provided->data[get_index_of_field (provided, requested)];
@@ -201,7 +203,7 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
                               const rd_sensor_data_t * const provided,
                               const rd_sensor_data_fields_t requested)
 {
-    if (NULL != target && NULL != provided)
+    if ( (NULL != target) && (NULL != provided))
     {
         // Compare provided data to requested data not yet valid.
         rd_sensor_data_fields_t available =
@@ -211,7 +213,7 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
         };
 
         // Update timestamp if there is not already a valid timestamp
-        if (available.bitfield
+        if ( (0 != available.bitfield)
                 && ( (0 == target->timestamp_ms)
                      || (RD_SENSOR_INVALID_TIMSTAMP == target->timestamp_ms)))
         {
@@ -224,7 +226,7 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
             // read rightmost field
             const uint8_t index = (uint8_t) __builtin_ctz (available.bitfield);
 
-            if (index < sizeof (requested.bitfield) * 8U)
+            if (index < sizeof (requested.bitfield) * BITS_PER_BYTE)
             {
                 rd_sensor_data_fields_t next =
                 {
