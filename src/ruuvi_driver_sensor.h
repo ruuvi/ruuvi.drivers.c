@@ -487,7 +487,8 @@ uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target);
  * and populates it with provided data. Does nothing if there is no appropriate slot
  * in target data.
  *
- * This is a shorthand for @ref rd_sensor_data_populate for only one data field.
+ * This is a shorthand for @ref rd_sensor_data_populate for only one data field, without
+ * setting timestamp.
  *
  * @param[out] target
  * @param[in]  field  Quantity to set, exactly one must be set to true.

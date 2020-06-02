@@ -157,14 +157,17 @@ static inline uint8_t get_index_of_field (const rd_sensor_data_t * const target,
 float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
                             const rd_sensor_data_fields_t requested)
 {
-    // If there isn't valid requested data, return value "invalid".
-    if (! (provided->valid.bitfield & requested.bitfield)) { return RD_FLOAT_INVALID; }
+    float rvalue = RD_FLOAT_INVALID;
 
-    // If trying to get more than one field, return value "invalid".
-    if (1 != __builtin_popcount (requested.bitfield)) { return RD_FLOAT_INVALID; }
+    // If one value was requested and is available return value.
+    if ( (NULL != provided
+            && (provided->valid.bitfield & requested.bitfield)
+            && (1 == __builtin_popcount (requested.bitfield))))
+    {
+        rvalue = provided->data[get_index_of_field (provided, requested)];
+    }
 
-    // Return requested value
-    return provided->data[get_index_of_field (provided, requested)];
+    return rvalue;
 }
 
 void rd_sensor_data_set (rd_sensor_data_t * const target,
@@ -172,15 +175,26 @@ void rd_sensor_data_set (rd_sensor_data_t * const target,
                          const float value)
 {
     // If there isn't valid requested data, return
-    if (! (target->fields.bitfield & field.bitfield)) { return; }
-
+    if (NULL == target)
+    {
+        // No action needed
+    }
+    else if (! (target->fields.bitfield & field.bitfield))
+    {
+        // No action needed
+    }
     // If trying to set more than one field, return.
-    if (1 != __builtin_popcount (field.bitfield)) { return; }
-
-    // Set value to appropriate index
-    target->data[get_index_of_field (target, field)] = value;
-    // Mark data as valid
-    target->valid.bitfield |= field.bitfield;
+    else if (1 != __builtin_popcount (field.bitfield))
+    {
+        // No action needed
+    }
+    else
+    {
+        // Set value to appropriate index
+        target->data[get_index_of_field (target, field)] = value;
+        // Mark data as valid
+        target->valid.bitfield |= field.bitfield;
+    }
 }
 
 void rd_sensor_data_populate (rd_sensor_data_t * const target,
