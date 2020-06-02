@@ -154,10 +154,11 @@ static inline uint8_t get_index_of_field (const rd_sensor_data_t * const target,
     uint8_t leading_zeros = (uint8_t) __builtin_clz (field.bitfield);
     uint32_t mask = UINT32_MAX;
     uint8_t bitfield_size = sizeof (field.bitfield) * BITS_PER_BYTE;
+    uint8_t target_bit = (bitfield_size - leading_zeros);
 
-    if (leading_zeros < bitfield_size)
+    if (target_bit < bitfield_size)
     {
-        mask = (1U << (bitfield_size - leading_zeros)) - 1U;
+        mask = (1U << target_bit) - 1U;
     }
 
     // Count set bits in nulled bitfield to find index.
