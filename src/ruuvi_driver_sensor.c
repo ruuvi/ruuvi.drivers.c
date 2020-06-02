@@ -160,9 +160,9 @@ float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
     float rvalue = RD_FLOAT_INVALID;
 
     // If one value was requested and is available return value.
-    if ( (NULL != provided
+    if ( (NULL != provided)
             && (provided->valid.bitfield & requested.bitfield)
-            && (1 == __builtin_popcount (requested.bitfield))))
+            && (1 == __builtin_popcount (requested.bitfield)))
     {
         rvalue = provided->data[get_index_of_field (provided, requested)];
     }
@@ -224,12 +224,12 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
             // read rightmost field
             rd_sensor_data_fields_t next =
             {
-                .bitfield = (1 << __builtin_ctz (available.bitfield))
+                .bitfield = (1U << __builtin_ctz (available.bitfield))
             };
             float value = rd_sensor_data_parse (provided, next);
             rd_sensor_data_set (target, next, value);
             // set rightmost bit of available to 0
-            available.bitfield &= (available.bitfield - 1);
+            available.bitfield &= (available.bitfield - 1U);
         }
     }
 }
