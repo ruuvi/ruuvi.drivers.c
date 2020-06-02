@@ -151,9 +151,25 @@ static inline uint8_t get_index_of_field (const rd_sensor_data_t * const target,
         const rd_sensor_data_fields_t field)
 {
     // Null bits higher than target
-    uint32_t mask = (1 << (32 - __builtin_clz (field.bitfield))) - 1;
+    uint8_t leading_zeros = (uint8_t) __builtin_clz (field.bitfield);
+    uint32_t mask = UINT32_MAX;
+    uint8_t bitfield_size = sizeof (field.bitfield) * BITS_PER_BYTE;
+
+    if (leading_zeros < bitfield_size)
+    {
+        mask = (1U << (bitfield_size - leading_zeros)) - 1U;
+    }
+
     // Count set bits in nulled bitfield to find index.
-    return __builtin_popcount (target->fields.bitfield & mask) - 1;
+    uint8_t index = (uint8_t) (__builtin_popcount (target->fields.bitfield & mask) - 1);
+
+    // return 0 if we don't have a valid result.
+    if (index > bitfield_size)
+    {
+        index = 0;
+    }
+
+    return index;
 }
 
 float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
