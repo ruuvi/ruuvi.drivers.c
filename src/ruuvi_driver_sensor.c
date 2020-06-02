@@ -222,12 +222,18 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
         while (available.bitfield)
         {
             // read rightmost field
-            rd_sensor_data_fields_t next =
+            const uint8_t index = (uint8_t) __builtin_ctz (available.bitfield);
+
+            if (index < sizeof (requested.bitfield) * 8U)
             {
-                .bitfield = (1U << __builtin_ctz (available.bitfield))
-            };
-            float value = rd_sensor_data_parse (provided, next);
-            rd_sensor_data_set (target, next, value);
+                rd_sensor_data_fields_t next =
+                {
+                    .bitfield = (1U << index)
+                };
+                float value = rd_sensor_data_parse (provided, next);
+                rd_sensor_data_set (target, next, value);
+            }
+
             // set rightmost bit of available to 0
             available.bitfield &= (available.bitfield - 1U);
         }
