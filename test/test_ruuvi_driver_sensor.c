@@ -261,7 +261,7 @@ void test_ruuvi_driver_sensor_populate_null(void)
                              &bme_data,
                              no_fields);
 
-    TEST_ASSERT(data.timestamp_ms != bme_data.timestamp_ms)
+    TEST_ASSERT(data.timestamp_ms != bme_data.timestamp_ms);
 }
 
 
