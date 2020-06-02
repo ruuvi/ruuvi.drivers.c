@@ -10,7 +10,7 @@
 /**
  * @file ruuvi_driver_sensor.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-10-10
+ * @date 2020-06-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause
  * @brief Ruuvi sensor interface <b>Lifecycle: Beta</b>
  *
@@ -151,6 +151,7 @@ typedef struct
     unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
 } rd_sensor_data_bitfield_t;
 
+/** @brief Union to access sensor data */
 typedef union
 {
     uint32_t bitfield;
@@ -159,6 +160,10 @@ typedef union
 
 /**
  * @brief Generic sensor data struct.
+ *
+ * The data sensor struct contains a timestamp relative to sensor boot,
+ * a list of fields contained within the sensor data and a pointer to array
+ * of floats which contain the actual data.
  */
 typedef struct rd_sensor_data_t
 {
@@ -166,7 +171,8 @@ typedef struct rd_sensor_data_t
     rd_sensor_data_fields_t
     fields; //!< Description of datafields which may be contained in this sample.
     rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample.
-    float * data;                   //!< Data of sensor.
+    /** @brief Data of sensor. Must contain as many elements as fields has bits set. */
+    float * data;
 } rd_sensor_data_t;
 
 /** @brief Forward declare type definition of sensor structure */
@@ -243,21 +249,25 @@ typedef rd_status_t (*rd_sensor_data_fp) (rd_sensor_data_t * const p_data);
  * @param[in] p_sensor sensor to configure
  * @param[in,out] p_configuration Input: desired configuration. Output:
  *                configuration written to sensot.
+ * @retval RD_SUCCESS if sensor was configured successfully.
+ * @retval RD_ERROR_NULL if one of parameters is NULL
+ * @return Error code from driver on other error.
  **/
 typedef rd_status_t (*rd_configuration_fp) (
     const rd_sensor_t * const p_sensor,
     rd_sensor_configuration_t * const p_configuration);
 
 /**
-* @brief Read First-in-first-out (FIFO) buffer
-* Reads up to num_elements data points from FIFO and populates pointer data with them
+* @brief Read First-in-first-out (FIFO) buffer in sensor.
+* Reads up to num_elements data points from FIFO and populates pointer data with them.
 *
 * @param[in, out] num_elements Input: number of elements in data.
-                               Output: Number of elements placed in data
-* @param[out] data array of ruuvi_interface_acceleration_data_t with num_elements slots.
-* @return RD_SUCCESS on success
-* @return RD_ERROR_NULL if either parameter is NULL
-* @return RD_ERROR_INVALID_STATE if FIFO is not in use
+                               Output: Number of elements placed in data.
+* @param[out] Data array of  with num_elements slots.
+* @retval RD_SUCCESS on success.
+* @retval RD_ERROR_NULL if either parameter is NULL.
+* @retval RD_ERROR_INVALID_STATE if FIFO is not in use.
+* @retval RD_ERROR_NOT_SUPPORTED if the sensor does not have FIFO.
 * @return error code from stack on error.
 */
 typedef rd_status_t (*rd_sensor_fifo_read_fp) (size_t * const num_elements,
@@ -276,11 +286,17 @@ typedef rd_status_t (*rd_sensor_fifo_enable_fp) (const bool enable);
 
 /**
 * @brief Enable level interrupt on sensor.
+*
 * Triggers as ACTIVE HIGH interrupt while detected data is above threshold.
-* Trigger is symmetric, i.e. thershold is valid for above positive or below negative
+*
+* Trigger is symmetric, i.e. threshold is valid for above positive or below negative
 * of given value.
+*
 * On accelerometer data is high-passed to filter out gravity.
-* Axes are examined individually, compound data won't trigger the interrupt.
+* Axes are examined individually, compound data won't trigger the interrupt. e.g.
+* accelerometer showing 0.8 G along X, Y, Z axes won't trigger at threshold of 1 G,
+* even though the vector sum of axes is larger than 1 G.
+*
 * It is responsibility of application to know the GPIO routing and register
 * GPIO interrupts.
 *
@@ -289,8 +305,8 @@ typedef rd_status_t (*rd_sensor_fifo_enable_fp) (const bool enable);
 *                         Is considered as "at least", the acceleration is rounded up to
 *                         next value.
 *                         Output: written with value that was set to interrupt
-* @return RD_SUCCESS on success
-* @return RD_INVALID_STATE if data limit is higher than maximum scale
+* @retval RD_SUCCESS on success.
+* @retval RD_INVALID_STATE if data limit is higher than maximum scale.
 * @return error code from stack on error.
 *
 */
@@ -357,36 +373,39 @@ typedef struct rd_sensor_t
 } rd_sensor_t;
 
 /**
- * @brief implementation of ref rd_configuration_fp
+ * @brief Implementation of ref rd_configuration_fp
  */
 rd_status_t rd_sensor_configuration_set (const rd_sensor_t *
         sensor, rd_sensor_configuration_t * config);
 
 /**
- * @brief implementation of ref rd_configuration_fp
+ * @brief Implementation of ref rd_configuration_fp
  */
 rd_status_t rd_sensor_configuration_get (const rd_sensor_t *
         sensor, rd_sensor_configuration_t * config);
 
 /**
- * @brief Setup timestamping
+ * @brief Setup timestamping.
  * Set to @c NULL to disable timestamps.
  *
  * @param[in] timestamp_fp Function pointer to @ref rd_sensor_timestamp_fp implementation
- * @return RD_SUCCESS
+ * @retval RD_SUCCESS.
  */
 rd_status_t rd_sensor_timestamp_function_set (
     const rd_sensor_timestamp_fp  timestamp_fp);
 
 /**
  * @brief Calls the timestamp function and returns its value.
- * @return milliseconds since the start of RTC
- * @return RD_UINT64_INVALID if timestamp function is NULL
+ * @return milliseconds since the start of RTC.
+ * @retval RD_UINT64_INVALID if timestamp function is NULL
  */
 uint64_t rd_sensor_timestamp_get (void);
 
 /**
- * @brief Initialize sensor struct with non-null pointers which return RD_ERROR_NOT_INITIALIZED
+ * @brief Initialize sensor struct with non-null pointers which
+ *        return RD_ERROR_NOT_INITIALIZED.
+ *
+ * This function is to ensure that NULL function pointers won't be called.
  *
  * @param[out] p_sensor pointer to sensor struct to initialize.
  */
@@ -414,7 +433,27 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor);
  * and populates it with provided data if caller requested the field to be populated.
  * Populated fields are marked as valid.
  *
- * @param[out] target Data to be populated.
+ * Example: Board can have these sensors in this order of priority:
+ *  - TMP117 (temperature)
+ *  - SHTC3 (temperature, humidity)
+ *  - DPS310 (temperature, pressure)
+ *  - LIS2DH12 (acceleration, temperature)
+ *
+ * If a target with fields for temperature, humidity, pressure and acceleration is
+ * created and populated from data of the sensors end result will be:
+ *
+ * -> Temperature, timestamp from TMP117
+ * -> Humidity from SHTC3
+ * -> Pressure from DPS310
+ * -> Acceleration from LIS2DH12
+ *
+ * If same firmware is run on a board with only LIS2DH12 populated, end result will be
+ *
+ * -> Temperature, timestamp, acceleration from LIS2DH12
+ * -> RD_FLOAT_INVALID on humidity and pressure.
+ *
+ * @param[out] target Data to be populated. Fields must be initially populated with
+ *                    RD_FLOAT_INVALID.
  * @param[in]  provided Data provided by sensor.
  * @param[in]  requested Fields to be filled if possible.
  */
@@ -423,24 +462,18 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
                               const rd_sensor_data_fields_t requested);
 
 /**
- * @brief Parse data from provided struct
+ * @brief Parse data from provided struct.
  *
- * This function looks up the appropriate assigments on each data field in given target
- * and populates it with provided data if caller requested the field to be populated.
- *
- * @param[out] target Data to be populated.
- * @param[in]  provided Data provided by sensor.
- * @param[in]  requested Data to be parsed if possible
- * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't have a valid value.
+ * @param[in]  provided Data to be parsed.
+ * @param[in]  requested One data field to be parsed.
+ * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't
+ *             have a valid value.
  */
 float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
                             const rd_sensor_data_fields_t requested);
 
 /**
- * @brief count number of floats required for this data structure
- *
- * This function looks up the appropriate assigments on each data field in given target
- * and populates it with provided data if caller requested the field to be populated.
+ * @brief Count number of floats required for this data structure.
  *
  * @param[in]  target Structure to count number of fields from.
  * @return     Number of floats required to store the sensor data.
@@ -454,9 +487,12 @@ uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target);
  * and populates it with provided data. Does nothing if there is no appropriate slot
  * in target data.
  *
- * @param[in]  target
+ * This is a shorthand for @ref rd_sensor_data_populate for only one data field, without
+ * setting timestamp.
+ *
+ * @param[out] target
  * @param[in]  field  Quantity to set, exactly one must be set to true.
- * @param[in]  value  Value of quantity
+ * @param[in]  value  Value of quantity,
  */
 void rd_sensor_data_set (rd_sensor_data_t * const target,
                          const rd_sensor_data_fields_t field,
