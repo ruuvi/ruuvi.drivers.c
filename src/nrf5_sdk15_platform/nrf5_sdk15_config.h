@@ -189,20 +189,29 @@
 
 #if RUUVI_NRF5_SDK15_UART_ENABLED
 #   define NRF_SERIAL_ENABLED 1
-#   define NRFX_UARTE_ENABLED 1
-#   define NRFX_UARTE0_ENABLED 1
 #   ifdef NRF52811_XXAA
-#       define NRFX_UART_ENABLED 0
-#       define NRFX_UART0_ENABLED 0
-#   endif
-#   ifdef NRF52832_XXAA
+#       define NRFX_UARTE_ENABLED 1
+#       define NRFX_UARTE0_ENABLED 1
 #       define NRFX_UART_ENABLED 1
 #       define NRFX_UART0_ENABLED 1
+#       define UART0_CONFIG_USE_EASY_DMA 1
+#       define NRFX_PRS_ENABLED 1
+#       define NRFX_PRS_BOX_2_ENABLED 1
+#   endif
+#   ifdef NRF52832_XXAA
+#       // Serial module requires UART + UARTE
+#       define NRFX_UARTE_ENABLED 1
+#       define NRFX_UARTE0_ENABLED 1
+#       define NRFX_UART_ENABLED 1
+#       define NRFX_UART0_ENABLED 1
+#       define UART0_CONFIG_USE_EASY_DMA 1
+#       // PRS module allows UART + UARTE co-existence.
+#       define NRFX_PRS_ENABLED 1
+#       define NRFX_PRS_BOX_4_ENABLED 1
 #   endif
 #   define UART_EASY_DMA_SUPPORT 1
 #   define UART_LEGACY_SUPPORT 1
 #   define UART0_ENABLED 1
-#   define UART0_CONFIG_USE_EASY_DMA 1
 #endif
 
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED
