@@ -109,15 +109,13 @@ static bool ri_uart_init_test (const rd_test_print_fp printfp)
     return status;
 }
 
-/**
- * Send data, receive it, verify send and receive match.
- */
-bool ri_uart_tx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
-                      const ri_gpio_id_t output)
+static rd_status_t uart_init_test (const ri_gpio_id_t input,
+                                   const ri_gpio_id_t output)
 {
-    bool status = false;
-    bool timeout = false;
     rd_status_t err_code = RD_SUCCESS;
+    m_has_sent = false;
+    m_has_received = false;
+    memset (&rx_data, 0, sizeof (rx_data));
     ri_uart_init_t config =
     {
         .hwfc_enabled = false,
@@ -128,40 +126,67 @@ bool ri_uart_tx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
         .rx   = input,
         .baud = RI_UART_BAUD_115200
     };
-    printfp ("\"tx_rx\":");
     err_code |= ri_uart_init (&m_channel);
+    m_channel.on_evt = uart_isr;
     // TODO: Test different baudrates, parities etc.
     err_code |= ri_uart_config (&config);
-    const char test_data[] =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+    return err_code;
+}
+
+static bool uart_run_test (const char * const test_data)
+{
+    bool status = false;
+    bool timeout = false;
+    m_has_sent = false;
+    m_has_received = false;
+    memset (&rx_data, 0, sizeof (rx_data));
+    rd_status_t err_code = RD_SUCCESS;
     ri_comm_message_t msg = { 0 };
     msg.repeat_count = 1;
-    snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
-    msg.data_length = RI_COMM_MESSAGE_MAX_LENGTH;
-    // Cut message with a new line for receiver.
-    msg.data[RI_COMM_MESSAGE_MAX_LENGTH - 1] = '\n';
+    size_t written = 0;
+    written = snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
+    msg.data_length = (written > RI_COMM_MESSAGE_MAX_LENGTH)
+                      ? RI_COMM_MESSAGE_MAX_LENGTH : written;
+    ri_rtc_init();
+    err_code |= m_channel.send (&msg);
+
+    while (! (m_has_sent && m_has_received)
+            && (!timeout))
+    {
+        if (TEST_TIMEOUT_MS < ri_rtc_millis())
+        {
+            timeout = true;
+        }
+    }
+
+    if ( (RD_SUCCESS != err_code)
+            || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t))
+            || timeout)
+    {
+        status = true;
+    }
+
+    ri_rtc_uninit();
+    return status;
+}
+
+/**
+ * Send data, receive it, verify send and receive match.
+ */
+bool ri_uart_tx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
+                      const ri_gpio_id_t output)
+{
+    bool status = false;
+    rd_status_t err_code = RD_SUCCESS;
+    printfp ("\"tx_rx\":");
+    err_code |= uart_init_test (input, output);
+    char test_data[] =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+    test_data[RI_COMM_MESSAGE_MAX_LENGTH] = '\n';
 
     if (RD_SUCCESS == err_code)
     {
-        m_channel.on_evt = uart_isr;
-        ri_rtc_init();
-        err_code |= m_channel.send (&msg);
-
-        while (! (m_has_sent && m_has_received)
-                && (!timeout))
-        {
-            if (TEST_TIMEOUT_MS < ri_rtc_millis())
-            {
-                timeout = true;
-            }
-        }
-
-        if ( (RD_SUCCESS != err_code)
-                || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t))
-                || timeout)
-        {
-            status = true;
-        }
+        status |= uart_run_test (test_data);
     }
     else
     {
@@ -178,7 +203,6 @@ bool ri_uart_tx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
     }
 
     (void) ri_uart_uninit (&m_channel);
-    (void) ri_rtc_uninit();
     return status;
 }
 
@@ -190,24 +214,9 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
 {
     bool status = false;
     bool timeout = false;
-    m_has_sent = false;
-    m_has_received = false;
-    memset (&rx_data, 0, sizeof (rx_data));
     rd_status_t err_code = RD_SUCCESS;
-    ri_uart_init_t config =
-    {
-        .hwfc_enabled = false,
-        .parity_enabled = false,
-        .cts  = RI_GPIO_ID_UNUSED,
-        .rts  = RI_GPIO_ID_UNUSED,
-        .tx   = output,
-        .rx   = input,
-        .baud = RI_UART_BAUD_115200
-    };
     printfp ("\"rx_corrupt\":");
-    err_code |= ri_uart_init (&m_channel);
-    // TODO: Test different baudrates, parities etc.
-    err_code |= ri_uart_config (&config);
+    err_code |= uart_init_test (input, output);
     const char test_data[] =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\n";
     ri_comm_message_t msg = { 0 };
@@ -254,6 +263,8 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
         {
             status = true;
         }
+
+        (void) ri_rtc_uninit();
     }
     else
     {
@@ -270,7 +281,6 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
     }
 
     (void) ri_uart_uninit (&m_channel);
-    (void) ri_rtc_uninit();
     return status;
 }
 
@@ -278,51 +288,14 @@ bool ri_uart_rx_short_test (const rd_test_print_fp printfp, const ri_gpio_id_t i
                             const ri_gpio_id_t output)
 {
     bool status = false;
-    bool timeout = false;
-    m_has_sent = false;
-    m_has_received = false;
-    memset (&rx_data, 0, sizeof (rx_data));
     rd_status_t err_code = RD_SUCCESS;
-    ri_uart_init_t config =
-    {
-        .hwfc_enabled = false,
-        .parity_enabled = false,
-        .cts  = RI_GPIO_ID_UNUSED,
-        .rts  = RI_GPIO_ID_UNUSED,
-        .tx   = output,
-        .rx   = input,
-        .baud = RI_UART_BAUD_115200
-    };
     printfp ("\"rx_short\":");
-    err_code |= ri_uart_init (&m_channel);
-    // TODO: Test different baudrates, parities etc.
-    err_code |= ri_uart_config (&config);
+    err_code |= uart_init_test (input, output);
     const char test_data[] = "Lorem ipsum dolor sit amet\n";
-    ri_comm_message_t msg = { 0 };
-    msg.repeat_count = 1;
-    msg.data_length = snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
 
     if (RD_SUCCESS == err_code)
     {
-        m_channel.on_evt = uart_isr;
-        ri_rtc_init();
-        err_code |= m_channel.send (&msg);
-
-        while (! (m_has_sent && m_has_received)
-                && (!timeout))
-        {
-            if (TEST_TIMEOUT_MS < ri_rtc_millis())
-            {
-                timeout = true;
-            }
-        }
-
-        if ( (RD_SUCCESS != err_code)
-                || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t))
-                || timeout)
-        {
-            status = true;
-        }
+        status |= uart_run_test (test_data);
     }
     else
     {
@@ -339,7 +312,6 @@ bool ri_uart_rx_short_test (const rd_test_print_fp printfp, const ri_gpio_id_t i
     }
 
     (void) ri_uart_uninit (&m_channel);
-    (void) ri_rtc_uninit();
     return status;
 }
 
