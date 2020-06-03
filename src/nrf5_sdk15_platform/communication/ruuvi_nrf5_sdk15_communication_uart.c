@@ -20,6 +20,9 @@
 #define OP_QUEUES_SIZE          3
 #define APP_TIMER_PRESCALER     NRF_SERIAL_APP_TIMER_PRESCALER
 
+static const ri_comm_channel_t * m_channel; //!< Pointer to application control structure.
+static uint16_t m_rxcnt = 0; //!< Counter of received bytes after last read.
+
 static void sleep_handler (void)
 {
     ri_yield();
@@ -28,34 +31,47 @@ static void sleep_handler (void)
 // Handle UART events
 static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event_t event)
 {
-    switch (event)
+    if (m_channel && m_channel->on_evt)
     {
-        case NRF_SERIAL_EVENT_TX_DONE: ///< Requested TX transfer completed.
-            LOGD ("TX\r\n");
-            break;
+        switch (event)
+        {
+            case NRF_SERIAL_EVENT_TX_DONE: ///< Requested TX transfer completed.
+                LOGD ("TX\r\n");
+                m_channel->on_evt (RI_COMM_SENT, NULL, 0);
+                break;
 
-        case NRF_SERIAL_EVENT_RX_DATA: ///< Requested RX transfer completed.
-            LOG ("RX\r\n");
-            break;
+            case NRF_SERIAL_EVENT_RX_DATA: ///< Requested RX transfer completed.
+                LOGD ("RX\r\n");
 
-        case NRF_SERIAL_EVENT_DRV_ERR:   ///< Error reported by UART peripheral.
-            LOG ("!\r\n");
-            break;
+                if ( ( ( (char *) (p_serial->p_ctx->p_config->p_buffers->p_rxb)) [0] == '\n')
+                        || ++m_rxcnt >= RI_COMM_MESSAGE_MAX_LENGTH)
+                {
+                    m_channel->on_evt (RI_COMM_RECEIVED, NULL, 0);
+                }
 
-        case NRF_SERIAL_EVENT_FIFO_ERR:
-            LOG ("?\r\n");
-            break;
+                break;
 
-        default:
-            LOG ("?\r\n");
-            break;
+            case NRF_SERIAL_EVENT_DRV_ERR:   ///< Error reported by UART peripheral.
+                LOG ("UART Error\r\n");
+                break;
+
+            case NRF_SERIAL_EVENT_FIFO_ERR:
+                LOG ("FIFO Error\r\n");
+                break;
+
+            default:
+                LOG ("UART unknown event\r\n");
+                break;
+        }
     }
 }
 
 static nrf_drv_uart_config_t m_uart0_drv_config;
 
-#define SERIAL_FIFO_TX_SIZE (RI_COMM_MESSAGE_MAX_LENGTH)
-#define SERIAL_FIFO_RX_SIZE (RI_COMM_MESSAGE_MAX_LENGTH)
+// FIFOs have a guard byte
+#define GUARD_SIZE (1U)
+#define SERIAL_FIFO_TX_SIZE (RI_COMM_MESSAGE_MAX_LENGTH + GUARD_SIZE)
+#define SERIAL_FIFO_RX_SIZE (RI_COMM_MESSAGE_MAX_LENGTH + GUARD_SIZE)
 
 NRF_SERIAL_QUEUES_DEF (serial_queues, SERIAL_FIFO_TX_SIZE, SERIAL_FIFO_RX_SIZE);
 
@@ -134,7 +150,9 @@ static rd_status_t ri_uart_read_buf (ri_comm_message_t * const msg)
         status |= nrf_serial_read (&serial_uart, msg->data, msg->data_length, &bytes_read, 0);
         // nrf_serial_read caps read data length to msg->data_length
         msg->data_length = (uint8_t) (bytes_read & 0xFFU);
+        msg->repeat_count = 1;
         err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
+        m_rxcnt = 0;
     }
 
     return err_code;
@@ -148,12 +166,17 @@ rd_status_t ri_uart_init (ri_comm_channel_t * const channel)
     {
         err_code |= RD_ERROR_NULL;
     }
+    else if (NULL != m_channel)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
     else
     {
         channel->send = ri_uart_send_async;
         channel->read = ri_uart_read_buf;
         channel->init = ri_uart_init;
         channel->uninit = ri_uart_uninit;
+        m_channel = channel;
     }
 
     return err_code;
@@ -199,6 +222,7 @@ rd_status_t ri_uart_config (const ri_uart_init_t * const config)
 
 rd_status_t ri_uart_uninit (ri_comm_channel_t * const channel)
 {
+    m_channel = NULL;
     return nrf_serial_uninit (&serial_uart);
 }
 
