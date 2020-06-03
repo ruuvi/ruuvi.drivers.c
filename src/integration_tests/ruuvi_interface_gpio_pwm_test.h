@@ -6,8 +6,8 @@
  */
 /**
  * @file ruuvi_interface_gpio_pwm_test.h
- * @author TODO
- * @date 2020-05-18
+ * @author Oleg Protasevich
+ * @date 2020-05-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Tests for PWM.
@@ -17,11 +17,11 @@
 #include "ruuvi_interface_gpio_pwm.h"
 #include "ruuvi_interface_gpio_test.h"
 
-#define RI_GPIO_PWM_TEST_FREQ_HZ                (100U) //!< Frequency of test
+#define RI_GPIO_PWM_TEST_FREQ_HZ                (100U)      //!< Frequency of test
 #define RI_GPIO_PWM_TEST_FREQ_INVALID_MAX_HZ    (17000000U) //!< Invalid frequency
 #define RI_GPIO_PWM_TEST_FREQ_INVALID_MIN_HZ    (1U)        //!< Invalid frequency
 #define RI_GPIO_PWM_TEST_DUTY_INVALID_MIN_HZ    (-0.1F)     //!< Invalid duty cycle
-#define RI_GPIO_PWM_TEST_DUTY_INVALID_MAX_HZ    (1.1F)     //!< Invalid duty cycle
+#define RI_GPIO_PWM_TEST_DUTY_INVALID_MAX_HZ    (1.1F)      //!< Invalid duty cycle
 /** @brief Period of one PWM cycle in ms. */
 #define RI_GPIO_PWM_TEST_PERIOD_MS (1000U / RI_GPIO_PWM_TEST_FREQ_HZ)
 #define RI_GPIO_PWM_TEST_DC (0.5F) //!< Duty cycle in test. 
@@ -69,4 +69,5 @@ rd_status_t ri_gpio_pwm_test (const rd_test_gpio_cfg_t cfg);
  */
 bool ri_gpio_pwm_run_integration_test (const rd_test_print_fp printfp,
                                        const ri_gpio_id_t input, const ri_gpio_id_t output);
+/** @} */
 #endif

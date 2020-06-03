@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#define BITS_PER_BYTE (8U) //!< Number of bits in a byte.
+
 static const char m_init_name[] = "NOTINIT";
 
 rd_status_t rd_sensor_configuration_set (const rd_sensor_t *
@@ -149,22 +151,42 @@ static inline uint8_t get_index_of_field (const rd_sensor_data_t * const target,
         const rd_sensor_data_fields_t field)
 {
     // Null bits higher than target
-    uint32_t mask = (1 << (32 - __builtin_clz (field.bitfield))) - 1;
+    uint8_t leading_zeros = (uint8_t) __builtin_clz (field.bitfield);
+    uint32_t mask = UINT32_MAX;
+    uint8_t bitfield_size = sizeof (field.bitfield) * BITS_PER_BYTE;
+    uint8_t target_bit = (bitfield_size - leading_zeros);
+
+    if (target_bit < bitfield_size)
+    {
+        mask = (1U << target_bit) - 1U;
+    }
+
     // Count set bits in nulled bitfield to find index.
-    return __builtin_popcount (target->fields.bitfield & mask) - 1;
+    uint8_t index = (uint8_t) (__builtin_popcount (target->fields.bitfield & mask) - 1);
+
+    // return 0 if we don't have a valid result.
+    if (index > bitfield_size)
+    {
+        index = 0;
+    }
+
+    return index;
 }
 
 float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
                             const rd_sensor_data_fields_t requested)
 {
-    // If there isn't valid requested data, return value "invalid".
-    if (! (provided->valid.bitfield & requested.bitfield)) { return RD_FLOAT_INVALID; }
+    float rvalue = RD_FLOAT_INVALID;
 
-    // If trying to get more than one field, return value "invalid".
-    if (1 != __builtin_popcount (requested.bitfield)) { return RD_FLOAT_INVALID; }
+    // If one value was requested and is available return value.
+    if ( (NULL != provided)
+            && (0 != (provided->valid.bitfield & requested.bitfield))
+            && (1 == __builtin_popcount (requested.bitfield)))
+    {
+        rvalue = provided->data[get_index_of_field (provided, requested)];
+    }
 
-    // Return requested value
-    return provided->data[get_index_of_field (provided, requested)];
+    return rvalue;
 }
 
 void rd_sensor_data_set (rd_sensor_data_t * const target,
@@ -172,34 +194,68 @@ void rd_sensor_data_set (rd_sensor_data_t * const target,
                          const float value)
 {
     // If there isn't valid requested data, return
-    if (! (target->fields.bitfield & field.bitfield)) { return; }
-
+    if (NULL == target)
+    {
+        // No action needed
+    }
+    else if (! (target->fields.bitfield & field.bitfield))
+    {
+        // No action needed
+    }
     // If trying to set more than one field, return.
-    if (1 != __builtin_popcount (field.bitfield)) { return; }
-
-    // Set value to appropriate index
-    target->data[get_index_of_field (target, field)] = value;
-    // Mark data as valid
-    target->valid.bitfield |= field.bitfield;
+    else if (1 != __builtin_popcount (field.bitfield))
+    {
+        // No action needed
+    }
+    else
+    {
+        // Set value to appropriate index
+        target->data[get_index_of_field (target, field)] = value;
+        // Mark data as valid
+        target->valid.bitfield |= field.bitfield;
+    }
 }
 
 void rd_sensor_data_populate (rd_sensor_data_t * const target,
                               const rd_sensor_data_t * const provided,
                               const rd_sensor_data_fields_t requested)
 {
-    if (NULL == target || NULL == provided) { return; }
-
-    // Compare provided data to requested data.
-    rd_sensor_data_fields_t available = {.bitfield = (provided->valid).bitfield & requested.bitfield};
-
-    // We have the available, requested fields. Fill the target struct with those
-    while (available.bitfield)
+    if ( (NULL != target) && (NULL != provided))
     {
-        // read rightmost field
-        rd_sensor_data_fields_t next = {.bitfield = (1 << __builtin_ctz (available.bitfield)) };
-        float value = rd_sensor_data_parse (provided, next);
-        rd_sensor_data_set (target, next, value);
-        available.bitfield &= (available.bitfield - 1); // set rightmost bit of available to 0
+        // Compare provided data to requested data not yet valid.
+        rd_sensor_data_fields_t available =
+        {
+            .bitfield = (provided->valid).bitfield
+            & (requested.bitfield & ~ (target->valid.bitfield))
+        };
+
+        // Update timestamp if there is not already a valid timestamp
+        if ( (0 != available.bitfield)
+                && ( (0 == target->timestamp_ms)
+                     || (RD_SENSOR_INVALID_TIMSTAMP == target->timestamp_ms)))
+        {
+            target->timestamp_ms = provided->timestamp_ms;
+        }
+
+        // We have the available, requested fields. Fill the target struct with those
+        while (available.bitfield)
+        {
+            // read rightmost field
+            const uint8_t index = (uint8_t) __builtin_ctz (available.bitfield);
+
+            if (index < sizeof (requested.bitfield) * BITS_PER_BYTE)
+            {
+                rd_sensor_data_fields_t next =
+                {
+                    .bitfield = (1U << index)
+                };
+                float value = rd_sensor_data_parse (provided, next);
+                rd_sensor_data_set (target, next, value);
+            }
+
+            // set rightmost bit of available to 0
+            available.bitfield &= (available.bitfield - 1U);
+        }
     }
 }
 

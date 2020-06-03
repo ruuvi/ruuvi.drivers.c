@@ -554,6 +554,8 @@ static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
     for (; retries < MAX_RETRIES; retries++)
     {
         ri_delay_ms (2 * interval);
+        new_data.valid.bitfield = 0;
+        new_data.timestamp_ms = RD_SENSOR_INVALID_TIMSTAMP;
         err_code |= DUT->data_get (&new_data);
 
         if (old_data.timestamp_ms == new_data.timestamp_ms || RD_SUCCESS != err_code)

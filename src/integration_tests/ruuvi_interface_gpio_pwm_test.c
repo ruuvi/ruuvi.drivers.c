@@ -1,3 +1,12 @@
+/**
+ * @file ruuvi_interface_gpio_pwm_test.c
+ * @author Oleg Protasevich
+ * @date 2020-05-27
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Tests for PWM.
+ */
+
 #include "ruuvi_driver_enabled_modules.h"
 #if RUUVI_RUN_TESTS
 #include "ruuvi_driver_error.h"

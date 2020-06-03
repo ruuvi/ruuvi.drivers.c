@@ -13,6 +13,16 @@
 /**
  * @addtogroup GPIO
  * @brief Pulse width modulation of GPIO.
+ * @{
+ */
+
+/**
+ * @file ruuvi_interface_gpio_pwm.h
+ * @author Oleg Protasevich
+ * @date 2020-05-27
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ *
+ * Pulse Width Modulation control.
  */
 
 /**

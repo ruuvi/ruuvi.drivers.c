@@ -1,11 +1,11 @@
 /**
  * @addtogroup advertisement_tasks
  */
-/*@{*/
+/** @{ */
 /**
- * @file task_advertisement.c
+ * @file ruuvi_task_advertisement.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-11-19
+ * @date 2020-06-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Advertise data and GATT connection if available.
@@ -175,4 +175,4 @@ rd_status_t rt_adv_scan_stop (void)
 }
 
 #endif
-/*@}*/
+/** @} */
