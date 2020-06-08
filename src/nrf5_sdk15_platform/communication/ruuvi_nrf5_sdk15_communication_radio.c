@@ -180,7 +180,7 @@ rd_status_t ri_radio_get_modulation (ri_radio_modulation_t * const p_modulation)
         *p_modulation = m_modulation;
     }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 
@@ -212,7 +212,7 @@ uint8_t ruuvi_nrf5_sdk15_radio_phy_get (void)
         }
     }
 
-    return modulation;
+    return nrf_modulation;
 }
 
 void ruuvi_nrf5_sdk15_radio_channels_set (uint8_t * const nrf_channels,
