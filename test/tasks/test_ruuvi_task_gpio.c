@@ -6,13 +6,13 @@
 #include "mock_ruuvi_interface_gpio_interrupt.h"
 #include "mock_ruuvi_interface_log.h"
 
-void setUp(void)
+void setUp (void)
 {
-  ri_log_Ignore();
-  ri_error_to_string_IgnoreAndReturn(0);
+    ri_log_Ignore();
+    ri_error_to_string_IgnoreAndReturn (0);
 }
 
-void tearDown(void)
+void tearDown (void)
 {
 }
 
@@ -21,21 +21,21 @@ void tearDown(void)
  *
  * @return RUUVI_DRIVER_SUCCESS
  */
-void test_ruuvi_task_gpio_init_ok(void)
+void test_ruuvi_task_gpio_init_ok (void)
 {
-  ri_gpio_is_init_ExpectAndReturn(false);
-  ri_gpio_init_ExpectAndReturn(RD_SUCCESS);
-  ri_gpio_interrupt_init_ExpectAnyArgsAndReturn(RD_SUCCESS);
-  rd_status_t err_code = rt_gpio_init ();  
-  TEST_ASSERT(RD_SUCCESS == err_code);
+    ri_gpio_is_init_ExpectAndReturn (false);
+    ri_gpio_init_ExpectAndReturn (RD_SUCCESS);
+    ri_gpio_interrupt_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_status_t err_code = rt_gpio_init ();
+    TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_ruuvi_task_gpio_init_twice(void)
+void test_ruuvi_task_gpio_init_twice (void)
 {
-  ri_gpio_is_init_ExpectAndReturn(true);
-  ri_gpio_interrupt_is_init_ExpectAndReturn(true);
-  rd_status_t err_code = rt_gpio_init ();
-  TEST_ASSERT(RD_SUCCESS == err_code);
+    ri_gpio_is_init_ExpectAndReturn (true);
+    ri_gpio_interrupt_is_init_ExpectAndReturn (true);
+    rd_status_t err_code = rt_gpio_init ();
+    TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
 
@@ -47,20 +47,20 @@ void test_ruuvi_task_gpio_init_twice(void)
  */
 void rt_gpio_is_init_yes (void)
 {
-  ri_gpio_is_init_ExpectAndReturn(true);
-  ri_gpio_interrupt_is_init_ExpectAndReturn(true);
-  TEST_ASSERT(rt_gpio_init());
+    ri_gpio_is_init_ExpectAndReturn (true);
+    ri_gpio_interrupt_is_init_ExpectAndReturn (true);
+    TEST_ASSERT (rt_gpio_init());
 }
 
 void rt_gpio_is_init_no (void)
 {
-  ri_gpio_is_init_ExpectAndReturn(false);
-  TEST_ASSERT(!rt_gpio_init());
+    ri_gpio_is_init_ExpectAndReturn (false);
+    TEST_ASSERT (!rt_gpio_init());
 }
 
 void rt_gpio_is_init_no_int (void)
 {
-  ri_gpio_is_init_ExpectAndReturn(true);
-  ri_gpio_interrupt_is_init_ExpectAndReturn(false);
-  TEST_ASSERT(!rt_gpio_init());
+    ri_gpio_is_init_ExpectAndReturn (true);
+    ri_gpio_interrupt_is_init_ExpectAndReturn (false);
+    TEST_ASSERT (!rt_gpio_init());
 }

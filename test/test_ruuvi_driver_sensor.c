@@ -20,102 +20,102 @@ const float dps310_data[]   = {99720.15F, 19.96F};
 const float lis2dh12_data[] = {0.014F, -0.14F, 1.064F, 24.65F};
 const float photodiode_data[] = {2104.0F};
 
-const rd_sensor_data_fields_t field_accx = 
-{ 
-  .datas.acceleration_x_g = 1 
-};
-
-const rd_sensor_data_fields_t field_accy = 
-{ 
-  .datas.acceleration_y_g = 1 
-};
-
-const rd_sensor_data_fields_t field_accz = 
-{ 
-  .datas.acceleration_z_g = 1 
-};
-
-const rd_sensor_data_fields_t field_humi = 
-{ 
-  .datas.humidity_rh = 1 
-};
-
-const rd_sensor_data_fields_t field_photo = 
-{ 
-  .datas.luminosity = 1 
-};
-
-const rd_sensor_data_fields_t field_pres = 
-{ 
-  .datas.pressure_pa = 1 
-};
-
-const rd_sensor_data_fields_t field_temp = 
-{ 
-  .datas.temperature_c = 1 
-};
-
-const rd_sensor_data_fields_t bme280_provided = 
+const rd_sensor_data_fields_t field_accx =
 {
-  .datas.humidity_rh = 1,
-  .datas.pressure_pa = 1,
-  .datas.temperature_c = 1
+    .datas.acceleration_x_g = 1
 };
 
-const rd_sensor_data_fields_t shtcx_provided = 
+const rd_sensor_data_fields_t field_accy =
 {
-  .datas.humidity_rh = 1,
-  .datas.temperature_c = 1
+    .datas.acceleration_y_g = 1
 };
 
-const rd_sensor_data_fields_t dps310_provided = 
+const rd_sensor_data_fields_t field_accz =
 {
-  .datas.pressure_pa = 1,
-  .datas.temperature_c = 1
+    .datas.acceleration_z_g = 1
 };
 
-const rd_sensor_data_fields_t lis2dh12_provided = 
+const rd_sensor_data_fields_t field_humi =
 {
-  .datas.acceleration_x_g = 1,
-  .datas.acceleration_y_g = 1,
-  .datas.acceleration_z_g = 1,
-  .datas.temperature_c = 1
+    .datas.humidity_rh = 1
 };
 
-const rd_sensor_data_fields_t photo_provided = 
+const rd_sensor_data_fields_t field_photo =
 {
-  .datas.luminosity = 1
+    .datas.luminosity = 1
 };
 
-const rd_sensor_data_fields_t bme_photo_provided = 
+const rd_sensor_data_fields_t field_pres =
 {
-  .datas.humidity_rh = 1,
-  .datas.pressure_pa = 1,
-  .datas.temperature_c = 1,
-  .datas.luminosity = 1
+    .datas.pressure_pa = 1
 };
 
-const rd_sensor_data_fields_t all_provided = 
+const rd_sensor_data_fields_t field_temp =
 {
-  .datas.acceleration_x_g = 1,
-  .datas.acceleration_y_g = 1,
-  .datas.acceleration_z_g = 1,
-  .datas.humidity_rh = 1,
-  .datas.luminosity = 1,
-  .datas.pressure_pa = 1,
-  .datas.temperature_c = 1
+    .datas.temperature_c = 1
 };
 
-void setUp(void)
+const rd_sensor_data_fields_t bme280_provided =
+{
+    .datas.humidity_rh = 1,
+    .datas.pressure_pa = 1,
+    .datas.temperature_c = 1
+};
+
+const rd_sensor_data_fields_t shtcx_provided =
+{
+    .datas.humidity_rh = 1,
+    .datas.temperature_c = 1
+};
+
+const rd_sensor_data_fields_t dps310_provided =
+{
+    .datas.pressure_pa = 1,
+    .datas.temperature_c = 1
+};
+
+const rd_sensor_data_fields_t lis2dh12_provided =
+{
+    .datas.acceleration_x_g = 1,
+    .datas.acceleration_y_g = 1,
+    .datas.acceleration_z_g = 1,
+    .datas.temperature_c = 1
+};
+
+const rd_sensor_data_fields_t photo_provided =
+{
+    .datas.luminosity = 1
+};
+
+const rd_sensor_data_fields_t bme_photo_provided =
+{
+    .datas.humidity_rh = 1,
+    .datas.pressure_pa = 1,
+    .datas.temperature_c = 1,
+    .datas.luminosity = 1
+};
+
+const rd_sensor_data_fields_t all_provided =
+{
+    .datas.acceleration_x_g = 1,
+    .datas.acceleration_y_g = 1,
+    .datas.acceleration_z_g = 1,
+    .datas.humidity_rh = 1,
+    .datas.luminosity = 1,
+    .datas.pressure_pa = 1,
+    .datas.temperature_c = 1
+};
+
+void setUp (void)
 {
 }
 
-void tearDown(void)
+void tearDown (void)
 {
 }
 
 // Return humidity, temperature, pressure.
-static void mock_bme(rd_sensor_data_t * const target)
+static void mock_bme (rd_sensor_data_t * const target)
 {
     rd_sensor_data_set (target,
                         field_humi,
@@ -129,7 +129,7 @@ static void mock_bme(rd_sensor_data_t * const target)
 }
 
 // Return humidity, temperature.
-static void mock_shtcx(rd_sensor_data_t * const target)
+static void mock_shtcx (rd_sensor_data_t * const target)
 {
     rd_sensor_data_set (target,
                         field_humi,
@@ -140,7 +140,7 @@ static void mock_shtcx(rd_sensor_data_t * const target)
 }
 
 // return temperature, pressure.
-void mock_dps310(rd_sensor_data_t * const target)
+void mock_dps310 (rd_sensor_data_t * const target)
 {
     rd_sensor_data_set (target,
                         field_pres,
@@ -150,8 +150,8 @@ void mock_dps310(rd_sensor_data_t * const target)
                         dps310_data[1]);
 }
 
-// return acceleration, temperature. 
-void mock_lis2dh12(rd_sensor_data_t * const target)
+// return acceleration, temperature.
+void mock_lis2dh12 (rd_sensor_data_t * const target)
 {
     rd_sensor_data_set (target,
                         field_accx,
@@ -168,7 +168,7 @@ void mock_lis2dh12(rd_sensor_data_t * const target)
 }
 
 // return luminosity
-void mock_photo(rd_sensor_data_t * const target)
+void mock_photo (rd_sensor_data_t * const target)
 {
     rd_sensor_data_set (target,
                         field_photo,
@@ -188,7 +188,7 @@ void mock_photo(rd_sensor_data_t * const target)
  *  - DPS310 (temperature, pressure)
  *  - LIS2DH12 (acceleration, temperature)
  *
- * If a target with fields for temperature, humidity, pressure and acceleration is 
+ * If a target with fields for temperature, humidity, pressure and acceleration is
  * created and populated from data of the sensors end result will be:
  *
  * -> Temperature from TMP117
@@ -199,57 +199,50 @@ void mock_photo(rd_sensor_data_t * const target)
  * If same firmware is run on a board with only LIS2DH12 populated, end result will be
  *
  * -> Temperature, acceleration from LIS2DH12
- * -> RD_FLOAT_INVALID on humidity and pressure. 
+ * -> RD_FLOAT_INVALID on humidity and pressure.
  *
- * 
  *
- * @param[out] target Data to be populated. Fields must be initially populated with 
+ *
+ * @param[out] target Data to be populated. Fields must be initially populated with
  *                    RD_FLOAT_INVALID.
  * @param[in]  provided Data provided by sensor.
  * @param[in]  requested Fields to be filled if possible.
  */
-void test_ruuvi_driver_sensor_populate_one(void)
+void test_ruuvi_driver_sensor_populate_one (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
-    TEST_ASSERT(!memcmp(&bme280_provided, &data.valid, sizeof(bme280_provided)));
-    TEST_ASSERT(values[HUMI_INDEX] == bme_data.data[0]);
-    TEST_ASSERT(values[PRES_INDEC] == bme_data.data[1]);
-    TEST_ASSERT(values[TEMP_INDEX] == bme_data.data[2]);
-    TEST_ASSERT(data.timestamp_ms == bme_data.timestamp_ms);
-
+    TEST_ASSERT (!memcmp (&bme280_provided, &data.valid, sizeof (bme280_provided)));
+    TEST_ASSERT (values[HUMI_INDEX] == bme_data.data[0]);
+    TEST_ASSERT (values[PRES_INDEC] == bme_data.data[1]);
+    TEST_ASSERT (values[TEMP_INDEX] == bme_data.data[2]);
+    TEST_ASSERT (data.timestamp_ms == bme_data.timestamp_ms);
 }
 
-void test_ruuvi_driver_sensor_populate_null(void)
+void test_ruuvi_driver_sensor_populate_null (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-
     rd_sensor_data_fields_t no_fields = {0};
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     // All of these should return without effect.
     rd_sensor_data_populate (&data,
                              NULL,
@@ -260,261 +253,223 @@ void test_ruuvi_driver_sensor_populate_null(void)
     rd_sensor_data_populate (&data,
                              &bme_data,
                              no_fields);
-
-    TEST_ASSERT(data.timestamp_ms != bme_data.timestamp_ms);
+    TEST_ASSERT (data.timestamp_ms != bme_data.timestamp_ms);
 }
 
 
-void test_ruuvi_driver_sensor_populate_two_no_overlap(void)
+void test_ruuvi_driver_sensor_populate_two_no_overlap (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     float photo_values[1] = {0};
     rd_sensor_data_t photo_data = {0};
     photo_data.fields = photo_provided;
     photo_data.data = photo_values;
     photo_data.timestamp_ms = 2;
-    mock_photo(&photo_data);
-
+    mock_photo (&photo_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
     rd_sensor_data_populate (&data,
                              &photo_data,
                              all_provided);
-
-
-    TEST_ASSERT(!memcmp(&bme_photo_provided, &data.valid, sizeof(bme_photo_provided)));
-    TEST_ASSERT(values[HUMI_INDEX] == bme_data.data[0]);
-    TEST_ASSERT(values[PRES_INDEC] == bme_data.data[1]);
-    TEST_ASSERT(values[TEMP_INDEX] == bme_data.data[2]);
-    TEST_ASSERT(values[LUMI_INDEX] == photo_data.data[0]);
-    TEST_ASSERT(data.timestamp_ms == bme_data.timestamp_ms);
-
+    TEST_ASSERT (!memcmp (&bme_photo_provided, &data.valid, sizeof (bme_photo_provided)));
+    TEST_ASSERT (values[HUMI_INDEX] == bme_data.data[0]);
+    TEST_ASSERT (values[PRES_INDEC] == bme_data.data[1]);
+    TEST_ASSERT (values[TEMP_INDEX] == bme_data.data[2]);
+    TEST_ASSERT (values[LUMI_INDEX] == photo_data.data[0]);
+    TEST_ASSERT (data.timestamp_ms == bme_data.timestamp_ms);
 }
 
 
-void test_ruuvi_driver_sensor_populate_one_no_match(void)
+void test_ruuvi_driver_sensor_populate_one_no_match (void)
 {
     rd_sensor_data_fields_t no_fields = {0};
-
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              photo_provided);
-
-    TEST_ASSERT(!memcmp(&no_fields, &data.valid, sizeof(data.valid)));
+    TEST_ASSERT (!memcmp (&no_fields, &data.valid, sizeof (data.valid)));
 }
 
-void test_ruuvi_driver_sensor_populate_one_some_match(void)
+void test_ruuvi_driver_sensor_populate_one_some_match (void)
 {
-
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              lis2dh12_provided);
-
-    TEST_ASSERT(!memcmp(&field_temp, &data.valid, sizeof(data.valid)));
+    TEST_ASSERT (!memcmp (&field_temp, &data.valid, sizeof (data.valid)));
 }
 
-void test_ruuvi_driver_sensor_populate_three_overlap(void)
+void test_ruuvi_driver_sensor_populate_three_overlap (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float shtcx_values[2] = {0};
     rd_sensor_data_t shtcx_data = {0};
     shtcx_data.fields = shtcx_provided;
     shtcx_data.data = shtcx_values;
     shtcx_data.timestamp_ms = 1;
-    mock_shtcx(&shtcx_data);
-
+    mock_shtcx (&shtcx_data);
     float acc_values[4] = {0};
     rd_sensor_data_t acc_data = {0};
     acc_data.fields = lis2dh12_provided;
     acc_data.data = acc_values;
     acc_data.timestamp_ms = 2;
-    mock_lis2dh12(&acc_data);
-
+    mock_lis2dh12 (&acc_data);
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 3;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &shtcx_data,
                              all_provided);
-
     rd_sensor_data_populate (&data,
                              &acc_data,
                              all_provided);
-
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
-    TEST_ASSERT(values[HUMI_INDEX] == shtcx_data.data[0]);
-    TEST_ASSERT(values[PRES_INDEC] == bme_data.data[1]);
-    TEST_ASSERT(values[TEMP_INDEX] == shtcx_data.data[1]);
-    TEST_ASSERT(values[ACCX_INDEX] == acc_data.data[0]);
-    TEST_ASSERT(values[ACCY_INDEX] == acc_data.data[1]);
-    TEST_ASSERT(values[ACCZ_INDEX] == acc_data.data[2]);
-    TEST_ASSERT(data.timestamp_ms == shtcx_data.timestamp_ms);
+    TEST_ASSERT (values[HUMI_INDEX] == shtcx_data.data[0]);
+    TEST_ASSERT (values[PRES_INDEC] == bme_data.data[1]);
+    TEST_ASSERT (values[TEMP_INDEX] == shtcx_data.data[1]);
+    TEST_ASSERT (values[ACCX_INDEX] == acc_data.data[0]);
+    TEST_ASSERT (values[ACCY_INDEX] == acc_data.data[1]);
+    TEST_ASSERT (values[ACCZ_INDEX] == acc_data.data[2]);
+    TEST_ASSERT (data.timestamp_ms == shtcx_data.timestamp_ms);
 }
 
 /**
  * @brief Parse data from provided struct.
  *
  * @param[in]  provided Data to be parsed.
- * @param[in]  requested One data field to be parsed. 
- * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't 
+ * @param[in]  requested One data field to be parsed.
+ * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't
  *             have a valid value.
  */
-void test_ruuvi_driver_sensor_parse_match(void)
+void test_ruuvi_driver_sensor_parse_match (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
     const float pressure = rd_sensor_data_parse (&data, field_pres);
-    TEST_ASSERT(pressure == bme280_data[1]);
+    TEST_ASSERT (pressure == bme280_data[1]);
 }
 
-void test_ruuvi_driver_sensor_parse_no_match(void)
+void test_ruuvi_driver_sensor_parse_no_match (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
     const float pressure = rd_sensor_data_parse (&data, field_accz);
-    TEST_ASSERT(isnan(pressure));
+    TEST_ASSERT (isnan (pressure));
 }
 
-void test_ruuvi_driver_sensor_parse_null(void)
+void test_ruuvi_driver_sensor_parse_null (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
     const float pressure = rd_sensor_data_parse (NULL, field_accz);
-    TEST_ASSERT(isnan(pressure));
+    TEST_ASSERT (isnan (pressure));
 }
 
-void test_ruuvi_driver_sensor_parse_excess(void)
+void test_ruuvi_driver_sensor_parse_excess (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
     const float pressure = rd_sensor_data_parse (&data, bme280_provided);
-    TEST_ASSERT(isnan(pressure));
+    TEST_ASSERT (isnan (pressure));
 }
 
-void test_ruuvi_driver_sensor_parse_null_excess(void)
+void test_ruuvi_driver_sensor_parse_null_excess (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
     data.data = values;
     data.fields = all_provided;
-
     float bme_values[3] = {0};
     rd_sensor_data_t bme_data = {0};
     bme_data.fields = bme280_provided;
     bme_data.data = bme_values;
     bme_data.timestamp_ms = 1;
-    mock_bme(&bme_data);
-
+    mock_bme (&bme_data);
     rd_sensor_data_populate (&data,
                              &bme_data,
                              all_provided);
-
     const float pressure = rd_sensor_data_parse (NULL, bme280_provided);
-    TEST_ASSERT(isnan(pressure));
+    TEST_ASSERT (isnan (pressure));
 }
 
 
@@ -524,30 +479,27 @@ void test_ruuvi_driver_sensor_parse_null_excess(void)
  * @param[in]  target Structure to count number of fields from.
  * @return     Number of floats required to store the sensor data.
  */
-void test_ruuvi_driver_sensor_count_one_field(void)
+void test_ruuvi_driver_sensor_count_one_field (void)
 {
     rd_sensor_data_t data = {0};
     data.fields = photo_provided;
-
     const uint8_t fc = rd_sensor_data_fieldcount (&data);
-    TEST_ASSERT(1 == fc);
+    TEST_ASSERT (1 == fc);
 }
 
-void test_ruuvi_driver_sensor_count_no_field(void)
+void test_ruuvi_driver_sensor_count_no_field (void)
 {
     rd_sensor_data_t data = {0};
-
     const uint8_t fc = rd_sensor_data_fieldcount (&data);
-    TEST_ASSERT(0 == fc);
+    TEST_ASSERT (0 == fc);
 }
 
-void test_ruuvi_driver_sensor_count_many_field(void)
+void test_ruuvi_driver_sensor_count_many_field (void)
 {
     rd_sensor_data_t data = {0};
     data.fields = all_provided;
-
     const uint8_t fc = rd_sensor_data_fieldcount (&data);
-    TEST_ASSERT(NUM_FIELDS == fc);
+    TEST_ASSERT (NUM_FIELDS == fc);
 }
 
 /**
@@ -558,13 +510,13 @@ void test_ruuvi_driver_sensor_count_many_field(void)
  * in target data.
  *
  * This is a shorthand for @ref rd_sensor_data_populate for only one data field, without
- * setting timestamp. 
+ * setting timestamp.
  *
- * @param[out] target 
+ * @param[out] target
  * @param[in]  field  Quantity to set, exactly one must be set to true.
  * @param[in]  value  Value of quantity,
  */
-void test_ruuvi_driver_sensor_data_set_one_field(void)
+void test_ruuvi_driver_sensor_data_set_one_field (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
@@ -574,11 +526,11 @@ void test_ruuvi_driver_sensor_data_set_one_field(void)
     rd_sensor_data_set (&data,
                         field_photo,
                         photodiode_data[0]);
-    TEST_ASSERT(values[LUMI_INDEX] == photodiode_data[0]);
-    TEST_ASSERT(0 == data.timestamp_ms);
+    TEST_ASSERT (values[LUMI_INDEX] == photodiode_data[0]);
+    TEST_ASSERT (0 == data.timestamp_ms);
 }
 
-void test_ruuvi_driver_sensor_data_set_many_field_error(void)
+void test_ruuvi_driver_sensor_data_set_many_field_error (void)
 {
     float values[NUM_FIELDS] = {0};
     float zeroes[NUM_FIELDS] = {0};
@@ -588,10 +540,10 @@ void test_ruuvi_driver_sensor_data_set_many_field_error(void)
     rd_sensor_data_set (&data,
                         bme_photo_provided,
                         photodiode_data[0]);
-    TEST_ASSERT(!memcmp(values, zeroes, sizeof(values)));
+    TEST_ASSERT (!memcmp (values, zeroes, sizeof (values)));
 }
 
-void test_ruuvi_driver_sensor_data_set_no_field_error(void)
+void test_ruuvi_driver_sensor_data_set_no_field_error (void)
 {
     float values[NUM_FIELDS] = {0};
     float zeroes[NUM_FIELDS] = {0};
@@ -602,10 +554,10 @@ void test_ruuvi_driver_sensor_data_set_no_field_error(void)
     rd_sensor_data_set (&data,
                         no_fields,
                         photodiode_data[0]);
-    TEST_ASSERT(!memcmp(values, zeroes, sizeof(values)));
+    TEST_ASSERT (!memcmp (values, zeroes, sizeof (values)));
 }
 
-void test_ruuvi_driver_sensor_data_set_null(void)
+void test_ruuvi_driver_sensor_data_set_null (void)
 {
     float values[NUM_FIELDS] = {0};
     rd_sensor_data_t data = {0};
@@ -617,7 +569,7 @@ void test_ruuvi_driver_sensor_data_set_null(void)
     // Just verify NULL doesn't crash, no ASSERT required.
 }
 
-void test_ruuvi_driver_sensor_data_set_no_match(void)
+void test_ruuvi_driver_sensor_data_set_no_match (void)
 {
     float values[3] = {0};
     float zeroes[3] = {0};
@@ -627,5 +579,5 @@ void test_ruuvi_driver_sensor_data_set_no_match(void)
     rd_sensor_data_set (&bme_data,
                         field_photo,
                         photodiode_data[0]);
-    TEST_ASSERT(!memcmp(values, zeroes, sizeof(values)));
+    TEST_ASSERT (!memcmp (values, zeroes, sizeof (values)));
 }
