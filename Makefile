@@ -271,3 +271,5 @@ astyle:
 	astyle --project=".astylerc" --recursive \
 			  "src/*.h" \
 			  "src/*.c"
+			  "test/*.h" \
+			  "test/*.c"

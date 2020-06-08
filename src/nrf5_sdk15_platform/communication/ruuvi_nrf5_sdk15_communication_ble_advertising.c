@@ -698,12 +698,10 @@ rd_status_t ri_adv_scan_response_setup (const char * const name,
                                         const bool advertise_nus)
 {
     ret_code_t err_code = NRF_SUCCESS;
-    ble_advdata_t scanrsp = {0};
 
     if (NULL != name)
     {
         // Name will be read from the GAP data
-        scanrsp.name_type = BLE_ADVDATA_FULL_NAME;
         uint8_t len = strlen (name);
         err_code |= sd_ble_gap_device_name_set (&m_security, (uint8_t *) name, len);
     }

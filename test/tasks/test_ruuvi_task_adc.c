@@ -158,7 +158,7 @@ void test_rt_adc_sample_ok (void)
     test_rt_adc_configure_se_ok();
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
     ri_adc_mcu_mode_set_ExpectAndReturn (&mode,
-            RD_SUCCESS);
+                                         RD_SUCCESS);
     err_code = rt_adc_sample();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -252,7 +252,7 @@ void test_rt_adc_vdd_sample_ok (void)
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
     ri_adc_mcu_mode_set_ExpectAndReturn (&mode,
-            RD_SUCCESS);
+                                         RD_SUCCESS);
     ri_adc_mcu_data_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_mcu_data_get_ReturnArrayThruPtr_data (&m_adc_data, 1);
     rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
