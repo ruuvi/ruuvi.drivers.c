@@ -151,11 +151,21 @@ typedef struct
     unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
 } rd_sensor_data_bitfield_t;
 
-/** @brief Union to access sensor data */
-typedef union
+/**
+ * @brief Union to access sensor data.
+ *
+ * MISRA deviation: Use of union.
+ * Union is used here for fast operations on sensor data through field bitfield
+ * and to give a meaningful value to each bit through datas.
+ *
+ * C99 and onwards allow type punning, but this is not portable to C++.
+ * Run the integration tests on your platform.
+ *
+ */
+typedef union // -V2514
 {
-    uint32_t bitfield;
-    rd_sensor_data_bitfield_t datas;
+    uint32_t bitfield; //!< Bitfield used to access sensor data.
+    rd_sensor_data_bitfield_t datas; //!< Structured data field.
 } rd_sensor_data_fields_t;
 
 /**
