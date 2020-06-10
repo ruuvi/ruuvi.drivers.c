@@ -13,15 +13,6 @@
 static volatile ri_atomic_t m_true = true;
 static volatile ri_atomic_t m_false = false;
 
-static rd_sensor_t m_sensor_init =
-{
-    .mode_set = ri_adc_mcu_mode_set,
-    .configuration_set = rd_sensor_configuration_set,
-    .data_get = ri_adc_mcu_data_get
-};
-
-static rd_sensor_t m_sensor_uninit;
-
 static float m_valid_data[2] = {2.8F, 0.6F};
 static rd_sensor_data_t m_adc_data =
 {
@@ -37,6 +28,7 @@ void setUp (void)
     rd_status_t err_code = RD_SUCCESS;
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_true);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     err_code = rt_adc_init();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (rt_adc_is_init());
@@ -45,12 +37,13 @@ void setUp (void)
 void tearDown (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_adc_mcu_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
     err_code = rt_adc_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adc_is_init());
+
 }
 
 /**
@@ -61,19 +54,14 @@ void tearDown (void)
  */
 void test_rt_adc_init_ok (void)
 {
-    rd_status_t err_code = RD_SUCCESS;
     tearDown();
-    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
-    ri_atomic_flag_ReturnThruPtr_flag (&m_true);
-    err_code = rt_adc_init();
-    TEST_ASSERT (RD_SUCCESS == err_code);
-    TEST_ASSERT (rt_adc_is_init());
+    setUp();
 }
 
 void test_rt_adc_init_busy (void)
 {
-    rd_status_t err_code = RD_SUCCESS;
     tearDown();
+    rd_status_t err_code = RD_SUCCESS;
     ri_atomic_flag_ExpectAnyArgsAndReturn (false);
     err_code = rt_adc_init();
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
@@ -88,13 +76,7 @@ void test_rt_adc_init_busy (void)
  */
 void test_rt_adc_uninit_ok (void)
 {
-    rd_status_t err_code = RD_SUCCESS;
-    ri_adc_mcu_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
-    ri_atomic_flag_ReturnThruPtr_flag (&m_false);
-    err_code = rt_adc_uninit();
-    TEST_ASSERT (RD_SUCCESS == err_code);
-    TEST_ASSERT (!rt_adc_is_init());
+    tearDown();
 }
 
 /**
@@ -114,13 +96,20 @@ void test_rt_adc_uninit_ok (void)
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if ADC is not initialized or if it is already configured.
  */
+void test_rt_adc_configure_se_ratiometric_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_configuration_t config = {0};
+    err_code = rt_adc_configure_se (&config, RI_ADC_AINVDD, RATIOMETRIC);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
 void test_rt_adc_configure_se_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_configuration_t config = {0};
-    ri_adc_mcu_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_adc_mcu_init_ReturnArrayThruPtr_adc_sensor (&m_sensor_init, 1);
-    rd_sensor_configuration_set_ExpectAnyArgsAndReturn (RD_SUCCESS);
     err_code = rt_adc_configure_se (&config, RI_ADC_AINVDD, ABSOLUTE);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -157,8 +146,6 @@ void test_rt_adc_sample_ok (void)
     rd_status_t err_code = RD_SUCCESS;
     test_rt_adc_configure_se_ok();
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
-    ri_adc_mcu_mode_set_ExpectAndReturn (&mode,
-            RD_SUCCESS);
     err_code = rt_adc_sample();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -196,11 +183,13 @@ void test_rt_adc_voltage_get_ok (void)
     adc_data.data = data;
     adc_data.fields.datas.voltage_v = 1;
     test_rt_adc_sample_ok();
-    ri_adc_mcu_data_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_adc_mcu_data_get_ReturnArrayThruPtr_data (&m_adc_data, 1);
+    ri_adc_get_data_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target(&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn(0);
     err_code = rt_adc_voltage_get (&adc_data);
-    TEST_ASSERT (true == adc_data.valid.datas.voltage_v);
     TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (true == adc_data.valid.datas.voltage_v);
 }
 
 /**
@@ -219,9 +208,8 @@ void test_rt_adc_vdd_prepare_ok (void)
     tearDown();
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_true);
-    ri_adc_mcu_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_adc_mcu_init_ReturnArrayThruPtr_adc_sensor (&m_sensor_init, 1);
-    rd_sensor_configuration_set_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
     err_code = rt_adc_vdd_prepare (&config);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -233,6 +221,7 @@ void test_rt_adc_vdd_prepare_already_init (void)
     tearDown();
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_ERROR_INVALID_STATE);
     err_code = rt_adc_vdd_prepare (&config);
     TEST_ASSERT (RD_ERROR_BUSY == err_code);
 }
@@ -251,16 +240,17 @@ void test_rt_adc_vdd_sample_ok (void)
     test_rt_adc_vdd_prepare_ok();
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
-    ri_adc_mcu_mode_set_ExpectAndReturn (&mode,
-            RD_SUCCESS);
-    ri_adc_mcu_data_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_adc_mcu_data_get_ReturnArrayThruPtr_data (&m_adc_data, 1);
+    ri_adc_get_data_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target(&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn(0);
     rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
-    ri_adc_mcu_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
     err_code = rt_adc_vdd_sample();
     TEST_ASSERT (RD_SUCCESS == err_code);
+
 }
 
 void test_rt_adc_vdd_sample_not_prepared (void)
@@ -310,7 +300,33 @@ void test_rt_adc_vdd_get_not_sampled (void)
  * @retval RD_ERROR_INVALID_STATE if ADC is not initialized or configured.
  * @retval error code from stack on error.
  */
-void test_rt_adc_ratio_get (void)
+
+void test_rt_adc_ratio_get_ok (void)
 {
-    TEST_IGNORE_MESSAGE ("Implement");
+    rd_status_t err_code = RD_SUCCESS;
+    float data[2] = {0};
+    rd_sensor_data_t adc_data;
+    adc_data.data = data;
+    adc_data.fields.datas.voltage_v = 1;
+    test_rt_adc_init_ok();
+    test_rt_adc_configure_se_ratiometric_ok();
+    ri_adc_get_data_ratio_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target(&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn(0);
+    err_code = rt_adc_ratio_get (&adc_data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (true == adc_data.valid.datas.voltage_v);
+}
+
+void test_rt_adc_ratio_get_fail (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float data[2] = {0};
+    rd_sensor_data_t adc_data;
+    adc_data.data = data;
+    adc_data.fields.datas.voltage_v = 1;
+    test_rt_adc_sample_ok();
+    err_code = rt_adc_ratio_get (&adc_data);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
