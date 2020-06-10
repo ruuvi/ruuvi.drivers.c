@@ -22,12 +22,93 @@
 #include "ruuvi_interface_adc_mcu.h"
 #include "ruuvi_interface_atomic.h"
 
+#define RD_ADC_USE_CHANNEL      0
+#define RD_ADC_USE_DIVIDER      1.00f
+#define RD_ADC_USE_VDD          3.30f
+
+#define RD_ADC_DATA_COUNTER     1
+#define RD_ADC_DATA_START       0
+
+#define RD_ADC_DEFAULT_BITFIELD 0
+#define RD_ADC_CLEAN_BYTE       0
+#define RD_ADC_INIT_BYTE        0
+
 static ri_atomic_t m_is_init;
 static bool m_is_configured;
 static bool m_vdd_prepared;
 static bool m_vdd_sampled;
+static bool m_ratio;
 static float m_vdd;
-static rd_sensor_t m_adc; //!< ADC control instance
+
+
+static ri_adc_pins_config_t pins_config =
+{
+    .p_pin.channel = RI_ADC_AINVDD,
+#ifdef RI_ADC_ADV_CONFIG
+    .p_pin.resistor = RI_ADC_RESISTOR_DISABLED,
+#endif
+};
+
+static ri_adc_channel_config_t absolute_config =
+{
+    .mode = RI_ADC_MODE_SINGLE,
+    .vref = RI_ADC_VREF_INTERNAL,
+#ifdef RI_ADC_ADV_CONFIG
+    .gain = RI_ADC_GAIN1_6,
+    .acqtime = RI_ADC_ACQTIME_10US,
+#endif
+};
+
+static ri_adc_get_data_t options =
+{
+    .vdd = RD_ADC_USE_VDD,
+    .divider = RD_ADC_USE_DIVIDER,
+};
+
+static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
+                                        p_data)
+{
+    rd_status_t status = RD_ERROR_INVALID_STATE;
+
+    if (NULL == p_data)
+    {
+        status = RD_ERROR_NULL;
+    }
+    else
+    {
+        p_data->timestamp_ms = RD_UINT64_INVALID;
+        rd_sensor_data_t d_adc;
+        rd_sensor_data_fields_t adc_fields = {.bitfield = RD_ADC_DEFAULT_BITFIELD};
+        float adc_values[RD_ADC_DATA_COUNTER];
+
+        if (false == m_ratio)
+        {
+            status = ri_adc_get_data (RD_ADC_USE_CHANNEL,
+                                      &options,
+                                      &adc_values[RD_ADC_DATA_START]);
+        }
+        else
+        {
+            status = ri_adc_get_data_ratio (RD_ADC_USE_CHANNEL,
+                                            &options,
+                                            &adc_values[RD_ADC_DATA_START]);
+        }
+
+        if (RD_SUCCESS == status)
+        {
+            adc_fields.datas.voltage_v = RD_ADC_DATA_COUNTER;
+            d_adc.data = adc_values;
+            d_adc.valid  = adc_fields;
+            d_adc.fields = adc_fields;
+            rd_sensor_data_populate (p_data,
+                                     &d_adc,
+                                     p_data->fields);
+            p_data->timestamp_ms = rd_sensor_timestamp_get();
+        }
+    }
+
+    return RD_SUCCESS;
+}
 
 rd_status_t rt_adc_init (void)
 {
@@ -36,6 +117,10 @@ rd_status_t rt_adc_init (void)
     if (!ri_atomic_flag (&m_is_init, true))
     {
         err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        err_code |= ri_adc_init (NULL);
     }
 
     return err_code;
@@ -47,7 +132,8 @@ rd_status_t rt_adc_uninit (void)
     m_is_configured = false;
     m_vdd_prepared = false;
     m_vdd_sampled = false;
-    err_code |= ri_adc_mcu_uninit (&m_adc, RD_BUS_NONE, 0);
+    m_ratio = false;
+    err_code |= ri_adc_uninit (false);
 
     if (!ri_atomic_flag (&m_is_init, false))
     {
@@ -65,11 +151,11 @@ rd_status_t rt_adc_uninit (void)
  */
 inline bool rt_adc_is_init (void)
 {
-    return (0 != m_is_init);
+    return (RD_ADC_INIT_BYTE != m_is_init);
 }
 
-rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const
-                                 config, const uint8_t handle, const rt_adc_mode_t mode)
+rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
+                                 const uint8_t handle, const rt_adc_mode_t mode)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -79,16 +165,20 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const
     }
     else
     {
-        // TODO @ojousima: Support ratiometric
+        pins_config.p_pin.channel = handle;
+
         if (ABSOLUTE == mode)
         {
-            err_code |= ri_adc_mcu_init (&m_adc, RD_BUS_NONE, handle);
-            err_code |= m_adc.configuration_set (&m_adc, config);
+            m_ratio = false;
         }
         else
         {
-            err_code |= RD_ERROR_NOT_IMPLEMENTED;
+            m_ratio = true;
         }
+
+        err_code |= ri_adc_configure (RD_ADC_USE_CHANNEL,
+                                      &pins_config,
+                                      &absolute_config);
     }
 
     if (RD_SUCCESS == err_code)
@@ -103,14 +193,9 @@ rd_status_t rt_adc_sample (void)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (!rt_adc_is_init() || !m_is_configured || (NULL == m_adc.mode_set))
+    if (!rt_adc_is_init() || !m_is_configured)
     {
         err_code |= RD_ERROR_INVALID_STATE;
-    }
-    else
-    {
-        uint8_t mode = RD_SENSOR_CFG_SINGLE;
-        err_code |= m_adc.mode_set (&mode);
     }
 
     return err_code;
@@ -126,7 +211,14 @@ rd_status_t rt_adc_voltage_get (rd_sensor_data_t * const data)
     }
     else
     {
-        err_code |= m_adc.data_get (data);
+        if (true == m_ratio)
+        {
+            err_code |= RD_ERROR_INVALID_STATE;
+        }
+        else
+        {
+            err_code |= rt_adc_mcu_data_get (data);
+        }
     }
 
     return err_code;
@@ -134,7 +226,25 @@ rd_status_t rt_adc_voltage_get (rd_sensor_data_t * const data)
 
 rd_status_t rt_adc_ratio_get (rd_sensor_data_t * const data)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (!rt_adc_is_init() || !m_is_configured)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        if (false == m_ratio)
+        {
+            err_code |= RD_ERROR_INVALID_STATE;
+        }
+        else
+        {
+            err_code |= rt_adc_mcu_data_get (data);
+        }
+    }
+
+    return err_code;
 }
 
 rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_configuration)
@@ -158,11 +268,10 @@ rd_status_t rt_adc_vdd_sample (void)
     else
     {
         rd_sensor_data_t battery;
-        memset (&battery, 0, sizeof (rd_sensor_data_t));
+        memset (&battery, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
         float battery_values;
         battery.data = &battery_values;
-        battery.fields.datas.voltage_v = 1;
-        err_code |= rt_adc_sample();
+        battery.fields.datas.voltage_v = RD_ADC_DATA_COUNTER;
         err_code |= rt_adc_voltage_get (&battery);
         m_vdd = rd_sensor_data_parse (&battery, battery.fields);
         err_code |= rt_adc_uninit();
