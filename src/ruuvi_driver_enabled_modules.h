@@ -234,4 +234,22 @@ data payload length is the maximum length */
 #   define RI_SHTCX_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_ADC_PHOTO_ENABLED
+#   define RI_ADC_PHOTO_ENABLED      ENABLE_DEFAULT
+#   define RI_ADC_PHOTO_CHANNEL      1
+#   define RI_ADC_PHOTO_DIVIDER      1.00f
+#   define RI_ADC_PHOTO_VDD          3.60f
+#endif
+
+#ifndef RI_ADC_NTC_ENABLED
+#   define RI_ADC_NTC_ENABLED        ENABLE_DEFAULT
+#   define RI_ADC_NTC_CHANNEL        2
+#   define RI_ADC_NTC_DIVIDER        1.00f
+#   define RI_ADC_NTC_VDD            3.60f
+#   define RI_ADC_NTC_BALANCE        10000.00f
+#   define RI_ADC_NTC_DEFAULT_RES    10000.00f
+#   define RI_ADC_NTC_DEFAULT_TEMP   25.00f
+#   define RI_ADC_NTC_DEFAULT_BETS   3974.0f
+#endif
+
 #endif
