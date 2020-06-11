@@ -140,18 +140,21 @@ static inline nrf_saadc_input_t ruuvi_to_nrf_channel (const ri_adc_channel_t cha
 static inline nrf_saadc_reference_t ruuvi_to_nrf_vref (const ri_adc_vref_t vref)
 {
     nrf_saadc_reference_t nrfref = NRF_SAADC_REFERENCE_INTERNAL;
+
     switch (vref)
     {
-        case RI_ADC_VREF_EXTERNAL: 
-          nrfref = NRF_SAADC_REFERENCE_VDD4; //!< 1/4 VDD
-          break;
+        case RI_ADC_VREF_EXTERNAL:
+            nrfref = NRF_SAADC_REFERENCE_VDD4; //!< 1/4 VDD
+            break;
 
         case RI_ADC_VREF_INTERNAL:
-          // Intentional fallthrough
+
+        // Intentional fallthrough
         default:
-          nrfref = NRF_SAADC_REFERENCE_INTERNAL;
-          break;
+            nrfref = NRF_SAADC_REFERENCE_INTERNAL;
+            break;
     }
+
     return nrfref;
 }
 
@@ -220,17 +223,18 @@ static float raw_adc_to_volts (uint8_t channel_num,
         p_channel_configs[channel_num];
     uint16_t counts = 1 << nrf_to_bits_resolution (adc_config.resolution);
     float result;
-    // Only voltages referred to internal VREF are accurate. 
+
+    // Only voltages referred to internal VREF are accurate.
     if (RI_ADC_VREF_INTERNAL == p_ch_config->reference)
     {
         result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
                   pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
                   p_config->divider);
     }
-    // This relies on VDD accuracy and is at best indicative. 
+    // This relies on VDD accuracy and is at best indicative.
     else
     {
-        result = (p_config->vdd * ((float) (*adc) / (float) counts) // Raw ADC ref VDD
+        result = (p_config->vdd * ( (float) (*adc) / (float) counts) // Raw ADC ref VDD
                   * pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] // Prescaling
                   / ADC_REF_EXT_VDD_DIV // ADC ref prescaling
                   * p_config->divider); // External divider
@@ -250,7 +254,8 @@ static float raw_adc_to_ratio (uint8_t channel_num,
         p_channel_configs[channel_num];
     uint16_t counts = 1 << nrf_to_bits_resolution (adc_config.resolution);
     float result;
-    // This relies on VDD accuracy and is at best indicative.  
+
+    // This relies on VDD accuracy and is at best indicative.
     if (RI_ADC_VREF_INTERNAL == p_ch_config->reference)
     {
         // Absolute voltage
@@ -263,7 +268,7 @@ static float raw_adc_to_ratio (uint8_t channel_num,
     // Measurement referred to VDD.
     else
     {
-        result = ((float) (*adc) / (float) counts);
+        result = ( (float) (*adc) / (float) counts);
     }
 
     return result;
@@ -418,16 +423,18 @@ rd_status_t ri_adc_configure (uint8_t channel_num,
 #ifdef RI_ADC_ADV_CONFIG
                 ch_config.acq_time = ruuvi_to_nrf_acqtime (p_config->acqtime);
 #else
+
                 // Use 1/6 gain for internal reference and 1/4 gain for external reference.
                 // This allows ADC to use maximum non-saturated scale.
-                if(NRF_SAADC_REFERENCE_INTERNAL == ch_config.reference)
+                if (NRF_SAADC_REFERENCE_INTERNAL == ch_config.reference)
                 {
-                  p_config->gain = RI_ADC_GAIN1_6;
+                    p_config->gain = RI_ADC_GAIN1_6;
                 }
                 else
                 {
-                  p_config->gain = RI_ADC_GAIN1_4;
+                    p_config->gain = RI_ADC_GAIN1_4;
                 }
+
 #endif
                 ch_config.gain = ruuvi_to_nrf_gain (p_config->gain);
                 memcpy (&channel_configs[ channel_num],
@@ -481,8 +488,8 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
 }
 
 rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
-                             ri_adc_get_data_t * p_config,
-                             float * p_data)
+                                      ri_adc_get_data_t * p_config,
+                                      float * p_data)
 {
     rd_status_t status = RD_ERROR_INVALID_STATE;
 
@@ -515,6 +522,7 @@ rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
             }
         }
     }
+
     return status;
 }
 
@@ -553,6 +561,7 @@ rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
             }
         }
     }
+
     return status;
 }
 

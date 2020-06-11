@@ -90,9 +90,9 @@ static rd_status_t get_data (void)
     float volts;
     m_tsample = rd_sensor_timestamp_get();
 
-    if (RD_SUCCESS == ri_adc_get_data_absolute(ADC_PHOTO_USE_CHANNEL,
-                                               &adc_photo_options,
-                                               &volts))
+    if (RD_SUCCESS == ri_adc_get_data_absolute (ADC_PHOTO_USE_CHANNEL,
+            &adc_photo_options,
+            &volts))
     {
         m_luminosity = volts_to_lux (&volts);
     }

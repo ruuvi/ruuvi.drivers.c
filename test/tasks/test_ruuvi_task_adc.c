@@ -43,7 +43,6 @@ void tearDown (void)
     err_code = rt_adc_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_adc_is_init());
-
 }
 
 /**
@@ -185,8 +184,8 @@ void test_rt_adc_voltage_get_ok (void)
     test_rt_adc_sample_ok();
     ri_adc_get_data_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
-    rd_sensor_data_populate_ReturnThruPtr_target(&m_adc_data);
-    rd_sensor_timestamp_get_IgnoreAndReturn(0);
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
     err_code = rt_adc_voltage_get (&adc_data);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (true == adc_data.valid.datas.voltage_v);
@@ -242,15 +241,14 @@ void test_rt_adc_vdd_sample_ok (void)
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
     ri_adc_get_data_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
-    rd_sensor_data_populate_ReturnThruPtr_target(&m_adc_data);
-    rd_sensor_timestamp_get_IgnoreAndReturn(0);
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
     rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
     ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
     err_code = rt_adc_vdd_sample();
     TEST_ASSERT (RD_SUCCESS == err_code);
-
 }
 
 void test_rt_adc_vdd_sample_not_prepared (void)
@@ -312,8 +310,8 @@ void test_rt_adc_ratio_get_ok (void)
     test_rt_adc_configure_se_ratiometric_ok();
     ri_adc_get_data_ratio_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
-    rd_sensor_data_populate_ReturnThruPtr_target(&m_adc_data);
-    rd_sensor_timestamp_get_IgnoreAndReturn(0);
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
     err_code = rt_adc_ratio_get (&adc_data);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (true == adc_data.valid.datas.voltage_v);

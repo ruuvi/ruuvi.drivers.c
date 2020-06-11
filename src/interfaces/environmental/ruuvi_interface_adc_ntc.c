@@ -125,17 +125,19 @@ static float ratio_to_temperature (const float * const ratio)
     float Rt;
     float Rb = (float)   ADC_NTC_BALANCE;        //!< Fixed divider resistance
     float beta = (float) ADC_NTC_DEFAULT_BETA;   //!< Beta of NTC
-    float T0 = (float)   ADC_NTC_DEFAULT_TEMP_K; //!< Calibration temp of NTC. 
+    float T0 = (float)   ADC_NTC_DEFAULT_TEMP_K; //!< Calibration temp of NTC.
     float R0 = (float)   RI_ADC_NTC_DEFAULT_RES; //!< Calibration resistance of NTC.
-    if((NULL != ratio) && (*ratio >= 0.0F) && (*ratio <= 1.0F))
+
+    if ( (NULL != ratio) && (*ratio >= 0.0F) && (*ratio <= 1.0F))
     {
         // Calculate NTC resistance.
         Rt = (Rb * *ratio) / (1.0F - *ratio);
         // 1/T = 1/T0 + 1/B * ln(R/R0)
-        result = 1.0F / ((1/T0) + ((1/beta) * log(Rt/R0)));
+        result = 1.0F / ( (1 / T0) + ( (1 / beta) * log (Rt / R0)));
         // Convert K->C
         result -= ADC_K_TO_C_CONST;
     }
+
     return result;
 }
 
@@ -146,8 +148,8 @@ static rd_status_t get_data (void)
     m_tsample = rd_sensor_timestamp_get();
 
     if (RD_SUCCESS == ri_adc_get_data_ratio (ADC_NTC_USE_CHANNEL,
-                                             &adc_ntc_options,
-                                             &ratio))
+            &adc_ntc_options,
+            &ratio))
     {
         //m_temperture = volts_to_temperature (&volts);
         m_temperture = ratio_to_temperature (&ratio);

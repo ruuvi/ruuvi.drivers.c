@@ -83,9 +83,9 @@ static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
 
         if (false == m_ratio)
         {
-            status = ri_adc_get_data_absolute(RD_ADC_USE_CHANNEL,
-                                              &options,
-                                              &adc_values[RD_ADC_DATA_START]);
+            status = ri_adc_get_data_absolute (RD_ADC_USE_CHANNEL,
+                                               &options,
+                                               &adc_values[RD_ADC_DATA_START]);
         }
         else
         {
