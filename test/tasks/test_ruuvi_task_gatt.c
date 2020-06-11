@@ -404,7 +404,7 @@ void test_rt_gatt_send_asynchronous_null()
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
     rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
-                          NULL, 0);
+                        NULL, 0);
     err_code = rt_gatt_send_asynchronous (NULL);
     TEST_ASSERT (0 == send_count);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
@@ -428,7 +428,7 @@ void test_rt_gatt_send_asynchronous_no_mem()
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
     rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
-                          NULL, 0);
+                        NULL, 0);
 
     for (uint32_t ii = 0; ii <= SEND_COUNT_MAX; ii++)
     {
@@ -446,7 +446,7 @@ void test_rt_gatt_send_asynchronous_unknown_error()
     msg.data_length = 11;
     test_rt_gatt_nus_init_ok();
     rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
-                          NULL, 0);
+                        NULL, 0);
 
     for (uint32_t ii = 0; ii < SEND_COUNT_MAX; ii++)
     {
@@ -465,13 +465,13 @@ void test_rt_gatt_callbacks_ok()
     rt_gatt_set_on_connected_isr (on_con_isr);
     rt_gatt_set_on_disconn_isr (on_discon_isr);
     rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
-                          NULL, 0);
+                        NULL, 0);
     rt_gatt_on_nus_isr (RI_COMM_DISCONNECTED,
-                          NULL, 0);
+                        NULL, 0);
     rt_gatt_on_nus_isr (RI_COMM_SENT,
-                          NULL, 0);
+                        NULL, 0);
     rt_gatt_on_nus_isr (RI_COMM_RECEIVED,
-                          NULL, 0);
+                        NULL, 0);
     TEST_ASSERT (m_rx_cb);
     TEST_ASSERT (m_tx_cb);
     TEST_ASSERT (m_con_cb);
@@ -481,13 +481,13 @@ void test_rt_gatt_callbacks_null()
 {
     test_rt_gatt_nus_init_ok();
     rt_gatt_on_nus_isr (RI_COMM_CONNECTED,
-                          NULL, 0);
+                        NULL, 0);
     rt_gatt_on_nus_isr (RI_COMM_DISCONNECTED,
-                          NULL, 0);
+                        NULL, 0);
     rt_gatt_on_nus_isr (RI_COMM_SENT,
-                          NULL, 0);
+                        NULL, 0);
     rt_gatt_on_nus_isr (RI_COMM_RECEIVED,
-                          NULL, 0);
+                        NULL, 0);
     TEST_ASSERT_FALSE (m_rx_cb);
     TEST_ASSERT_FALSE (m_tx_cb);
     TEST_ASSERT_FALSE (m_con_cb);

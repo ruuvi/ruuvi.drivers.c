@@ -340,10 +340,10 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
         d_environmental.data = env_values;
         d_environmental.valid  = env_fields;
         d_environmental.fields = env_fields;
+        d_environmental.timestamp_ms = m_tsample;
         rd_sensor_data_populate (p_data,
                                  &d_environmental,
                                  p_data->fields);
-        p_data->timestamp_ms = m_tsample;
     }
 
     return err_code;

@@ -7,6 +7,7 @@
 #include "ruuvi_interface_communication_nfc.h" //!< Check if NRF_NFC is required
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_gpio_interrupt.h"    //!< Check if NRFX GPIOTE is required
+#include "ruuvi_interface_gpio_pwm.h"
 #include "ruuvi_interface_flash.h"             //!< Check if FDS is required
 #include "ruuvi_interface_i2c.h"               //!< Check if TWI is required.
 #include "ruuvi_interface_log.h"               //!< Check if NRF_LOG is required
@@ -99,6 +100,7 @@
 
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED
 #   define GPIOTE_ENABLED 1
+#   define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS RT_GPIO_INT_TABLE_SIZE
 #endif
 
 #if RUUVI_NRF5_SDK15_ADC_ENABLED
@@ -107,6 +109,23 @@
 #   define SAADC_CONFIG_OVERSAMPLE 0
 #   define SAADC_CONFIG_LP_MODE 0
 #   define SAADC_CONFIG_IRQ_PRIORITY 7
+#endif
+
+#if RUUVI_NRF5_SDK15_GPIO_PWM_ENABLED
+#define PWM_ENABLED  1
+#define PWM0_ENABLED 1
+#define PWM1_ENABLED 0
+#define PWM2_ENABLED 0
+#define PWM_DEFAULT_CONFIG_OUT0_PIN 255
+#define PWM_DEFAULT_CONFIG_OUT1_PIN 255
+#define PWM_DEFAULT_CONFIG_OUT2_PIN 255
+#define PWM_DEFAULT_CONFIG_OUT3_PIN 255
+#define PWM_DEFAULT_CONFIG_IRQ_PRIORITY 6
+#define PWM_DEFAULT_CONFIG_BASE_CLOCK 0
+#define PWM_DEFAULT_CONFIG_COUNT_MODE 0
+#define PWM_DEFAULT_CONFIG_TOP_VALUE 1000
+#define PWM_DEFAULT_CONFIG_LOAD_MODE 2
+#define PWM_DEFAULT_CONFIG_STEP_MODE 0
 #endif
 
 #if RUUVI_NRF5_SDK15_FLASH_ENABLED
@@ -178,20 +197,29 @@
 
 #if RUUVI_NRF5_SDK15_UART_ENABLED
 #   define NRF_SERIAL_ENABLED 1
-#   define NRFX_UARTE_ENABLED 1
-#   define NRFX_UARTE0_ENABLED 1
 #   ifdef NRF52811_XXAA
-#       define NRFX_UART_ENABLED 0
-#       define NRFX_UART0_ENABLED 0
-#   endif
-#   ifdef NRF52832_XXAA
+#       define NRFX_UARTE_ENABLED 1
+#       define NRFX_UARTE0_ENABLED 1
 #       define NRFX_UART_ENABLED 1
 #       define NRFX_UART0_ENABLED 1
+#       define UART0_CONFIG_USE_EASY_DMA 1
+#       define NRFX_PRS_ENABLED 1
+#       define NRFX_PRS_BOX_2_ENABLED 1
+#   endif
+#   ifdef NRF52832_XXAA
+#       // Serial module requires UART + UARTE
+#       define NRFX_UARTE_ENABLED 1
+#       define NRFX_UARTE0_ENABLED 1
+#       define NRFX_UART_ENABLED 1
+#       define NRFX_UART0_ENABLED 1
+#       define UART0_CONFIG_USE_EASY_DMA 1
+#       // PRS module allows UART + UARTE co-existence.
+#       define NRFX_PRS_ENABLED 1
+#       define NRFX_PRS_BOX_4_ENABLED 1
 #   endif
 #   define UART_EASY_DMA_SUPPORT 1
 #   define UART_LEGACY_SUPPORT 1
 #   define UART0_ENABLED 1
-#   define UART0_CONFIG_USE_EASY_DMA 1
 #endif
 
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED

@@ -367,7 +367,7 @@ static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
     uint64_t test_end = 0;
     printfp ("\"scan\":");
     err_code |= ri_rtc_init();
-    err_code |= ri_radio_init (RI_RADIO_BLE_1MBPS);
+    err_code |= ri_radio_init (modulation);
     err_code |= ri_adv_init (&m_channel);
     m_channel.on_evt = ble_isr;
     m_timeout = false;
@@ -377,7 +377,7 @@ static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
                                    RI_TEST_ADV_SCAN_WINDOW);
 
     while (!m_timeout
-            && (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) > (ri_rtc_millis() -
+            && ( (RI_TEST_ADV_SCAN_CH_NUM + 1) * RI_TEST_ADV_SCAN_INTERVAL) > (ri_rtc_millis() -
                     test_start))
     {
         // Sleep - woken up on event
@@ -387,12 +387,23 @@ static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
     }
 
     test_end = ri_rtc_millis();
+    const uint32_t test_min_ms = (RI_TEST_ADV_SCAN_CH_NUM - 1U) * RI_TEST_ADV_SCAN_INTERVAL;
+    const uint32_t test_max_ms = (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) + 5U;
+    const uint32_t test_time_ms = (test_end - test_start);
 
-    if ( (RI_TEST_ADV_SCAN_CH_NUM * RI_TEST_ADV_SCAN_INTERVAL) < (test_end - test_start)
-            || ( (RI_TEST_ADV_SCAN_CH_NUM - 1) * RI_TEST_ADV_SCAN_INTERVAL + RI_TEST_ADV_SCAN_WINDOW)
-            > (test_end - test_start)
+    // Fail if:
+    //   * Scanned less than (number of channels - 1) * interval + 1 scan window
+    //        - can timeout immediately after last scan window, not waiting for interval.
+    //   * Scanned more than number if intervals + 1 scan window. Must finish asap, but
+    //     allow a little margin.
+    //   * Error code was returned.
+    //   * No advertisements were seen.
+    //   * Advertising didn't timeout at all.
+    if ( (test_min_ms > test_time_ms)
+            || (test_max_ms < test_time_ms)
             || (RD_SUCCESS != err_code)
-            || !m_has_received)
+            || (!m_has_received)
+            || (!m_timeout))
     {
         status = true;
     }

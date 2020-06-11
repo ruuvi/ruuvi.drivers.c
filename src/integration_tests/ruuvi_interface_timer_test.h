@@ -4,7 +4,7 @@
  * @addtogroup timer
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_scheduler_test.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -29,5 +29,5 @@
  */
 bool ri_timer_integration_test_run (const rd_test_print_fp printfp);
 
-/* @} */
+/** @} */
 #endif

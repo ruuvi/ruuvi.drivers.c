@@ -100,12 +100,12 @@ void setUp (void)
     ri_log_hex_Ignore();
     ri_error_to_string_IgnoreAndReturn (RD_SUCCESS);
     mock_init (&m_mock_nfc);
-    strcpy(m_dis.fw_version, "CeedlingFW");
-    strcpy(m_dis.model, "Ceedlingmodel");
-    strcpy(m_dis.hw_version, "Ceedlinghw_version");
-    strcpy(m_dis.manufacturer, "Ceedlingmanufacturer");
-    strcpy(m_dis.deviceid, "Ceedlingdeviceid");
-    strcpy(m_dis.deviceaddr, "Ceedlingdeviceaddr");
+    strcpy (m_dis.fw_version, "CeedlingFW");
+    strcpy (m_dis.model, "Ceedlingmodel");
+    strcpy (m_dis.hw_version, "Ceedlinghw_version");
+    strcpy (m_dis.manufacturer, "Ceedlingmanufacturer");
+    strcpy (m_dis.deviceid, "Ceedlingdeviceid");
+    strcpy (m_dis.deviceaddr, "Ceedlingdeviceaddr");
 }
 
 void tearDown (void)
@@ -117,8 +117,8 @@ void tearDown (void)
     m_discon_cb = false;
     m_tx_cb = false;
     m_rx_cb = false;
-    memset(&m_dis, 0, sizeof(m_dis));
-    ri_nfc_uninit_ExpectAnyArgsAndReturn(RD_SUCCESS);
+    memset (&m_dis, 0, sizeof (m_dis));
+    ri_nfc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rt_nfc_uninit();
     rt_nfc_set_on_received_isr (NULL);
     rt_nfc_set_on_sent_isr (NULL);
@@ -143,10 +143,10 @@ void tearDown (void)
 void test_rt_nfc_init_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_nfc_fw_version_set_IgnoreAndReturn(RD_SUCCESS);
-    ri_nfc_address_set_IgnoreAndReturn(RD_SUCCESS);
-    ri_nfc_id_set_IgnoreAndReturn(RD_SUCCESS);
-    ri_nfc_init_ExpectAnyArgsAndReturn(RD_SUCCESS);
+    ri_nfc_fw_version_set_IgnoreAndReturn (RD_SUCCESS);
+    ri_nfc_address_set_IgnoreAndReturn (RD_SUCCESS);
+    ri_nfc_id_set_IgnoreAndReturn (RD_SUCCESS);
+    ri_nfc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_nfc_init_ReturnArrayThruPtr_channel (&m_mock_nfc, 1);
     err_code |= rt_nfc_init (&m_dis);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -156,10 +156,10 @@ void test_rt_nfc_init_ok (void)
 void test_rt_nfc_init_twice (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_nfc_fw_version_set_IgnoreAndReturn(RD_SUCCESS);
-    ri_nfc_address_set_IgnoreAndReturn(RD_SUCCESS);
-    ri_nfc_id_set_IgnoreAndReturn(RD_SUCCESS);
-    ri_nfc_init_ExpectAnyArgsAndReturn(RD_SUCCESS);
+    ri_nfc_fw_version_set_IgnoreAndReturn (RD_SUCCESS);
+    ri_nfc_address_set_IgnoreAndReturn (RD_SUCCESS);
+    ri_nfc_id_set_IgnoreAndReturn (RD_SUCCESS);
+    ri_nfc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_nfc_init_ReturnArrayThruPtr_channel (&m_mock_nfc, 1);
     err_code |= rt_nfc_init (&m_dis);
     err_code |= rt_nfc_init (&m_dis);
@@ -173,132 +173,144 @@ void test_rt_nfc_init_null (void)
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
 
-void test_sw_set_ok(void)
+void test_sw_set_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_nfc_fw_version_set_ExpectAndReturn ((uint8_t *)"SW: CeedlingFW", 
+    ri_nfc_fw_version_set_ExpectAndReturn ( (uint8_t *) "SW: CeedlingFW",
                                             strlen ("SW: CeedlingFW"), RD_SUCCESS);
     err_code |= sw_set ("CeedlingFW");
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_sw_set_max_len(void)
+void test_sw_set_max_len (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     char version_string[RI_COMM_DIS_STRLEN] = { 0 };
     char expected_string[RI_COMM_DIS_STRLEN] = "SW: ";
-    for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN - sizeof("SW: "); ii++)
+
+    for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN - sizeof ("SW: "); ii++)
     {
         version_string[ii] = 'A';
-        expected_string[ii + strlen("SW: ")] = 'A';
+        expected_string[ii + strlen ("SW: ")] = 'A';
     }
-    ri_nfc_fw_version_set_ExpectAndReturn ((uint8_t *)expected_string, 
+
+    ri_nfc_fw_version_set_ExpectAndReturn ( (uint8_t *) expected_string,
                                             strlen (expected_string), RD_SUCCESS);
     err_code |= sw_set (version_string);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_sw_set_too_long(void)
+void test_sw_set_too_long (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t version_string[RI_COMM_DIS_STRLEN] = {0};
+
     for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN; ii++)
     {
         version_string[ii] = 'A';
     }
-    err_code |= sw_set ((char *)version_string);
+
+    err_code |= sw_set ( (char *) version_string);
     TEST_ASSERT (RD_ERROR_INVALID_LENGTH == err_code);
 }
 
-void test_sw_set_null(void)
+void test_sw_set_null (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= sw_set (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
 
-void test_mac_set_ok(void)
+void test_mac_set_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_nfc_address_set_ExpectAndReturn ((uint8_t *)"MAC: AA:BB:CC:DD:EE:FF", 
-                                            strlen ("MAC: AA:BB:CC:DD:EE:FF"), RD_SUCCESS);
+    ri_nfc_address_set_ExpectAndReturn ( (uint8_t *) "MAC: AA:BB:CC:DD:EE:FF",
+                                         strlen ("MAC: AA:BB:CC:DD:EE:FF"), RD_SUCCESS);
     err_code |= mac_set ("AA:BB:CC:DD:EE:FF");
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_mac_set_max_len(void)
+void test_mac_set_max_len (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     char version_string[RI_COMM_DIS_STRLEN] = {0};
     char expected_string[RI_COMM_DIS_STRLEN] = "MAC: ";
-    for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN - sizeof("MAC: "); ii++)
+
+    for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN - sizeof ("MAC: "); ii++)
     {
         version_string[ii] = 'A';
-        expected_string[ii + strlen("MAC: ")] = 'A';
+        expected_string[ii + strlen ("MAC: ")] = 'A';
     }
-    ri_nfc_address_set_ExpectAndReturn ((uint8_t *)expected_string, 
-                                            strlen (expected_string), RD_SUCCESS);
+
+    ri_nfc_address_set_ExpectAndReturn ( (uint8_t *) expected_string,
+                                         strlen (expected_string), RD_SUCCESS);
     err_code |= mac_set (version_string);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_mac_set_too_long(void)
+void test_mac_set_too_long (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t version_string[RI_COMM_DIS_STRLEN] = {0};
+
     for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN; ii++)
     {
         version_string[ii] = 'A';
     }
-    err_code |= mac_set ((char *)version_string);
+
+    err_code |= mac_set ( (char *) version_string);
     TEST_ASSERT (RD_ERROR_INVALID_LENGTH == err_code);
 }
 
-void test_mac_set_null(void)
+void test_mac_set_null (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= mac_set (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
 
-void test_id_set_ok(void)
+void test_id_set_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_nfc_id_set_ExpectAndReturn ((uint8_t *)"ID: AA:BB:CC:DD:EE:FF:11:22", 
-                                            strlen ("ID: AA:BB:CC:DD:EE:FF:11:22"), RD_SUCCESS);
+    ri_nfc_id_set_ExpectAndReturn ( (uint8_t *) "ID: AA:BB:CC:DD:EE:FF:11:22",
+                                    strlen ("ID: AA:BB:CC:DD:EE:FF:11:22"), RD_SUCCESS);
     err_code |= id_set ("AA:BB:CC:DD:EE:FF:11:22");
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_id_set_max_len(void)
+void test_id_set_max_len (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     char version_string[RI_COMM_DIS_STRLEN] = { 0 };;
     char expected_string[RI_COMM_DIS_STRLEN] = "ID: ";
-    for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN - sizeof("ID: "); ii++)
+
+    for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN - sizeof ("ID: "); ii++)
     {
         version_string[ii] = 'A';
-        expected_string[ii + strlen("ID: ")] = 'A';
+        expected_string[ii + strlen ("ID: ")] = 'A';
     }
-    ri_nfc_id_set_ExpectAndReturn ((uint8_t *)expected_string, 
-                                            strlen (expected_string), RD_SUCCESS);
+
+    ri_nfc_id_set_ExpectAndReturn ( (uint8_t *) expected_string,
+                                    strlen (expected_string), RD_SUCCESS);
     err_code |= id_set (version_string);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_id_set_too_long(void)
+void test_id_set_too_long (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t version_string[RI_COMM_DIS_STRLEN] = { 0 };;
+
     for (size_t ii = 0; ii < RI_COMM_DIS_STRLEN; ii++)
     {
         version_string[ii] = 'A';
     }
-    err_code |= id_set ((char *)version_string);
+
+    err_code |= id_set ( (char *) version_string);
     TEST_ASSERT (RD_ERROR_INVALID_LENGTH == err_code);
 }
 
-void test_id_set_null(void)
+void test_id_set_null (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= id_set (NULL);
@@ -327,7 +339,7 @@ void test_rt_nfc_send_asynchronous_ok()
     test_rt_nfc_init_ok();
     err_code = rt_nfc_send (&msg);
     // init sends once.
-    TEST_ASSERT(2 == send_count);
+    TEST_ASSERT (2 == send_count);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 

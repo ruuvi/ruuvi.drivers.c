@@ -594,21 +594,51 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
                                const uint32_t window_size_ms)
 {
     ret_code_t status = NRF_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     nrf_ble_scan_init_t scan_init_params = {0};
     ble_gap_scan_params_t scan_params = {0};
+    uint8_t scan_phys = ruuvi_nrf5_sdk15_radio_phy_get();
     scan_params.active = 0; // Do not scan for scan responses
     ruuvi_nrf5_sdk15_radio_channels_set (scan_params.channel_mask, m_radio_channels);
-    scan_params.extended = RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED;
-    scan_params.interval = MSEC_TO_UNITS (window_interval_ms, UNIT_0_625_MS);
-    scan_params.report_incomplete_evts = 0;
-    scan_params.scan_phys = ruuvi_nrf5_sdk15_radio_phy_get();
-    scan_params.window =  MSEC_TO_UNITS (window_size_ms, UNIT_0_625_MS);
-    scan_init_params.p_scan_param = &scan_params;
-    status |= nrf_ble_scan_init (&m_scan,           // Scan control structure
-                                 &scan_init_params, // Default params for NULL values.
-                                 on_advertisement); // Callback on data
-    status |= nrf_ble_scan_start (&m_scan);
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (status);
+
+    // Other than 1 MBit / s require extended advertising.
+    if (BLE_GAP_PHY_1MBPS == scan_phys)
+    {
+        scan_params.extended = 0;
+    }
+    else if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
+    {
+        scan_params.extended = 1;
+
+        // 2MBit/s not allowed on primary channel,
+        // extended advertisement on secondary channel is automatically
+        // scanned with all supported PHYs.
+        if (BLE_GAP_PHY_2MBPS == scan_phys)
+        {
+            scan_phys = BLE_GAP_PHY_1MBPS;
+        }
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        scan_params.interval = MSEC_TO_UNITS (window_interval_ms, UNIT_0_625_MS);
+        scan_params.report_incomplete_evts = 0;
+        scan_params.scan_phys = scan_phys;
+        scan_params.window =  MSEC_TO_UNITS (window_size_ms, UNIT_0_625_MS);
+        scan_params.timeout = ri_radio_num_channels_get (m_radio_channels) *
+                              MSEC_TO_UNITS (window_interval_ms, UNIT_10_MS);
+        scan_init_params.p_scan_param = &scan_params;
+        status |= nrf_ble_scan_init (&m_scan,           // Scan control structure
+                                     &scan_init_params, // Default params for NULL values.
+                                     on_advertisement); // Callback on data
+        status |= nrf_ble_scan_start (&m_scan);
+    }
+
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (status) | err_code;
 }
 
 rd_status_t ri_adv_scan_stop (void)
@@ -616,6 +646,7 @@ rd_status_t ri_adv_scan_stop (void)
     nrf_ble_scan_stop();
     return RD_SUCCESS;
 }
+
 rd_status_t ri_adv_tx_power_set (int8_t * dbm)
 {
     ret_code_t err_code = NRF_SUCCESS;
@@ -667,12 +698,10 @@ rd_status_t ri_adv_scan_response_setup (const char * const name,
                                         const bool advertise_nus)
 {
     ret_code_t err_code = NRF_SUCCESS;
-    ble_advdata_t scanrsp = {0};
 
     if (NULL != name)
     {
         // Name will be read from the GAP data
-        scanrsp.name_type = BLE_ADVDATA_FULL_NAME;
         uint8_t len = strlen (name);
         err_code |= sd_ble_gap_device_name_set (&m_security, (uint8_t *) name, len);
     }
