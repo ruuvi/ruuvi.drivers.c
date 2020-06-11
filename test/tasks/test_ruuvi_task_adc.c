@@ -182,7 +182,7 @@ void test_rt_adc_voltage_get_ok (void)
     adc_data.data = data;
     adc_data.fields.datas.voltage_v = 1;
     test_rt_adc_sample_ok();
-    ri_adc_get_data_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
     rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
     rd_sensor_timestamp_get_IgnoreAndReturn (0);
@@ -239,7 +239,7 @@ void test_rt_adc_vdd_sample_ok (void)
     test_rt_adc_vdd_prepare_ok();
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
-    ri_adc_get_data_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
     rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
     rd_sensor_timestamp_get_IgnoreAndReturn (0);
