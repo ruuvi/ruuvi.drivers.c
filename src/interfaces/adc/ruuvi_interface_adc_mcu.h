@@ -232,16 +232,15 @@ rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
                                       float * p_data);
 
 /**
-/**
-* @brief Get ADC data in volts.
-*
-* @param[in] channel_num ADC channel.
-* @param[in] p_config ADC output config.
-* @param[out] p_data ADC data as a ratio to VDD.
-* @retval RD_SUCCESS on success.
-* @retval RD_ERROR_INVALID_PARAM if input incorrect.
-* @return RD_ERROR_NULL if either parameter is NULL.
-*/
+ * @brief Get ADC data in volts.
+ *
+ * @param[in] channel_num ADC channel.
+ * @param[in] p_config ADC output config.
+ * @param[out] p_data ADC data as a ratio to VDD.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_PARAM if input incorrect.
+ * @return RD_ERROR_NULL if either parameter is NULL.
+ */
 rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
                                    ri_adc_get_data_t * p_config,
                                    float * p_data);
