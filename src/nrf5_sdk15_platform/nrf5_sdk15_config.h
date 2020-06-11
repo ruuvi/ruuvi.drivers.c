@@ -19,6 +19,7 @@
 #include "ruuvi_interface_communication_uart.h"//!< Check if Serial is required
 #include "ruuvi_interface_watchdog.h"          //!< Check if WDT is required
 #include "ruuvi_interface_yield.h"             //!< Check if NRF_PWR_MGMT is required
+#include "ruuvi_interface_adc_mcu.h"           //!< Check if NRF_SAADC is required
 
 #if (!NRF5_SDK15_CONFIGURED)
 #        warning "NRF5 SDK15 is not configured, using defaults."
@@ -100,7 +101,14 @@
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED
 #   define GPIOTE_ENABLED 1
 #   define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS RT_GPIO_INT_TABLE_SIZE
-#   define DUMMY_DEFINE "dummy value" //!< TODO: Add any defines required by SDK here.
+#endif
+
+#if RUUVI_NRF5_SDK15_ADC_ENABLED
+#   define SAADC_ENABLED 1
+#   define SAADC_CONFIG_RESOLUTION 1
+#   define SAADC_CONFIG_OVERSAMPLE 0
+#   define SAADC_CONFIG_LP_MODE 0
+#   define SAADC_CONFIG_IRQ_PRIORITY 7
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_PWM_ENABLED
