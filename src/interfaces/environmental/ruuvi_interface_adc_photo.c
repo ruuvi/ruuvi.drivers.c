@@ -77,7 +77,7 @@ static bool m_is_init;               //!< Flag, is sensor init.
 static const char m_sensor_name[] = "PHOTO"; //!< Human-readable name of the sensor.
 
 
-static float volts_to_lux (float * data)
+static float volts_to_lux (const float * const data)
 {
     float result;
     result = (float) (ADC_PHOTO_VOLTS_TO_LUX) * (*data);
@@ -298,11 +298,11 @@ rd_status_t ri_adc_photo_uninit (rd_sensor_t * sensor,
 
 rd_status_t ri_adc_photo_mode_set (uint8_t * mode)
 {
-    rd_status_t err_code = RD_ERROR_INVALID_STATE;
+    rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == mode)
     {
-        err_code = RD_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
     else
     {
@@ -311,10 +311,9 @@ rd_status_t ri_adc_photo_mode_set (uint8_t * mode)
         {
             m_autorefresh = false;
             (*mode) = RD_SENSOR_CFG_SLEEP;
-            err_code = RD_SUCCESS;
         }
 
-        if (RD_SENSOR_CFG_SINGLE == *mode)
+        else if (RD_SENSOR_CFG_SINGLE == *mode)
         {
             uint8_t current_mode;
             ri_adc_photo_mode_get (&current_mode);
@@ -322,21 +321,25 @@ rd_status_t ri_adc_photo_mode_set (uint8_t * mode)
             if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
             {
                 (*mode) = RD_SENSOR_CFG_CONTINUOUS;
-                err_code = RD_ERROR_INVALID_STATE;
+                err_code |= RD_ERROR_INVALID_STATE;
             }
             else
             {
                 m_autorefresh = false;
                 (*mode) = RD_SENSOR_CFG_SLEEP;
-                err_code = get_data();
+                err_code |= get_data();
             }
         }
 
-        if (RD_SENSOR_CFG_CONTINUOUS == (*mode))
+        else if (RD_SENSOR_CFG_CONTINUOUS == (*mode))
         {
             m_autorefresh = true;
-            err_code = RD_SUCCESS;
         }
+        else
+        {
+            err_code |= RD_ERROR_INVALID_PARAM;
+        }
+
     }
 
     return err_code;
