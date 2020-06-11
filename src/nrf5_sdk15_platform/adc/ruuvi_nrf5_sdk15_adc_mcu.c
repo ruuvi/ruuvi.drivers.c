@@ -274,7 +274,8 @@ static float raw_adc_to_ratio (uint8_t channel_num,
     return result;
 }
 
-/**@brief Function handling events from 'nrf_drv_saadc.c'.
+/**
+ * @brief Function handling events from 'nrf_drv_saadc.c'.
  * No implementation needed
  *
  * @param[in] p_evt SAADC event.
