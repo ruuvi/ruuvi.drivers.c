@@ -162,100 +162,31 @@ static rd_status_t get_data (void)
     return err_code;
 }
 
-static rd_status_t validate_input_set (uint8_t * input)
-{
-    rd_status_t err_code = RD_SUCCESS;
-    uint8_t current_mode;
-    ri_adc_ntc_mode_get (&current_mode);
-
-    if (NULL == input)
-    {
-        err_code = RD_ERROR_NULL;
-    }
-    else
-    {
-        if (RD_SENSOR_CFG_SLEEP != current_mode)
-        {
-            err_code = RD_ERROR_INVALID_STATE;
-        }
-        else
-        {
-            if (RD_SENSOR_CFG_DEFAULT == (*input))
-            {
-                (*input) = RD_SENSOR_CFG_DEFAULT;
-            }
-            else if (RD_SENSOR_CFG_NO_CHANGE == (*input))
-            {
-                (*input) = RD_SENSOR_CFG_DEFAULT;
-            }
-            else if (RD_SENSOR_CFG_MIN == (*input))
-            {
-                (*input) = RD_SENSOR_CFG_DEFAULT;
-            }
-            else if (RD_SENSOR_CFG_MAX == (*input))
-            {
-                (*input) = RD_SENSOR_CFG_DEFAULT;
-            }
-            else
-            {
-                (*input) = RD_SENSOR_CFG_DEFAULT;
-                err_code = RD_ERROR_NOT_SUPPORTED;
-            }
-        }
-    }
-
-    return err_code;
-}
-
-static rd_status_t validate_input_get (uint8_t * input)
-{
-    rd_status_t err_code = RD_SUCCESS;
-
-    if (NULL == input)
-    {
-        err_code = RD_ERROR_NULL;
-    }
-    else
-    {
-        (*input) = RD_SENSOR_CFG_DEFAULT;
-    }
-
-    return err_code;
-}
-
 rd_status_t ri_adc_ntc_samplerate_set (uint8_t * samplerate)
 {
-    return validate_input_set (samplerate);
+    uint8_t mode;
+    rd_status_t err_code = ri_adc_ntc_mode_get (&mode);
+    return err_code | validate_default_input_set (samplerate, mode);
 }
-
-rd_status_t ri_adc_ntc_samplerate_get (uint8_t * samplerate)
-{
-    return validate_input_get (samplerate);
-}
-
 rd_status_t ri_adc_ntc_resolution_set (uint8_t * resolution)
 {
-    return validate_input_set (resolution);
-}
-
-rd_status_t ri_adc_ntc_resolution_get (uint8_t * resolution)
-{
-    return validate_input_get (resolution);
+    uint8_t mode;
+    rd_status_t err_code = ri_adc_ntc_mode_get (&mode);
+    return err_code | validate_default_input_set (resolution, mode);
 }
 
 rd_status_t ri_adc_ntc_scale_set (uint8_t * scale)
 {
-    return validate_input_set (scale);
-}
-
-rd_status_t ri_adc_ntc_scale_get (uint8_t * scale)
-{
-    return validate_input_get (scale);
+    uint8_t mode;
+    rd_status_t err_code = ri_adc_ntc_mode_get (&mode);
+    return err_code | validate_default_input_set (scale, mode);
 }
 
 rd_status_t ri_adc_ntc_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-    rd_status_t err_code = validate_input_set (parameter);
+    uint8_t mode;
+    rd_status_t err_code = ri_adc_ntc_mode_get (&mode);
+    err_code |= validate_default_input_set (parameter, mode);
 
     if (RD_SUCCESS == err_code)
     {
@@ -277,8 +208,8 @@ rd_status_t ri_adc_ntc_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
 rd_status_t ri_adc_ntc_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-    return ( (validate_input_get (dsp)) |
-             validate_input_get (parameter));
+    return ( (validate_default_input_get (dsp)) |
+             validate_default_input_get (parameter));
 }
 
 rd_status_t ri_adc_ntc_init (rd_sensor_t *
@@ -310,11 +241,11 @@ rd_status_t ri_adc_ntc_init (rd_sensor_t *
                 environmental_sensor->init              = ri_adc_ntc_init;
                 environmental_sensor->uninit            = ri_adc_ntc_uninit;
                 environmental_sensor->samplerate_set    = ri_adc_ntc_samplerate_set;
-                environmental_sensor->samplerate_get    = ri_adc_ntc_samplerate_get;
+                environmental_sensor->samplerate_get    = validate_default_input_get;
                 environmental_sensor->resolution_set    = ri_adc_ntc_resolution_set;
-                environmental_sensor->resolution_get    = ri_adc_ntc_resolution_get;
+                environmental_sensor->resolution_get    = validate_default_input_get;
                 environmental_sensor->scale_set         = ri_adc_ntc_scale_set;
-                environmental_sensor->scale_get         = ri_adc_ntc_scale_get;
+                environmental_sensor->scale_get         = validate_default_input_get;
                 environmental_sensor->dsp_set           = ri_adc_ntc_dsp_set;
                 environmental_sensor->dsp_get           = ri_adc_ntc_dsp_get;
                 environmental_sensor->mode_set          = ri_adc_ntc_mode_set;

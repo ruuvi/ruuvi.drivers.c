@@ -263,3 +263,62 @@ inline uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target)
 {
     return __builtin_popcount (target->fields.bitfield);
 }
+
+rd_status_t validate_default_input_set (uint8_t * const input, const uint8_t mode)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == input)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        if (RD_SENSOR_CFG_SLEEP != mode)
+        {
+            err_code = RD_ERROR_INVALID_STATE;
+        }
+        else
+        {
+            if (RD_SENSOR_CFG_DEFAULT == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else if (RD_SENSOR_CFG_NO_CHANGE == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else if (RD_SENSOR_CFG_MIN == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else if (RD_SENSOR_CFG_MAX == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+                err_code = RD_ERROR_NOT_SUPPORTED;
+            }
+        }
+    }
+
+    return err_code;
+}
+
+rd_status_t validate_default_input_get (uint8_t * const input)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == input)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        (*input) = RD_SENSOR_CFG_DEFAULT;
+    }
+
+    return err_code;
+}
