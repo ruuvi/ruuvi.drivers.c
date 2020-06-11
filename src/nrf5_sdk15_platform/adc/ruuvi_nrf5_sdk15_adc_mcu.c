@@ -55,9 +55,8 @@
 
 #define ADC_REF_VOLTAGE_INVALID   0.0000f
 #define ADC_REF_DIVIDER_INVALID   0.0000f
-#define ADC_REF_VOLTAGE_IN_VOLTS  0.600f      // Reference voltage (in milli volts) 
-// used by ADC while doing conversion.
-#define ADC_REF_EXT_VDD_DIV       4
+#define ADC_REF_VOLTAGE_IN_VOLTS  0.600f       // Internal reference voltage.
+#define ADC_REF_EXT_VDD_DIV       4            // ADC divides VDD by 4 for reference.
 #define ADC_PRE_SCALING_COMPENSATION_1_6 6.00f
 #define ADC_PRE_SCALING_COMPENSATION_1_5 5.00f
 #define ADC_PRE_SCALING_COMPENSATION_1_4 4.00f
@@ -74,7 +73,7 @@
 #define ADC_BITS_RESOLUTION_14 14
 #define ADC_BITS_RESOLUTION_NUM 4
 
-static float pre_scaling_valut[ADC_PRE_SCALING_NUM] =
+static float pre_scaling_values[ADC_PRE_SCALING_NUM] =
 {
     ADC_PRE_SCALING_COMPENSATION_1_6,
     ADC_PRE_SCALING_COMPENSATION_1_5,
@@ -113,7 +112,7 @@ static inline nrf_saadc_oversample_t ruuvi_to_nrf_oversample (const ri_adc_overs
 /**
  * @brief convert @ref ri_adc_resolution_t to nrf_saadc_resolution_t.
  */
-static inline nrf_saadc_resolution_t ruuvi_to_nrf_resoltion (const ri_adc_resolution_t
+static inline nrf_saadc_resolution_t ruuvi_to_nrf_resolution (const ri_adc_resolution_t
         resolution)
 {
     return (nrf_saadc_resolution_t) resolution;
@@ -122,7 +121,7 @@ static inline nrf_saadc_resolution_t ruuvi_to_nrf_resoltion (const ri_adc_resolu
 /**
  * @brief convert @ref ri_adc_resolution_t to nrf_saadc_resolution_t.
  */
-static inline uint8_t nrf_to_bits_resoltion (const nrf_saadc_resolution_t resolution)
+static inline uint8_t nrf_to_bits_resolution (const nrf_saadc_resolution_t resolution)
 {
     return bits_resolution[resolution];
 }
@@ -140,7 +139,20 @@ static inline nrf_saadc_input_t ruuvi_to_nrf_channel (const ri_adc_channel_t cha
  */
 static inline nrf_saadc_reference_t ruuvi_to_nrf_vref (const ri_adc_vref_t vref)
 {
-    return (nrf_saadc_reference_t) vref;
+    nrf_saadc_reference_t nrfref = NRF_SAADC_REFERENCE_INTERNAL;
+    switch (vref)
+    {
+        case RI_ADC_VREF_EXTERNAL: 
+          nrfref = NRF_SAADC_REFERENCE_VDD4; //!< 1/4 VDD
+          break;
+
+        case RI_ADC_VREF_INTERNAL:
+          // Intentional fallthrough
+        default:
+          nrfref = NRF_SAADC_REFERENCE_INTERNAL;
+          break;
+    }
+    return nrfref;
 }
 
 /**
@@ -179,14 +191,6 @@ static inline nrf_saadc_resistor_t ruuvi_to_nrf_resistor (const nri_adc_resistor
 }
 
 /**
- * @brief convert @ref ri_adc_gain_t to nrf_saadc_gain_t.
- */
-static inline nrf_saadc_gain_t ruuvi_to_nrf_gain (const ri_adc_gain_t gain)
-{
-    return (nrf_saadc_gain_t) gain;
-}
-
-/**
  * @brief convert @ref ri_adc_acqtime_t to nrf_saadc_acqtime_t.
  */
 static inline nrf_saadc_acqtime_t ruuvi_to_nrf_acqtime (const ri_adc_acqtime_t acqtime)
@@ -197,7 +201,16 @@ static inline nrf_saadc_acqtime_t ruuvi_to_nrf_acqtime (const ri_adc_acqtime_t a
 #endif
 
 /**
- * @brief convert @ref raw_adc_to_volts to volts.
+ * @brief convert @ref ri_adc_gain_t to nrf_saadc_gain_t.
+ */
+static inline nrf_saadc_gain_t ruuvi_to_nrf_gain (const ri_adc_gain_t gain)
+{
+    return (nrf_saadc_gain_t) gain;
+}
+
+
+/**
+ * @brief convert @ref raw adc value to volts.
  */
 static float raw_adc_to_volts (uint8_t channel_num,
                                ri_adc_get_data_t * p_config,
@@ -205,44 +218,52 @@ static float raw_adc_to_volts (uint8_t channel_num,
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];
-    uint16_t counts = 1 << nrf_to_bits_resoltion (adc_config.resolution);
+    uint16_t counts = 1 << nrf_to_bits_resolution (adc_config.resolution);
     float result;
-
+    // Only voltages referred to internal VREF are accurate. 
     if (RI_ADC_VREF_INTERNAL == p_ch_config->reference)
     {
         result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
-                  pre_scaling_valut[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
+                  pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
                   p_config->divider);
     }
+    // This relies on VDD accuracy and is at best indicative. 
     else
     {
-        result = (p_config->vdd * ADC_REF_EXT_VDD_DIV * ( (float) (*adc) / (float) counts) *
-                  pre_scaling_valut[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
-                  p_config->divider);
+        result = (p_config->vdd * ((float) (*adc) / (float) counts) // Raw ADC ref VDD
+                  * pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] // Prescaling
+                  / ADC_REF_EXT_VDD_DIV // ADC ref prescaling
+                  * p_config->divider); // External divider
     }
 
     return result;
 }
 
-
 /**
- * @brief convert @ref voltage_to_ratio to ratio.
+ * @brief convert @ref raw adc value to ratio to VDD.
  */
-static float voltage_to_ratio (uint8_t channel_num,
+static float raw_adc_to_ratio (uint8_t channel_num,
                                ri_adc_get_data_t * p_config,
-                               float * data)
+                               uint16_t * adc)
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];
+    uint16_t counts = 1 << nrf_to_bits_resolution (adc_config.resolution);
     float result;
-
+    // This relies on VDD accuracy and is at best indicative.  
     if (RI_ADC_VREF_INTERNAL == p_ch_config->reference)
     {
-        (*data) = ( (*data) / p_config->divider) / ADC_REF_VOLTAGE_IN_VOLTS;
+        // Absolute voltage
+        result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
+                  pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
+                  p_config->divider);
+        // Divided to a ratio
+        result /= p_config->vdd;
     }
+    // Measurement referred to VDD.
     else
     {
-        (*data) = ( (*data) / p_config->divider) / (p_config->vdd * ADC_REF_EXT_VDD_DIV);
+        result = ((float) (*adc) / (float) counts);
     }
 
     return result;
@@ -273,7 +294,7 @@ rd_status_t ri_adc_init (ri_adc_config_t * p_config)
     {
         if (NULL != p_config)
         {
-            adc_config.resolution = ruuvi_to_nrf_resoltion (p_config->resolution);
+            adc_config.resolution = ruuvi_to_nrf_resolution (p_config->resolution);
             adc_config.oversample = ruuvi_to_nrf_oversample (p_config->oversample);
         }
 
@@ -395,9 +416,20 @@ rd_status_t ri_adc_configure (uint8_t channel_num,
 #endif
                 ch_config.reference = ruuvi_to_nrf_vref (p_config->vref);
 #ifdef RI_ADC_ADV_CONFIG
-                ch_config.gain = ruuvi_to_nrf_gain (p_config->gain);
                 ch_config.acq_time = ruuvi_to_nrf_acqtime (p_config->acqtime);
+#else
+                // Use 1/6 gain for internal reference and 1/4 gain for external reference.
+                // This allows ADC to use maximum non-saturated scale.
+                if(NRF_SAADC_REFERENCE_INTERNAL == ch_config.reference)
+                {
+                  p_config->gain = RI_ADC_GAIN1_6;
+                }
+                else
+                {
+                  p_config->gain = RI_ADC_GAIN1_4;
+                }
 #endif
+                ch_config.gain = ruuvi_to_nrf_gain (p_config->gain);
                 memcpy (&channel_configs[ channel_num],
                         &ch_config,
                         sizeof (nrf_saadc_channel_config_t));
@@ -448,7 +480,7 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
     return status;
 }
 
-rd_status_t ri_adc_get_data (uint8_t channel_num,
+rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
                              ri_adc_get_data_t * p_config,
                              float * p_data)
 {
@@ -483,7 +515,6 @@ rd_status_t ri_adc_get_data (uint8_t channel_num,
             }
         }
     }
-
     return status;
 }
 
@@ -493,12 +524,35 @@ rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
 {
     rd_status_t status = RD_ERROR_INVALID_STATE;
 
-    if (RD_SUCCESS == ri_adc_get_data (channel_num,
-                                       p_config, p_data))
+    if (NULL == p_config)
     {
-        voltage_to_ratio (channel_num, p_config, p_data);
+        status = RD_ERROR_NULL;
     }
+    else
+    {
+        nrf_saadc_channel_config_t * p_ch_config =
+            p_channel_configs[channel_num];
 
+        if ( (NULL == p_ch_config) ||
+                (p_config->vdd == ADC_REF_VOLTAGE_INVALID) ||
+                (p_config->divider == ADC_REF_DIVIDER_INVALID) ||
+                (isnan (p_config->divider)) ||
+                (isnan (p_config->vdd) && (RI_ADC_VREF_EXTERNAL ==
+                                           nrf_to_ruuvi_vref (p_ch_config->reference))))
+        {
+            status = RD_ERROR_INVALID_PARAM;
+        }
+        else
+        {
+            uint16_t data;
+
+            if (RD_SUCCESS == ri_adc_get_raw_data (channel_num, &data))
+            {
+                (*p_data) = raw_adc_to_ratio (channel_num, p_config, &data);
+                status = RD_SUCCESS;
+            }
+        }
+    }
     return status;
 }
 

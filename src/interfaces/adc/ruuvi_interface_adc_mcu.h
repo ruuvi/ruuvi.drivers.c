@@ -135,8 +135,8 @@ typedef struct
 {
     ri_adc_mode_t mode;
     ri_adc_vref_t vref;
-#ifdef RI_ADC_ADV_CONFIG
     ri_adc_gain_t gain;
+#ifdef RI_ADC_ADV_CONFIG
     ri_adc_acqtime_t acqtime;
 #endif
 } ri_adc_channel_config_t;
@@ -222,14 +222,14 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
  *
  * @param[in] channel_num ADC channel.
  * @param[in] p_config ADC output config.
- * @param[in, out] p_data ADC data in volts depend on config.
+ * @param[out] p_data ADC data in volts.
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_PARAM if input incorrect.
  * @return RD_ERROR_NULL if either parameter is NULL.
  */
-rd_status_t ri_adc_get_data (uint8_t channel_num,
-                             ri_adc_get_data_t * p_config,
-                             float * p_data);
+rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
+                                      ri_adc_get_data_t * p_config,
+                                      float * p_data);
 
 /**
 /**
@@ -237,7 +237,7 @@ rd_status_t ri_adc_get_data (uint8_t channel_num,
 *
 * @param[in] channel_num ADC channel.
 * @param[in] p_config ADC output config.
-* @param[in, out] p_data ADC data in volts depend on config.
+* @param[out] p_data ADC data as a ratio to VDD.
 * @retval RD_SUCCESS on success.
 * @retval RD_ERROR_INVALID_PARAM if input incorrect.
 * @return RD_ERROR_NULL if either parameter is NULL.

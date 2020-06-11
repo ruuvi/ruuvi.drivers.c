@@ -97,7 +97,7 @@ static ri_adc_get_data_t adc_ntc_options =
 
 static uint64_t m_tsample;           //!< Timestamp of sample.
 static bool m_autorefresh;           //!< Flag to refresh data on data_get.
-float m_temperture;
+float m_temperture;                  //!< Last measured temperature
 static bool m_is_init;               //!< Flag, is sensor init.
 static const char m_sensor_name[] = "NTC"; //!< Human-readable name of the sensor.
 
@@ -112,17 +112,45 @@ static float volts_to_temperature (float * data)
     return result;
 }
 
+/**
+ * @brief convert measured voltage ratio to temperature
+ *
+ * @param[in] ratio Measured voltage ratio in NTC divider. 0.0 ... 1.0
+ * @return temperature in celcius.
+ * @retval RD_FLOAT_INVALID if ratio < 0.0 or ratio > 1.0
+ */
+static float ratio_to_temperature (const float * const ratio)
+{
+    float result = RD_FLOAT_INVALID;
+    float Rt;
+    float Rb = (float)   ADC_NTC_BALANCE;        //!< Fixed divider resistance
+    float beta = (float) ADC_NTC_DEFAULT_BETA;   //!< Beta of NTC
+    float T0 = (float)   ADC_NTC_DEFAULT_TEMP_K; //!< Calibration temp of NTC. 
+    float R0 = (float)   RI_ADC_NTC_DEFAULT_RES; //!< Calibration resistance of NTC.
+    if((NULL != ratio) && (*ratio >= 0.0F) && (*ratio <= 1.0F))
+    {
+        // Calculate NTC resistance.
+        Rt = (Rb * *ratio) / (1.0F - *ratio);
+        // 1/T = 1/T0 + 1/B * ln(R/R0)
+        result = 1.0F / ((1/T0) + ((1/beta) * log(Rt/R0)));
+        // Convert K->C
+        result -= ADC_K_TO_C_CONST;
+    }
+    return result;
+}
+
 static rd_status_t get_data (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    float volts;
+    float ratio;
     m_tsample = rd_sensor_timestamp_get();
 
-    if (RD_SUCCESS == ri_adc_get_data (ADC_NTC_USE_CHANNEL,
-                                       &adc_ntc_options,
-                                       &volts))
+    if (RD_SUCCESS == ri_adc_get_data_ratio (ADC_NTC_USE_CHANNEL,
+                                             &adc_ntc_options,
+                                             &ratio))
     {
-        m_temperture = volts_to_temperature (&volts);
+        //m_temperture = volts_to_temperature (&volts);
+        m_temperture = ratio_to_temperature (&ratio);
     }
     else
     {
