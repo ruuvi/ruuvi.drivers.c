@@ -581,3 +581,79 @@ void test_ruuvi_driver_sensor_data_set_no_match (void)
                         photodiode_data[0]);
     TEST_ASSERT (!memcmp (values, zeroes, sizeof (values)));
 }
+
+void test_validate_default_input_get_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code = validate_default_input_get (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_validate_default_input_get_ok (void)
+{
+    uint8_t input = 54;
+    rd_status_t err_code = validate_default_input_get (&input);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
+
+void test_validate_default_input_set_default (void)
+{
+    uint8_t input = RD_SENSOR_CFG_DEFAULT;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    rd_status_t err_code = validate_default_input_set (&input, mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
+
+void test_validate_default_input_set_min (void)
+{
+    uint8_t input = RD_SENSOR_CFG_MIN;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    rd_status_t err_code = validate_default_input_set (&input, mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
+
+void test_validate_default_input_set_max (void)
+{
+    uint8_t input = RD_SENSOR_CFG_MAX;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    rd_status_t err_code = validate_default_input_set (&input, mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
+
+void test_validate_default_input_set_nochange (void)
+{
+    uint8_t input = RD_SENSOR_CFG_NO_CHANGE;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    rd_status_t err_code = validate_default_input_set (&input, mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
+
+void test_validate_default_input_set_wrongmode (void)
+{
+    uint8_t input = RD_SENSOR_CFG_NO_CHANGE;
+    uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    rd_status_t err_code = validate_default_input_set (&input, mode);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_NO_CHANGE == input);
+}
+
+void test_validate_default_input_set_null (void)
+{
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    rd_status_t err_code = validate_default_input_set (NULL, mode);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_validate_default_input_set_notsupported (void)
+{
+    uint8_t input = 50;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    rd_status_t err_code = validate_default_input_set (&input, mode);
+    TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
