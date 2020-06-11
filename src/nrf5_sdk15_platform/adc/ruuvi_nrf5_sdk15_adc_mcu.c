@@ -488,7 +488,9 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
     return status;
 }
 
-/** Brief get raw adc reading */
+/** 
+ * @brief get raw adc reading. 
+ */
 static rd_status_t nrf5_adc_get_raw (uint8_t channel_num,
                                      ri_adc_get_data_t * p_config,
                                      uint16_t * const p_data)
