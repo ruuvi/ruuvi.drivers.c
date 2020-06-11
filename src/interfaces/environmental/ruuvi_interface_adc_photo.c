@@ -312,7 +312,6 @@ rd_status_t ri_adc_photo_mode_set (uint8_t * mode)
             m_autorefresh = false;
             (*mode) = RD_SENSOR_CFG_SLEEP;
         }
-
         else if (RD_SENSOR_CFG_SINGLE == *mode)
         {
             uint8_t current_mode;
@@ -330,7 +329,6 @@ rd_status_t ri_adc_photo_mode_set (uint8_t * mode)
                 err_code |= get_data();
             }
         }
-
         else if (RD_SENSOR_CFG_CONTINUOUS == (*mode))
         {
             m_autorefresh = true;
@@ -339,7 +337,6 @@ rd_status_t ri_adc_photo_mode_set (uint8_t * mode)
         {
             err_code |= RD_ERROR_INVALID_PARAM;
         }
-
     }
 
     return err_code;

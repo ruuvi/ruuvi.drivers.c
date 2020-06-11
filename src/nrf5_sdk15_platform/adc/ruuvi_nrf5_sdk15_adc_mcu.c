@@ -487,15 +487,16 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
     return status;
 }
 
-rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
-                                      ri_adc_get_data_t * p_config,
-                                      float * p_data)
+/** Brief get raw adc reading */
+static rd_status_t nrf5_adc_get_raw (uint8_t channel_num,
+                                     ri_adc_get_data_t * p_config,
+                                     uint16_t * const p_data)
 {
-    rd_status_t status = RD_ERROR_INVALID_STATE;
+    rd_status_t status = RD_SUCCESS;
 
-    if (NULL == p_config)
+    if (NULL == p_config || NULL == p_data)
     {
-        status = RD_ERROR_NULL;
+        status |= RD_ERROR_NULL;
     }
     else
     {
@@ -509,18 +510,28 @@ rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
                 (isnan (p_config->vdd) && (RI_ADC_VREF_EXTERNAL ==
                                            nrf_to_ruuvi_vref (p_ch_config->reference))))
         {
-            status = RD_ERROR_INVALID_PARAM;
+            status |= RD_ERROR_INVALID_PARAM;
         }
         else
         {
-            uint16_t data;
-
-            if (RD_SUCCESS == ri_adc_get_raw_data (channel_num, &data))
-            {
-                (*p_data) = raw_adc_to_volts (channel_num, p_config, &data);
-                status = RD_SUCCESS;
-            }
+            status |= ri_adc_get_raw_data (channel_num, p_data);
         }
+    }
+
+    return status;
+}
+
+rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
+                                      ri_adc_get_data_t * p_config,
+                                      float * p_data)
+{
+    uint16_t data;
+    // Input check in function.
+    rd_status_t status = nrf5_adc_get_raw (channel_num, p_config, &data);
+
+    if (RD_SUCCESS == status)
+    {
+        (*p_data) = raw_adc_to_volts (channel_num, p_config, &data);
     }
 
     return status;
@@ -530,36 +541,13 @@ rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
                                    ri_adc_get_data_t * p_config,
                                    float * p_data)
 {
-    rd_status_t status = RD_ERROR_INVALID_STATE;
+    uint16_t data;
+    // Input check in function.
+    rd_status_t status = nrf5_adc_get_raw (channel_num, p_config, &data);
 
-    if (NULL == p_config)
+    if (RD_SUCCESS == status)
     {
-        status = RD_ERROR_NULL;
-    }
-    else
-    {
-        nrf_saadc_channel_config_t * p_ch_config =
-            p_channel_configs[channel_num];
-
-        if ( (NULL == p_ch_config) ||
-                (p_config->vdd == ADC_REF_VOLTAGE_INVALID) ||
-                (p_config->divider == ADC_REF_DIVIDER_INVALID) ||
-                (isnan (p_config->divider)) ||
-                (isnan (p_config->vdd) && (RI_ADC_VREF_EXTERNAL ==
-                                           nrf_to_ruuvi_vref (p_ch_config->reference))))
-        {
-            status = RD_ERROR_INVALID_PARAM;
-        }
-        else
-        {
-            uint16_t data;
-
-            if (RD_SUCCESS == ri_adc_get_raw_data (channel_num, &data))
-            {
-                (*p_data) = raw_adc_to_ratio (channel_num, p_config, &data);
-                status = RD_SUCCESS;
-            }
-        }
+        (*p_data) = raw_adc_to_ratio (channel_num, p_config, &data);
     }
 
     return status;
