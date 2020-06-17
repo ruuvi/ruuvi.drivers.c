@@ -72,4 +72,8 @@ rd_status_t ri_scheduler_uninit (void)
     return RD_SUCCESS;
 }
 
+bool ri_scheduler_is_init (void)
+{
+    return m_is_init;
+}
 #endif

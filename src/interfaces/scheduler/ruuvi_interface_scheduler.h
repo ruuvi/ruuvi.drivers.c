@@ -83,5 +83,14 @@ rd_status_t ri_scheduler_event_put (const void * const p_event_data,
  * no memory is freed.
  */
 rd_status_t ri_scheduler_uninit (void);
-/* @} */
+
+/**
+ * @brief Check if scheduler is initialized.
+ *
+ * @retval true If scheduler is initialized.
+ * @retval false If scheduler is not initialized.
+ */
+bool ri_scheduler_is_init (void);
+
+/** @} */
 #endif
