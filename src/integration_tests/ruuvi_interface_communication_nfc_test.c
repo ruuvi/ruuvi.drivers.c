@@ -125,8 +125,8 @@ bool ri_nfc_rx_test (const rd_test_print_fp printfp)
     err_code |= ri_nfc_init (&m_channel);
     const char test_data[] = "Lorem Ipsum";
     ri_comm_message_t msg = {0};
-    snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
-    msg.data_length = strlen (msg.data);
+    snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
+    msg.data_length = strlen (test_data);
 
     if (RD_SUCCESS == err_code)
     {
