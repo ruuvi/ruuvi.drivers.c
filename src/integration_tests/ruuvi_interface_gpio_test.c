@@ -208,6 +208,7 @@ bool ri_gpio_run_integration_test (const rd_test_print_fp printfp,
     }
 
     printfp ("},\r\n");
+    return status;
 }
 
 #endif

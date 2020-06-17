@@ -144,7 +144,7 @@ static bool uart_run_test (const char * const test_data)
     ri_comm_message_t msg = { 0 };
     msg.repeat_count = 1;
     size_t written = 0;
-    written = snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
+    written = snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s", test_data);
     msg.data_length = (written > RI_COMM_MESSAGE_MAX_LENGTH)
                       ? RI_COMM_MESSAGE_MAX_LENGTH : written;
     ri_rtc_init();
@@ -181,7 +181,12 @@ bool ri_uart_tx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
     printfp ("\"tx_rx\":");
     err_code |= uart_init_test (input, output);
     char test_data[] =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
+        " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis "
+        "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
+        "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, "
+        "sunt in culpa qui officia deserunt mollit anim id est laborum";
     test_data[RI_COMM_MESSAGE_MAX_LENGTH] = '\n';
 
     if (RD_SUCCESS == err_code)
@@ -218,7 +223,12 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
     printfp ("\"rx_corrupt\":");
     err_code |= uart_init_test (input, output);
     const char test_data[] =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\n";
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+        "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis "
+        "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
+        "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in "
+        "culpa qui officia deserunt mollit anim id est laborum\n";
     ri_comm_message_t msg = { 0 };
     msg.repeat_count = 1;
     memcpy (msg.data, test_data, RI_COMM_MESSAGE_MAX_LENGTH);

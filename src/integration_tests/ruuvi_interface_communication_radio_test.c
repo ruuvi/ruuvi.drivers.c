@@ -131,6 +131,7 @@ bool ri_communication_radio_run_integration_test (const rd_test_print_fp printfp
     status |= ri_radio_init_test (printfp);
     status |= ri_radio_address_test (printfp);
     printfp ("},\r\n");
+    return status;
 }
 
 /* @} */

@@ -225,7 +225,7 @@ static float raw_adc_to_volts (uint8_t channel_num,
     float result;
 
     // Only voltages referred to internal VREF are accurate.
-    if (RI_ADC_VREF_INTERNAL == p_ch_config->reference)
+    if (NRF_SAADC_REFERENCE_INTERNAL == p_ch_config->reference)
     {
         result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
                   pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
@@ -256,7 +256,7 @@ static float raw_adc_to_ratio (uint8_t channel_num,
     float result;
 
     // This relies on VDD accuracy and is at best indicative.
-    if (RI_ADC_VREF_INTERNAL == p_ch_config->reference)
+    if (NRF_SAADC_REFERENCE_INTERNAL == p_ch_config->reference)
     {
         // Absolute voltage
         result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
