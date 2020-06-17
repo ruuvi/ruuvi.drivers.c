@@ -11,6 +11,13 @@
 #include <string.h>
 #include <stdio.h>
 
+#define TEST_STRING "Ave mundi!"
+#define EXTENDED_STRING "Lorem ipsum dolor sit amet, consectetur adipiscing elit."\
+              " Donec nisl "\
+               "ligula, lacinia malesuada pellentesque molestie, venenatis "\
+               "non neque. Cras eget ligula eget nunc pharetra tincidunt. "\
+               "Etiam volutpat."
+
 /**
  * @addtogroup BLE
  * @{
@@ -30,7 +37,6 @@ static volatile bool m_has_disconnected;
 static volatile bool m_has_sent;
 static volatile bool m_has_received;
 static volatile bool m_timeout;
-static ri_comm_message_t rx_data;
 
 static rd_status_t ble_isr (ri_comm_evt_t evt,
                             void * p_data, size_t data_len)
@@ -212,8 +218,8 @@ static bool ri_adv_interval_test (const rd_test_print_fp printfp,
     rd_status_t err_code = RD_SUCCESS;
     ri_comm_message_t msg;
     msg.repeat_count = 2;
-    snprintf ( (char *) & (msg.data), sizeof (msg.data), "Ave mundi!");
-    msg.data_length = strlen (msg.data);
+    snprintf ( (char *) & (msg.data), sizeof (msg.data), TEST_STRING);
+    msg.data_length = strlen (TEST_STRING);
     printfp ("\"interval\":");
     err_code |= ri_rtc_init();
     err_code |= ri_radio_init (modulation);
@@ -243,15 +249,10 @@ static bool ri_adv_extended_test (const rd_test_print_fp printfp,
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
-    uint32_t interval = 0;
     ri_comm_message_t msg;
     msg.repeat_count = 2;
-    snprintf ( (char *) & (msg.data), sizeof (msg.data),
-               "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nisl "
-               "ligula, lacinia malesuada pellentesque molestie, venenatis "
-               "non neque. Cras eget ligula eget nunc pharetra tincidunt. "
-               "Etiam volutpat.");
-    msg.data_length = strlen (msg.data);
+    snprintf ( (char *) & (msg.data), sizeof (msg.data), EXTENDED_STRING);
+    msg.data_length = strlen (EXTENDED_STRING);
     printfp ("\"extended\":");
     err_code |= ri_rtc_init();
     err_code |= ri_radio_init (modulation);
