@@ -33,6 +33,11 @@ static ri_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
 static ri_radio_modulation_t m_modulation;
 static ri_radio_modulation_t m_modulation; //<! Modulation for radio ops.
 
+/** @brief Start of RAM in memory space */
+#ifndef PHY_RAM_START
+#   define PHY_RAM_START 0x20000000
+#endif
+
 /**
  * @brief Task to run on radio activity
  * Calls event handlers of radio modules and a common radio event handler.
@@ -76,9 +81,9 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
                     &ram_start);
         RD_ERROR_CHECK (err_code, NRF_SUCCESS);
         // TODO - find the correct way to define large enough GATT queue for extended GATT event.
-        ble_cfg_t conn_cfg = { 0 };
-        conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
-        err_code |= sd_ble_cfg_set (BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
+        //ble_cfg_t conn_cfg = { 0 };
+        //conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
+        //err_code |= sd_ble_cfg_set (BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
         // Enable BLE stack.
         err_code |= nrf_sdh_ble_enable (&ram_start);
         // Enable connection event extension for faster data rate
@@ -99,7 +104,19 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
 
 rd_status_t ri_radio_uninit (void)
 {
+    // Ask everything nicely to shut down.
     nrf_sdh_disable_request();
+    // Shut everything down by force.
+    sd_softdevice_disable();
+    // Clear softdevice RAM
+    /*
+    uint32_t sd_ram_end;
+    uint32_t sd_ram_size;
+    nrf_sdh_ble_app_ram_start_get(&sd_ram_end);
+    sd_ram_size = sd_ram_end - PHY_RAM_START;
+    uint32_t* p_ram_start = (uint32_t*) PHY_RAM_START;
+    */
+    //memset(p_ram_start, 0, sd_ram_size);
     on_radio_activity_callback = NULL;
     return RD_SUCCESS;
 }

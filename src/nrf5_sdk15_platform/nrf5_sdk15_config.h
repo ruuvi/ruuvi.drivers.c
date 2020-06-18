@@ -93,9 +93,13 @@
 #   define NRF_SDH_BLE_PERIPHERAL_LINK_COUNT (1U) //!< Only 1 allowed in SDK15
 #   define NRF_BLE_CONN_PARAMS_MAX_SLAVE_LATENCY_DEVIATION (1U) //!< Larger deviation will be renegotiated.
 #   define NRF_BLE_CONN_PARAMS_MAX_SUPERVISION_TIMEOUT_DEVIATION (100U) //!< 10 ms units, 1 s deviation allowed
-#   define BLE_DFU_ENABLED (1U)
-#   define BLE_DIS_ENABLED (1U)
-#   define BLE_NUS_ENABLED (1U)
+#   define BLE_DFU_ENABLED (1U) //!< Enable DFU Service
+#   define BLE_DIS_ENABLED (1U) //!< Enable DIS Service
+#   define BLE_NUS_ENABLED (1U) //!< Enable NUS Service
+#   define NRF_SDH_BLE_VS_UUID_COUNT (BLE_DFU_ENABLED\
+                                      + BLE_DIS_ENABLED\
+                                      + BLE_NUS_ENABLED)
+#define NRF_SDH_BLE_SERVICE_CHANGED (1U) //!< Refresh service cache on connect
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED

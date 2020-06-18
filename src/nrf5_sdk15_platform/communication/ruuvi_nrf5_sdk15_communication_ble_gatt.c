@@ -115,10 +115,10 @@ static bool     m_gatt_is_init = false;
 static ri_comm_channel_t * channel = NULL;
 
 // XXX
-#define MIN_CONN_INTERVAL 100
-#define MAX_CONN_INTERVAL 200
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(150, UNIT_1_25_MS)
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(300, UNIT_1_25_MS)
 #define SLAVE_LATENCY     0
-#define CONN_SUP_TIMEOUT  5000
+#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(15000, UNIT_10_MS)
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
@@ -242,6 +242,7 @@ static void nus_data_handler (ble_nus_evt_t * p_evt)
     switch (p_evt->type)
     {
         case BLE_NUS_EVT_RX_DATA:
+            LOG ("NUS RX \r\n");
             channel->on_evt (RI_COMM_RECEIVED,
                              (void *) p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
             break;
@@ -577,13 +578,7 @@ static ret_code_t peer_manager_init()
     sec_param.kdist_peer.enc = 1;
     sec_param.kdist_peer.id  = 1;
     err_code = pm_sec_params_set (&sec_param);
-
-    if (NRF_SUCCESS != err_code) { }
-
-    err_code = pm_register (pm_evt_handler);
-
-    if (NRF_SUCCESS != err_code) { }
-
+    err_code |= pm_register (pm_evt_handler);
     return err_code;
 }
 
@@ -591,6 +586,7 @@ rd_status_t ri_gatt_init (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
     rd_status_t radio_status = RD_SUCCESS;
+    static bool qwr_is_init = false;
 
     if (m_gatt_is_init)
     {
@@ -609,16 +605,22 @@ rd_status_t ri_gatt_init (void)
         return RD_ERROR_INVALID_STATE;
     }
 
-    nrf_ble_qwr_init_t qwr_init = {0};
     // Register a handler for BLE events.
     NRF_SDH_BLE_OBSERVER (m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
-    err_code |= peer_manager_init();
     err_code |= gap_params_init();
     err_code |= nrf_ble_gatt_init (&m_gatt, gatt_evt_handler);
     err_code |= nrf_ble_gatt_att_mtu_periph_set (&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
-    // Initialize Queued Write Module.
-    qwr_init.error_handler = nrf_qwr_error_handler;
-    err_code |= nrf_ble_qwr_init (&m_qwr, &qwr_init);
+    // Queued Write Module, peer manager cannot be uninitialized, initialize only once.
+
+    if (!qwr_is_init)
+    {
+        nrf_ble_qwr_init_t qwr_init = {0};
+        qwr_init.error_handler = nrf_qwr_error_handler;
+        err_code |= nrf_ble_qwr_init (&m_qwr, &qwr_init);
+        err_code |= peer_manager_init();
+        qwr_is_init = true;
+    }
+
     err_code |= conn_params_init();
 
     if (NRF_SUCCESS == err_code)
@@ -629,15 +631,29 @@ rd_status_t ri_gatt_init (void)
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-/**
- *
- */
-static rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
+rd_status_t ri_gatt_uninit (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    // Radio must be completely disabled to uninit GATT.
+    if (ri_radio_is_init())
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    // GATT is uninit when radio is uninit.
+    else
+    {
+        m_gatt_is_init = false;
+    }
+
+    return err_code;
+}
+
+rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
 {
     if (NULL == _channel) { return RD_ERROR_NULL; }
 
     memset (_channel, 0, sizeof (ri_comm_channel_t));
-    m_gatt_is_init = false;
 
     // disconnect
     if (BLE_CONN_HANDLE_INVALID != m_conn_handle)
@@ -645,7 +661,7 @@ static rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
         sd_ble_gap_disconnect (m_conn_handle, HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST);
     }
 
-    // Services cannot be uninitialized
+    // Services cannot be uninitialized, GATT must be re-initialized.
     return RD_SUCCESS;
 }
 
@@ -654,21 +670,32 @@ static rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
  */
 static rd_status_t ri_gatt_nus_send (ri_comm_message_t * const message)
 {
-    if (NULL == message) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+    ret_code_t nrf_code = NRF_SUCCESS;
 
-    if (BLE_NUS_MAX_DATA_LEN < message->data_length) { return RD_ERROR_DATA_SIZE; }
-
-    if (BLE_CONN_HANDLE_INVALID == m_conn_handle) { return RD_ERROR_INVALID_STATE; }
-
-    if (message->repeat_count)
+    if (NULL == message)
     {
-        return RD_ERROR_NOT_IMPLEMENTED;
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (BLE_NUS_MAX_DATA_LEN < message->data_length)
+    {
+        err_code |= RD_ERROR_DATA_SIZE;
+    }
+    else if (BLE_CONN_HANDLE_INVALID == m_conn_handle)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (message->repeat_count > 1)
+    {
+        err_code |= RD_ERROR_NOT_IMPLEMENTED;
+    }
+    else
+    {
+        uint16_t data_len = message->data_length;
+        nrf_code |= ble_nus_data_send (&m_nus, message->data, &data_len, m_conn_handle);
     }
 
-    ret_code_t err_code = NRF_SUCCESS;
-    uint16_t data_len = message->data_length;
-    err_code |= ble_nus_data_send (&m_nus, message->data, &data_len, m_conn_handle);
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+    return err_code | ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code);
 }
 
 static rd_status_t ri_gatt_nus_read (ri_comm_message_t * const message)
