@@ -552,7 +552,7 @@ rd_status_t ri_adv_init (ri_comm_channel_t * const channel)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (!ri_radio_is_init())
+    else if (!ri_radio_is_init() || m_advertisement_is_init)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
@@ -585,8 +585,6 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
         m_advertising = false;
     }
 
-    // Release radio
-    err_code |= ri_radio_uninit ();
     m_advertisement_is_init = false;
     // Clear function pointers, including on event
     memset (channel, 0, sizeof (ri_comm_channel_t));

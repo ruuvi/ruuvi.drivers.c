@@ -30,7 +30,6 @@
 
 /** @brief Application callback for radio events */
 static ri_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
-static ri_radio_modulation_t m_modulation;
 static ri_radio_modulation_t m_modulation; //<! Modulation for radio ops.
 
 /** @brief Start of RAM in memory space */
@@ -108,15 +107,6 @@ rd_status_t ri_radio_uninit (void)
     nrf_sdh_disable_request();
     // Shut everything down by force.
     sd_softdevice_disable();
-    // Clear softdevice RAM
-    /*
-    uint32_t sd_ram_end;
-    uint32_t sd_ram_size;
-    nrf_sdh_ble_app_ram_start_get(&sd_ram_end);
-    sd_ram_size = sd_ram_end - PHY_RAM_START;
-    uint32_t* p_ram_start = (uint32_t*) PHY_RAM_START;
-    */
-    //memset(p_ram_start, 0, sd_ram_size);
     on_radio_activity_callback = NULL;
     return RD_SUCCESS;
 }

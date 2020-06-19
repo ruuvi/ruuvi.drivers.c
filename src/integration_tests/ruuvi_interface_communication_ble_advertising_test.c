@@ -186,7 +186,7 @@ static bool ri_adv_tx_test (ri_comm_message_t * const msg)
         uint64_t end = ri_rtc_millis();
 
         if ( (RI_TEST_ADV_FAST > (end - start))
-                || (RI_TEST_ADV_FAST  * (msg->repeat_count-1) + (2 * RI_ADV_RND_DELAY)) < (end - start))
+                || (RI_TEST_ADV_FAST  * (msg->repeat_count - 1) + (2 * RI_ADV_RND_DELAY)) < (end - start))
         {
             status = true;
         }

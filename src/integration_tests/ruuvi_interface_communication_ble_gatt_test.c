@@ -140,7 +140,7 @@ static bool ri_gatt_init_test (const rd_test_print_fp printfp,
 }
 
 /* Send data slowfly for 10 s to verify power consumption when little data is sent */
-static bool tx_slow_test(void)
+static bool tx_slow_test (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     const char test_data[] = "Test slow tx: ";
@@ -156,10 +156,12 @@ static bool tx_slow_test(void)
         err_code |= m_channel.send (&msg);
         ri_delay_ms (1000U);
     }
+
+    return (RD_SUCCESS != err_code);
 }
 
 /* Check throughput, return throughput- */
-static uint32_t tx_throughput_test(void)
+static float tx_throughput_test (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     const char test_data[] = "msg: "; // 5 chars
@@ -184,15 +186,17 @@ static uint32_t tx_throughput_test(void)
     }
 
     uint64_t test_end = ri_rtc_millis();
-    return (TEST_GATT_PACKET_NUM * TEST_GATT_PACKET_LEN) / ( (test_end - test_start) / 1000U);
+    return ( (float) (TEST_GATT_PACKET_NUM * TEST_GATT_PACKET_LEN)) / ( ( (float) (
+                test_end - test_start)) / 1000.0F);
 }
 
 bool ri_gatt_tx_test (const rd_test_print_fp printfp,
                       const ri_radio_modulation_t modulation)
 {
     bool status = false;
+    m_has_connected = false;
     rd_status_t err_code = RD_SUCCESS;
-    uint32_t throughput = 0;
+    float throughput = 0;
     char throughput_string[100];
     printfp ("\"tx\":");
     // RTC + timer required for low-power yield.
@@ -245,13 +249,15 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
         printfp ("\"pass,\"\r\n");
     }
 
-    snprintf (throughput_string, sizeof (throughput_string), "\"throughput\":\"%d bps\"\r\n",
+    snprintf (throughput_string, sizeof (throughput_string),
+              "\"throughput\":\"%.3f bps\"\r\n",
               throughput);
     printfp (throughput_string);
     ri_gatt_nus_uninit (&m_channel);
-    ri_gatt_uninit ();
     ri_adv_uninit (&m_adv);
+    ri_delay_ms (2000); //!< Wait for disconnect packet to go through.
     ri_radio_uninit();
+    ri_gatt_uninit (); // GATT can only be uninit after radio.
     ri_yield_low_power_enable (false);
     ri_timer_uninit();
     ri_rtc_uninit();

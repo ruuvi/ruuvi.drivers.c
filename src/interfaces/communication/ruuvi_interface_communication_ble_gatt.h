@@ -15,8 +15,6 @@
 #   define RUUVI_NRF5_SDK15_GATT_ENABLED RUUVI_NRF5_SDK15_ENABLED
 #endif
 
-#define HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST 0x16
-
 /**
  * @brief Initializes GATT stack.
  * Uses default values from sdk_config.h, these can be overridden in nrf5_sdk15_application_config.h
