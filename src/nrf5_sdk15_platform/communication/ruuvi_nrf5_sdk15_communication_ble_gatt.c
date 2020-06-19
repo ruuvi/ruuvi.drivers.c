@@ -616,8 +616,8 @@ static rd_status_t setup_phys (void)
 
                 case RI_RADIO_BLE_1MBPS:
                 default:
-                    m_phys.rx_phys = RI_RADIO_BLE_1MBPS;
-                    m_phys.tx_phys = RI_RADIO_BLE_1MBPS;
+                    m_phys.rx_phys = BLE_GAP_PHY_1MBPS;
+                    m_phys.tx_phys = BLE_GAP_PHY_1MBPS;
                     break;
             }
         }
