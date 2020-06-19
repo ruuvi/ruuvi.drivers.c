@@ -95,7 +95,7 @@ static bool                 m_advertisement_is_init = false;
 static bool                 m_advertising = false;
 
 /**< Universally unique service identifier of Nordic UART Service */
-#if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_ENABLED
+#if RUUVI_NRF5_SDK15_GATT_ENABLED
 #include "ble_nus.h"
 static ble_uuid_t m_adv_uuids[] =
 {
@@ -106,12 +106,15 @@ static ble_uuid_t m_adv_uuids[] =
 static rd_status_t prepare_tx()
 {
     ret_code_t nrf_code = NRF_SUCCESS;
-    advertisement_t adv;
 
     // XXX: Use atomic compare-and-swap
     if (!nrf_queue_is_empty (&m_adv_queue) && !m_advertising)
     {
+        static advertisement_t adv;
         nrf_queue_peek (&m_adv_queue, &adv);
+        // Pointers have been invalidated in queuing, refresh.
+        adv.data.adv_data.p_data = adv.adv_data;
+        adv.data.scan_rsp_data.p_data = adv.scan_data;
         nrf_code |= sd_ble_gap_adv_set_configure (&m_adv_handle,
                     & (adv.data),
                     & (adv.params));
@@ -315,7 +318,7 @@ static rd_status_t format_scan_rsp (advertisement_t * const p_adv)
 
         if (m_advertise_nus)
         {
-#           if RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_ENABLED
+#           if RUUVI_NRF5_SDK15_GATT_ENABLED
             scanrsp.uuids_complete.uuid_cnt = 1;
             scanrsp.uuids_complete.p_uuids = & (m_adv_uuids[0]);
 #           else
@@ -447,7 +450,9 @@ static rd_status_t set_phy_type (const ri_comm_message_t * const p_message,
                 break;
 
             case CONNECTABLE_SCANNABLE:
-                if (extended_required)
+                if (extended_required
+                        && sec_phy_required
+                        && p_message->data_length > NONEXTENDED_ADV_MAX_LEN)
                 {
                     // Cannot put extended payload and scan response into secondary PHY at the same time.
                     err_code |= RD_ERROR_DATA_SIZE;
@@ -547,7 +552,7 @@ rd_status_t ri_adv_init (ri_comm_channel_t * const channel)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (!ri_radio_is_init())
+    else if (!ri_radio_is_init() || m_advertisement_is_init)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
@@ -580,8 +585,6 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
         m_advertising = false;
     }
 
-    // Release radio
-    err_code |= ri_radio_uninit ();
     m_advertisement_is_init = false;
     // Clear function pointers, including on event
     memset (channel, 0, sizeof (ri_comm_channel_t));
@@ -701,9 +704,7 @@ rd_status_t ri_adv_scan_response_setup (const char * const name,
 
     if (NULL != name)
     {
-        // Name will be read from the GAP data
-        uint8_t len = strlen (name);
-        err_code |= sd_ble_gap_device_name_set (&m_security, (uint8_t *) name, len);
+        strcpy (m_name, name);
     }
 
     m_scannable = true;

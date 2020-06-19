@@ -4,6 +4,7 @@
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_communication_ble_advertising_test.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
+#include "ruuvi_interface_communication_radio_test.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
@@ -90,13 +91,6 @@ static bool ri_adv_init_null_test (void)
     return (RD_ERROR_NULL != err_code);
 }
 
-static bool ri_adv_init_nochan_test (void)
-{
-    rd_status_t err_code = RD_SUCCESS;
-    err_code |= ri_adv_init (&m_channel);
-    return (RD_ERROR_INVALID_STATE != err_code);
-}
-
 static bool ri_adv_init_twice_test (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -126,7 +120,6 @@ static bool ri_adv_init_test (const rd_test_print_fp printfp,
     if (RD_SUCCESS == err_code)
     {
         status |= ri_adv_init_null_test();
-        status |= ri_adv_init_nochan_test();
         status |= ri_adv_init_twice_test();
     }
     else
@@ -193,7 +186,7 @@ static bool ri_adv_tx_test (ri_comm_message_t * const msg)
         uint64_t end = ri_rtc_millis();
 
         if ( (RI_TEST_ADV_FAST > (end - start))
-                || (RI_TEST_ADV_FAST + (2 * RI_ADV_RND_DELAY)) < (end - start))
+                || (RI_TEST_ADV_FAST  * (msg->repeat_count - 1) + (2 * RI_ADV_RND_DELAY)) < (end - start))
         {
             status = true;
         }
@@ -471,35 +464,12 @@ static bool ri_adv_rx_interval_test (const rd_test_print_fp printfp,
  */
 rd_status_t ri_adv_scan_stop (void);
 
-static void print_modulation (const rd_test_print_fp printfp,
-                              const ri_radio_modulation_t modulation)
-{
-    switch (modulation)
-    {
-        case RI_RADIO_BLE_125KBPS:
-            printfp ("coded");
-            break;
-
-        case RI_RADIO_BLE_1MBPS:
-            printfp ("1_mbit");
-            break;
-
-        case RI_RADIO_BLE_2MBPS:
-            printfp ("2_mbit");
-            break;
-
-        default:
-            printfp ("error");
-            break;
-    }
-}
-
 bool ri_communication_ble_advertising_run_integration_test (const rd_test_print_fp
         printfp,
         const ri_radio_modulation_t modulation)
 {
     bool status = false;
-    printfp ("\"ble_");
+    printfp ("\"ble_adv_");
     print_modulation (printfp, modulation);
     printfp ("\":{\r\n");
     status |= ri_adv_init_test (printfp, modulation);
