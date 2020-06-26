@@ -1,5 +1,6 @@
 #ifndef RUUVI_INTERFACE_ADC_NTC_H
 #define RUUVI_INTERFACE_ADC_NTC_H
+
 /**
  * @addtogroup Environmental
  */
@@ -24,6 +25,9 @@
  * ADC_NTC sensor driver.
  *
  */
+
+#include "ruuvi_driver_error.h"
+#include "ruuvi_driver_sensor.h"
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_adc_ntc_init (rd_sensor_t *

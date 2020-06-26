@@ -25,6 +25,9 @@
  *
  */
 
+#include "ruuvi_driver_error.h"
+#include "ruuvi_driver_sensor.h"
+
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_adc_photo_init (rd_sensor_t *
                                environmental_sensor, rd_bus_t bus, uint8_t handle);
