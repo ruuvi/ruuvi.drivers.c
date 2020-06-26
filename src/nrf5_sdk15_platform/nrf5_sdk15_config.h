@@ -138,10 +138,17 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
-#    define TWI_ENABLED 1
-#    define TWI1_ENABLED 1
-#    define TWI1_USE_EASYDMA 0
-#    define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
+#   if (NRF52832_XXAA || NRF52840_XXAA)
+#        define TWI_ENABLED 1
+#        define TWI1_ENABLED 1
+#        define TWI1_USE_EASYDMA 0
+#        define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
+#   elif(NRF52811_XXAA)
+#        define TWI_ENABLED 1
+#        define TWI0_ENABLED 1
+#        define TWI0_USE_EASYDMA 0
+#        define I2C_INSTANCE 0        //!< 811 shares instance number.
+#   endif
 #endif
 
 #if RUUVI_NRF5_SDK15_SPI_ENABLED
@@ -201,7 +208,7 @@
 
 #if RUUVI_NRF5_SDK15_UART_ENABLED
 #   define NRF_SERIAL_ENABLED 1
-#   ifdef NRF52811_XXAA
+#   if defined (NRF52811_XXAA)
 #       define NRFX_UARTE_ENABLED 1
 #       define NRFX_UARTE0_ENABLED 1
 #       define NRFX_UART_ENABLED 1
@@ -210,7 +217,7 @@
 #       define NRFX_PRS_ENABLED 1
 #       define NRFX_PRS_BOX_2_ENABLED 1
 #   endif
-#   ifdef NRF52832_XXAA
+#   if defined (NRF52832_XXAA)
 #       // Serial module requires UART + UARTE
 #       define NRFX_UARTE_ENABLED 1
 #       define NRFX_UARTE0_ENABLED 1
@@ -224,6 +231,9 @@
 #   define UART_EASY_DMA_SUPPORT 1
 #   define UART_LEGACY_SUPPORT 1
 #   define UART0_ENABLED 1
+#else
+// Required for Nordic SDK
+#   define NRF_DRV_UART_WITH_UART 1
 #endif
 
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED

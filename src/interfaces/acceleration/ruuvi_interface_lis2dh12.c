@@ -697,8 +697,6 @@ static rd_status_t rawToC (const uint8_t * const raw_temperature,
                            float * temperature)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int8_t msb = (int8_t) raw_temperature[1];
-    uint8_t lsb = raw_temperature[0];
     int16_t value = (raw_temperature[1] * 256) + raw_temperature[0];
 
     switch (dev.resolution)

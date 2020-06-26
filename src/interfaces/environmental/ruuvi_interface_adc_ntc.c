@@ -101,17 +101,6 @@ float m_temperture;                  //!< Last measured temperature
 static bool m_is_init;               //!< Flag, is sensor init.
 static const char m_sensor_name[] = "NTC"; //!< Human-readable name of the sensor.
 
-static float volts_to_temperature (float * data)
-{
-    float result;
-    result = (float) (ADC_NTC_BALANCE) * ( ( (float) (ADC_NTC_USE_VDD) / (*data)) - 1);
-    result = ( (float) ADC_NTC_DEFAULT_BETA * (float) ADC_NTC_DEFAULT_TEMP_K) /
-             ( (float) ADC_NTC_DEFAULT_BETA + ( (float) ADC_NTC_DEFAULT_TEMP_K * log (result /
-                     (float) RI_ADC_NTC_DEFAULT_RES)));
-    result = result - (float) ADC_K_TO_C_CONST;
-    return result;
-}
-
 /**
  * @brief convert measured voltage ratio to temperature
  *
