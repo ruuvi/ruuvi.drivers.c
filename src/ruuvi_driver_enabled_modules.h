@@ -240,22 +240,23 @@ data payload length is the maximum length */
 
 #ifndef RI_ADC_PHOTO_ENABLED
 #   define RI_ADC_PHOTO_ENABLED      ENABLE_DEFAULT
-#   define RI_ADC_PHOTO_CHANNEL      2
-#   define RI_ADC_PHOTO_DIVIDER      1.00f //!< Predivider installed on board
-#   define RI_ADC_PHOTO_VDD          3.60f
 #endif
 
-// NTC is installed as VDD - fixed resistor - ADC - NTC - GND.
+// TODO: Refactor configuration constants elsewhere
+#   define RI_ADC_PHOTO_CHANNEL      2
+#   define RI_ADC_PHOTO_DIVIDER      1.00f //!< Predivider installed on board
 
 #ifndef RI_ADC_NTC_ENABLED
 #   define RI_ADC_NTC_ENABLED        ENABLE_DEFAULT
-#   define RI_ADC_NTC_CHANNEL        1
-#   define RI_ADC_NTC_DIVIDER        1.00f //!< Predivider installed on board
-#   define RI_ADC_NTC_VDD            3.60f
-#   define RI_ADC_NTC_BALANCE        10000.00f //!< Fixed resistor value
-#   define RI_ADC_NTC_DEFAULT_RES    10000.00f //!< NTC at default temp
-#   define RI_ADC_NTC_DEFAULT_TEMP   25.00f    //!< Calibration temperature
-#   define RI_ADC_NTC_DEFAULT_BETA   3974.0f   //!< Beta value of NTC, check datasheet.
 #endif
+// TODO: Refactor configuration constants elsewhere
+// NTC is installed as VDD - fixed resistor - ADC - NTC - GND.
+#define RI_ADC_NTC_CHANNEL        1
+#define RI_ADC_NTC_DIVIDER        1.00f //!< Predivider installed on board
+#define RI_ADC_NTC_BALANCE        10000.00f //!< Fixed resistor value
+#define RI_ADC_NTC_DEFAULT_RES    10000.00f //!< NTC at default temp
+#define RI_ADC_NTC_DEFAULT_TEMP   25.00f    //!< Calibration temperature
+#define RI_ADC_NTC_DEFAULT_BETA   3974.0f   //!< Beta value of NTC, check datasheet.
+
 
 #endif
