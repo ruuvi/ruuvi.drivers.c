@@ -194,7 +194,6 @@ rd_status_t id_set (const char * const id)
 rd_status_t rt_nfc_init (ri_comm_dis_init_t * const init_data)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int written = 0;
 
     if (NULL == init_data)
     {

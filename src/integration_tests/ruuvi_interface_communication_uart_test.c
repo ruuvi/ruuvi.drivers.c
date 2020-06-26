@@ -249,8 +249,8 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
             }
         }
 
-        size_t written = snprintf (msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s",
-                                   test_data + RI_COMM_MESSAGE_MAX_LENGTH);
+        size_t written = snprintf ( (char *) msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s",
+                                    test_data + RI_COMM_MESSAGE_MAX_LENGTH);
         msg.data_length = written;
         const char * cutoff_index = test_data + strlen (test_data) - written;
         m_has_sent = false;

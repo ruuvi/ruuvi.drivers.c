@@ -633,7 +633,6 @@ static rd_status_t setup_phys (void)
 rd_status_t ri_gatt_init (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
-    rd_status_t radio_status = RD_SUCCESS;
     static bool qwr_is_init = false;
 
     if (m_gatt_is_init)

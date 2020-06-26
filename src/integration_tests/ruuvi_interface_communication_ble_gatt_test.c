@@ -151,7 +151,7 @@ static bool tx_slow_test (void)
     {
         snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s%d", test_data,
                    msg_index++);
-        msg.data_length = strlen (msg.data);
+        msg.data_length = strlen (test_data);
         msg.repeat_count = 1U;
         err_code |= m_channel.send (&msg);
         ri_delay_ms (1000U);

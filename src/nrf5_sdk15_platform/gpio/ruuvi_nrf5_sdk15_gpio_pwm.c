@@ -133,7 +133,6 @@ static nrf_pwm_clk_t ruuvi_get_base_config (float * const frequency,
         uint16_t * p_top)
 {
     nrf_pwm_clk_t clock = NRF_PWM_CLK_16MHz;
-    uint8_t freq_num = RI_GPIO_PWM_BASE_NUM_FREQ_16MHZ;
     float f_rest_min = RI_GPIO_PWM_MIN_REST_FOR_TOP;
     float m_freq = (*frequency);
     float m_duty = (*duty_cycle);
