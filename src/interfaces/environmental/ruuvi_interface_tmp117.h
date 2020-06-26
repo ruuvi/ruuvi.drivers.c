@@ -25,6 +25,9 @@
  *
  */
 
+#include "ruuvi_driver_error.h"
+#include "ruuvi_driver_sensor.h"
+
 /*
 ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 00h     R    8000h Temp_Result   Temperature result register
