@@ -4,21 +4,21 @@
 /**
  * @defgroup communication_tasks Sending and receiving data.
  */
-/*@{*/
+/** @{ */
 /**
  * @defgroup advertisement_tasks Advertisement tasks
  * @brief Bluetooth Low Energy advertising
  *
  */
-/*@}*/
+/** @} */
 /**
  * @addtogroup advertisement_tasks
  */
-/*@{*/
+/** @{ */
 /**
- * @file task_advertisement.h
+ * @file ruuvi_task_advertisement.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-11-19
+ * @date 2020-06-01
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Advertise data and GATT connection if available.
@@ -28,19 +28,31 @@
  *
  * @code{.c}
  *  rd_status_t err_code = RD_SUCCESS;
- *  err_code = rd_adv_init();
- *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
- *  err_code = rd_adv_send_data();
- *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
- *  err_code = rd_adv_start();
- *  RD_ERROR_CHECK(err_code, RD_SUCCESS;
+ *  err_code |= ri_radio_init(RI_RADIO_BLE_2MBPS);
+ *  ri_radio_channels_t channels;
+ *  channels.channel_37 = 1;
+ *  channels.channel_38 = 1;
+ *  channels.channel_39 = 1;
+ *  rt_adv_init_t adv_settings;
+ *  adv_settings.adv_interval_ms = APP_ADV_INTERVAL_MS;
+ *  adv_settings.adv_pwr_dbm = RB_TX_POWER_MAX;
+ *  adv_settings.channels = channels;
+ *  adv_settings.manufacturer_id = RB_BLE_MANUFACTURER_ID;
+ *  err_code |= rt_adv_init(&adv_settings);
+ *  err_code |= ri_adv_type_set(NONCONNECTABLE_NONSCANNABLE);
+ *  err_code |= rt_adv_send_data (&my_message);
  * @endcode
  */
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
 
-#define SCAN_RSP_NAME_MAX_LEN (11U) //!< Longer name gets truncated when advertised with UUID.
+/** @brief Longer name gets truncated when advertised with UUID. */
+#define SCAN_RSP_NAME_MAX_LEN (11U)
+/** @brief Window of one scan per channel. Scan takes this * num_channels time */
+#define RT_ADV_SCAN_WINDOW_MS (7000U)
+//!< @brief Interval of one scan within a window. Can be at most equal to scan window. */
+#define RT_ADV_SCAN_INTERVAL_MS (7000U)
 
 /** @brief Initial configuration for advertisement. PHY will be transferred to GATT.  */
 typedef struct
@@ -132,9 +144,17 @@ rd_status_t rt_adv_connectability_set (const bool enable,
  */
 bool rt_adv_is_init (void);
 
-/** @brief Start scanning BLE advertisements
+/** @brief Start scanning BLE advertisements.
  *
  * This is non-blocking, you'll need to handle incoming events.
+ *
+ * PHY to be scanned is determined by radio initialization.
+ * If you have selected 2 MBit / s PHY, primary advertisements
+ * are scanned at 1 Mbit / s and secondary extended advertisement
+ * can be scanned at at 2 MBit / s.
+ *
+ * Scan is done at 7000 ms window and interval, this consumes
+ * a lot of power and may collapse a coin cell battery.
  *
  * Events are:
  *   - on_evt(RI_COMM_RECEIVED, scan, sizeof(ri_adv_scan_t));
@@ -150,11 +170,15 @@ bool rt_adv_is_init (void);
  */
 rd_status_t rt_adv_scan_start (const ri_comm_evt_handler_fp_t on_evt);
 
-/** @brief abort scanning.
-*/
+/**
+ * @brief Abort scanning.
+ *
+ * After calling this function scanning is immediately stopped.
+ *
+ */
 rd_status_t rt_adv_scan_stop (void);
 
 
-/*@}*/
+/** @} */
 
 #endif

@@ -56,7 +56,7 @@ rd_status_t rt_button_init (const rt_button_init_t * const rt_init)
     {
         for (size_t ii = 0; (ii < rt_init->num_buttons) && (RD_SUCCESS == err_code); ii++)
         {
-            ri_gpio_mode_t  mode;
+            ri_gpio_mode_t mode = RI_GPIO_MODE_HIGH_Z;
 
             if (NULL == rt_init->p_button_handlers[ii])
             {

@@ -119,6 +119,6 @@ rd_status_t ri_gpio_interrupt_enable (const ri_gpio_id_t pin,
  */
 rd_status_t ri_gpio_interrupt_disable (const ri_gpio_id_t pin);
 
-/*@}*/
+/** @} */
 
 #endif

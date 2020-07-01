@@ -44,7 +44,7 @@ int8_t is_led (const ri_gpio_id_t led)
 
 static inline ri_gpio_state_t led_to_pin_state (ri_gpio_id_t led, bool active)
 {
-    ri_gpio_state_t state;
+    ri_gpio_state_t state = RI_GPIO_LOW;
     int8_t index = is_led (led);
 
     if (index > -1)

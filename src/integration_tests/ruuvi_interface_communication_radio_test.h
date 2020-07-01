@@ -30,5 +30,17 @@
  * @retval False if no errors occured.
  */
 bool ri_communication_radio_run_integration_test (const rd_test_print_fp printfp);
-/* @} */
+
+/**
+ * @brief Print used modulation to printfp.
+ *
+ * Example:
+ *
+ * @param[in] printfp Function which accepts a char* message string to print.
+ * @param[in] modulation Modulation to print.
+ */
+void print_modulation (const rd_test_print_fp printfp,
+                       const ri_radio_modulation_t modulation);
+
+/** @} */
 #endif

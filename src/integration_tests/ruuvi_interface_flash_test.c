@@ -19,10 +19,6 @@
  * Integration test flash module implementation.
  */
 
-#define WDT_TEST_PAGE   0x0001U
-#define WDT_TEST_RECORD 0x0001U
-static const char wdt_data[] = "WDT";
-
 #define F_TEST_PAGE   0x0002U
 #define F_TEST_RECORD 0x0001U
 static const char f_data1[] = "Flash test data 1";
@@ -47,6 +43,7 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
     if (RD_SUCCESS != err_code)
     {
         status = true;
+        ri_flash_purge();
     }
     else
     {
@@ -280,8 +277,6 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
 {
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
-    // Ensure we can align into 4-byte boundary.
-    char load_buffer[sizeof (f_data2) + 4] = {0};
     printfp ("\"gc\":");
     err_code = ri_flash_uninit();
     err_code |= ri_flash_gc_run();
@@ -324,6 +319,7 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
         printfp ("\"pass\"\r\n");
     }
 
+    err_code = ri_flash_uninit();
     return status;
 }
 

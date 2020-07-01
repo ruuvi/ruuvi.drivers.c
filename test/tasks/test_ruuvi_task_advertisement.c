@@ -37,7 +37,6 @@ rd_status_t mock_send (ri_comm_message_t * const p_msg)
 {
     rd_status_t err_code = RD_SUCCESS;
     send_count++;
-
     return err_code;
 }
 
@@ -63,13 +62,19 @@ rd_status_t mock_init (ri_comm_channel_t * const p_channel)
     return RD_SUCCESS;
 }
 
+rd_status_t on_scan_isr (const ri_comm_evt_t evt, void * p_data, size_t data_len)
+{
+    // No action needed.
+    return RD_SUCCESS;
+}
+
 static ri_comm_channel_t m_mock_channel;
 
 
 void setUp (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    mock_init(&m_mock_channel);
+    mock_init (&m_mock_channel);
     ri_adv_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (&m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
@@ -81,7 +86,7 @@ void setUp (void)
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
-    err_code = rt_adv_init(&init);
+    err_code = rt_adv_init (&init);
     send_count = 0;
     read_count = 0;
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -91,7 +96,7 @@ void setUp (void)
 void tearDown (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    mock_uninit(&m_mock_channel);
+    mock_uninit (&m_mock_channel);
     ri_adv_uninit_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_uninit_ReturnArrayThruPtr_channel (
@@ -117,7 +122,7 @@ void tearDown (void)
 void test_rt_adv_init_ok (void)
 {
     tearDown();
-    mock_init(&m_mock_channel);
+    mock_init (&m_mock_channel);
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
@@ -136,7 +141,7 @@ void test_rt_adv_init_ok (void)
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
-    err_code = rt_adv_init(&init);
+    err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (rt_adv_is_init());
 }
@@ -162,7 +167,7 @@ void test_rt_adv_init_invalid_interval (void)
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
-    err_code = rt_adv_init(&init);
+    err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
     TEST_ASSERT (!rt_adv_is_init());
 }
@@ -188,7 +193,7 @@ void test_rt_adv_init_invalid_power (void)
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
-    err_code = rt_adv_init(&init);
+    err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
     TEST_ASSERT (!rt_adv_is_init());
 }
@@ -208,14 +213,14 @@ void test_rt_adv_init_invalid_type (void)
         &power, sizeof (power), RD_SUCCESS);
     ri_adv_type_t type = NONCONNECTABLE_NONSCANNABLE;
     ri_adv_type_set_ExpectAndReturn (type,
-            RD_ERROR_INVALID_PARAM);
+                                     RD_ERROR_INVALID_PARAM);
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
-    err_code = rt_adv_init(&init);
+    err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
     TEST_ASSERT (!rt_adv_is_init());
 }
@@ -227,7 +232,7 @@ void test_rt_adv_init_twice (void)
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
-    err_code = rt_adv_init(&init);
+    err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
     TEST_ASSERT (rt_adv_is_init());
 }
@@ -245,7 +250,7 @@ void test_rt_adv_init_twice (void)
 void test_rt_adv_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    mock_uninit(&m_mock_channel);
+    mock_uninit (&m_mock_channel);
     ri_adv_uninit_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_uninit_ReturnArrayThruPtr_channel (
@@ -264,8 +269,7 @@ void test_rt_adv_uninit (void)
 void test_rt_adv_stop_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_adv_stop_ExpectAndReturn (
-        RD_SUCCESS);
+    ri_adv_stop_ExpectAndReturn (RD_SUCCESS);
     err_code = rt_adv_stop();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
@@ -332,7 +336,7 @@ void test_rt_adv_connectability_set_nus_ok (void)
     rd_status_t err_code = RD_SUCCESS;
     const char name[] = "Ceedling";
     ri_adv_type_set_ExpectAndReturn (CONNECTABLE_SCANNABLE, RD_SUCCESS);
-    rt_gatt_is_nus_enabled_ExpectAndReturn(true);
+    rt_gatt_is_nus_enabled_ExpectAndReturn (true);
     ri_adv_scan_response_setup_ExpectAndReturn (name, true, RD_SUCCESS);
     err_code = rt_adv_connectability_set (true, name);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -343,7 +347,7 @@ void test_rt_adv_connectability_set_ok (void)
     rd_status_t err_code = RD_SUCCESS;
     const char name[] = "Ceedling";
     ri_adv_type_set_ExpectAndReturn (CONNECTABLE_SCANNABLE, RD_SUCCESS);
-    rt_gatt_is_nus_enabled_ExpectAndReturn(false);
+    rt_gatt_is_nus_enabled_ExpectAndReturn (false);
     ri_adv_scan_response_setup_ExpectAndReturn (name, false, RD_SUCCESS);
     err_code = rt_adv_connectability_set (true, name);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -378,4 +382,67 @@ void test_rt_adv_connectability_set_off (void)
         NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     err_code = rt_adv_connectability_set (false, NULL);
     TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+/** @brief Start scanning BLE advertisements.
+ *
+ * This is non-blocking, you'll need to handle incoming events.
+ *
+ * PHY to be scanned is determined by radio initialization.
+ * If you have selected 2 MBit / s PHY, primary advertisements
+ * are scanned at 1 Mbit / s and secondary extended advertisement
+ * can be scanned at at 2 MBit / s.
+ *
+ * Scan is done at 7000 ms window and interval, this consumes
+ * a lot of power and may collapse a coin cell battery.
+ *
+ * Events are:
+ *   - on_evt(RI_COMM_RECEIVED, scan, sizeof(ri_adv_scan_t));
+ *   - on_evt(RI_COMM_TIMEOUT, NULL, 0);
+ *
+ *  @param[in] on_evt Event handler for scan results.
+ *  @retval    RD_SUCCESS Scanning was started.
+ *  @retval    RD_ERROR_INVALID_STATE Advertising isn't initialized.
+ *  @return    error code from stack on other error.
+ *
+ * @note Scanning is stopped on timeout, you can restart the scan on event handler.
+ * @warning Event handler is called in interrupt context.
+ */
+void test_rt_adv_scan_start_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    ri_adv_scan_start_ExpectAndReturn (RT_ADV_SCAN_INTERVAL_MS, RT_ADV_SCAN_WINDOW_MS,
+                                       RD_SUCCESS);
+    err_code |= rt_adv_scan_start (on_scan_isr);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_rt_adv_scan_start_not_init (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    tearDown();
+    err_code |= rt_adv_scan_start (on_scan_isr);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
+}
+
+/**
+ * @brief Abort scanning.
+ *
+ * After calling this function scanning is immediately stopped.
+ *
+ */
+void test_rt_adv_scan_stop_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    ri_adv_scan_stop_ExpectAndReturn (RD_SUCCESS);
+    err_code |= rt_adv_scan_stop ();
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_rt_adv_scan_stop_not_init (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    tearDown();
+    err_code |= rt_adv_scan_stop ();
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }

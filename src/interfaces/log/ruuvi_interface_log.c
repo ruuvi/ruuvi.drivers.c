@@ -2,12 +2,12 @@
 #if RI_LOG_ENABLED
 /**
  * @addtogroup Log
- * @{
  */
+/** @{ */
 /**
  * @file ruuvi_interface_log.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-01-31
+ * @date 2019-05-20
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for printing out logging.
@@ -391,5 +391,4 @@ void ri_log_sensor_configuration (const ri_log_severity_t level,
     return;
 }
 
-/** @} */
 #endif

@@ -13,7 +13,7 @@
 
 #define LEDS_NUMBER 3U
 static const ri_gpio_id_t leds[LEDS_NUMBER] = {3U, 6U, 9U};
-static const ri_gpio_state_t leds_on[LEDS_NUMBER] = 
+static const ri_gpio_state_t leds_on[LEDS_NUMBER] =
 {
     RI_GPIO_LOW,
     RI_GPIO_HIGH,
@@ -28,13 +28,13 @@ void setUp (void)
     for (size_t ii = 0U; ii < LEDS_NUMBER; ii++)
     {
         ri_gpio_configure_ExpectAndReturn (leds[ii],
-                RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
-                RD_SUCCESS);
+                                           RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
+                                           RD_SUCCESS);
         ri_gpio_write_ExpectAndReturn (leds[ii], !leds_on[ii],
-                RD_SUCCESS);
+                                       RD_SUCCESS);
     }
 
-    rt_led_init(leds, leds_on, LEDS_NUMBER);
+    rt_led_init (leds, leds_on, LEDS_NUMBER);
     uint16_t led = rt_led_activity_led_get();
     configured_leds = LEDS_NUMBER;
     TEST_ASSERT (RI_GPIO_ID_UNUSED == led);
@@ -45,8 +45,8 @@ void tearDown (void)
     for (size_t ii = 0U; ii < configured_leds; ii++)
     {
         ri_gpio_configure_ExpectAndReturn (leds[ii],
-                RI_GPIO_MODE_HIGH_Z,
-                RD_SUCCESS);
+                                           RI_GPIO_MODE_HIGH_Z,
+                                           RD_SUCCESS);
     }
 
     rt_led_uninit();
@@ -76,13 +76,13 @@ void test_rt_led_init_leds_success_gpio_was_init (void)
     for (size_t ii = 0U; ii < LEDS_NUMBER; ii++)
     {
         ri_gpio_configure_ExpectAndReturn (leds[ii],
-                RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
-                RD_SUCCESS);
+                                           RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
+                                           RD_SUCCESS);
         ri_gpio_write_ExpectAndReturn (leds[ii], !leds_on[ii],
-                RD_SUCCESS);
+                                       RD_SUCCESS);
     }
 
-    rt_led_init(leds, leds_on, LEDS_NUMBER);
+    rt_led_init (leds, leds_on, LEDS_NUMBER);
     uint16_t led = rt_led_activity_led_get();
     TEST_ASSERT (RI_GPIO_ID_UNUSED == led);
     configured_leds = LEDS_NUMBER;
@@ -98,13 +98,13 @@ void test_rt_led_init_leds_gpio_not_init (void)
     for (size_t ii = 0U; ii < LEDS_NUMBER; ii++)
     {
         ri_gpio_configure_ExpectAndReturn (leds[ii],
-                RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
-                RD_SUCCESS);
+                                           RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
+                                           RD_SUCCESS);
         ri_gpio_write_ExpectAndReturn (leds[ii], !leds_on[ii],
-                RD_SUCCESS);
+                                       RD_SUCCESS);
     }
 
-    rt_led_init(leds, leds_on, LEDS_NUMBER);
+    rt_led_init (leds, leds_on, LEDS_NUMBER);
     uint16_t aled = rt_led_activity_led_get();
     TEST_ASSERT (RI_GPIO_ID_UNUSED == aled);
     configured_leds = LEDS_NUMBER;
@@ -120,14 +120,14 @@ void test_rt_led_init_leds_twice_fails (void)
     for (size_t ii = 0U; ii < LEDS_NUMBER; ii++)
     {
         ri_gpio_configure_ExpectAndReturn (leds[ii],
-                RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
-                RD_SUCCESS);
+                                           RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
+                                           RD_SUCCESS);
         ri_gpio_write_ExpectAndReturn (leds[ii], !leds_on[ii],
-                RD_SUCCESS);
+                                       RD_SUCCESS);
     }
 
-    rt_led_init(leds, leds_on, LEDS_NUMBER);
-    rd_status_t error = rt_led_init(leds, leds_on, LEDS_NUMBER);
+    rt_led_init (leds, leds_on, LEDS_NUMBER);
+    rd_status_t error = rt_led_init (leds, leds_on, LEDS_NUMBER);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == error);
     configured_leds = LEDS_NUMBER;
 }
@@ -138,7 +138,7 @@ void test_rt_led_init_leds_gpio_fails (void)
     tearDown();
     ri_gpio_is_init_ExpectAndReturn (false);
     ri_gpio_init_ExpectAndReturn (RD_ERROR_INTERNAL);
-    rd_status_t error = rt_led_init(leds, leds_on, LEDS_NUMBER);
+    rd_status_t error = rt_led_init (leds, leds_on, LEDS_NUMBER);
     TEST_ASSERT (RD_ERROR_INTERNAL == error);
 }
 

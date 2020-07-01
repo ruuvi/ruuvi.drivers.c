@@ -122,6 +122,29 @@ static bool ri_radio_address_test (const rd_test_print_fp printfp)
     return status;
 }
 
+void print_modulation (const rd_test_print_fp printfp,
+                       const ri_radio_modulation_t modulation)
+{
+    switch (modulation)
+    {
+        case RI_RADIO_BLE_125KBPS:
+            printfp ("coded");
+            break;
+
+        case RI_RADIO_BLE_1MBPS:
+            printfp ("1_mbit");
+            break;
+
+        case RI_RADIO_BLE_2MBPS:
+            printfp ("2_mbit");
+            break;
+
+        default:
+            printfp ("error");
+            break;
+    }
+}
+
 
 
 bool ri_communication_radio_run_integration_test (const rd_test_print_fp printfp)
@@ -131,6 +154,7 @@ bool ri_communication_radio_run_integration_test (const rd_test_print_fp printfp
     status |= ri_radio_init_test (printfp);
     status |= ri_radio_address_test (printfp);
     printfp ("},\r\n");
+    return status;
 }
 
 /* @} */

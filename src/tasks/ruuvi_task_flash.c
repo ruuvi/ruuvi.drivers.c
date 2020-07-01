@@ -101,7 +101,6 @@ static
 void print_error_cause (void)
 {
     rt_flash_error_cause_t error;
-    uint32_t timeout = 0;
     rd_status_t err_code;
     err_code = rt_flash_load (RT_FLASH_ERROR_FILE,
                               RT_FLASH_ERROR_RECORD,

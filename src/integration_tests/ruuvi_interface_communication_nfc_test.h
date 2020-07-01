@@ -30,5 +30,5 @@
  * @warning This test requires external NFC reader to copy + write copied data to device.
  */
 bool ri_communication_nfc_run_integration_test (const rd_test_print_fp printfp);
-/* @} */
+/** @} */
 #endif

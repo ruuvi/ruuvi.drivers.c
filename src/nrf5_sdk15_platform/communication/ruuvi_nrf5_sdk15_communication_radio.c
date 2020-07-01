@@ -30,8 +30,12 @@
 
 /** @brief Application callback for radio events */
 static ri_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
-static ri_radio_modulation_t m_modulation;
 static ri_radio_modulation_t m_modulation; //<! Modulation for radio ops.
+
+/** @brief Start of RAM in memory space */
+#ifndef PHY_RAM_START
+#   define PHY_RAM_START 0x20000000
+#endif
 
 /**
  * @brief Task to run on radio activity
@@ -60,6 +64,10 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
     {
         status |= RD_ERROR_INVALID_STATE;
     }
+    else if (!ri_radio_supports (modulation))
+    {
+        status |= RD_ERROR_INVALID_PARAM;
+    }
     else
     {
         err_code = nrf_sdh_enable_request();
@@ -72,9 +80,9 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
                     &ram_start);
         RD_ERROR_CHECK (err_code, NRF_SUCCESS);
         // TODO - find the correct way to define large enough GATT queue for extended GATT event.
-        ble_cfg_t conn_cfg = { 0 };
-        conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
-        err_code |= sd_ble_cfg_set (BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
+        //ble_cfg_t conn_cfg = { 0 };
+        //conn_cfg.conn_cfg.conn_cfg_tag = RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG;
+        //err_code |= sd_ble_cfg_set (BLE_CONN_CFG_GATTS, &conn_cfg, ram_start);
         // Enable BLE stack.
         err_code |= nrf_sdh_ble_enable (&ram_start);
         // Enable connection event extension for faster data rate
@@ -95,7 +103,10 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation)
 
 rd_status_t ri_radio_uninit (void)
 {
+    // Ask everything nicely to shut down.
     nrf_sdh_disable_request();
+    // Shut everything down by force.
+    sd_softdevice_disable();
     on_radio_activity_callback = NULL;
     return RD_SUCCESS;
 }
@@ -176,7 +187,7 @@ rd_status_t ri_radio_get_modulation (ri_radio_modulation_t * const p_modulation)
         *p_modulation = m_modulation;
     }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 
@@ -192,12 +203,15 @@ uint8_t ruuvi_nrf5_sdk15_radio_phy_get (void)
         {
             case RI_RADIO_BLE_125KBPS:
                 nrf_modulation = BLE_GAP_PHY_CODED;
+                break;
 
             case RI_RADIO_BLE_1MBPS:
                 nrf_modulation = BLE_GAP_PHY_1MBPS;
+                break;
 
             case RI_RADIO_BLE_2MBPS:
                 nrf_modulation = BLE_GAP_PHY_2MBPS;
+                break;
 
             default:
                 nrf_modulation = BLE_GAP_PHY_NOT_SET;
@@ -205,7 +219,7 @@ uint8_t ruuvi_nrf5_sdk15_radio_phy_get (void)
         }
     }
 
-    return modulation;
+    return nrf_modulation;
 }
 
 void ruuvi_nrf5_sdk15_radio_channels_set (uint8_t * const nrf_channels,
@@ -215,6 +229,36 @@ void ruuvi_nrf5_sdk15_radio_channels_set (uint8_t * const nrf_channels,
     nrf_channels[4] |= (!channels.channel_37) << 5;
     nrf_channels[4] |= (!channels.channel_38) << 6;
     nrf_channels[4] |= (!channels.channel_39) << 7;
+}
+
+bool ri_radio_supports (ri_radio_modulation_t modulation)
+{
+    bool supported = false;
+
+    switch (modulation)
+    {
+        case RI_RADIO_BLE_125KBPS:
+#           if S140
+            supported = true;
+#           else
+            supported = false;
+#           endif
+            break;
+
+        case RI_RADIO_BLE_1MBPS:
+            supported = true;
+            break;
+
+        case RI_RADIO_BLE_2MBPS:
+            supported = true;
+            break;
+
+        default:
+            supported = false;
+            break;
+    }
+
+    return supported;
 }
 
 #endif

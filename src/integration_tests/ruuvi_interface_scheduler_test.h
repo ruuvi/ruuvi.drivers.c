@@ -4,7 +4,7 @@
  * @addtogroup scheduler
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_scheduler_test.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -29,5 +29,5 @@
  */
 bool ri_scheduler_run_integration_test (const rd_test_print_fp printfp);
 
-/* @} */
+/** @} */
 #endif
