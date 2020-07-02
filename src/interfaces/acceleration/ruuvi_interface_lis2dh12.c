@@ -1071,7 +1071,7 @@ rd_status_t ri_lis2dh12_activity_interrupt_use (const bool enable, float * const
 
     if (threshold > 0x7F) { return RD_ERROR_INVALID_PARAM; }
 
-    *limit_g = threshold * divisor;
+    *limit_g = ((float)threshold) * divisor;
     // Configure highpass on INTERRUPT 1
     lis_ret_code = lis2dh12_high_pass_int_conf_set (& (dev.ctx), high_pass);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
