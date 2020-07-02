@@ -111,6 +111,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
 
     int32_t lis_ret_code;
     rd_sensor_initialize (p_sensor);
+    p_sensor->name = m_acc_name;
     rd_status_t err_code = RD_SUCCESS;
     // Initialize mems driver interface
     stmdev_ctx_t * dev_ctx = & (dev.ctx);
@@ -231,7 +232,6 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
         p_sensor->fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use;
         p_sensor->fifo_read             = ri_lis2dh12_fifo_read;
         p_sensor->level_interrupt_set   = ri_lis2dh12_activity_interrupt_use;
-        p_sensor->name                  = m_acc_name;
         p_sensor->provides.datas.acceleration_x_g = 1;
         p_sensor->provides.datas.acceleration_y_g = 1;
         p_sensor->provides.datas.acceleration_z_g = 1;
