@@ -6,6 +6,7 @@
 #include "ruuvi_interface_communication_nfc.h"
 #include "ruuvi_interface_communication.h"
 #include "ruuvi_interface_yield.h"
+#include "ruuvi_interface_rtc.h"
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,6 +23,7 @@
  *
  * Integration test NFC implementation.
  */
+#define NFC_TEST_TIMEOUT_MS (20000U)
 
 static ri_comm_channel_t m_channel;
 static bool m_has_connected;
@@ -120,6 +122,8 @@ static bool ri_nfc_init_test (const rd_test_print_fp printfp)
 bool ri_nfc_rx_test (const rd_test_print_fp printfp)
 {
     bool status = false;
+    uint64_t start_time = 0;
+    bool timeout = false;
     rd_status_t err_code = RD_SUCCESS;
     printfp ("\"tx_rx\":");
     err_code |= ri_nfc_init (&m_channel);
@@ -132,19 +136,28 @@ bool ri_nfc_rx_test (const rd_test_print_fp printfp)
     {
         m_channel.on_evt = nfc_isr;
         err_code |= m_channel.send (&msg);
+        ri_rtc_init();
+        start_time = ri_rtc_millis();
 
         while (! (m_has_connected
                   && m_has_disconnected
                   && m_has_sent
                   && m_has_received))
         {
-            ri_yield();
+            if ( (start_time + NFC_TEST_TIMEOUT_MS) < ri_rtc_millis())
+            {
+                timeout = true;
+                break;
+            }
         }
 
-        if ( (RD_SUCCESS != err_code)
-                || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t)))
+        if (false == timeout)
         {
-            status = true;
+            if ( (RD_SUCCESS != err_code)
+                    || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t)))
+            {
+                status = true;
+            }
         }
     }
     else
@@ -152,15 +165,23 @@ bool ri_nfc_rx_test (const rd_test_print_fp printfp)
         status = true;
     }
 
-    if (status)
+    if (timeout)
     {
-        printfp ("\"fail\"\r\n");
+        printfp ("\"timeout\"\r\n");
     }
     else
     {
-        printfp ("\"pass\"\r\n");
+        if (status)
+        {
+            printfp ("\"fail\"\r\n");
+        }
+        else
+        {
+            printfp ("\"pass\"\r\n");
+        }
     }
 
+    ri_rtc_uninit();
     ri_nfc_uninit (&m_channel);
     return status;
 }
