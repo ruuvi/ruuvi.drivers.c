@@ -13,10 +13,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 #if RUUVI_RUN_TESTS
 
 #define RETURN_ON_ERROR(status) if(status) {return status;}
+#define BITFIELD_MASK       (1U)
+#define MAX_LOG_BUFFER_SIZE (128U)
+#define MAX_SENSOR_NAME_LEN (20U)
+#define MAX_BITS_PER_BYTE (8U) //!< Number of bits in a byte.
+#define MAX_SENSORS (sizeof(rd_sensor_data_fields_t)* MAX_BITS_PER_BYTE)
 #define MAX_RETRIES    (50U) //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
 #define MAX_FIFO_DEPTH (32U) //!< How many samples to fetch from FIFO at max
 #define MAX_SENSOR_PROVIDED_FIELDS (4U) //!< Largest number of different fields tested sensor can have.
@@ -778,6 +784,50 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
     return status;
 }
 
+static bool sensor_returns_valid_data_print (const rd_sensor_t * const DUT,
+        const rd_test_print_fp printfp)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode;
+    rd_sensor_data_t data = {0};
+    float values [MAX_SENSOR_PROVIDED_FIELDS];
+    data.fields = DUT->provides;
+    data.data = values;
+    mode = RD_SENSOR_CFG_SINGLE;
+    err_code = DUT->mode_set (&mode);
+    err_code |= DUT->data_get (&data);
+
+    if (RD_SUCCESS != err_code)
+    {
+        RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL);
+        return true;
+    }
+
+    rd_sensor_data_print (&data, printfp);
+    return false;
+}
+
+static bool test_sensor_data_print (const rd_sensor_init_fp init,
+                                    const rd_bus_t bus, const uint8_t handle,
+                                    const rd_test_print_fp printfp)
+{
+    // - Sensor must return RD_SUCCESS on first init.
+    rd_sensor_t DUT;
+    memset (&DUT, 0, sizeof (DUT));
+    bool failed = false;
+    failed |= init (&DUT, bus, handle);
+
+    if (failed)
+    {
+        // Return to avoid calling NULL function pointers
+        return failed;
+    }
+
+    failed |= sensor_returns_valid_data_print (&DUT, printfp);
+    DUT.uninit (&DUT, bus, handle);
+    return failed;
+}
+
 bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
                                      rt_sensor_ctx_t * p_sensor_ctx)
 {
@@ -857,10 +907,100 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
         {
             printfp ("\"skipped\"\r\n");
         }
+
+        status = test_sensor_data_print (p_sensor_ctx->init, p_sensor_ctx->bus,
+                                         p_sensor_ctx->handle, printfp);
     }
 
     printfp ("}");
     return status;
+}
+
+void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
+                           const rd_test_print_fp printfp)
+{
+    uint8_t data_counter = 0;
+    char sensors_name[MAX_SENSORS][MAX_SENSOR_NAME_LEN] =
+    {
+        "acceleration_x_g",
+        "acceleration_y_g",
+        "acceleration_z_g",
+        "co2_ppm",
+        "gyro_x_dps",
+        "gyro_y_dps",
+        "gyro_z_dps",
+        "humidity_rh",
+        "luminosity",
+        "magnetometer_x_g",
+        "magnetometer_y_g",
+        "magnetometer_z_g",
+        "pm_1_ugm3",
+        "pm_2_ugm3",
+        "pm_4_ugm3",
+        "pm_10_ugm3",
+        "pressure_pa",
+        "spl_dbz",
+        "temperature_c",
+        "voc_ppm",
+        "voltage_v",
+        "voltage_ratio",
+    };
+
+    if (NULL != p_data)
+    {
+        printfp ("\"data\":{\r\n");
+        char msg[MAX_LOG_BUFFER_SIZE];
+
+        if (RD_UINT64_INVALID == p_data->timestamp_ms)
+        {
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"RD_UINT64_INVALID\",\r\n");
+        }
+        else
+        {
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%lld\",\r\n", p_data->timestamp_ms);
+        }
+
+        printfp (msg);
+
+        for (uint8_t i = 0; i < MAX_SENSORS; i++)
+        {
+            if ( (p_data->fields.bitfield >> i) &
+                    BITFIELD_MASK)
+            {
+                char msg[MAX_LOG_BUFFER_SIZE];
+
+                if ( (p_data->valid.bitfield >> i) &
+                        BITFIELD_MASK)
+                {
+                    if (0 == isnan (* ( (float *) (&p_data->data[data_counter]))))
+                    {
+                        snprintf (msg, sizeof (msg),
+                                  "\"%s\": \"%.2f\",\r\n",
+                                  (char *) &sensors_name[i][0],
+                                  * ( (float *) (&p_data->data[data_counter])));
+                    }
+                    else
+                    {
+                        snprintf (msg, sizeof (msg),
+                                  "\"%s\": \"NAN\",\r\n",
+                                  (char *) &sensors_name[i][0]);
+                    }
+
+                    data_counter++;
+                }
+                else
+                {
+                    snprintf (msg, sizeof (msg),
+                              "\"%s\": \"NAN\",\r\n",
+                              (char *) &sensors_name[i][0]);
+                }
+
+                printfp (msg);
+            }
+        }
+
+        printfp ("}\r\n");
+    }
 }
 
 #else
