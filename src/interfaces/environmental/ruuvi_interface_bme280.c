@@ -101,6 +101,7 @@ rd_status_t ri_bme280_init (rd_sensor_t *
     if (NULL != dev.write) { return RD_ERROR_INVALID_STATE; }
 
     rd_sensor_initialize (environmental_sensor);
+    environmental_sensor->name = m_sensor_name;
     rd_status_t err_code = RD_SUCCESS;
 
     switch (bus)
@@ -163,7 +164,6 @@ rd_status_t ri_bme280_init (rd_sensor_t *
         environmental_sensor->data_get          = ri_bme280_data_get;
         environmental_sensor->configuration_set = rd_sensor_configuration_set;
         environmental_sensor->configuration_get = rd_sensor_configuration_get;
-        environmental_sensor->name              = m_sensor_name;
         environmental_sensor->provides.datas.temperature_c = 1;
         environmental_sensor->provides.datas.humidity_rh = 1;
         environmental_sensor->provides.datas.pressure_pa = 1;

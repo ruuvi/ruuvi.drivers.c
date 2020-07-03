@@ -31,9 +31,9 @@
  *
  */
 
-#define LIS_SUCCESS (0)  //!< No error in LIS driver.
 #define NUM_AXIS    (3U) //!< X, Y, Z.
 #define NM_BIT_DIVEDER (64U) //!< Normal mode uses 10 bits in 16 bit field, leading to 2^6 factor in results.
+#define MOTION_THRESHOLD_MAX (0x7FU) // Highest threshold value allowed.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
@@ -59,17 +59,10 @@ typedef union
 /**
  * @brief lis2dh12 sensor settings structure.
  */
-static struct
-{
-    lis2dh12_op_md_t resolution; //!< Resolution, bits. 8, 10, or 12.
-    lis2dh12_fs_t scale;         //!< Scale, gravities. 2, 4, 8 or 16.
-    lis2dh12_odr_t samplerate;   //!< Sample rate, 1 ... 200, or custom values for higher.
-    lis2dh12_st_t selftest;      //!< Self-test enabled, positive, negative or disabled.
-    uint8_t mode;                //!< Operating mode. Sleep, single or continuous.
-    uint8_t handle;              //!< Device handle, SPI GPIO pin or I2C address.
-    uint64_t tsample;            //!< Time of sample, @ref rd_sensor_timestamp_get
-    stmdev_ctx_t ctx;            //!< Driver control structure
-} dev = {0};
+#ifndef CEEDLING
+static
+#endif
+ri_lis2dh12_dev dev = {0};
 
 static const char m_acc_name[] = "LIS2DH12";
 
@@ -103,140 +96,191 @@ static rd_status_t lis2dh12_verify_selftest (const axis3bit16_t * const new,
     return err_code;
 }
 
-rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
+static rd_status_t dev_ctx_init (const rd_bus_t bus,
+                                 const uint8_t handle)
 {
-    if (NULL == p_sensor) { return RD_ERROR_NULL; }
-
-    if (NULL != dev.ctx.write_reg) { return RD_ERROR_INVALID_STATE; }
-
-    int32_t lis_ret_code;
-    rd_sensor_initialize (p_sensor);
     rd_status_t err_code = RD_SUCCESS;
-    // Initialize mems driver interface
-    stmdev_ctx_t * dev_ctx = & (dev.ctx);
 
     switch (bus)
     {
         case RD_BUS_SPI:
-            dev_ctx->write_reg = ri_spi_lis2dh12_write;
-            dev_ctx->read_reg = ri_spi_lis2dh12_read;
+            dev.ctx.write_reg = &ri_spi_lis2dh12_write;
+            dev.ctx.read_reg = &ri_spi_lis2dh12_read;
             break;
 
         case RD_BUS_I2C:
-            return RD_ERROR_NOT_IMPLEMENTED;
+            err_code |= RD_ERROR_NOT_IMPLEMENTED;
+            break;
 
         default:
-            return RD_ERROR_NOT_SUPPORTED;
+            err_code |= RD_ERROR_NOT_SUPPORTED;
+            break;
     }
 
     dev.handle = handle;
-    dev_ctx->handle = &dev.handle;
+    dev.ctx.handle = &dev.handle;
     dev.mode = RD_SENSOR_CFG_SLEEP;
-    // Check device ID
+    return err_code;
+}
+
+static rd_status_t check_whoami (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
     uint8_t whoamI = 0;
-    lis2dh12_device_id_get (dev_ctx, &whoamI);
+    lis2dh12_device_id_get (&dev.ctx, &whoamI);
 
-    if (whoamI != LIS2DH12_ID) { return RD_ERROR_NOT_FOUND; }
+    if (whoamI != LIS2DH12_ID)
+    {
+        err_code |= RD_ERROR_NOT_FOUND;
+    }
 
-    // Disable FIFO, activity
-    ri_lis2dh12_fifo_use (false);
-    ri_lis2dh12_fifo_interrupt_use (false);
+    return err_code;
+}
+
+static rd_status_t clear_sensor_state (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int32_t lis_ret_code = LIS_SUCCESS;
     float ths = 0;
-    ri_lis2dh12_activity_interrupt_use (false, &ths);
-    // Turn X-, Y-, Z-measurement on
-    uint8_t enable_axes = 0x07;
-    lis2dh12_write_reg (dev_ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
+    // Disable FIFO, activity
+    err_code |= ri_lis2dh12_fifo_use (false);
+    err_code |= ri_lis2dh12_fifo_interrupt_use (false);
+    err_code |= ri_lis2dh12_activity_interrupt_use (false, &ths);
+    // Enable temperature sensor
+    lis_ret_code |= lis2dh12_temperature_meas_set (&dev.ctx, LIS2DH12_TEMP_ENABLE);
     // Disable Block Data Update, allow values to update even if old is not read
-    lis2dh12_block_data_update_set (dev_ctx, PROPERTY_ENABLE);
+    lis_ret_code |= lis2dh12_block_data_update_set (&dev.ctx, PROPERTY_ENABLE);
     // Disable filtering
-    lis2dh12_high_pass_on_outputs_set (dev_ctx, PROPERTY_DISABLE);
+    lis_ret_code |= lis2dh12_high_pass_on_outputs_set (&dev.ctx, PROPERTY_DISABLE);
+
+    if (LIS_SUCCESS != lis_ret_code)
+    {
+        err_code |= RD_ERROR_INTERNAL;
+    }
+
+    return err_code;
+}
+
+static rd_status_t selftest (void)
+{
+    axis3bit16_t data_raw_acceleration_old = {0};
+    axis3bit16_t data_raw_acceleration_new = {0};
+    int32_t lis_ret_code = LIS_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
     // Set Output Data Rate for self-test
     dev.samplerate = LIS2DH12_ODR_400Hz;
-    lis2dh12_data_rate_set (dev_ctx, dev.samplerate);
+    lis2dh12_data_rate_set (&dev.ctx, dev.samplerate);
     // Set full scale to 2G for self-test
     dev.scale = LIS2DH12_2g;
-    lis2dh12_full_scale_set (dev_ctx, dev.scale);
-    // Enable temperature sensor
-    lis2dh12_temperature_meas_set (dev_ctx, LIS2DH12_TEMP_ENABLE);
+    lis2dh12_full_scale_set (&dev.ctx, dev.scale);
     // Set device in 10 bit mode
     dev.resolution = LIS2DH12_NM_10bit;
-    lis2dh12_operating_mode_set (dev_ctx, dev.resolution);
+    lis2dh12_operating_mode_set (&dev.ctx, dev.resolution);
     // Run self-test
     // turn self-test off.
     dev.selftest = LIS2DH12_ST_DISABLE;
-    lis_ret_code = lis2dh12_self_test_set (dev_ctx, dev.selftest);
+    lis_ret_code = lis2dh12_self_test_set (&dev.ctx, dev.selftest);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // wait for valid sample to be available, 3 samples at 400 Hz = 2.5 ms / sample => 7.5 ms. Wait 9 ms.
-    ri_delay_ms (9);
+    // wait for valid sample to be available.
+    ri_delay_ms (SELF_TEST_DELAY_MS);
     // read accelerometer
-    axis3bit16_t data_raw_acceleration_old;
-    axis3bit16_t data_raw_acceleration_new;
-    memset (data_raw_acceleration_old.u8bit, 0x00, 3 * sizeof (int16_t));
-    memset (data_raw_acceleration_new.u8bit, 0x00, 3 * sizeof (int16_t));
-    lis2dh12_acceleration_raw_get (dev_ctx, data_raw_acceleration_old.u8bit);
+    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_old.u8bit);
     // self-test to positive direction
     dev.selftest = LIS2DH12_ST_POSITIVE;
-    lis2dh12_self_test_set (dev_ctx, dev.selftest);
+    lis2dh12_self_test_set (&dev.ctx, dev.selftest);
     // wait 2 samples in low power or normal mode for valid data.
-    ri_delay_ms (9);
+    ri_delay_ms (SELF_TEST_DELAY_MS);
     // Check self-test result
-    lis2dh12_acceleration_raw_get (dev_ctx, data_raw_acceleration_new.u8bit);
+    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // turn self-test off, keep error code in case we "lose" sensor after self-test
-    dev.selftest = LIS2DH12_ST_DISABLE;
-    lis_ret_code = lis2dh12_self_test_set (dev_ctx, dev.selftest);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // wait 2 samples and read value
-    ri_delay_ms (9);
-    lis2dh12_acceleration_raw_get (dev_ctx, data_raw_acceleration_old.u8bit);
+    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_SELFTEST;
     // self-test to negative direction
     dev.selftest = LIS2DH12_ST_NEGATIVE;
-    lis2dh12_self_test_set (dev_ctx, dev.selftest);
-    // wait 2 samples
-    ri_delay_ms (9);
+    lis2dh12_self_test_set (&dev.ctx, dev.selftest);
+    // wait 3 samples
+    ri_delay_ms (SELF_TEST_DELAY_MS);
     // Check self-test result
-    lis2dh12_acceleration_raw_get (dev_ctx, data_raw_acceleration_new.u8bit);
+    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_SELFTEST;
     // turn self-test off, keep error code in case we "lose" sensor after self-test
     dev.selftest = LIS2DH12_ST_DISABLE;
-    lis_ret_code = lis2dh12_self_test_set (dev_ctx, dev.selftest);
+    lis_ret_code = lis2dh12_self_test_set (&dev.ctx, dev.selftest);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     // Turn accelerometer off
     dev.samplerate = LIS2DH12_POWER_DOWN;
-    lis_ret_code = lis2dh12_data_rate_set (dev_ctx, dev.samplerate);
+    lis_ret_code = lis2dh12_data_rate_set (&dev.ctx, dev.samplerate);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    return err_code;
+}
 
-    if (RD_SUCCESS == err_code)
+rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == p_sensor)
     {
-        p_sensor->init                  = ri_lis2dh12_init;
-        p_sensor->uninit                = ri_lis2dh12_uninit;
-        p_sensor->samplerate_set        = ri_lis2dh12_samplerate_set;
-        p_sensor->samplerate_get        = ri_lis2dh12_samplerate_get;
-        p_sensor->resolution_set        = ri_lis2dh12_resolution_set;
-        p_sensor->resolution_get        = ri_lis2dh12_resolution_get;
-        p_sensor->scale_set             = ri_lis2dh12_scale_set;
-        p_sensor->scale_get             = ri_lis2dh12_scale_get;
-        p_sensor->dsp_set               = ri_lis2dh12_dsp_set;
-        p_sensor->dsp_get               = ri_lis2dh12_dsp_get;
-        p_sensor->mode_set              = ri_lis2dh12_mode_set;
-        p_sensor->mode_get              = ri_lis2dh12_mode_get;
-        p_sensor->data_get              = ri_lis2dh12_data_get;
-        p_sensor->configuration_set     = rd_sensor_configuration_set;
-        p_sensor->configuration_get     = rd_sensor_configuration_get;
-        p_sensor->fifo_enable           = ri_lis2dh12_fifo_use;
-        p_sensor->fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use;
-        p_sensor->fifo_read             = ri_lis2dh12_fifo_read;
-        p_sensor->level_interrupt_set   = ri_lis2dh12_activity_interrupt_use;
-        p_sensor->name                  = m_acc_name;
-        p_sensor->provides.datas.acceleration_x_g = 1;
-        p_sensor->provides.datas.acceleration_y_g = 1;
-        p_sensor->provides.datas.acceleration_z_g = 1;
-        p_sensor->provides.datas.temperature_c = 1;
-        dev.tsample = RD_UINT64_INVALID;
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (NULL != dev.ctx.write_reg)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        err_code |= dev_ctx_init (bus, handle);
+        rd_sensor_initialize (p_sensor);
+        p_sensor->name = m_acc_name;
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= check_whoami();
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= clear_sensor_state();
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= selftest();
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            p_sensor->init                  = ri_lis2dh12_init;
+            p_sensor->uninit                = ri_lis2dh12_uninit;
+            p_sensor->samplerate_set        = ri_lis2dh12_samplerate_set;
+            p_sensor->samplerate_get        = ri_lis2dh12_samplerate_get;
+            p_sensor->resolution_set        = ri_lis2dh12_resolution_set;
+            p_sensor->resolution_get        = ri_lis2dh12_resolution_get;
+            p_sensor->scale_set             = ri_lis2dh12_scale_set;
+            p_sensor->scale_get             = ri_lis2dh12_scale_get;
+            p_sensor->dsp_set               = ri_lis2dh12_dsp_set;
+            p_sensor->dsp_get               = ri_lis2dh12_dsp_get;
+            p_sensor->mode_set              = ri_lis2dh12_mode_set;
+            p_sensor->mode_get              = ri_lis2dh12_mode_get;
+            p_sensor->data_get              = ri_lis2dh12_data_get;
+            p_sensor->configuration_set     = rd_sensor_configuration_set;
+            p_sensor->configuration_get     = rd_sensor_configuration_get;
+            p_sensor->fifo_enable           = ri_lis2dh12_fifo_use;
+            p_sensor->fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use;
+            p_sensor->fifo_read             = ri_lis2dh12_fifo_read;
+            p_sensor->level_interrupt_set   = ri_lis2dh12_activity_interrupt_use;
+            p_sensor->provides.datas.acceleration_x_g = 1;
+            p_sensor->provides.datas.acceleration_y_g = 1;
+            p_sensor->provides.datas.acceleration_z_g = 1;
+            p_sensor->provides.datas.temperature_c = 1;
+            dev.tsample = RD_UINT64_INVALID;
+        }
+        else
+        {
+            rd_sensor_uninitialize (p_sensor);
+            memset (&dev, 0, sizeof (dev));
+        }
     }
 
     return err_code;
@@ -249,14 +293,27 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
 rd_status_t ri_lis2dh12_uninit (rd_sensor_t * p_sensor,
                                 rd_bus_t bus, uint8_t handle)
 {
-    if (NULL == p_sensor) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    rd_sensor_uninitialize (p_sensor);
-    dev.samplerate = LIS2DH12_POWER_DOWN;
-    //LIS2DH12 function returns SPI write result which is rd_status_t
-    int32_t lis_ret_code = lis2dh12_data_rate_set (& (dev.ctx), dev.samplerate);
-    memset (&dev, 0, sizeof (dev));
-    return (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    if (NULL == p_sensor)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        rd_sensor_uninitialize (p_sensor);
+        dev.samplerate = LIS2DH12_POWER_DOWN;
+        //LIS2DH12 function returns SPI write result which is rd_status_t
+        int32_t lis_ret_code = lis2dh12_data_rate_set (& (dev.ctx), dev.samplerate);
+        memset (&dev, 0, sizeof (dev));
+
+        if (LIS_SUCCESS != lis_ret_code)
+        {
+            err_code |= RD_ERROR_INTERNAL;
+        }
+    }
+
+    return err_code;
 }
 
 /**
@@ -576,7 +633,8 @@ rd_status_t ri_lis2dh12_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
-    uint8_t mode, hpcf;
+    uint8_t mode;
+    lis2dh12_hpcf_t hpcf;
     lis_ret_code = lis2dh12_high_pass_bandwidth_get (& (dev.ctx), &hpcf);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     lis_ret_code = lis2dh12_high_pass_on_outputs_get (& (dev.ctx), &mode);
@@ -1008,82 +1066,99 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable)
  */
 rd_status_t ri_lis2dh12_activity_interrupt_use (const bool enable, float * const limit_g)
 {
-    if (NULL == limit_g) { return RD_ERROR_NULL; }
-
-    if (0 > *limit_g)    { return RD_ERROR_INVALID_PARAM; }
-
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
     lis2dh12_hp_t high_pass = LIS2DH12_ON_INT1_GEN;
     lis2dh12_ctrl_reg6_t ctrl6 = { 0 };
     lis2dh12_int1_cfg_t  cfg = { 0 };
-    ctrl6.i2_ia1 = PROPERTY_ENABLE;
 
-    if (enable)
+    if (NULL == limit_g)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if ( (0 > *limit_g) && enable)
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
+    else if (enable)
     {
         cfg.xhie     = PROPERTY_ENABLE;
         cfg.yhie     = PROPERTY_ENABLE;
         cfg.zhie     = PROPERTY_ENABLE;
+        ctrl6.i2_ia1 = PROPERTY_ENABLE;
+        /*
+        Do not enable lower threshold on activity detection, as it would
+        turn logic into not-active detection.
+        cfg.xlie     = PROPERTY_ENABLE;
+        cfg.ylie     = PROPERTY_ENABLE;
+        cfg.zlie     = PROPERTY_ENABLE;
+        */
+        // Adjust for scale
+        // 1 LSb = 16 mg @ FS = 2 g
+        // 1 LSb = 32 mg @ FS = 4 g
+        // 1 LSb = 62 mg @ FS = 8 g
+        // 1 LSb = 186 mg @ FS = 16 g
+        uint8_t  scale;
+        uint32_t threshold;
+        float divisor;
+        lis_ret_code = ri_lis2dh12_scale_get (&scale);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+
+        switch (scale)
+        {
+            case 2:
+                divisor = 0.016f;
+                break;
+
+            case 4:
+                divisor = 0.032f;
+                break;
+
+            case 8:
+                divisor = 0.062f;
+                break;
+
+            case 16:
+                divisor = 0.186f;
+                break;
+
+            default:
+                divisor = 0.016f;
+                break;
+        }
+
+        threshold = (uint32_t) (*limit_g / divisor) + 1;
+
+        if (threshold > MOTION_THRESHOLD_MAX)
+        {
+            err_code |= RD_ERROR_INVALID_PARAM;
+        }
+        else
+        {
+            *limit_g = ( (float) threshold) * divisor;
+            // Configure INTERRUPT 1 Threshold
+            lis_ret_code = lis2dh12_int1_gen_threshold_set (& (dev.ctx), threshold);
+            err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+        }
     }
-
-    /*
-    Do not enable lower threshold on activity detection, as it would
-    turn logic into not-active detection.
-    cfg.xlie     = PROPERTY_ENABLE;
-    cfg.ylie     = PROPERTY_ENABLE;
-    cfg.zlie     = PROPERTY_ENABLE;
-    */
-    // Adjust for scale
-    // 1 LSb = 16 mg @ FS = 2 g
-    // 1 LSb = 32 mg @ FS = 4 g
-    // 1 LSb = 62 mg @ FS = 8 g
-    // 1 LSb = 186 mg @ FS = 16 g
-    uint8_t  scale;
-    uint32_t threshold;
-    float divisor;
-    lis_ret_code = ri_lis2dh12_scale_get (&scale);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-
-    switch (scale)
+    else
     {
-        case 2:
-            divisor = 0.016f;
-            break;
-
-        case 4:
-            divisor = 0.032f;
-            break;
-
-        case 8:
-            divisor = 0.062f;
-            break;
-
-        case 16:
-            divisor = 0.186f;
-            break;
-
-        default:
-            divisor = 0.016f;
-            break;
+        high_pass = LIS2DH12_DISC_FROM_INT_GENERATOR;
     }
 
-    threshold = (uint32_t) (*limit_g / divisor) + 1;
+    if (RD_SUCCESS == err_code)
+    {
+        // Configure highpass on INTERRUPT 1
+        lis_ret_code = lis2dh12_high_pass_int_conf_set (& (dev.ctx), high_pass);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+        // Configure INTERRUPT 1.
+        lis_ret_code = lis2dh12_int1_gen_conf_set (& (dev.ctx), &cfg);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+        // Route INTERRUPT 1 to PIN 2.
+        lis_ret_code = lis2dh12_pin_int2_config_set (& (dev.ctx), &ctrl6);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    }
 
-    if (threshold > 0x7F) { return RD_ERROR_INVALID_PARAM; }
-
-    *limit_g = threshold * divisor;
-    // Configure highpass on INTERRUPT 1
-    lis_ret_code = lis2dh12_high_pass_int_conf_set (& (dev.ctx), high_pass);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // Configure INTERRUPT 1 Threshold
-    lis_ret_code = lis2dh12_int1_gen_threshold_set (& (dev.ctx), threshold);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // Configure INTERRUPT 1 ON ZHI, ZLO, YHI, YLO, XHI, XLO
-    lis_ret_code = lis2dh12_int1_gen_conf_set (& (dev.ctx), &cfg);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // Route INTERRUPT 1 to PIN 2
-    lis_ret_code = lis2dh12_pin_int2_config_set (& (dev.ctx), &ctrl6);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     return err_code;
 }
 /*@}*/
