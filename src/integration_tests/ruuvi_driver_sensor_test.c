@@ -862,7 +862,10 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
         }
 
         printfp ("\"modes\":");
+        if(!status)
+        {
         status = test_sensor_modes (p_sensor_ctx->init, p_sensor_ctx->bus, p_sensor_ctx->handle);
+        }
 
         if (status)
         {
@@ -873,8 +876,12 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
             printfp ("\"pass\",\r\n");
         }
 
+        
         printfp ("\"configuration\":");
+        if(!status)
+        {
         status = test_sensor_setup (p_sensor_ctx->init, p_sensor_ctx->bus, p_sensor_ctx->handle);
+        }
 
         if (status)
         {
@@ -887,8 +894,9 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
 
         printfp ("\"interrupts\":");
 
-        if (RI_GPIO_ID_UNUSED != p_sensor_ctx->fifo_pin
-                && RI_GPIO_ID_UNUSED != p_sensor_ctx->level_pin)
+        if ((RI_GPIO_ID_UNUSED != p_sensor_ctx->fifo_pin)
+                && (RI_GPIO_ID_UNUSED != p_sensor_ctx->level_pin)
+                && (!status))
         {
             status = test_sensor_interrupts (p_sensor_ctx->init, p_sensor_ctx->bus,
                                              p_sensor_ctx->handle, false,
