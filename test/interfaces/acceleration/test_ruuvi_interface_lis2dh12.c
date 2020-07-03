@@ -28,7 +28,7 @@ void setUp (void)
 void tearDown (void)
 {
     if (NULL != m_sensor.uninit)
-    { 
+    {
         rd_sensor_uninitialize_Expect (&m_sensor);
         lis2dh12_data_rate_set_ExpectAndReturn (& (dev.ctx), LIS2DH12_POWER_DOWN, RD_SUCCESS);
         m_sensor.uninit (&m_sensor, m_bus, m_handle);
@@ -104,12 +104,11 @@ static void clear_sensor_state_ok (void)
             RD_SUCCESS);
 }
 
-static void selftest_ok(void)
+static void selftest_ok (void)
 {
     static uint8_t data_raw_acceleration_zero[6] = {0};
     static uint8_t data_raw_acceleration_pos[6] = {0xFF, 0x07, 0xFF, 0x07, 0xFF, 0x07};
     static uint8_t data_raw_acceleration_neg[6] = {0xFF, 0xE0, 0xFF, 0xE0, 0xFF, 0xE0};
-
     lis2dh12_data_rate_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ODR_400Hz, RD_SUCCESS);
     lis2dh12_full_scale_set_ExpectAndReturn (&dev.ctx, LIS2DH12_2g, RD_SUCCESS);
     lis2dh12_operating_mode_set_ExpectAndReturn (&dev.ctx, LIS2DH12_NM_10bit, RD_SUCCESS);
