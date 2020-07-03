@@ -328,7 +328,7 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor)
 
     if ( (NULL != sensor) && (NULL != sensor->uninit))
     {
-        init = (sensor->uninit != rd_init_ni);
+        init = (sensor->uninit != &rd_init_ni);
     }
 
     return init;

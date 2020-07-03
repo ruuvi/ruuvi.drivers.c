@@ -141,28 +141,17 @@ static rd_status_t clear_sensor_state (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code = LIS_SUCCESS;
+    float ths = 0;
     // Disable FIFO, activity
     err_code |= ri_lis2dh12_fifo_use (false);
     err_code |= ri_lis2dh12_fifo_interrupt_use (false);
-    float ths = 0;
     err_code |= ri_lis2dh12_activity_interrupt_use (false, &ths);
-#   if 0
-    // Turn X-, Y-, Z-measurement on - enabled by default
-    uint8_t enable_axes = 0x07;
-    lis_ret_code |= lis2dh12_write_reg (&dev.ctx, LIS2DH12_CTRL_REG1, &enable_axes, 1);
-#endif
     // Enable temperature sensor
-    lis2dh12_temperature_meas_set (&dev.ctx, LIS2DH12_TEMP_ENABLE);
+    lis_ret_code |= lis2dh12_temperature_meas_set (&dev.ctx, LIS2DH12_TEMP_ENABLE);
     // Disable Block Data Update, allow values to update even if old is not read
-    lis_ret_code = lis2dh12_block_data_update_set (&dev.ctx, PROPERTY_ENABLE);
-
-    if (LIS_SUCCESS != lis_ret_code)
-    {
-        err_code |= RD_ERROR_INTERNAL;
-    }
-
+    lis_ret_code |= lis2dh12_block_data_update_set (&dev.ctx, PROPERTY_ENABLE);
     // Disable filtering
-    lis_ret_code = lis2dh12_high_pass_on_outputs_set (&dev.ctx, PROPERTY_DISABLE);
+    lis_ret_code |= lis2dh12_high_pass_on_outputs_set (&dev.ctx, PROPERTY_DISABLE);
 
     if (LIS_SUCCESS != lis_ret_code)
     {
@@ -205,7 +194,7 @@ static rd_status_t selftest (void)
     lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_SELFTEST;
     // self-test to negative direction
     dev.selftest = LIS2DH12_ST_NEGATIVE;
     lis2dh12_self_test_set (&dev.ctx, dev.selftest);
@@ -215,7 +204,7 @@ static rd_status_t selftest (void)
     lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_SELFTEST;
     // turn self-test off, keep error code in case we "lose" sensor after self-test
     dev.selftest = LIS2DH12_ST_DISABLE;
     lis_ret_code = lis2dh12_self_test_set (&dev.ctx, dev.selftest);
@@ -244,49 +233,54 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
         err_code |= dev_ctx_init (bus, handle);
         rd_sensor_initialize (p_sensor);
         p_sensor->name = m_acc_name;
-    }
 
-    if (RD_SUCCESS == err_code)
-    {
-        err_code |= check_whoami();
-    }
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= check_whoami();
+        }
 
-    if (RD_SUCCESS == err_code)
-    {
-        err_code |= clear_sensor_state();
-    }
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= clear_sensor_state();
+        }
 
-    if (RD_SUCCESS == err_code)
-    {
-        err_code |= selftest();
-    }
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= selftest();
+        }
 
-    if (RD_SUCCESS == err_code)
-    {
-        p_sensor->init                  = ri_lis2dh12_init;
-        p_sensor->uninit                = ri_lis2dh12_uninit;
-        p_sensor->samplerate_set        = ri_lis2dh12_samplerate_set;
-        p_sensor->samplerate_get        = ri_lis2dh12_samplerate_get;
-        p_sensor->resolution_set        = ri_lis2dh12_resolution_set;
-        p_sensor->resolution_get        = ri_lis2dh12_resolution_get;
-        p_sensor->scale_set             = ri_lis2dh12_scale_set;
-        p_sensor->scale_get             = ri_lis2dh12_scale_get;
-        p_sensor->dsp_set               = ri_lis2dh12_dsp_set;
-        p_sensor->dsp_get               = ri_lis2dh12_dsp_get;
-        p_sensor->mode_set              = ri_lis2dh12_mode_set;
-        p_sensor->mode_get              = ri_lis2dh12_mode_get;
-        p_sensor->data_get              = ri_lis2dh12_data_get;
-        p_sensor->configuration_set     = rd_sensor_configuration_set;
-        p_sensor->configuration_get     = rd_sensor_configuration_get;
-        p_sensor->fifo_enable           = ri_lis2dh12_fifo_use;
-        p_sensor->fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use;
-        p_sensor->fifo_read             = ri_lis2dh12_fifo_read;
-        p_sensor->level_interrupt_set   = ri_lis2dh12_activity_interrupt_use;
-        p_sensor->provides.datas.acceleration_x_g = 1;
-        p_sensor->provides.datas.acceleration_y_g = 1;
-        p_sensor->provides.datas.acceleration_z_g = 1;
-        p_sensor->provides.datas.temperature_c = 1;
-        dev.tsample = RD_UINT64_INVALID;
+        if (RD_SUCCESS == err_code)
+        {
+            p_sensor->init                  = ri_lis2dh12_init;
+            p_sensor->uninit                = ri_lis2dh12_uninit;
+            p_sensor->samplerate_set        = ri_lis2dh12_samplerate_set;
+            p_sensor->samplerate_get        = ri_lis2dh12_samplerate_get;
+            p_sensor->resolution_set        = ri_lis2dh12_resolution_set;
+            p_sensor->resolution_get        = ri_lis2dh12_resolution_get;
+            p_sensor->scale_set             = ri_lis2dh12_scale_set;
+            p_sensor->scale_get             = ri_lis2dh12_scale_get;
+            p_sensor->dsp_set               = ri_lis2dh12_dsp_set;
+            p_sensor->dsp_get               = ri_lis2dh12_dsp_get;
+            p_sensor->mode_set              = ri_lis2dh12_mode_set;
+            p_sensor->mode_get              = ri_lis2dh12_mode_get;
+            p_sensor->data_get              = ri_lis2dh12_data_get;
+            p_sensor->configuration_set     = rd_sensor_configuration_set;
+            p_sensor->configuration_get     = rd_sensor_configuration_get;
+            p_sensor->fifo_enable           = ri_lis2dh12_fifo_use;
+            p_sensor->fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use;
+            p_sensor->fifo_read             = ri_lis2dh12_fifo_read;
+            p_sensor->level_interrupt_set   = ri_lis2dh12_activity_interrupt_use;
+            p_sensor->provides.datas.acceleration_x_g = 1;
+            p_sensor->provides.datas.acceleration_y_g = 1;
+            p_sensor->provides.datas.acceleration_z_g = 1;
+            p_sensor->provides.datas.temperature_c = 1;
+            dev.tsample = RD_UINT64_INVALID;
+        }
+        else
+        {
+            rd_sensor_uninitialize (p_sensor);
+            memset (&dev, 0, sizeof (dev));
+        }
     }
 
     return err_code;

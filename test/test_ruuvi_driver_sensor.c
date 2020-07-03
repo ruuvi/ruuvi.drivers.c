@@ -700,11 +700,19 @@ void test_rd_sensor_is_init_init (void)
     TEST_ASSERT (is_init);
 }
 
-void test_rd_sensor_is_init_not_init (void)
+void test_rd_sensor_is_init_uninit (void)
 {
     rd_sensor_t not_init;
     memcpy (&not_init, &mock_lis2dh12_dev, sizeof (rd_sensor_t));
     rd_sensor_uninitialize (&not_init);
+    bool is_init = rd_sensor_is_init (&not_init);
+    TEST_ASSERT (!is_init);
+    TEST_ASSERT (strcmp (mock_lis2dh12_dev.name, not_init.name));
+}
+
+void test_rd_sensor_is_init_not_init (void)
+{
+    rd_sensor_t not_init = {0};
     bool is_init = rd_sensor_is_init (&not_init);
     TEST_ASSERT (!is_init);
 }
