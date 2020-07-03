@@ -33,6 +33,7 @@
 
 #define NUM_AXIS    (3U) //!< X, Y, Z.
 #define NM_BIT_DIVEDER (64U) //!< Normal mode uses 10 bits in 16 bit field, leading to 2^6 factor in results.
+#define MOTION_THRESHOLD_MAX (0x7FU) // Highest threshold value allowed.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
@@ -95,7 +96,7 @@ static rd_status_t lis2dh12_verify_selftest (const axis3bit16_t * const new,
     return err_code;
 }
 
-static rd_status_t dev_ctx_init (rd_sensor_t * const p_sensor, const rd_bus_t bus,
+static rd_status_t dev_ctx_init (const rd_bus_t bus,
                                  const uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -153,9 +154,14 @@ static rd_status_t clear_sensor_state (void)
     // Enable temperature sensor
     lis2dh12_temperature_meas_set (&dev.ctx, LIS2DH12_TEMP_ENABLE);
     // Disable Block Data Update, allow values to update even if old is not read
-    lis_ret_code |= lis2dh12_block_data_update_set (&dev.ctx, PROPERTY_ENABLE);
+    lis_ret_code = lis2dh12_block_data_update_set (&dev.ctx, PROPERTY_ENABLE);
+    if (LIS_SUCCESS != lis_ret_code)
+    {
+        err_code |= RD_ERROR_INTERNAL;
+    }
+
     // Disable filtering
-    lis_ret_code |= lis2dh12_high_pass_on_outputs_set (&dev.ctx, PROPERTY_DISABLE);
+    lis_ret_code = lis2dh12_high_pass_on_outputs_set (&dev.ctx, PROPERTY_DISABLE);
 
     if (LIS_SUCCESS != lis_ret_code)
     {
@@ -223,7 +229,6 @@ static rd_status_t selftest (void)
 rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int32_t lis_ret_code;
 
     if (NULL == p_sensor)
     {
@@ -235,7 +240,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
     }
     else
     {
-        err_code |= dev_ctx_init (p_sensor, bus, handle);
+        err_code |= dev_ctx_init (bus, handle);
         rd_sensor_initialize (p_sensor);
         p_sensor->name = m_acc_name;
     }
@@ -1129,7 +1134,7 @@ rd_status_t ri_lis2dh12_activity_interrupt_use (const bool enable, float * const
 
         threshold = (uint32_t) (*limit_g / divisor) + 1;
 
-        if (threshold > 0x7F)
+        if (threshold > MOTION_THRESHOLD_MAX)
         {
             err_code |= RD_ERROR_INVALID_PARAM;
         }

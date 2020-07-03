@@ -161,7 +161,7 @@ typedef struct
 #ifdef CEEDLING
 // Give CEEDLING a handle to context.
 extern ri_lis2dh12_dev dev;
-extern
-#endif
-#endif
-#endif
+#endif // CEEDLING
+
+#endif // IF enabled
+#endif // Include guard
