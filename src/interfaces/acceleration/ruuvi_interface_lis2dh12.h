@@ -61,6 +61,7 @@
 /** @brief Resolution used on "default" setting. */
 #define RI_LIS2DH12_DEFAULT_RESOLUTION (10U)
 #define LIS_SUCCESS (0)  //!< No error in LIS driver.
+#define SELF_TEST_DELAY_MS (9U) //!< At least 3 samples at 400 Hz.
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_lis2dh12_init (rd_sensor_t * acceleration_sensor, rd_bus_t bus,

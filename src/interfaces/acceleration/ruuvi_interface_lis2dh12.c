@@ -33,7 +33,6 @@
 
 #define NUM_AXIS    (3U) //!< X, Y, Z.
 #define NM_BIT_DIVEDER (64U) //!< Normal mode uses 10 bits in 16 bit field, leading to 2^6 factor in results.
-#define SELF_TEST_DELAY_MS (9U) //!< At least 3 samples at 400 Hz.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
@@ -200,17 +199,10 @@ static rd_status_t selftest (void)
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // turn self-test off, keep error code in case we "lose" sensor after self-test
-    dev.selftest = LIS2DH12_ST_DISABLE;
-    lis_ret_code = lis2dh12_self_test_set (&dev.ctx, dev.selftest);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // wait 2 samples and read value
-    ri_delay_ms (SELF_TEST_DELAY_MS);
-    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_old.u8bit);
     // self-test to negative direction
     dev.selftest = LIS2DH12_ST_NEGATIVE;
     lis2dh12_self_test_set (&dev.ctx, dev.selftest);
-    // wait 2 samples
+    // wait 3 samples
     ri_delay_ms (SELF_TEST_DELAY_MS);
     // Check self-test result
     lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
@@ -1074,82 +1066,99 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable)
  */
 rd_status_t ri_lis2dh12_activity_interrupt_use (const bool enable, float * const limit_g)
 {
-    if (NULL == limit_g) { return RD_ERROR_NULL; }
-
-    if (0 > *limit_g)    { return RD_ERROR_INVALID_PARAM; }
-
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
     lis2dh12_hp_t high_pass = LIS2DH12_ON_INT1_GEN;
     lis2dh12_ctrl_reg6_t ctrl6 = { 0 };
     lis2dh12_int1_cfg_t  cfg = { 0 };
-    ctrl6.i2_ia1 = PROPERTY_ENABLE;
 
-    if (enable)
+    if (NULL == limit_g)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if ( (0 > *limit_g) && enable)
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
+    else if (enable)
     {
         cfg.xhie     = PROPERTY_ENABLE;
         cfg.yhie     = PROPERTY_ENABLE;
         cfg.zhie     = PROPERTY_ENABLE;
+        ctrl6.i2_ia1 = PROPERTY_ENABLE;
+        /*
+        Do not enable lower threshold on activity detection, as it would
+        turn logic into not-active detection.
+        cfg.xlie     = PROPERTY_ENABLE;
+        cfg.ylie     = PROPERTY_ENABLE;
+        cfg.zlie     = PROPERTY_ENABLE;
+        */
+        // Adjust for scale
+        // 1 LSb = 16 mg @ FS = 2 g
+        // 1 LSb = 32 mg @ FS = 4 g
+        // 1 LSb = 62 mg @ FS = 8 g
+        // 1 LSb = 186 mg @ FS = 16 g
+        uint8_t  scale;
+        uint32_t threshold;
+        float divisor;
+        lis_ret_code = ri_lis2dh12_scale_get (&scale);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+
+        switch (scale)
+        {
+            case 2:
+                divisor = 0.016f;
+                break;
+
+            case 4:
+                divisor = 0.032f;
+                break;
+
+            case 8:
+                divisor = 0.062f;
+                break;
+
+            case 16:
+                divisor = 0.186f;
+                break;
+
+            default:
+                divisor = 0.016f;
+                break;
+        }
+
+        threshold = (uint32_t) (*limit_g / divisor) + 1;
+
+        if (threshold > 0x7F)
+        {
+            err_code |= RD_ERROR_INVALID_PARAM;
+        }
+        else
+        {
+            *limit_g = ( (float) threshold) * divisor;
+            // Configure INTERRUPT 1 Threshold
+            lis_ret_code = lis2dh12_int1_gen_threshold_set (& (dev.ctx), threshold);
+            err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+        }
     }
-
-    /*
-    Do not enable lower threshold on activity detection, as it would
-    turn logic into not-active detection.
-    cfg.xlie     = PROPERTY_ENABLE;
-    cfg.ylie     = PROPERTY_ENABLE;
-    cfg.zlie     = PROPERTY_ENABLE;
-    */
-    // Adjust for scale
-    // 1 LSb = 16 mg @ FS = 2 g
-    // 1 LSb = 32 mg @ FS = 4 g
-    // 1 LSb = 62 mg @ FS = 8 g
-    // 1 LSb = 186 mg @ FS = 16 g
-    uint8_t  scale;
-    uint32_t threshold;
-    float divisor;
-    lis_ret_code = ri_lis2dh12_scale_get (&scale);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-
-    switch (scale)
+    else
     {
-        case 2:
-            divisor = 0.016f;
-            break;
-
-        case 4:
-            divisor = 0.032f;
-            break;
-
-        case 8:
-            divisor = 0.062f;
-            break;
-
-        case 16:
-            divisor = 0.186f;
-            break;
-
-        default:
-            divisor = 0.016f;
-            break;
+        high_pass = LIS2DH12_DISC_FROM_INT_GENERATOR;
     }
 
-    threshold = (uint32_t) (*limit_g / divisor) + 1;
+    if (RD_SUCCESS == err_code)
+    {
+        // Configure highpass on INTERRUPT 1
+        lis_ret_code = lis2dh12_high_pass_int_conf_set (& (dev.ctx), high_pass);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+        // Configure INTERRUPT 1.
+        lis_ret_code = lis2dh12_int1_gen_conf_set (& (dev.ctx), &cfg);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+        // Route INTERRUPT 1 to PIN 2.
+        lis_ret_code = lis2dh12_pin_int2_config_set (& (dev.ctx), &ctrl6);
+        err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    }
 
-    if (threshold > 0x7F) { return RD_ERROR_INVALID_PARAM; }
-
-    *limit_g = ( (float) threshold) * divisor;
-    // Configure highpass on INTERRUPT 1
-    lis_ret_code = lis2dh12_high_pass_int_conf_set (& (dev.ctx), high_pass);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // Configure INTERRUPT 1 Threshold
-    lis_ret_code = lis2dh12_int1_gen_threshold_set (& (dev.ctx), threshold);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // Configure INTERRUPT 1 ON ZHI, ZLO, YHI, YLO, XHI, XLO
-    lis_ret_code = lis2dh12_int1_gen_conf_set (& (dev.ctx), &cfg);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // Route INTERRUPT 1 to PIN 2
-    lis_ret_code = lis2dh12_pin_int2_config_set (& (dev.ctx), &ctrl6);
-    err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     return err_code;
 }
 /*@}*/

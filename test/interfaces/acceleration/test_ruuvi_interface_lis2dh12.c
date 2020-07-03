@@ -10,8 +10,7 @@
 static rd_sensor_t m_sensor;
 static const rd_bus_t m_bus = RD_BUS_SPI;
 static const uint8_t m_handle = 1;
-static uint8_t wai = LIS2DH12_ID;
-static const stmdev_ctx_t m_ctx = 
+static stmdev_ctx_t m_ctx =
 {
     .write_reg = &ri_spi_lis2dh12_write,
     .read_reg = &ri_spi_lis2dh12_read,
@@ -21,25 +20,27 @@ static const stmdev_ctx_t m_ctx =
 void setUp (void)
 {
     rd_sensor_t m_sensor = {0};
-    wai = LIS2DH12_ID;
+    m_ctx.write_reg = &ri_spi_lis2dh12_write;
+    m_ctx.read_reg = &ri_spi_lis2dh12_read;
+    m_ctx.handle = &dev.handle;
 }
 
 void tearDown (void)
 {
     if (NULL != m_sensor.uninit)
-    {
+    { 
+        rd_sensor_uninitialize_Expect (&m_sensor);
+        lis2dh12_data_rate_set_ExpectAndReturn (& (dev.ctx), LIS2DH12_POWER_DOWN, RD_SUCCESS);
         m_sensor.uninit (&m_sensor, m_bus, m_handle);
     }
 }
 
-static rd_status_t wai_ok (void)
+static void wai_ok (void)
 {
     // Function takes pointer to a local variable, do not mock.
-    
-    
+    static uint8_t wai = LIS2DH12_ID;
     lis2dh12_device_id_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
     lis2dh12_device_id_get_ReturnThruPtr_buff (&wai);
-    return RD_SUCCESS;
 }
 
 static void fifo_use_ok (const bool use)
@@ -66,47 +67,75 @@ static void fifo_interrupt_use_ok (const bool use)
         ctrl.i1_wtm = PROPERTY_ENABLE;
     }
 
-    lis2dh12_pin_int1_config_set_ExpectWithArrayAndReturn(&m_ctx, 1, &ctrl, 1, RD_SUCCESS);
+    lis2dh12_pin_int1_config_set_ExpectWithArrayAndReturn (&m_ctx, 1, &ctrl, 1, RD_SUCCESS);
 }
 
 static void activity_interrupt_use_ok (const bool use, float * const ths)
 {
+    static lis2dh12_hp_t high_pass = LIS2DH12_ON_INT1_GEN;
+    static lis2dh12_ctrl_reg6_t ctrl6 = { 0 };
+    static lis2dh12_int1_cfg_t  cfg = { 0 };
 
+    if (use)
+    {
+        //TODO
+    }
+    else
+    {
+        high_pass = LIS2DH12_DISC_FROM_INT_GENERATOR;
+    }
+
+    lis2dh12_high_pass_int_conf_set_ExpectAndReturn (& (dev.ctx), high_pass, RD_SUCCESS);
+    lis2dh12_int1_gen_conf_set_ExpectWithArrayAndReturn (&m_ctx, 1, &cfg, 1, RD_SUCCESS);
+    lis2dh12_pin_int2_config_set_ExpectWithArrayAndReturn (&m_ctx, 1, &ctrl6, 1, RD_SUCCESS);
 }
 
 
-static rd_status_t clear_sensor_state_ok (void)
+static void clear_sensor_state_ok (void)
 {
-    rd_status_t err_code = RD_SUCCESS;
-    int32_t lis_ret_code = LIS_SUCCESS;
-    // Disable FIFO, activity
     fifo_use_ok (false);
     fifo_interrupt_use_ok (false);
     float ths = 0;
     activity_interrupt_use_ok (false, &ths);
-    // Enable temperature sensor
     lis2dh12_temperature_meas_set_ExpectAndReturn (&dev.ctx, LIS2DH12_TEMP_ENABLE,
             RD_SUCCESS);
-    // Disable Block Data Update, allow values to update even if old is not read
     lis2dh12_block_data_update_set_ExpectAndReturn (&dev.ctx, PROPERTY_ENABLE, RD_SUCCESS);
-    // Disable filtering
     lis2dh12_high_pass_on_outputs_set_ExpectAndReturn (&dev.ctx, PROPERTY_DISABLE,
             RD_SUCCESS);
+}
 
-    if (LIS_SUCCESS != lis_ret_code)
-    {
-        err_code |= RD_ERROR_INTERNAL;
-    }
+static void selftest_ok(void)
+{
+    static uint8_t data_raw_acceleration_zero[6] = {0};
+    static uint8_t data_raw_acceleration_pos[6] = {0xFF, 0x07, 0xFF, 0x07, 0xFF, 0x07};
+    static uint8_t data_raw_acceleration_neg[6] = {0xFF, 0xE0, 0xFF, 0xE0, 0xFF, 0xE0};
 
-    return err_code;
+    lis2dh12_data_rate_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ODR_400Hz, RD_SUCCESS);
+    lis2dh12_full_scale_set_ExpectAndReturn (&dev.ctx, LIS2DH12_2g, RD_SUCCESS);
+    lis2dh12_operating_mode_set_ExpectAndReturn (&dev.ctx, LIS2DH12_NM_10bit, RD_SUCCESS);
+    lis2dh12_self_test_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ST_DISABLE, RD_SUCCESS);
+    ri_delay_ms_ExpectAndReturn (SELF_TEST_DELAY_MS, RD_SUCCESS);
+    lis2dh12_acceleration_raw_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    lis2dh12_acceleration_raw_get_ReturnArrayThruPtr_buff (data_raw_acceleration_zero, 6);
+    lis2dh12_self_test_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ST_POSITIVE, RD_SUCCESS);
+    ri_delay_ms_ExpectAndReturn (SELF_TEST_DELAY_MS, RD_SUCCESS);
+    lis2dh12_acceleration_raw_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    lis2dh12_acceleration_raw_get_ReturnArrayThruPtr_buff (data_raw_acceleration_pos, 6);
+    lis2dh12_self_test_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ST_NEGATIVE, RD_SUCCESS);
+    ri_delay_ms_ExpectAndReturn (SELF_TEST_DELAY_MS, RD_SUCCESS);
+    lis2dh12_acceleration_raw_get_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    lis2dh12_acceleration_raw_get_ReturnArrayThruPtr_buff (data_raw_acceleration_neg, 6);
+    lis2dh12_self_test_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ST_DISABLE, RD_SUCCESS);
+    lis2dh12_data_rate_set_ExpectAndReturn (&dev.ctx, LIS2DH12_POWER_DOWN, RD_SUCCESS);
 }
 
 void test_ruuvi_interface_lis2dh12_init_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_initialize_Expect (&m_sensor);
-    err_code |= wai_ok();
-    err_code |= clear_sensor_state_ok();
+    wai_ok();
+    clear_sensor_state_ok();
+    selftest_ok();
     err_code |= ri_lis2dh12_init (&m_sensor, m_bus, m_handle);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
