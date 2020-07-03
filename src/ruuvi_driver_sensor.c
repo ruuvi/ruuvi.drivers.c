@@ -63,11 +63,6 @@ uint64_t rd_sensor_timestamp_get (void)
     return millis();
 }
 
-bool rd_sensor_is_init (const rd_sensor_t * const sensor)
-{
-    return (strcmp (sensor->name, m_init_name));
-}
-
 static rd_status_t rd_fifo_enable_ni (const bool enable)
 {
     return RD_ERROR_NOT_INITIALIZED;
@@ -118,7 +113,11 @@ static rd_status_t rd_sensor_configuration_ni (const rd_sensor_t *
 
 void rd_sensor_initialize (rd_sensor_t * const p_sensor)
 {
-    p_sensor->name                  = m_init_name;
+    if (NULL != p_sensor->name)
+    {
+        p_sensor->name = m_init_name;
+    }
+
     p_sensor->configuration_get     = rd_sensor_configuration_ni;
     p_sensor->configuration_set     = rd_sensor_configuration_ni;
     p_sensor->data_get              = rd_data_get_ni;
@@ -321,4 +320,16 @@ rd_status_t validate_default_input_get (uint8_t * const input)
     }
 
     return err_code;
+}
+
+bool rd_sensor_is_init (const rd_sensor_t * const sensor)
+{
+    bool init = false;
+
+    if ( (NULL != sensor) && (NULL != sensor->uninit))
+    {
+        init = (sensor->uninit != rd_init_ni);
+    }
+
+    return init;
 }

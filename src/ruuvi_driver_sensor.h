@@ -416,6 +416,8 @@ uint64_t rd_sensor_timestamp_get (void);
  *        return RD_ERROR_NOT_INITIALIZED.
  *
  * This function is to ensure that NULL function pointers won't be called.
+ * If name was NULL before calling this, name will point to "NOTINIT".
+ * If name was already set, it won't be changed.
  *
  * @param[out] p_sensor pointer to sensor struct to initialize.
  */
@@ -423,6 +425,7 @@ void rd_sensor_initialize (rd_sensor_t * const p_sensor);
 
 /**
  * @brief Mark sensor as uninitialized by calling the generic initialization.
+ * Will not clear the name of the sensor.
  *
  * @param[out] p_sensor pointer to sensor struct to uninitialize.
  */

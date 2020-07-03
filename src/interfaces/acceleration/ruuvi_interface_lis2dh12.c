@@ -155,6 +155,7 @@ static rd_status_t clear_sensor_state (void)
     lis2dh12_temperature_meas_set (&dev.ctx, LIS2DH12_TEMP_ENABLE);
     // Disable Block Data Update, allow values to update even if old is not read
     lis_ret_code = lis2dh12_block_data_update_set (&dev.ctx, PROPERTY_ENABLE);
+
     if (LIS_SUCCESS != lis_ret_code)
     {
         err_code |= RD_ERROR_INTERNAL;

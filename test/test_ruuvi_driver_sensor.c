@@ -1,6 +1,7 @@
 #include "unity.h"
 
 #include "ruuvi_driver_sensor.h"
+#include "mock_ruuvi_interface_lis2dh12.h"
 
 #include <string.h>
 
@@ -104,6 +105,35 @@ const rd_sensor_data_fields_t all_provided =
     .datas.luminosity = 1,
     .datas.pressure_pa = 1,
     .datas.temperature_c = 1
+};
+
+char mock_name[] = "LIS2DH12";
+const rd_sensor_t mock_lis2dh12_dev =
+{
+    .name                  = mock_name,
+    .init                  = ri_lis2dh12_init,
+    .uninit                = ri_lis2dh12_uninit,
+    .samplerate_set        = ri_lis2dh12_samplerate_set,
+    .samplerate_get        = ri_lis2dh12_samplerate_get,
+    .resolution_set        = ri_lis2dh12_resolution_set,
+    .resolution_get        = ri_lis2dh12_resolution_get,
+    .scale_set             = ri_lis2dh12_scale_set,
+    .scale_get             = ri_lis2dh12_scale_get,
+    .dsp_set               = ri_lis2dh12_dsp_set,
+    .dsp_get               = ri_lis2dh12_dsp_get,
+    .mode_set              = ri_lis2dh12_mode_set,
+    .mode_get              = ri_lis2dh12_mode_get,
+    .data_get              = ri_lis2dh12_data_get,
+    .configuration_set     = rd_sensor_configuration_set,
+    .configuration_get     = rd_sensor_configuration_get,
+    .fifo_enable           = ri_lis2dh12_fifo_use,
+    .fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use,
+    .fifo_read             = ri_lis2dh12_fifo_read,
+    .level_interrupt_set   = ri_lis2dh12_activity_interrupt_use,
+    .provides.datas.acceleration_x_g = 1,
+    .provides.datas.acceleration_y_g = 1,
+    .provides.datas.acceleration_z_g = 1,
+    .provides.datas.temperature_c = 1
 };
 
 void setUp (void)
@@ -656,4 +686,31 @@ void test_validate_default_input_set_notsupported (void)
     rd_status_t err_code = validate_default_input_set (&input, mode);
     TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
     TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == input);
+}
+
+/**
+ * @brief Check if given sensor structure is already initialized.
+ *
+ * @param[in] sensor Sensor interface to check.
+ * @return true if structure is initialized, false otherwise.
+ */
+void test_rd_sensor_is_init_init (void)
+{
+    bool is_init = rd_sensor_is_init (&mock_lis2dh12_dev);
+    TEST_ASSERT (is_init);
+}
+
+void test_rd_sensor_is_init_not_init (void)
+{
+    rd_sensor_t not_init;
+    memcpy (&not_init, &mock_lis2dh12_dev, sizeof (rd_sensor_t));
+    rd_sensor_uninitialize (&not_init);
+    bool is_init = rd_sensor_is_init (&not_init);
+    TEST_ASSERT (!is_init);
+}
+
+void test_rd_sensor_is_init_null (void)
+{
+    bool is_init = rd_sensor_is_init (NULL);
+    TEST_ASSERT (!is_init);
 }
