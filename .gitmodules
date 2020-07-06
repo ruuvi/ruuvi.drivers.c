@@ -2,10 +2,6 @@
 	path = BME280_driver
 	url = https://github.com/ruuvi/BME280_driver.git
 	ignore = untracked
-[submodule "STMems_Standard_C_drivers"]
-	path = STMems_Standard_C_drivers
-	url = https://github.com/ojousima/STMems_Standard_C_drivers
-	ignore = untracked
 [submodule "embedded-sht"]
 	path = embedded-sht
 	url = https://github.com/Sensirion/embedded-sht.git
@@ -14,3 +10,6 @@
 	path = src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c
 	url = https://github.com/ruuvi/ruuvi.nrf_sdk15_3_overrides.c.git
 	ignore = all
+[submodule "STMems_Standard_C_drivers"]
+	path = STMems_Standard_C_drivers
+	url = https://github.com/ojousima/STMems_Standard_C_drivers

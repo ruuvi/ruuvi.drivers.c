@@ -219,6 +219,7 @@ rd_status_t ri_adc_ntc_init (rd_sensor_t *
         else
         {
             rd_sensor_initialize (environmental_sensor);
+            environmental_sensor->name = m_sensor_name;
             err_code |= ri_adc_init (NULL);
             adc_ntc_pins_config.p_pin.channel = handle;
             err_code |= ri_adc_configure (ADC_NTC_USE_CHANNEL,
@@ -242,7 +243,6 @@ rd_status_t ri_adc_ntc_init (rd_sensor_t *
                 environmental_sensor->data_get          = ri_adc_ntc_data_get;
                 environmental_sensor->configuration_set = rd_sensor_configuration_set;
                 environmental_sensor->configuration_get = rd_sensor_configuration_get;
-                environmental_sensor->name              = m_sensor_name;
                 environmental_sensor->provides.datas.temperature_c = ADC_NTC_ENABLE_BYTE;
                 m_tsample = RD_UINT64_INVALID;
                 m_is_init = true;
