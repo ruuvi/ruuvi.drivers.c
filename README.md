@@ -142,6 +142,9 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.2.3 
+ - Add relative ADC, NTC, photodiode support.
+
 ## 0.2.2
  - Add PWM support.
 

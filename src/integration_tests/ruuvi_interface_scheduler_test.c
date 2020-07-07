@@ -49,13 +49,26 @@ static bool ri_scheduler_init_test (const rd_test_print_fp printfp)
 
     if (RD_SUCCESS != err_code)
     {
-        status = true;
+        status |= true;
     }
     else
     {
+        // Verify init check after init.
+        if (!ri_scheduler_is_init())
+        {
+            status |= true;
+        }
+
         // Verify that events are discarded on uninit
         ri_scheduler_event_put (NULL, 0, test_handler);
         ri_scheduler_uninit();
+
+        // Verify init check after uninit.
+        if (ri_scheduler_is_init())
+        {
+            status |= true;
+        }
+
         err_code = ri_scheduler_init();
         ri_scheduler_execute();
 

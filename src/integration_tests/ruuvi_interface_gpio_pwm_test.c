@@ -67,7 +67,6 @@ static bool ri_gpio_pwm_test_init (void)
 static rd_status_t ri_gpio_pwm_test_input (const rd_test_gpio_cfg_t cfg)
 {
     rd_status_t status = RD_ERROR_INVALID_PARAM;
-    bool failed = false;
     const float orig_freq = RI_GPIO_PWM_TEST_FREQ_HZ;
     const float invalid_max_freq = RI_GPIO_PWM_TEST_FREQ_INVALID_MAX_HZ;
     const float invalid_min_freq = RI_GPIO_PWM_TEST_FREQ_INVALID_MIN_HZ;
@@ -149,7 +148,6 @@ static bool ri_gpio_pwm_test_start (const rd_test_gpio_cfg_t cfg)
     status |= ri_gpio_pwm_init ();
     status |= ri_gpio_pwm_start (cfg.output, RI_GPIO_MODE_OUTPUT_HIGHDRIVE,
                                  &configured_freq, &configured_dc);
-    float pwm_value;
     // Note: if timer-based low-power delay is enabled, this
     // is grossly inaccurate.
     ri_delay_ms (RI_GPIO_PWM_TEST_TIME_MS);

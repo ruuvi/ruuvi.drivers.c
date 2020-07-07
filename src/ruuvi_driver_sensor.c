@@ -63,11 +63,6 @@ uint64_t rd_sensor_timestamp_get (void)
     return millis();
 }
 
-bool rd_sensor_is_init (const rd_sensor_t * const sensor)
-{
-    return (strcmp (sensor->name, m_init_name));
-}
-
 static rd_status_t rd_fifo_enable_ni (const bool enable)
 {
     return RD_ERROR_NOT_INITIALIZED;
@@ -118,7 +113,11 @@ static rd_status_t rd_sensor_configuration_ni (const rd_sensor_t *
 
 void rd_sensor_initialize (rd_sensor_t * const p_sensor)
 {
-    p_sensor->name                  = m_init_name;
+    if (NULL != p_sensor->name)
+    {
+        p_sensor->name = m_init_name;
+    }
+
     p_sensor->configuration_get     = rd_sensor_configuration_ni;
     p_sensor->configuration_set     = rd_sensor_configuration_ni;
     p_sensor->data_get              = rd_data_get_ni;
@@ -262,4 +261,75 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
 inline uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target)
 {
     return __builtin_popcount (target->fields.bitfield);
+}
+
+rd_status_t validate_default_input_set (uint8_t * const input, const uint8_t mode)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == input)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        if (RD_SENSOR_CFG_SLEEP != mode)
+        {
+            err_code = RD_ERROR_INVALID_STATE;
+        }
+        else
+        {
+            if (RD_SENSOR_CFG_DEFAULT == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else if (RD_SENSOR_CFG_NO_CHANGE == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else if (RD_SENSOR_CFG_MIN == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else if (RD_SENSOR_CFG_MAX == (*input))
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+            }
+            else
+            {
+                (*input) = RD_SENSOR_CFG_DEFAULT;
+                err_code = RD_ERROR_NOT_SUPPORTED;
+            }
+        }
+    }
+
+    return err_code;
+}
+
+rd_status_t validate_default_input_get (uint8_t * const input)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == input)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        (*input) = RD_SENSOR_CFG_DEFAULT;
+    }
+
+    return err_code;
+}
+
+bool rd_sensor_is_init (const rd_sensor_t * const sensor)
+{
+    bool init = false;
+
+    if ( (NULL != sensor) && (NULL != sensor->uninit))
+    {
+        init = (sensor->uninit != &rd_init_ni);
+    }
+
+    return init;
 }

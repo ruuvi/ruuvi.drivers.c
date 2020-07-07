@@ -28,6 +28,9 @@ static volatile bool m_wakeup = false; //!< wakeup flag
 static ri_yield_state_ind_fp_t m_ind;  //!< State indication function
 
 #ifdef FLOAT_ABI_HARD
+#define IOC_MASK (0x01U) //!< Invalid operation
+#define DZC_MASK (0x02U) //!< Divide by zero
+#define OFC_MASK (0x04U) //!< Overflow
 // Function handles and clears exception flags in FPSCR register and at the stack.
 // During interrupt, handler execution FPU registers might be copied to the stack
 // (see lazy stacking option) and it is necessary to clear data at the stack
@@ -45,9 +48,19 @@ void FPU_IRQHandler (void)
     // - IOC - Invalid Operation cumulative exception bit.
     // - DZC - Division by Zero cumulative exception bit.
     // - OFC - Overflow cumulative exception bit.
-    if (*fpscr & 0x07)
+    if (*fpscr & IOC_MASK)
     {
-        ri_log (RI_LOG_LEVEL_WARNING, "FPU Error \r\n");
+        ri_log (RI_LOG_LEVEL_WARNING, "FPU IOC Error");
+    }
+
+    if (*fpscr & DZC_MASK)
+    {
+        ri_log (RI_LOG_LEVEL_WARNING, "FPU DZC Error");
+    }
+
+    if (*fpscr & OFC_MASK)
+    {
+        ri_log (RI_LOG_LEVEL_WARNING, "FPU OFC Error");
     }
 
     // Clear flags in stacked FPSCR register. To clear IDC, IXC, UFC, OFC, DZC and IOC flags, use 0x0000009F mask.

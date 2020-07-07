@@ -19,6 +19,7 @@
 #include "ruuvi_interface_communication_uart.h"//!< Check if Serial is required
 #include "ruuvi_interface_watchdog.h"          //!< Check if WDT is required
 #include "ruuvi_interface_yield.h"             //!< Check if NRF_PWR_MGMT is required
+#include "ruuvi_interface_adc_mcu.h"           //!< Check if NRF_SAADC is required
 
 #if (!NRF5_SDK15_CONFIGURED)
 #        warning "NRF5 SDK15 is not configured, using defaults."
@@ -92,15 +93,26 @@
 #   define NRF_SDH_BLE_PERIPHERAL_LINK_COUNT (1U) //!< Only 1 allowed in SDK15
 #   define NRF_BLE_CONN_PARAMS_MAX_SLAVE_LATENCY_DEVIATION (1U) //!< Larger deviation will be renegotiated.
 #   define NRF_BLE_CONN_PARAMS_MAX_SUPERVISION_TIMEOUT_DEVIATION (100U) //!< 10 ms units, 1 s deviation allowed
-#   define BLE_DFU_ENABLED (1U)
-#   define BLE_DIS_ENABLED (1U)
-#   define BLE_NUS_ENABLED (1U)
+#   define BLE_DFU_ENABLED (1U) //!< Enable DFU Service
+#   define BLE_DIS_ENABLED (1U) //!< Enable DIS Service
+#   define BLE_NUS_ENABLED (1U) //!< Enable NUS Service
+#   define NRF_SDH_BLE_VS_UUID_COUNT (BLE_DFU_ENABLED\
+                                      + BLE_DIS_ENABLED\
+                                      + BLE_NUS_ENABLED)
+#define NRF_SDH_BLE_SERVICE_CHANGED (1U) //!< Refresh service cache on connect
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_ENABLED
 #   define GPIOTE_ENABLED 1
 #   define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS RT_GPIO_INT_TABLE_SIZE
-#   define DUMMY_DEFINE "dummy value" //!< TODO: Add any defines required by SDK here.
+#endif
+
+#if RUUVI_NRF5_SDK15_ADC_ENABLED
+#   define SAADC_ENABLED 1
+#   define SAADC_CONFIG_RESOLUTION 1
+#   define SAADC_CONFIG_OVERSAMPLE 0
+#   define SAADC_CONFIG_LP_MODE 0
+#   define SAADC_CONFIG_IRQ_PRIORITY 7
 #endif
 
 #if RUUVI_NRF5_SDK15_GPIO_PWM_ENABLED
@@ -126,10 +138,17 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
-#    define TWI_ENABLED 1
-#    define TWI1_ENABLED 1
-#    define TWI1_USE_EASYDMA 0
-#    define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
+#   if (NRF52832_XXAA || NRF52840_XXAA)
+#        define TWI_ENABLED 1
+#        define TWI1_ENABLED 1
+#        define TWI1_USE_EASYDMA 0
+#        define I2C_INSTANCE 1        //!< Leave instance 0 for SPI
+#   elif(NRF52811_XXAA)
+#        define TWI_ENABLED 1
+#        define TWI0_ENABLED 1
+#        define TWI0_USE_EASYDMA 0
+#        define I2C_INSTANCE 0        //!< 811 shares instance number.
+#   endif
 #endif
 
 #if RUUVI_NRF5_SDK15_SPI_ENABLED
@@ -189,7 +208,7 @@
 
 #if RUUVI_NRF5_SDK15_UART_ENABLED
 #   define NRF_SERIAL_ENABLED 1
-#   ifdef NRF52811_XXAA
+#   if defined (NRF52811_XXAA)
 #       define NRFX_UARTE_ENABLED 1
 #       define NRFX_UARTE0_ENABLED 1
 #       define NRFX_UART_ENABLED 1
@@ -198,7 +217,7 @@
 #       define NRFX_PRS_ENABLED 1
 #       define NRFX_PRS_BOX_2_ENABLED 1
 #   endif
-#   ifdef NRF52832_XXAA
+#   if defined (NRF52832_XXAA)
 #       // Serial module requires UART + UARTE
 #       define NRFX_UARTE_ENABLED 1
 #       define NRFX_UARTE0_ENABLED 1
@@ -212,6 +231,9 @@
 #   define UART_EASY_DMA_SUPPORT 1
 #   define UART_LEGACY_SUPPORT 1
 #   define UART0_ENABLED 1
+#else
+// Required for Nordic SDK
+#   define NRF_DRV_UART_WITH_UART 1
 #endif
 
 #if RUUVI_NRF5_SDK15_YIELD_ENABLED

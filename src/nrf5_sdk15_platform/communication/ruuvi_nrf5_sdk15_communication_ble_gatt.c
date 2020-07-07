@@ -114,11 +114,18 @@ static bool     m_gatt_is_init = false;
 /**< Pointer to application communication interface, given at initialization */
 static ri_comm_channel_t * channel = NULL;
 
+/** @brief Supported PHYs, start at 1MBPS */
+static ble_gap_phys_t m_phys =
+{
+    .rx_phys = BLE_GAP_PHY_1MBPS, //BLE_GAP_PHY_2MBPS, BLE_GAP_PHY_CODED
+    .tx_phys = BLE_GAP_PHY_1MBPS
+};
+
 // XXX
-#define MIN_CONN_INTERVAL 100
-#define MAX_CONN_INTERVAL 200
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(150, UNIT_1_25_MS)
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(300, UNIT_1_25_MS)
 #define SLAVE_LATENCY     0
-#define CONN_SUP_TIMEOUT  5000
+#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(15000, UNIT_10_MS)
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
@@ -242,6 +249,7 @@ static void nus_data_handler (ble_nus_evt_t * p_evt)
     switch (p_evt->type)
     {
         case BLE_NUS_EVT_RX_DATA:
+            LOGD ("NUS RX \r\n");
             channel->on_evt (RI_COMM_RECEIVED,
                              (void *) p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
             break;
@@ -257,7 +265,7 @@ static void nus_data_handler (ble_nus_evt_t * p_evt)
             break;
 
         case BLE_NUS_EVT_TX_RDY:
-            LOG ("NUS TX Done\r\n");
+            LOGD ("NUS TX Done\r\n");
             channel->on_evt (RI_COMM_SENT, NULL, 0);
             break;
 
@@ -277,11 +285,6 @@ static void nus_data_handler (ble_nus_evt_t * p_evt)
 static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
 {
     uint32_t err_code;
-    ble_gap_phys_t const phys =
-    {
-        .rx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS,
-        .tx_phys = BLE_GAP_PHY_2MBPS | BLE_GAP_PHY_1MBPS
-    };
 
     switch (p_ble_evt->header.evt_id)
     {
@@ -291,9 +294,11 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             LOG ("BLE Connected \r\n");
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
-            // Request 2MBPS connection - Fails on Mac osx / web bluetooth
-            // err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
-            // ri_log(RI_LOG_INFO, "Requested 2MBPS connection\r\n");
+            // Request preferred PHY on connection - 2MBPS fails on Mac OSX / web bluetooth
+            err_code = sd_ble_gap_phy_update (p_ble_evt->evt.gap_evt.conn_handle, &m_phys);
+            char msg[128];
+            snprintf (msg, sizeof (msg), "Request PHY update to %s.\r\n", phy_str (m_phys));
+            LOG (msg);
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
@@ -301,7 +306,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            LOG ("BLE Disonnected \r\n");
+            LOG ("BLE Disconnected \r\n");
             // ble_nus.c does not call NUS callback on disconnect, call it here.
             ble_nus_evt_t evt = { 0 };
             evt.type = BLE_NUS_EVT_COMM_STOPPED;
@@ -310,7 +315,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             break;
 
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-            err_code = sd_ble_gap_phy_update (p_ble_evt->evt.gap_evt.conn_handle, &phys);
+            err_code = sd_ble_gap_phy_update (p_ble_evt->evt.gap_evt.conn_handle, &m_phys);
             LOG ("BLE PHY update requested \r\n");
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
@@ -375,12 +380,12 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             break;
 
         case BLE_GATTS_EVT_HVN_TX_COMPLETE:
-            LOG ("BLE Notification sent\r\n");
+            LOGD ("BLE Notification sent\r\n");
             break;
 
         default:
             // No implementation needed.
-            LOG ("BLE Unknown event\r\n");
+            LOGD ("BLE Unknown event\r\n");
             break;
     }
 }
@@ -577,12 +582,50 @@ static ret_code_t peer_manager_init()
     sec_param.kdist_peer.enc = 1;
     sec_param.kdist_peer.id  = 1;
     err_code = pm_sec_params_set (&sec_param);
+    err_code |= pm_register (pm_evt_handler);
+    return err_code;
+}
 
-    if (NRF_SUCCESS != err_code) { }
+/**
+ * @brief Configure preferred PHYs.
+ *
+ * If peer doesn't support given PHY, softdevice
+ * selects automatically PHY both devices are compatible with.
+ */
+static rd_status_t setup_phys (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    ri_radio_modulation_t modulation;
+    err_code |= ri_radio_get_modulation (&modulation);
 
-    err_code = pm_register (pm_evt_handler);
+    if (RD_SUCCESS == err_code)
+    {
+        if (ri_radio_supports (modulation))
+        {
+            switch (modulation)
+            {
+                case RI_RADIO_BLE_125KBPS:
+                    m_phys.rx_phys = BLE_GAP_PHY_CODED;
+                    m_phys.tx_phys = BLE_GAP_PHY_CODED;
+                    break;
 
-    if (NRF_SUCCESS != err_code) { }
+                case RI_RADIO_BLE_2MBPS:
+                    m_phys.rx_phys = BLE_GAP_PHY_2MBPS;
+                    m_phys.tx_phys = BLE_GAP_PHY_2MBPS;
+                    break;
+
+                case RI_RADIO_BLE_1MBPS:
+                default:
+                    m_phys.rx_phys = BLE_GAP_PHY_1MBPS;
+                    m_phys.tx_phys = BLE_GAP_PHY_1MBPS;
+                    break;
+            }
+        }
+        else
+        {
+            err_code |= RD_ERROR_NOT_SUPPORTED;
+        }
+    }
 
     return err_code;
 }
@@ -590,7 +633,7 @@ static ret_code_t peer_manager_init()
 rd_status_t ri_gatt_init (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
-    rd_status_t radio_status = RD_SUCCESS;
+    static bool qwr_is_init = false;
 
     if (m_gatt_is_init)
     {
@@ -609,16 +652,22 @@ rd_status_t ri_gatt_init (void)
         return RD_ERROR_INVALID_STATE;
     }
 
-    nrf_ble_qwr_init_t qwr_init = {0};
     // Register a handler for BLE events.
     NRF_SDH_BLE_OBSERVER (m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
-    err_code |= peer_manager_init();
     err_code |= gap_params_init();
     err_code |= nrf_ble_gatt_init (&m_gatt, gatt_evt_handler);
     err_code |= nrf_ble_gatt_att_mtu_periph_set (&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
-    // Initialize Queued Write Module.
-    qwr_init.error_handler = nrf_qwr_error_handler;
-    err_code |= nrf_ble_qwr_init (&m_qwr, &qwr_init);
+    // Queued Write Module, peer manager cannot be uninitialized, initialize only once.
+
+    if (!qwr_is_init)
+    {
+        nrf_ble_qwr_init_t qwr_init = {0};
+        qwr_init.error_handler = nrf_qwr_error_handler;
+        err_code |= nrf_ble_qwr_init (&m_qwr, &qwr_init);
+        err_code |= peer_manager_init();
+        qwr_is_init = true;
+    }
+
     err_code |= conn_params_init();
 
     if (NRF_SUCCESS == err_code)
@@ -626,27 +675,51 @@ rd_status_t ri_gatt_init (void)
         m_gatt_is_init = true;
     }
 
+    err_code |= setup_phys();
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-/**
- *
- */
-static rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
+rd_status_t ri_gatt_uninit (void)
 {
-    if (NULL == _channel) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    memset (_channel, 0, sizeof (ri_comm_channel_t));
-    m_gatt_is_init = false;
-
-    // disconnect
-    if (BLE_CONN_HANDLE_INVALID != m_conn_handle)
+    // Radio must be completely disabled to uninit GATT.
+    if (ri_radio_is_init())
     {
-        sd_ble_gap_disconnect (m_conn_handle, HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST);
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    // GATT is uninit when radio is uninit.
+    else
+    {
+        m_gatt_is_init = false;
     }
 
-    // Services cannot be uninitialized
-    return RD_SUCCESS;
+    return err_code;
+}
+
+rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == _channel)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        memset (_channel, 0, sizeof (ri_comm_channel_t));
+
+        // disconnect
+        if (BLE_CONN_HANDLE_INVALID != m_conn_handle)
+        {
+            err_code |= sd_ble_gap_disconnect (m_conn_handle,
+                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            m_conn_handle = BLE_CONN_HANDLE_INVALID;
+        }
+    }
+
+    // Services cannot be uninitialized, GATT must be re-initialized.
+    return err_code;
 }
 
 /**
@@ -654,21 +727,32 @@ static rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel)
  */
 static rd_status_t ri_gatt_nus_send (ri_comm_message_t * const message)
 {
-    if (NULL == message) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+    ret_code_t nrf_code = NRF_SUCCESS;
 
-    if (BLE_NUS_MAX_DATA_LEN < message->data_length) { return RD_ERROR_DATA_SIZE; }
-
-    if (BLE_CONN_HANDLE_INVALID == m_conn_handle) { return RD_ERROR_INVALID_STATE; }
-
-    if (message->repeat_count)
+    if (NULL == message)
     {
-        return RD_ERROR_NOT_IMPLEMENTED;
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (BLE_NUS_MAX_DATA_LEN < message->data_length)
+    {
+        err_code |= RD_ERROR_DATA_SIZE;
+    }
+    else if (BLE_CONN_HANDLE_INVALID == m_conn_handle)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (message->repeat_count > 1)
+    {
+        err_code |= RD_ERROR_NOT_IMPLEMENTED;
+    }
+    else
+    {
+        uint16_t data_len = message->data_length;
+        nrf_code |= ble_nus_data_send (&m_nus, message->data, &data_len, m_conn_handle);
     }
 
-    ret_code_t err_code = NRF_SUCCESS;
-    uint16_t data_len = message->data_length;
-    err_code |= ble_nus_data_send (&m_nus, message->data, &data_len, m_conn_handle);
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+    return err_code | ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code);
 }
 
 static rd_status_t ri_gatt_nus_read (ri_comm_message_t * const message)

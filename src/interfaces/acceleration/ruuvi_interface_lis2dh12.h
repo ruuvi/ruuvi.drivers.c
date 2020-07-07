@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stddef.h>
+#include "lis2dh12_reg.h"
 
 /**
  * @addtogroup Acceleration
@@ -52,13 +53,15 @@
  */
 
 /** @brief Minimum counts of self-test change in 10 bit resolution 2 G scale, ref datasheet.*/
-#define RI_LIS2DH12_SELFTEST_DIFF_MIN 17
+#define RI_LIS2DH12_SELFTEST_DIFF_MIN (17)
 /** @brief Maximum counts of self-test change in 10 bit resolution 2 G scale, ref datasheet.*/
-#define RI_LIS2DH12_SELFTEST_DIFF_MAX 360
+#define RI_LIS2DH12_SELFTEST_DIFF_MAX (360)
 /** @brief Scale used on "default" setting. */
-#define RI_LIS2DH12_DEFAULT_SCALE 2
+#define RI_LIS2DH12_DEFAULT_SCALE (2U)
 /** @brief Resolution used on "default" setting. */
-#define RI_LIS2DH12_DEFAULT_RESOLUTION 10
+#define RI_LIS2DH12_DEFAULT_RESOLUTION (10U)
+#define LIS_SUCCESS (0)  //!< No error in LIS driver.
+#define SELF_TEST_DELAY_MS (9U) //!< At least 3 samples at 400 Hz.
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_lis2dh12_init (rd_sensor_t * acceleration_sensor, rd_bus_t bus,
@@ -139,6 +142,26 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable);
  */
 rd_status_t ri_lis2dh12_activity_interrupt_use (const bool enable,
         float * limit_g);
+
+/** @brief context for LIS2DH12 */
+typedef struct
+{
+    lis2dh12_op_md_t resolution; //!< Resolution, bits. 8, 10, or 12.
+    lis2dh12_fs_t scale;         //!< Scale, gravities. 2, 4, 8 or 16.
+    lis2dh12_odr_t samplerate;   //!< Sample rate, 1 ... 200, or custom values for higher.
+    lis2dh12_st_t selftest;      //!< Self-test enabled, positive, negative or disabled.
+    uint8_t mode;                //!< Operating mode. Sleep, single or continuous.
+    uint8_t handle;              //!< Device handle, SPI GPIO pin or I2C address.
+    uint64_t tsample;            //!< Time of sample, @ref rd_sensor_timestamp_get
+    stmdev_ctx_t ctx;            //!< Driver control structure
+} ri_lis2dh12_dev;
+
 /** @} */
-#endif
-#endif
+
+#ifdef CEEDLING
+// Give CEEDLING a handle to context.
+extern ri_lis2dh12_dev dev;
+#endif // CEEDLING
+
+#endif // IF enabled
+#endif // Include guard

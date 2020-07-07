@@ -1,5 +1,8 @@
 #ifndef RUUVI_INTERFACE_LOG_H
 #define RUUVI_INTERFACE_LOG_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 /**
  * @defgroup Log Logging functions
  * @brief Functions for printing out logs
@@ -25,8 +28,10 @@
 
 /** @brief Enable implementation selected by application */
 #if RI_LOG_ENABLED
-#define RUUVI_NRF5_SDK15_LOG_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#   define RUUVI_NRF5_SDK15_LOG_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#   define RUUVI_FRUITY_LOG_ENABLED RUUVI_FRUITY_ENABLED
 #endif
+
 
 /**
  * Severity levels of log messages. Lower numerical value means more severe.
@@ -104,4 +109,7 @@ size_t ri_error_to_string (rd_status_t error, char * error_string,
 void ri_log_sensor_configuration (const ri_log_severity_t level,
                                   const rd_sensor_configuration_t * const configuration, const char * unit);
 /** @} */
+#endif
+#ifdef __cplusplus
+}
 #endif

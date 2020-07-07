@@ -416,6 +416,8 @@ uint64_t rd_sensor_timestamp_get (void);
  *        return RD_ERROR_NOT_INITIALIZED.
  *
  * This function is to ensure that NULL function pointers won't be called.
+ * If name was NULL before calling this, name will point to "NOTINIT".
+ * If name was already set, it won't be changed.
  *
  * @param[out] p_sensor pointer to sensor struct to initialize.
  */
@@ -423,6 +425,7 @@ void rd_sensor_initialize (rd_sensor_t * const p_sensor);
 
 /**
  * @brief Mark sensor as uninitialized by calling the generic initialization.
+ * Will not clear the name of the sensor.
  *
  * @param[out] p_sensor pointer to sensor struct to uninitialize.
  */
@@ -507,5 +510,25 @@ uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target);
 void rd_sensor_data_set (rd_sensor_data_t * const target,
                          const rd_sensor_data_fields_t field,
                          const float value);
+
+/**
+ * @brief Validate that given setting can be set on a sensor which supports only default value.
+ *
+ * @param[in,out] input Input: Must be RD_SENSOR_CFG_DEFAULT, _NO_CHANGE, _MIN or _MAX.
+ *                      Output: _DEFAULT
+ * @param[in] mode Mode sensor is currently in. Must be sleep to configure sensor.
+ */
+rd_status_t validate_default_input_set (uint8_t * const input, const uint8_t mode);
+
+/**
+ * @brief Validate and get input when only allowed value is default.
+ *
+ * @param[out] input Setting of sensor to get. Will be RD_SENSOR_CFG_DEFAULT.
+ *
+ * @retval RD_SUCCESS if input is not NULL.
+ * @retval RD_ERROR_NULL if input is NULL.
+ */
+rd_status_t validate_default_input_get (uint8_t * const input);
+
 /*@}*/
 #endif

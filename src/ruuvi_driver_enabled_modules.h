@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.2.2"
+#define RUUVI_DRIVERS_SEMVER "0.2.3"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -36,6 +36,10 @@
 
 #ifdef RUUVI_NRF5_SDK15_ENABLED
 #include "nrf5_sdk15_app_config.h"
+#endif
+
+#ifdef RUUVI_FRUITY_ENABLED
+#include "fruity_config.h"
 #endif
 
 #ifndef RI_ADV_EXTENDED_ENABLED
@@ -233,5 +237,26 @@ data payload length is the maximum length */
 #ifndef RI_SHTCX_ENABLED
 #   define RI_SHTCX_ENABLED ENABLE_DEFAULT
 #endif
+
+#ifndef RI_ADC_PHOTO_ENABLED
+#   define RI_ADC_PHOTO_ENABLED      ENABLE_DEFAULT
+#endif
+
+// TODO: Refactor configuration constants elsewhere
+#   define RI_ADC_PHOTO_CHANNEL      2
+#   define RI_ADC_PHOTO_DIVIDER      1.00f //!< Predivider installed on board
+
+#ifndef RI_ADC_NTC_ENABLED
+#   define RI_ADC_NTC_ENABLED        ENABLE_DEFAULT
+#endif
+// TODO: Refactor configuration constants elsewhere
+// NTC is installed as VDD - fixed resistor - ADC - NTC - GND.
+#define RI_ADC_NTC_CHANNEL        1
+#define RI_ADC_NTC_DIVIDER        1.00f //!< Predivider installed on board
+#define RI_ADC_NTC_BALANCE        10000.00f //!< Fixed resistor value
+#define RI_ADC_NTC_DEFAULT_RES    10000.00f //!< NTC at default temp
+#define RI_ADC_NTC_DEFAULT_TEMP   25.00f    //!< Calibration temperature
+#define RI_ADC_NTC_DEFAULT_BETA   3974.0f   //!< Beta value of NTC, check datasheet.
+
 
 #endif

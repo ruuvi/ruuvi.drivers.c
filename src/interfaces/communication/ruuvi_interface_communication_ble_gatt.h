@@ -15,8 +15,6 @@
 #   define RUUVI_NRF5_SDK15_GATT_ENABLED RUUVI_NRF5_SDK15_ENABLED
 #endif
 
-#define HCI_ERROR_CODE_CONN_TERM_BY_LOCAL_HOST 0x16
-
 /**
  * @brief Initializes GATT stack.
  * Uses default values from sdk_config.h, these can be overridden in nrf5_sdk15_application_config.h
@@ -27,17 +25,34 @@
 rd_status_t ri_gatt_init (void);
 
 /**
+ * @brief Uninitializes GATT stack.
+ *
+ *
+ *
+ * @return RD_SUCCESS on success
+ * @return RD_ERROR_INVALID_STATE if radio module is not initialized with handle RI_COMMUNICATION_RADIO_GATT
+ */
+rd_status_t ri_gatt_uninit (void);
+
+/**
  * @brief Initialize Nordic UART Service as a communication channel.
  * ri_communication_radio_init(RI_COMMUNICATION_RADIO_GATT) must be called before initializing service
  *
  * @param[in] channel: Pointer to communication interface which will be populated. Pointer will be copied, the structure
  *                     must be retained. Adding any event handler to structure after initialization will take effect immediately
- * @return RD_SUCCESS on success
- * @return RD_ERROR_INVALID_STATE if radio module is not initialized with handle RI_COMMUNICATION_RADIO_GATT
- *                                          or if ri_gatt_init has not been called.
+ * @return RD_SUCCESS on success.
  * @return error code from stack in case there is other error.
  */
 rd_status_t ri_gatt_nus_init (ri_comm_channel_t * const channel);
+
+/**
+ * @brief Uninitialize Nordic UART Service as a communication channel.
+ *
+ * @param[in] channel: Pointer to communication interface which will be depopulated.
+ * @return RD_SUCCESS on success
+ * @return error code from stack in case there is other error.
+ */
+rd_status_t ri_gatt_nus_uninit (ri_comm_channel_t * const _channel);
 
 /**
  * @brief Initialize BLE4 Device firmware update service.
