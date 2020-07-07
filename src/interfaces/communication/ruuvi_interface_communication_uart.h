@@ -44,8 +44,12 @@ typedef struct
 /**
  * @brief Initialize UART.
  *
+ * This only setups the function interface, you must call @ref ri_uart_config
+ * to setup pins, HWFC, baudrate tec.
+ *
  * @param[out] channel Interface used for communicating through uart.
  * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if UART is already initialized.
  * @retval RD_ERROR_NULL Channel is NULL.
  */
 rd_status_t ri_uart_init (ri_comm_channel_t * const channel);
