@@ -590,6 +590,8 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
     memset (channel, 0, sizeof (ri_comm_channel_t));
     m_scannable = false;
     m_tx_power = 0;
+    // Flush TX buffer.
+    nrf_queue_reset (&m_adv_queue);
     return err_code;
 }
 
