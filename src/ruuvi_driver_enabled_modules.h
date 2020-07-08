@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "0.2.3"
+#define RUUVI_DRIVERS_SEMVER "0.2.4"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -55,6 +55,10 @@ data payload length is the maximum length */
 #       define RI_COMM_MESSAGE_MAX_LENGTH 24
 #   endif
 #endif
+
+#ifndef RI_ATOMIC_ENABLED
+#   define RI_ATOMIC_ENABLED ENABLE_DEFAULT
+#endif 
 
 #ifndef RD_LOG_BUFFER_SIZE
 /** @brief Maximum length of one log message */
