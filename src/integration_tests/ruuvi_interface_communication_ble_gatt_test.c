@@ -26,6 +26,7 @@
  *
  * Integration test BLE GATT implementation.
  */
+#define GATT_TX_TEST_TIMEOUT_MS (20000U)
 
 static ri_comm_channel_t m_channel;
 static ri_comm_channel_t m_adv;     //!< Required to establish GATT connection
@@ -195,6 +196,8 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
 {
     bool status = false;
     m_has_connected = false;
+    uint64_t start_time = 0;
+    bool timeout = false;
     rd_status_t err_code = RD_SUCCESS;
     float throughput = 0;
     char throughput_string[100];
@@ -221,18 +224,26 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
     if (RD_SUCCESS == err_code)
     {
         m_channel.on_evt = ble_isr;
+        start_time = ri_rtc_millis();
 
         while (! (m_has_connected))
         {
-            ri_yield();
+            if ( (start_time + GATT_TX_TEST_TIMEOUT_MS) < ri_rtc_millis())
+            {
+                timeout = true;
+                break;
+            }
         }
 
-        status |= tx_slow_test ();
-        throughput = tx_throughput_test();
-
-        if (0 == throughput)
+        if (false == timeout)
         {
-            status = true;
+            status |= tx_slow_test ();
+            throughput = tx_throughput_test();
+
+            if (0 == throughput)
+            {
+                status = true;
+            }
         }
     }
     else
@@ -240,13 +251,20 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
         status = true;
     }
 
-    if (status)
+    if (timeout)
     {
-        printfp ("\"fail,\"\r\n");
+        printfp ("\"timeout\"\r\n");
     }
     else
     {
-        printfp ("\"pass,\"\r\n");
+        if (status)
+        {
+            printfp ("\"fail,\"\r\n");
+        }
+        else
+        {
+            printfp ("\"pass,\"\r\n");
+        }
     }
 
     snprintf (throughput_string, sizeof (throughput_string),
