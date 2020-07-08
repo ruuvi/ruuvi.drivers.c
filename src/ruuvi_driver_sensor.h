@@ -153,10 +153,10 @@ typedef struct
 
 /**
  * C99 Standard 6.7.8.21
- * If there are fewer initializers in a brace-enclosed list than there are 
- * elements or members of an aggregate, or fewer characters in a string literal 
- * used to initialize an array of known size than there are elements in the array, 
- * the remainder of the aggregate shall be initialized implicitly the same as 
+ * If there are fewer initializers in a brace-enclosed list than there are
+ * elements or members of an aggregate, or fewer characters in a string literal
+ * used to initialize an array of known size than there are elements in the array,
+ * the remainder of the aggregate shall be initialized implicitly the same as
  * objects that have static storage duration.
  */
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;

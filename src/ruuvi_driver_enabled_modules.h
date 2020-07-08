@@ -58,7 +58,7 @@ data payload length is the maximum length */
 
 #ifndef RI_ATOMIC_ENABLED
 #   define RI_ATOMIC_ENABLED ENABLE_DEFAULT
-#endif 
+#endif
 
 #ifndef RD_LOG_BUFFER_SIZE
 /** @brief Maximum length of one log message */

@@ -591,7 +591,7 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
     m_scannable = false;
     m_tx_power = 0;
     // Flush TX buffer.
-    nrf_queue_reset(&m_adv_queue);
+    nrf_queue_reset (&m_adv_queue);
     return err_code;
 }
 
