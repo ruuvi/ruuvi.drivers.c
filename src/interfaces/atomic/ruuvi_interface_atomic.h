@@ -19,6 +19,12 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "ruuvi_driver_enabled_modules.h"
+
+/** @brief Enable implementation selected by application */
+#if RI_ATOMIC_ENABLED
+#  define RUUVI_NRF5_SDK15_ATOMIC_ENABLED RUUVI_NRF5_SDK15_ENABLED
+#endif
 
 #define RI_ATOMIC_FLAG_INIT 0 //!< Initial value for atomic flag.
 
