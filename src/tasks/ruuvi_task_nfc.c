@@ -287,7 +287,12 @@ bool rt_nfc_is_connected (void)
 #include <stdbool.h>
 rd_status_t rt_nfc_init (ri_comm_dis_init_t * const init_data)
 {
-    return  RD_SUCCESS;
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_nfc_send (ri_comm_message_t * message)
+{
+    return RD_ERROR_NOT_ENABLED;
 }
 
 void rt_nfc_set_on_connected_isr (const ri_comm_cb_t cb)

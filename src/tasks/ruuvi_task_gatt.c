@@ -5,7 +5,6 @@
  * Author: Otso Jousimaa <otso@ojousima.net>
  **/
 #include "ruuvi_driver_enabled_modules.h"
-#if RT_GATT_ENABLED
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_atomic.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
@@ -18,6 +17,7 @@
 #include "ruuvi_task_advertisement.h"
 #include "ruuvi_task_communication.h"
 #include "ruuvi_task_gatt.h"
+#if RT_GATT_ENABLED
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,23 +25,6 @@
 
 #ifndef TASK_GATT_LOG_LEVEL
 #define TASK_GATT_LOG_LEVEL RI_LOG_LEVEL_INFO
-#endif
-
-#if 0
-static inline void LOG (const char * const msg)
-{
-    ri_log (TASK_GATT_LOG_LEVEL, msg);
-}
-
-static inline void LOGE (const char * const msg)
-{
-    ri_log (RI_LOG_ERROR, msg);
-}
-
-static inline void LOGHEX (const uint8_t * const msg, const size_t len)
-{
-    ri_log_hex (TASK_GATT_LOG_LEVEL, msg, len);
-}
 #endif
 
 static inline void LOGD (const char * const msg)
@@ -354,6 +337,74 @@ void rt_gatt_set_on_sent_isr (const ri_comm_cb_t cb)
 bool rt_gatt_is_nus_enabled (void)
 {
     return m_nus_is_init;
+}
+
+#else
+rd_status_t rt_gatt_send_asynchronous (ri_comm_message_t
+                                       * const p_msg)
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_gatt_dfu_init (void)
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_gatt_dis_init (const ri_comm_dis_init_t * const dis)
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_gatt_nus_init()
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_gatt_init (const char * const name)
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_gatt_enable()
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+rd_status_t rt_gatt_disable()
+{
+    return RD_ERROR_NOT_ENABLED;
+}
+
+bool rt_gatt_is_init()
+{
+    return false;
+}
+
+void rt_gatt_set_on_connected_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+
+void rt_gatt_set_on_disconn_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+void rt_gatt_set_on_received_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+void rt_gatt_set_on_sent_isr (const ri_comm_cb_t cb)
+{
+    // No implementation needed
+}
+
+bool rt_gatt_is_nus_enabled (void)
+{
+    return false;
 }
 
 #endif
