@@ -63,7 +63,7 @@ typedef struct
     ble_gap_adv_data_t   data;   //!< Encoded data, both advertisement and scan response.
     ble_gap_adv_params_t params; //!< Parameters of advertisement, such as channels, PHY.
     int8_t tx_pwr;               //!< Transmission power for this advertisement.
-} advertisement_t;             //!< Advertisement to be sent.
+} advertisement_t;               //!< Advertisement to be sent.
 
 /** Create queue for outgoing advertisements. */
 NRF_QUEUE_DEF (advertisement_t, m_adv_queue, RUUVI_NRF5_SDK15_ADV_QUEUE_LENGTH,
@@ -80,19 +80,19 @@ m_channel;        //!< Communication channel interface instance.
 static int8_t m_tx_power;                    //!< Power configured to radio.
 static bool m_scannable;                     //!< Should scan responses be included.
 static ble_gap_conn_sec_mode_t m_security;   //!< BLE security mode.
-static char
-m_name[NONEXTENDED_ADV_MAX_LEN]; //!< Human-readable device name, e.g. "Ruuvi ABCD".
-static bool
-m_advertise_nus;                 //!< Advertise UUID of Nordic UART Service in scan response.
+/** @brief Human-readable device name, e.g. "Ruuvi ABCD". */
+static char m_name[NONEXTENDED_ADV_MAX_LEN];
+/** @brief Advertise UUID of Nordic UART Service in scan response. */
+static bool m_advertise_nus;
 static ri_adv_type_t m_type;                 //!< Type, configured by user.
 static ri_radio_channels_t m_radio_channels; //!< Enabled channels to send
 
 /** @brief Advertising handle used to identify an advertising set. */
-static uint8_t              m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
+static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
 /** @brief Flag for initialization **/
-static bool                 m_advertisement_is_init = false;
+static bool m_advertisement_is_init = false;
 /** @brief Flag for advertising in process **/
-static bool                 m_advertising = false;
+static bool m_advertising = false;
 
 /**< Universally unique service identifier of Nordic UART Service */
 #if RUUVI_NRF5_SDK15_GATT_ENABLED
@@ -111,53 +111,78 @@ static rd_status_t prepare_tx()
     if (!nrf_queue_is_empty (&m_adv_queue) && !m_advertising)
     {
         static advertisement_t adv;
-        nrf_queue_peek (&m_adv_queue, &adv);
+        nrf_queue_pop (&m_adv_queue, &adv);
         // Pointers have been invalidated in queuing, refresh.
         adv.data.adv_data.p_data = adv.adv_data;
-        adv.data.scan_rsp_data.p_data = adv.scan_data;
-        nrf_code |= sd_ble_gap_adv_set_configure (&m_adv_handle,
+
+        if (adv.data.scan_rsp_data.len > 0)
+        {
+            adv.data.scan_rsp_data.p_data = adv.scan_data;
+        }
+
+        nrf_code |= sd_ble_gap_adv_set_configure (& (m_adv_handle),
                     & (adv.data),
                     & (adv.params));
         nrf_code |= sd_ble_gap_tx_power_set (BLE_GAP_TX_POWER_ROLE_ADV,
                                              m_adv_handle,
                                              adv.tx_pwr);
-        nrf_code |= sd_ble_gap_adv_start (m_adv_handle, RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
+        nrf_code |= sd_ble_gap_adv_start (m_adv_handle,
+                                          RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG);
 
         if (NRF_SUCCESS == nrf_code)
         {
             m_advertising = true;
+        }
+        else
+        {
+            // Recursion depth is limited to depth of m_adv_queue.
+            prepare_tx();
         }
     }
 
     return ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code);
 }
 
+/** @brief terminate advertising set, notify application */
+static void notify_adv_stop (const ri_comm_evt_t evt)
+{
+    m_advertising = false; // Runs at highest app interrupt level, no need for atomic.
+
+    if ( (NULL != m_channel)  && (NULL != m_channel->on_evt))
+    {
+        m_channel->on_evt (evt, NULL, 0);
+    }
+}
+
 // Register a handler for advertisement events.
 static void ble_advertising_on_ble_evt_isr (ble_evt_t const * p_ble_evt, void * p_context)
 {
-    advertisement_t pop;
-
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            // Keep track of connection state
+            nrf_queue_reset (&m_adv_queue);
+
+            if (CONNECTABLE_SCANNABLE == m_type)
+            {
+                m_type = NONCONNECTABLE_SCANNABLE;
+            }
+
+            if (CONNECTABLE_NONSCANNABLE == m_type)
+            {
+                m_type = NONCONNECTABLE_NONSCANNABLE;
+            }
+
+            notify_adv_stop (RI_COMM_ABORTED);
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            // Keep track of connection state
+            nrf_queue_reset (&m_adv_queue);
+            notify_adv_stop (RI_COMM_ABORTED);
             break;
 
         // Upon terminated advertising (time-out), start next and notify application TX complete.
         case BLE_GAP_EVT_ADV_SET_TERMINATED:
-            nrf_queue_pop (&m_adv_queue, &pop);
-            m_advertising = false; // Runs at highest app interrupt level, no need for atomic.
-            (void) prepare_tx();
-
-            if ( (NULL != m_channel)  && (NULL != m_channel->on_evt))
-            {
-                m_channel->on_evt (RI_COMM_SENT, NULL, 0);
-            }
-
+            notify_adv_stop (RI_COMM_SENT);
             break;
 
         default:
@@ -410,14 +435,14 @@ static rd_status_t set_phy_type (const ri_comm_message_t * const p_message,
                 break;
 
             case RI_RADIO_BLE_2MBPS:
-                p_adv->params.primary_phy = BLE_GAP_PHY_AUTO;
+                p_adv->params.primary_phy = BLE_GAP_PHY_1MBPS;
 
                 if (sec_phy_required)
                 {
                     p_adv->params.secondary_phy = BLE_GAP_PHY_2MBPS;
+                    extended_required = true;
                 }
 
-                extended_required = true;
                 break;
         }
 
@@ -480,6 +505,10 @@ static rd_status_t set_phy_type (const ri_comm_message_t * const p_message,
                 }
 
                 break;
+
+            default:
+                LOGW ("Unknown advertisement type\r\n");
+                break;
         }
     }
 
@@ -533,7 +562,7 @@ static rd_status_t ri_adv_send (ri_comm_message_t * message)
         ruuvi_nrf5_sdk15_radio_channels_set (adv.params.channel_mask, m_radio_channels);
         adv.tx_pwr = m_tx_power;
         nrf_code |= nrf_queue_push (&m_adv_queue, &adv);
-        prepare_tx();
+        err_code |= prepare_tx();
     }
 
     return err_code | ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code);
@@ -718,13 +747,25 @@ rd_status_t ri_adv_type_set (ri_adv_type_t type)
 {
     rd_status_t err_code = RD_SUCCESS;
     m_type = type;
+
+    if ( (type == NONCONNECTABLE_NONSCANNABLE)
+            || (type == CONNECTABLE_NONSCANNABLE))
+    {
+        m_scannable = false;
+    }
+    else
+    {
+        m_scannable = true;
+    }
+
     return err_code;
 }
 
 rd_status_t ri_adv_stop()
 {
     // SD returns error if advertisement wasn't ongoing, ignore error.
-    (void) ruuvi_nrf5_sdk15_to_ruuvi_error (sd_ble_gap_adv_stop (m_adv_handle));
+    (void) ruuvi_nrf5_sdk15_to_ruuvi_error (sd_ble_gap_adv_stop (
+            m_adv_handle));
     m_advertising = false;
     nrf_queue_reset (&m_adv_queue);
     return RD_SUCCESS;
