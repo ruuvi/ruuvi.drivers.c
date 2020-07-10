@@ -40,7 +40,8 @@ typedef enum
     RI_COMM_DISCONNECTED, //!< Connection lost, cannot send, may not receive data.
     RI_COMM_SENT,         //!< One queued message was sent with all repetitions.
     RI_COMM_RECEIVED,     //!< New data received, available to read with read function
-    RI_COMM_TIMEOUT       //!< Operation timed out.
+    RI_COMM_TIMEOUT,      //!< Operation timed out.
+    RI_COMM_ABORTED       //!< Operation aborted, e.g. advertising on connection.
 } ri_comm_evt_t;          //!< Events @ref ri_comm_channel_t may receive.
 
 typedef struct
