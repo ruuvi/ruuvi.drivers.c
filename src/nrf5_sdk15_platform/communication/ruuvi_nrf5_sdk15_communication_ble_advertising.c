@@ -183,6 +183,7 @@ static void ble_advertising_on_ble_evt_isr (ble_evt_t const * p_ble_evt, void * 
         // Upon terminated advertising (time-out), start next and notify application TX complete.
         case BLE_GAP_EVT_ADV_SET_TERMINATED:
             notify_adv_stop (RI_COMM_SENT);
+            prepare_tx();
             break;
 
         default:
