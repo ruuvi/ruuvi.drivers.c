@@ -9,6 +9,7 @@
 #include "mock_ruuvi_driver_error.h"
 #include "mock_ruuvi_interface_gpio.h"
 #include "mock_ruuvi_interface_log.h"
+#include "mock_ruuvi_interface_timer.h"
 #include "ruuvi_task_led.h"
 
 #define LEDS_NUMBER 3U
@@ -20,6 +21,7 @@ static const ri_gpio_state_t leds_on[LEDS_NUMBER] =
     RI_GPIO_LOW
 };
 static size_t configured_leds;
+extern ri_timer_id_t m_timer;
 
 void setUp (void)
 {
@@ -38,6 +40,8 @@ void setUp (void)
     uint16_t led = rt_led_activity_led_get();
     configured_leds = LEDS_NUMBER;
     TEST_ASSERT (RI_GPIO_ID_UNUSED == led);
+    m_timer = NULL;
+    TEST_ASSERT (true == rt_led_is_init());
 }
 
 void tearDown (void)
@@ -53,6 +57,8 @@ void tearDown (void)
     uint16_t led = rt_led_activity_led_get();
     TEST_ASSERT (RI_GPIO_ID_UNUSED == led);
     configured_leds = 0;
+    m_timer = NULL;
+    TEST_ASSERT (false == rt_led_is_init());
 }
 
 /**
@@ -236,4 +242,104 @@ void test_rt_led_is_led ()
     }
 
     TEST_ASSERT (-1 == is_led (RI_GPIO_ID_UNUSED));
+}
+
+/**
+ * @brief Start blinking led at 50 % duty cycle at given interval.
+ *
+ * This function requires ri_timer to be initialized.
+ * Only one led can blink at once, you must call @ref rt_led_blink_stop
+ * before starting to blink another led.
+ *
+ * @param[in] led LED to blink.
+ * @param[in] interval_ms Interval of blinking in milliseconds, min and max values come
+ *                        from timer interface.
+ *
+ * @retval RD_SUCCESS Blinking was started.
+ * @retval RD_ERROR_INVALID_STATE If led is already blinking.
+ * @retval RD_ERROR_RESOURCES If timer cannot be allocated.
+ * @retval RD_ERROR_INVALID_PARAM If there is no pin in LED.
+ */
+void test_rt_led_blink_start_ok (void)
+{
+    m_timer = (void *) 1;
+    uint16_t timer_ms = 1000U;
+    ri_timer_is_init_ExpectAndReturn (true);
+    ri_timer_start_ExpectAndReturn (m_timer, timer_ms, NULL, RD_SUCCESS);
+    rd_status_t err_code = rt_led_blink_start (leds[0], timer_ms);
+    TEST_ASSERT (err_code == RD_SUCCESS);
+}
+
+void test_rt_led_blink_start_not_init (void)
+{
+    uint16_t timer_ms = 1000U;
+    static ri_timer_id_t mock_tid = (void *) 1;
+    ri_timer_is_init_ExpectAndReturn (false);
+    ri_timer_init_ExpectAndReturn (RD_SUCCESS);
+    ri_timer_create_ExpectAndReturn (&m_timer, RI_TIMER_MODE_REPEATED, &rt_led_blink_isr,
+                                     RD_SUCCESS);
+    ri_timer_create_ReturnThruPtr_p_timer_id (&mock_tid);
+    ri_timer_start_ExpectAndReturn (mock_tid, timer_ms, NULL, RD_SUCCESS);
+    rd_status_t err_code = rt_led_blink_start (leds[0], timer_ms);
+    TEST_ASSERT (err_code == RD_SUCCESS);
+}
+
+void test_rt_led_blink_start_timer_fail (void)
+{
+    uint16_t timer_ms = 1000U;
+    static ri_timer_id_t mock_tid = (void *) 1;
+    ri_timer_is_init_ExpectAndReturn (false);
+    ri_timer_init_ExpectAndReturn (RD_SUCCESS);
+    ri_timer_create_ExpectAndReturn (&m_timer, RI_TIMER_MODE_REPEATED, &rt_led_blink_isr,
+                                     RD_ERROR_RESOURCES);
+    rd_status_t err_code = rt_led_blink_start (leds[0], timer_ms);
+    TEST_ASSERT (err_code == RD_ERROR_RESOURCES);
+}
+
+void test_rt_led_blink_start_led_blinking (void)
+{
+    test_rt_led_blink_start_ok();
+    uint16_t timer_ms = 1000U;
+    ri_timer_is_init_ExpectAndReturn (true);
+    rd_status_t err_code = rt_led_blink_start (leds[0], timer_ms);
+    TEST_ASSERT (err_code == RD_ERROR_INVALID_STATE);
+}
+
+void test_rt_led_blink_start_not_led (void)
+{
+    m_timer = (void *) 1;
+    uint16_t timer_ms = 1000U;
+    ri_timer_is_init_ExpectAndReturn (true);
+    rd_status_t err_code = rt_led_blink_start (RI_GPIO_ID_UNUSED, timer_ms);
+    TEST_ASSERT (err_code == RD_ERROR_INVALID_PARAM);
+}
+
+/**
+ * @brief Stop blinking led and leave the pin as high-drive output in inactive state.
+ *
+ *
+ * @param[in] led LED to stop.
+ *
+ * @retval RD_SUCCESS Blinking was stopped.
+ * @retval RD_ERROR_INVALID_STATE If given LED is not blinking.
+ */
+void test_rt_led_blink_stop_ok (void)
+{
+    uint16_t timer_ms = 1000U;
+    test_rt_led_blink_start_ok();
+    ri_timer_stop_ExpectAndReturn (m_timer, RD_SUCCESS);
+    ri_gpio_write_ExpectAndReturn (leds[0], !leds_on[0], RD_SUCCESS);
+    rd_status_t err_code = rt_led_blink_stop (leds[0]);
+    TEST_ASSERT (err_code == RD_SUCCESS);
+}
+
+void test_rt_led_blink_isr (void)
+{
+    test_rt_led_blink_start_ok();
+    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
+    ri_gpio_write_ExpectAndReturn (leds[0], !leds_on[0], RD_SUCCESS);
+    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
+    rt_led_blink_isr (NULL);
+    rt_led_blink_isr (NULL);
+    rt_led_blink_isr (NULL);
 }

@@ -33,6 +33,11 @@ rd_status_t ruuvi_nrf5_sdk15_to_ruuvi_error (const ret_code_t err_code)
 
     if (NRF_ERROR_INVALID_STATE == err_code)  { return RD_ERROR_INVALID_STATE; }
 
+    if (NRF_ERROR_MODULE_ALREADY_INITIALIZED == err_code)
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
+
     if (NRF_ERROR_INVALID_LENGTH == err_code) { return RD_ERROR_INVALID_LENGTH; }
 
     if (NRF_ERROR_INVALID_FLAGS == err_code)  { return RD_ERROR_INVALID_FLAGS; }

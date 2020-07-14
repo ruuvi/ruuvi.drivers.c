@@ -1,5 +1,5 @@
-#ifndef TASK_SENSOR_H
-#define TASK_SENSOR_H
+#ifndef RUUVI_TASK_SENSOR_H
+#define RUUVI_TASK_SENSOR_H
 /**
  * @defgroup sensor_tasks Sensor tasks
  */
