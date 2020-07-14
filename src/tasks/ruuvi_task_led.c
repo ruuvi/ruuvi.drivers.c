@@ -240,5 +240,10 @@ rd_status_t rt_led_blink_stop (const uint16_t led)
     return err_code;
 }
 
+bool rt_led_is_init (void)
+{
+    return m_initialized;
+}
+
 #endif
 /*@}*/

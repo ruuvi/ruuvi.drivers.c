@@ -157,6 +157,14 @@ rd_status_t rt_led_blink_start (const uint16_t led, const uint16_t interval_ms);
  */
 rd_status_t rt_led_blink_stop (const uint16_t led);
 
+/**
+ * @brief Check if LED task has been initialized.
+ *
+ * @retval true LED task is initialized.
+ * @retval false LED task is not initialized.
+ */
+bool rt_led_is_init (void);
+
 #ifdef CEEDLING
 int8_t is_led (const ri_gpio_id_t led);
 void rt_led_blink_isr (void * const p_context);

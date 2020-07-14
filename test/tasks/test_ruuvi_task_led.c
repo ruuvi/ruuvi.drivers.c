@@ -41,6 +41,7 @@ void setUp (void)
     configured_leds = LEDS_NUMBER;
     TEST_ASSERT (RI_GPIO_ID_UNUSED == led);
     m_timer = NULL;
+    TEST_ASSERT (true == rt_led_is_init());
 }
 
 void tearDown (void)
@@ -57,6 +58,7 @@ void tearDown (void)
     TEST_ASSERT (RI_GPIO_ID_UNUSED == led);
     configured_leds = 0;
     m_timer = NULL;
+    TEST_ASSERT (false == rt_led_is_init());
 }
 
 /**
