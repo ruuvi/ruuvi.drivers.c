@@ -133,6 +133,7 @@ rd_status_t rt_adc_uninit (void)
     m_vdd_prepared = false;
     m_vdd_sampled = false;
     m_ratio = false;
+    err_code |= ri_adc_stop (RD_ADC_USE_CHANNEL);
     err_code |= ri_adc_uninit (false);
 
     if (!ri_atomic_flag (&m_is_init, false))
