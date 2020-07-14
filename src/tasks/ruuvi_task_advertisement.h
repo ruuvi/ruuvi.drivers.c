@@ -1,5 +1,5 @@
-#ifndef  TASK_ADVERTISEMENT_H
-#define  TASK_ADVERTISEMENT_H
+#ifndef RUUVI_TASK_ADVERTISEMENT_H
+#define RUUVI_TASK_ADVERTISEMENT_H
 
 /**
  * @defgroup communication_tasks Sending and receiving data.

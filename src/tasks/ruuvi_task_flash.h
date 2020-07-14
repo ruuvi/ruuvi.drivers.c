@@ -1,5 +1,5 @@
-#ifndef  TASK_FLASH_H
-#define  TASK_FLASH_H
+#ifndef  RUUVI_TASK_FLASH_H
+#define  RUUVI_TASK_FLASH_H
 
 /**
  * @defgroup peripheral_tasks Peripheral tasks
