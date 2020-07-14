@@ -13,14 +13,21 @@
 #include "ruuvi_task_led.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"
+#include "ruuvi_interface_timer.h"
 #include <stddef.h>
 
-static uint16_t m_activity_led;
-static bool     m_initialized;
-static ri_gpio_id_t    m_led_list[RT_MAX_LED_CFG];
-static ri_gpio_state_t m_led_active_state[RT_MAX_LED_CFG];
+static uint16_t m_activity_led; //!< LED to blink on CPU activity
+static uint16_t m_blink_led;    //!< LED to blink as UI signal
+static bool     m_initialized;  //!< Flag, is task initialized
+static ri_gpio_id_t    m_led_list[RT_MAX_LED_CFG]; //!< List of leds on boards
+static ri_gpio_state_t m_led_active_state[RT_MAX_LED_CFG]; //!< List of active states.
 //Store user configured led number in case there's extra space in array.
-static size_t          m_num_leds;
+static size_t m_num_leds;
+// Timer instance for LED timer
+#ifndef CEEDLING
+static
+#endif
+ri_timer_id_t m_timer;
 
 #ifndef CEEDLING
 static
@@ -92,6 +99,7 @@ rd_status_t rt_led_init (const uint16_t * const leds,
         }
 
         m_activity_led = RI_GPIO_ID_UNUSED;
+        m_blink_led = RI_GPIO_ID_UNUSED;
         m_num_leds = num_leds;
         m_initialized = true;
     }
@@ -109,6 +117,7 @@ rd_status_t rt_led_uninit (void)
     }
 
     m_activity_led = RI_GPIO_ID_UNUSED;
+    m_blink_led = RI_GPIO_ID_UNUSED;
     m_initialized = false;
     m_num_leds = 0;
     return err_code;
@@ -165,5 +174,71 @@ uint16_t rt_led_activity_led_get (void)
 {
     return m_activity_led;
 }
+
+#ifndef CEEDLING
+static
+#endif
+void rt_led_blink_isr (void * const p_context)
+{
+    static bool active = true;
+    rt_led_write (m_blink_led, active);
+    active = !active;
+}
+
+rd_status_t rt_led_blink_start (const uint16_t led, const uint16_t interval_ms)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (!ri_timer_is_init())
+    {
+        err_code |= ri_timer_init();
+    }
+
+    if (!m_timer)
+    {
+        err_code |= ri_timer_create (&m_timer, RI_TIMER_MODE_REPEATED, &rt_led_blink_isr);
+    }
+
+    if (RI_GPIO_ID_UNUSED != m_blink_led)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    if (0 > is_led (led))
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        err_code |= ri_timer_start (m_timer, interval_ms, NULL);
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        m_blink_led = led;
+    }
+
+    return err_code;
+}
+
+rd_status_t rt_led_blink_stop (const uint16_t led)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (led != m_blink_led)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        ri_timer_stop (m_timer);
+        m_blink_led = RI_GPIO_ID_UNUSED;
+        rt_led_write (led, false);
+    }
+
+    return err_code;
+}
+
 #endif
 /*@}*/

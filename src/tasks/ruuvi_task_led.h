@@ -128,8 +128,38 @@ rd_status_t rt_led_activity_led_set (const uint16_t led);
  */
 uint16_t rt_led_activity_led_get (void);
 
+/**
+ * @brief Start blinking led at 50 % duty cycle at given interval.
+ *
+ * This function requires ri_timer to be initialized.
+ * Only one led can blink at once, you must call @ref rt_led_blink_stop
+ * before starting to blink another led.
+ *
+ * @param[in] led LED to blink.
+ * @param[in] interval_ms Interval of blinking in milliseconds, min and max values come
+ *                        from timer interface.
+ *
+ * @retval RD_SUCCESS Blinking was started.
+ * @retval RD_ERROR_INVALID_STATE If led is already blinking.
+ * @retval RD_ERROR_RESOURCES If timer cannot be allocated.
+ * @retval RD_ERROR_INVALID_PARAM If there is no pin in LED.
+ */
+rd_status_t rt_led_blink_start (const uint16_t led, const uint16_t interval_ms);
+
+/**
+ * @brief Stop blinking led and leave the pin as high-drive output in inactive state.
+ *
+ *
+ * @param[in] led LED to stop.
+ *
+ * @retval RD_SUCCESS Blinking was stopped.
+ * @retval RD_ERROR_INVALID_STATE If given LED is not blinking.
+ */
+rd_status_t rt_led_blink_stop (const uint16_t led);
+
 #ifdef CEEDLING
 int8_t is_led (const ri_gpio_id_t led);
+void rt_led_blink_isr (void * const p_context);
 #endif
 
 /*@}*/
