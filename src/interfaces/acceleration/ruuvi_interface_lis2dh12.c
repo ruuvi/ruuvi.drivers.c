@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
 #ifndef RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL
 #define RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL RI_LOG_LEVEL_DEBUG
 #endif
@@ -23,7 +24,9 @@
             __LINE__, __func__, ##__VA_ARGS__); \
             ri_log(RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL, buff); \
   } while (0)
-
+#else
+#define LOGD(fmt, ...)
+#endif
 /**
  * @addtogroup LIS2DH12
  */
