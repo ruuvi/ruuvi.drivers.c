@@ -20,7 +20,7 @@
 #define LOGD(fmt, ...) \
   do { \
     char buff[1024] = {0}; \
-    sprintf(buff, ":%d:%s(): " fmt, \
+    snprintf(buff, sizeof(buff), ":%d:%s(): " fmt, \
             __LINE__, __func__, ##__VA_ARGS__); \
             ri_log(RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL, buff); \
   } while (0)
