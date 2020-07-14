@@ -1,5 +1,5 @@
-#ifndef TASK_GPIO_H
-#define TASK_GPIO_H
+#ifndef RUUVI_TASK_GPIO_H
+#define RUUVI_TASK_GPIO_H
 #include <stdbool.h>
 /**
  * @addtogroup peripheral_tasks

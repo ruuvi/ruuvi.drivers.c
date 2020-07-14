@@ -1,5 +1,5 @@
-#ifndef  TASK_NFC_H
-#define  TASK_NFC_H
+#ifndef RUUVI_TASK_NFC_H
+#define RUUVI_TASK_NFC_H
 /**
  * @addtogroup peripheral_tasks
  */

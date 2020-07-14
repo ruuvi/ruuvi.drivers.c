@@ -1,5 +1,5 @@
-#ifndef  TASK_COMMUNICATION_H
-#define  TASK_COMMUNICATION_H
+#ifndef  RUUVI_TASK_COMMUNICATION_H
+#define  RUUVI_TASK_COMMUNICATION_H
 
 /**
  * @file task_communication.h

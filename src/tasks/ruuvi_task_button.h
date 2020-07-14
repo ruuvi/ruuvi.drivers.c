@@ -12,8 +12,8 @@
  *
  *
  */
-#ifndef  TASK_BUTTON_H
-#define  TASK_BUTTON_H
+#ifndef  RUUVI_TASK_BUTTON_H
+#define  RUUVI_TASK_BUTTON_H
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_gpio.h"

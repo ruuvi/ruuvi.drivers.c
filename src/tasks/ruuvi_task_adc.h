@@ -1,5 +1,5 @@
-#ifndef TASK_ADC_H
-#define TASK_ADC_H
+#ifndef RUUVI_TASK_ADC_H
+#define RUUVI_TASK_ADC_H
 
 /**
  * @addtogroup adc_tasks ADC tasks
