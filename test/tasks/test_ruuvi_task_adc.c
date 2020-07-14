@@ -37,6 +37,7 @@ void setUp (void)
 void tearDown (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    ri_adc_stop_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
@@ -244,6 +245,7 @@ void test_rt_adc_vdd_sample_ok (void)
     rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
     rd_sensor_timestamp_get_IgnoreAndReturn (0);
     rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
+    ri_adc_stop_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
