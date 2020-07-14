@@ -1,5 +1,5 @@
-#ifndef  TASK_LED_H
-#define  TASK_LED_H
+#ifndef RUUVI_TASK_LED_H
+#define RUUVI_TASK_LED_H
 
 /**
   * @defgroup actuator_tasks  Interacting with outside world

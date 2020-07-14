@@ -11,8 +11,8 @@
  *
  *
  */
-#ifndef  TASK_GATT_H
-#define  TASK_GATT_H
+#ifndef  RUUVI_TASK_GATT_H
+#define  RUUVI_TASK_GATT_H
 
 #include "ruuvi_driver_error.h"
 #include "ruuvi_interface_communication.h"
