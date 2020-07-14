@@ -36,6 +36,7 @@
     - src/*
     - src/tasks/**
     - src/interfaces/**
+    - STMems_Standard_C_drivers/lis2dh12_STdC/driver/*
   :support:
     - test/support
 

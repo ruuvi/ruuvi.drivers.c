@@ -152,6 +152,29 @@ typedef struct
 } rd_sensor_data_bitfield_t;
 
 /**
+ * C99 Standard 6.7.8.21
+ * If there are fewer initializers in a brace-enclosed list than there are
+ * elements or members of an aggregate, or fewer characters in a string literal
+ * used to initialize an array of known size than there are elements in the array,
+ * the remainder of the aggregate shall be initialized implicitly the same as
+ * objects that have static storage duration.
+ */
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+#define RD_SENSOR_ACC_X_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_x_g=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+#define RD_SENSOR_ACC_Y_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_y_g=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+#define RD_SENSOR_ACC_Z_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_z_g=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+#define RD_SENSOR_HUMI_FIELD ((rd_sensor_data_fields_t){.datas.humidity_rh=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+#define RD_SENSOR_PRES_FIELD ((rd_sensor_data_fields_t){.datas.pressure_pa=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+#define RD_SENSOR_TEMP_FIELD ((rd_sensor_data_fields_t){.datas.temperature_c=1})
+
+
+
+/**
  * @brief Union to access sensor data.
  *
  * MISRA deviation: Use of union.
@@ -416,6 +439,8 @@ uint64_t rd_sensor_timestamp_get (void);
  *        return RD_ERROR_NOT_INITIALIZED.
  *
  * This function is to ensure that NULL function pointers won't be called.
+ * If name was NULL before calling this, name will point to "NOTINIT".
+ * If name was already set, it won't be changed.
  *
  * @param[out] p_sensor pointer to sensor struct to initialize.
  */
@@ -423,6 +448,7 @@ void rd_sensor_initialize (rd_sensor_t * const p_sensor);
 
 /**
  * @brief Mark sensor as uninitialized by calling the generic initialization.
+ * Will not clear the name of the sensor.
  *
  * @param[out] p_sensor pointer to sensor struct to uninitialize.
  */

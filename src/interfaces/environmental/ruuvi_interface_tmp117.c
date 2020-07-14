@@ -243,6 +243,7 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_init (ruuvi_driver_sensor_t *
     if (m_address) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
     ruuvi_driver_sensor_initialize (environmental_sensor);
+    environmental_sensor->name = m_sensor_name;
     ruuvi_driver_status_t err_code = RUUVI_DRIVER_SUCCESS;
     m_address = handle;
     size_t retries = 0;
@@ -282,7 +283,6 @@ ruuvi_driver_status_t ruuvi_interface_tmp117_init (ruuvi_driver_sensor_t *
         environmental_sensor->data_get          = ruuvi_interface_tmp117_data_get;
         environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
         environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
-        environmental_sensor->name              = m_sensor_name;
         environmental_sensor->provides.datas.temperature_c = 1;
         m_timestamp = RUUVI_DRIVER_UINT64_INVALID;
         m_temperature = NAN;
