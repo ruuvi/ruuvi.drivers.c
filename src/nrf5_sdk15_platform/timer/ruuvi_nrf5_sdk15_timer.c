@@ -117,19 +117,32 @@ static app_timer_id_t get_timer_id (void)
 
 rd_status_t ri_timer_init (void)
 {
-    if (m_is_init) { return RD_ERROR_INVALID_STATE; }
+    rd_status_t err_code = RD_SUCCESS;
+    ret_code_t nrf_code = NRF_SUCCESS;
 
-    ret_code_t err_code = NRF_SUCCESS;
-
+    if (m_is_init)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
     // Initialize clock if not already initialized
-    if (false == nrf_drv_clock_init_check()) { err_code |= nrf_drv_clock_init(); }
+    else if (false == nrf_drv_clock_init_check())
+    {
+        nrf_code |= nrf_drv_clock_init();
+        err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code);
+    }
 
-    nrf_drv_clock_lfclk_request (NULL);
-    err_code |= app_timer_init();
+    if (RD_SUCCESS == err_code)
+    {
+        nrf_drv_clock_lfclk_request (NULL);
+        nrf_code |= app_timer_init();
+    }
 
-    if (NRF_SUCCESS == err_code) { m_is_init = true; }
+    if (NRF_SUCCESS == nrf_code)
+    {
+        m_is_init = true;
+    }
 
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code) | err_code;
 }
 
 //return true if timers have been successfully initialized.

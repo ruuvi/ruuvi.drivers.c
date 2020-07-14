@@ -1,9 +1,3 @@
-/**
- * Timer abstraction. Allows creating single-shot and repeated timers which call a function at interval.
- * Timer IDs must be defined with PLATFORM_TIMER_ID_DEF(timer_id)
- * The timer will schedule the functions to run, so there might be a lot of jitter in timeout.
- */
-
 #ifndef RUUVI_INTERFACE_TIMER_H
 #define RUUVI_INTERFACE_TIMER_H
 /**
@@ -14,11 +8,56 @@
 /**
  * @file ruuvi_interface_timer.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-02-19
+ * @date 2020-07-14
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Interface functions to timer.
  *
+ * Timer abstraction. Allows creating single-shot and repeated timers which call a function at interval.
+ * The timer will run in interrupt context, if you need to use peripherals or spend a lot of
+ * time in timer function you should use ri_scheduler to run the functions without blocking
+ * timing-critical tasks.
+ *
+ * Typical usage:
+ * @code
+ * static ri_timer_id_t m_timer;
+ *
+ * static void do_lots_of_things_in_scheduler (void * p_event_data, uint16_t event_size)
+ * {
+ *     write_to_i2c_device((uint8_t*) event_data, event_size);
+ * }
+ *
+ * static void timer_isr(void * const p_context)
+ * {
+ *     // Slow I2C write in scheduler
+ *     i2c_tx_t* tx = (i2c_tx_t*) p_context;
+ *     uint16_t event_size = (p_context[0] << 8) + p_context[1];
+ *     uint8_t* p_event_data = &(p_context[2]);
+ *     ri_scheduler_event_put (p_event_data, event_size, &do_lots_of_things_in_scheduler);
+ *     // Fast GPIO operation can be done here.
+ *     blink_led_right_away();
+ * }
+ *
+ * // Write 10 NULLs over I2C in a scheduler 10 seconds from now.
+ * rd_status_t start_my_timer(void)
+ * {
+ *   rd_status_t err_code = RD_SUCCESS;
+ *   static i2c_tx_t tx =
+ *   {
+ *      .write_len = 10;
+ *      .data = {0}
+ *   }
+ *   err_code |= ri_timer_init();
+ *   // Note: Address of timer
+ *   err_code |= ri_timer_create (&m_timer, RI_TIMER_MODE_SINGLE_SHOT, &timer_isr);
+ *   // Note: Value of timer, statically allocated data as context.
+ *   err_code |= ri_timer_start (m_timer, (10 * 1000U), &tx);
+ *   return err_code
+ * }
+ *
+ *
+ *
  */
+
 
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
@@ -46,10 +85,20 @@ typedef void * ri_timer_id_t; ///< Pointer to timer data
  */
 typedef void (*ruuvi_timer_timeout_handler_t) (void * const p_context);
 
-/* @brief Calls whatever initialization is required by application timers */
+/* @brief Calls initialization as required by application timers.
+ *
+ * After initialization, timers can be created, started and stopped.
+ *
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if timers are already initialized.
+ */
 rd_status_t ri_timer_init (void);
 
-/* @brief Calls whatever uninitialization is required by application timers */
+/* @brief Calls uninitialization as required by application timers
+ *
+ * Deletes state of timers and stops hardware timers if possible.
+ *
+ **/
 rd_status_t ri_timer_uninit (void);
 
 /**
@@ -60,7 +109,11 @@ rd_status_t ri_timer_uninit (void);
  */
 bool ri_timer_is_init (void);
 
-/* Function for creating a timer instance
+/* @brief Function for creating a timer instance.
+ *
+ * Timers may be statically or dynamically allocated, if statically allocated this will
+ * only return a handle to instance. If dynamically, this will allocate memory for new
+ * instance.
  *
  * @param[out] p_timer_id pointer to timer id, outputs ID which can be used to control the timer
  * @param[in] mode mode of the timer, single shot or repeated
