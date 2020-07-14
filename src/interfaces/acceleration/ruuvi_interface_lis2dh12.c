@@ -5,12 +5,28 @@
 #include "ruuvi_interface_lis2dh12.h"
 #include "ruuvi_interface_spi_lis2dh12.h"
 #include "ruuvi_interface_yield.h"
-
+#include "ruuvi_interface_log.h"
 #include "lis2dh12_reg.h"
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
+#ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
+#ifndef RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL
+#define RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL RI_LOG_LEVEL_DEBUG
+#endif
+
+#define LOGD(fmt, ...) \
+  do { \
+    char buff[1024] = {0}; \
+    snprintf(buff, sizeof(buff), ":%d:%s(): " fmt, \
+            __LINE__, __func__, ##__VA_ARGS__); \
+            ri_log(RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL, buff); \
+  } while (0)
+#else
+#define LOGD(fmt, ...)
+#endif
 /**
  * @addtogroup LIS2DH12
  */
@@ -66,6 +82,31 @@ ri_lis2dh12_dev dev = {0};
 
 static const char m_acc_name[] = "LIS2DH12";
 
+static void lis2dh12_get_samples_selftest (axis3bit16_t * p_data_raw_acceleration)
+{
+    axis3bit16_t data_raw_acceleration = {0};
+    int32_t axis_x = 0;
+    int32_t axis_y = 0;
+    int32_t axis_z = 0;
+    // Start delay
+    ri_delay_ms (SELF_TEST_DELAY_MS);
+    // Discard first sample
+    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration.u8bit);
+
+    // Obtain 5 no self test samples
+    for (uint8_t i = 0; i < SELF_TEST_SAMPLES_NUM; i++)
+    {
+        lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration.u8bit);
+        axis_x += data_raw_acceleration.i16bit[0];
+        axis_y += data_raw_acceleration.i16bit[1];
+        axis_z += data_raw_acceleration.i16bit[2];
+    }
+
+    p_data_raw_acceleration->i16bit[0] = (int16_t) (axis_x / SELF_TEST_SAMPLES_NUM);
+    p_data_raw_acceleration->i16bit[1] = (int16_t) (axis_y / SELF_TEST_SAMPLES_NUM);
+    p_data_raw_acceleration->i16bit[2] = (int16_t) (axis_z / SELF_TEST_SAMPLES_NUM);
+}
+
 // Check that self-test values differ enough
 static rd_status_t lis2dh12_verify_selftest (const axis3bit16_t * const new,
         const axis3bit16_t * const old)
@@ -87,9 +128,17 @@ static rd_status_t lis2dh12_verify_selftest (const axis3bit16_t * const new,
 
             if (0 > diff) { diff = 0 - diff; }
 
-            if (RI_LIS2DH12_SELFTEST_DIFF_MIN > diff) { err_code |= RD_ERROR_SELFTEST; }
+            if (RI_LIS2DH12_SELFTEST_DIFF_MIN > diff)
+            {
+                LOGD ("diff < min = %d\r\n", diff);
+                err_code |= RD_ERROR_SELFTEST;
+            }
 
-            if (RI_LIS2DH12_SELFTEST_DIFF_MAX < diff) { err_code |= RD_ERROR_SELFTEST; }
+            if (RI_LIS2DH12_SELFTEST_DIFF_MAX < diff)
+            {
+                LOGD ("diff > max = %d\r\n", diff);
+                err_code |= RD_ERROR_SELFTEST;
+            }
         }
     }
 
@@ -163,6 +212,7 @@ static rd_status_t clear_sensor_state (void)
 
 static rd_status_t selftest (void)
 {
+    LOGD ("begin\r\n");
     axis3bit16_t data_raw_acceleration_old = {0};
     axis3bit16_t data_raw_acceleration_new = {0};
     int32_t lis_ret_code = LIS_SUCCESS;
@@ -181,30 +231,21 @@ static rd_status_t selftest (void)
     dev.selftest = LIS2DH12_ST_DISABLE;
     lis_ret_code = lis2dh12_self_test_set (&dev.ctx, dev.selftest);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    // wait for valid sample to be available.
-    ri_delay_ms (SELF_TEST_DELAY_MS);
-    // read accelerometer
-    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_old.u8bit);
-    // self-test to positive direction
+    lis2dh12_get_samples_selftest (&data_raw_acceleration_old);
     dev.selftest = LIS2DH12_ST_POSITIVE;
     lis2dh12_self_test_set (&dev.ctx, dev.selftest);
-    // wait 2 samples in low power or normal mode for valid data.
-    ri_delay_ms (SELF_TEST_DELAY_MS);
-    // Check self-test result
-    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
+    lis2dh12_get_samples_selftest (&data_raw_acceleration_new);
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_SELFTEST;
-    // self-test to negative direction
+    LOGD ("selftest = LIS2DH12_ST_POSITIVE.Error = %08x\r\n", err_code);
     dev.selftest = LIS2DH12_ST_NEGATIVE;
     lis2dh12_self_test_set (&dev.ctx, dev.selftest);
-    // wait 3 samples
-    ri_delay_ms (SELF_TEST_DELAY_MS);
-    // Check self-test result
-    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration_new.u8bit);
+    lis2dh12_get_samples_selftest (&data_raw_acceleration_new);
     lis_ret_code = lis2dh12_verify_selftest (&data_raw_acceleration_new,
                    &data_raw_acceleration_old);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_SELFTEST;
+    LOGD ("selftest = LIS2DH12_ST_NEGATIVE.Error = %08x\r\n", err_code);
     // turn self-test off, keep error code in case we "lose" sensor after self-test
     dev.selftest = LIS2DH12_ST_DISABLE;
     lis_ret_code = lis2dh12_self_test_set (&dev.ctx, dev.selftest);
@@ -213,40 +254,48 @@ static rd_status_t selftest (void)
     dev.samplerate = LIS2DH12_POWER_DOWN;
     lis_ret_code = lis2dh12_data_rate_set (&dev.ctx, dev.samplerate);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    LOGD ("end. Error = %08x\r\n", err_code);
     return err_code;
 }
 
 rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
+    LOGD ("begin\r\n");
 
     if (NULL == p_sensor)
     {
         err_code |= RD_ERROR_NULL;
+        LOGD ("p_sensor. Error = %08x\r\n", err_code);
     }
     else if (NULL != dev.ctx.write_reg)
     {
         err_code |= RD_ERROR_INVALID_STATE;
+        LOGD ("write_reg. Error = %08x\r\n", err_code);
     }
     else
     {
         err_code |= dev_ctx_init (bus, handle);
+        LOGD ("dev_ctx_init. Error = %08x\r\n", err_code);
         rd_sensor_initialize (p_sensor);
         p_sensor->name = m_acc_name;
 
         if (RD_SUCCESS == err_code)
         {
             err_code |= check_whoami();
+            LOGD ("check_whoami. Error = %08x\r\n", err_code);
         }
 
         if (RD_SUCCESS == err_code)
         {
             err_code |= clear_sensor_state();
+            LOGD ("clear_sensor_state. Error = %08x\r\n", err_code);
         }
 
         if (RD_SUCCESS == err_code)
         {
             err_code |= selftest();
+            LOGD ("selftest. Error = %08x\r\n", err_code);
         }
 
         if (RD_SUCCESS == err_code)
@@ -283,6 +332,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
         }
     }
 
+    LOGD ("end. Error = %08x\r\n", err_code);
     return err_code;
 }
 
