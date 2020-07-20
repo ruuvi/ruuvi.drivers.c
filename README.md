@@ -142,6 +142,18 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+
+## 0.2.6
+ - Fix ADC task on multiple channel reads.
+
+## 0.2.5
+ - Return RD_ERROR_NOT_ENABLED from tasks not enabled.
+
+## 0.2.4
+ - Fix missing enable macro
+ - Fix queue uninit
+ - Add shorthands for accessing data fields in parse functions
+
 ## 0.2.3 
  - Add relative ADC, NTC, photodiode support.
 
