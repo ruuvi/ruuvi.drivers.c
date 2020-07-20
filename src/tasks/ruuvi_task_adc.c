@@ -22,7 +22,6 @@
 #include "ruuvi_interface_adc_mcu.h"
 #include "ruuvi_interface_atomic.h"
 
-#define RD_ADC_USE_CHANNEL      0
 #define RD_ADC_USE_DIVIDER      1.00f
 #define RD_ADC_USE_VDD          3.30f
 
@@ -39,6 +38,7 @@ static bool m_vdd_prepared;
 static bool m_vdd_sampled;
 static bool m_ratio;
 static float m_vdd;
+static uint8_t m_handle;
 
 
 static ri_adc_pins_config_t pins_config =
@@ -83,13 +83,13 @@ static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
 
         if (false == m_ratio)
         {
-            status = ri_adc_get_data_absolute (RD_ADC_USE_CHANNEL,
+            status = ri_adc_get_data_absolute (m_handle,
                                                &options,
                                                &adc_values[RD_ADC_DATA_START]);
         }
         else
         {
-            status = ri_adc_get_data_ratio (RD_ADC_USE_CHANNEL,
+            status = ri_adc_get_data_ratio (m_handle,
                                             &options,
                                             &adc_values[RD_ADC_DATA_START]);
         }
@@ -133,7 +133,7 @@ rd_status_t rt_adc_uninit (void)
     m_vdd_prepared = false;
     m_vdd_sampled = false;
     m_ratio = false;
-    err_code |= ri_adc_stop (RD_ADC_USE_CHANNEL);
+    err_code |= ri_adc_stop (m_handle);
     err_code |= ri_adc_uninit (false);
 
     if (!ri_atomic_flag (&m_is_init, false))
@@ -177,7 +177,9 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
             m_ratio = true;
         }
 
-        err_code |= ri_adc_configure (RD_ADC_USE_CHANNEL,
+        m_handle = handle -
+                   1; // Handle is used as channel index, however there is NONE at index 0.
+        err_code |= ri_adc_configure (m_handle,
                                       &pins_config,
                                       &absolute_config);
     }
