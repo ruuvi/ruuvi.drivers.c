@@ -144,12 +144,6 @@ rd_status_t rt_adc_uninit (void)
     return err_code;
 }
 
-/**
- * @brief Check if ADC is initialized.
- *
- * @retval true if ADC is initialized.
- * @retval false if ADC is not initialized.
- */
 inline bool rt_adc_is_init (void)
 {
     return (RD_ADC_INIT_BYTE != m_is_init);
@@ -164,6 +158,10 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
+    else if (RI_ADC_NONE == handle)
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
     else
     {
         pins_config.p_pin.channel = handle;
@@ -177,8 +175,8 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
             m_ratio = true;
         }
 
-        m_handle = handle -
-                   1; // Handle is used as channel index, however there is NONE at index 0.
+        // Handle is used as channel index, however there is NONE at index 0.
+        m_handle = handle - 1U;
         err_code |= ri_adc_configure (m_handle,
                                       &pins_config,
                                       &absolute_config);

@@ -161,7 +161,7 @@ typedef struct
  * @retval true if ADC is initialized.
  * @retval false if ADC is not initialized.
  */
-bool  ri_adc_is_init (void);
+bool ri_adc_is_init (void);
 /**
  * @brief Initialization of ADC
  *

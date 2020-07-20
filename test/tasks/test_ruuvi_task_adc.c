@@ -114,6 +114,14 @@ void test_rt_adc_configure_se_ok (void)
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
+void test_rt_adc_configure_se_invalid_handle (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_configuration_t config = {0};
+    err_code = rt_adc_configure_se (&config, RI_ADC_NONE, ABSOLUTE);
+    TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
+}
+
 void test_rt_adc_configure_se_twice (void)
 {
     test_rt_adc_configure_se_ok();
