@@ -671,16 +671,17 @@ static bool test_sensor_interrupts_setup (rd_sensor_t * DUT,
         const ri_gpio_id_t fifo_pin,
         const ri_gpio_id_t level_pin)
 {
-    ri_gpio_interrupt_init (interrupt_table,
-                            RI_GPIO_INTERRUPT_TEST_TABLE_SIZE);
-    ri_gpio_interrupt_enable (fifo_pin, RI_GPIO_SLOPE_LOTOHI,
-                              RI_GPIO_MODE_INPUT_PULLUP, on_fifo);
-    ri_gpio_interrupt_enable (level_pin, RI_GPIO_SLOPE_LOTOHI,
-                              RI_GPIO_MODE_INPUT_PULLUP, on_level);
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_gpio_interrupt_init (interrupt_table,
+                                        RI_GPIO_INTERRUPT_TEST_TABLE_SIZE);
+    err_code |= ri_gpio_interrupt_enable (fifo_pin, RI_GPIO_SLOPE_LOTOHI,
+                                          RI_GPIO_MODE_INPUT_PULLUP, on_fifo);
+    err_code |= ri_gpio_interrupt_enable (level_pin, RI_GPIO_SLOPE_LOTOHI,
+                                          RI_GPIO_MODE_INPUT_PULLUP, on_level);
     // - Sensor must return RD_SUCCESS on first init.
     memset (DUT, 0, sizeof (rd_sensor_t));
-    rd_status_t err_code = RD_SUCCESS;
-    err_code = init (DUT, bus, handle);
+    err_code |= init (DUT, bus, handle);
+    err_code |= DUT->fifo_interrupt_enable (true);
     return (RD_SUCCESS != err_code);
 }
 
@@ -689,8 +690,13 @@ static bool test_sensor_interrupts_setup (rd_sensor_t * DUT,
   */
 static void test_sensor_interrupts_teardown (rd_sensor_t * const DUT,
         rd_sensor_init_fp const init,
-        const rd_bus_t bus, const uint8_t handle)
+        const rd_bus_t bus, const uint8_t handle,
+        const ri_gpio_id_t fifo_pin,
+        const ri_gpio_id_t level_pin)
 {
+    DUT->fifo_interrupt_enable (false);
+    ri_gpio_interrupt_disable (fifo_pin);
+    ri_gpio_interrupt_disable (level_pin);
     DUT->uninit (DUT, bus, handle);
     ri_gpio_interrupt_uninit();
 }
@@ -703,6 +709,7 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     config.samplerate = RD_SENSOR_CFG_MAX;
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
+    fifo_int = false;
     ri_delay_ms (100);
     rd_sensor_data_t old;
     float old_values[MAX_SENSOR_PROVIDED_FIELDS];
@@ -719,9 +726,23 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     }
 
     bool valid_data = false;
+    // Wait for FIFO interrupt
+    uint32_t timeout = 0;
+
+    while ( (!fifo_int) && (timeout < 1000000U))
+    {
+        timeout += 10;
+        ri_delay_us (10);
+    }
+
+    if (timeout >= 1000000U)
+    {
+        return RD_ERROR_TIMEOUT;
+    }
+
     DUT->fifo_read (&num_samples, data);
 
-    if (10 > num_samples)
+    if (10U > num_samples)
     {
         return RD_ERROR_SELFTEST;
     }
@@ -780,7 +801,8 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
         status |= test_sensor_fifo_enable (&DUT);
     }
 
-    test_sensor_interrupts_teardown (&DUT, init, bus, handle);
+    test_sensor_interrupts_teardown (&DUT, init, bus, handle, fifo_pin,
+                                     level_pin);
     return status;
 }
 
@@ -820,6 +842,7 @@ static bool test_sensor_data_print (const rd_sensor_init_fp init,
     if (failed)
     {
         // Return to avoid calling NULL function pointers
+        printfp ("\"data\":\"fail\"\r\n");
         return failed;
     }
 
