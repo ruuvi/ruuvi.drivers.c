@@ -62,16 +62,16 @@ rd_status_t rt_flash_init (void);
 /**
  * @brief Store data to flash.
  *
- * The flash storage implements a simple file system, where data is arranged to files 
+ * The flash storage implements a simple file system, where data is arranged to files
  * which have records. You can for example have a file for sensor configurations and
- * record for each sensor. Underlying implementation provides wear leveling. Garbage 
+ * record for each sensor. Underlying implementation provides wear leveling. Garbage
  * collection may be triggered manually and is tried automatically if there is not enough
  * space in flash. This function only queues the data to be written, you must verify that
  * write was completed before freeing message.
- * 
+ *
  * If a record with given file_id and record_id already exists, the record is updated.
  * In case the flash memory is 100 % filled, record cannot be updated as new record
- * has to be created before old is deleted to maintain data over power outages etc. 
+ * has to be created before old is deleted to maintain data over power outages etc.
  *
  * @param[in] file_id ID of a file to store. Valid range 1 ... 0xBFFF
  * @param[in] record_id ID of a record to store. Valid range 1 ... 0xFFFF
@@ -85,7 +85,7 @@ rd_status_t rt_flash_init (void);
  * @retval RD_ERROR_NO_MEM if there was no space for the record in flash.
  * @retval RD_ERROR_DATA_SIZE if record exceeds maximum size.
  *
- * @warning triggers garbage collection if there is no space available, which leads to 
+ * @warning triggers garbage collection if there is no space available, which leads to
  *          long processing time.
  */
 rd_status_t rt_flash_store (const uint16_t file_id, const uint16_t record_id,
