@@ -228,10 +228,14 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
 
         // Handle is used as channel index, however there is NONE at index 0.
         m_handle = handle;
-        channel_assign (m_handle);
-        err_code |= ri_adc_configure (m_channel[m_handle],
-                                      &pins_config,
-                                      &absolute_config);
+        err_code |= channel_assign (m_handle);
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= ri_adc_configure (m_channel[m_handle],
+                                          &pins_config,
+                                          &absolute_config);
+        }
     }
 
     if (RD_SUCCESS == err_code)
