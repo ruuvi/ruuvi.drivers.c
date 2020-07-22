@@ -38,6 +38,7 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
     printfp ("\"init\":");
+    ri_flash_purge();
     err_code = ri_flash_init();
 
     if (RD_SUCCESS != err_code)
