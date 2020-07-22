@@ -4,17 +4,17 @@
 /**
  * @defgroup peripheral_tasks Peripheral tasks
  */
-/*@{*/
+/** @{ */
 /**
  * @defgroup flash_tasks Flash tasks
  * @brief Non-volatile storage functions.
  *
  */
-/*@}*/
+/** @} */
 /**
  * @addtogroup flash_tasks
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_task_flash.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -109,7 +109,8 @@ rd_status_t rt_flash_store (const uint16_t file_id, const uint16_t record_id,
  * @retval RD_ERROR_NOT_FOUND if given record was not found.
  * @retval RD_ERROR_DATA_SIZE if record exceeds maximum size.
  *
- * @warning triggers garbage collection if there is no space available, which leads to long processing time.
+ * @warning Triggers garbage collection if there is no space available,
+ *          which leads to long processing time.
  */
 rd_status_t rt_flash_load (const uint16_t file_id, const uint16_t record_id,
                            void * const message, const size_t message_length);
@@ -117,10 +118,12 @@ rd_status_t rt_flash_load (const uint16_t file_id, const uint16_t record_id,
 /**
  * @brief Free data from flash.
  *
- * The flash storage implements a simple file system, where data is arranged to files which have records.
- * You can for example have a file for sensor configurations and record for each sensor.
+ * The flash storage implements a simple file system, where data is arranged to files
+ * which have records. You can for example have a file for sensor configurations and
+ * record for each sensor.
  *
- * This function does not physically erase the data, it only marks the record as deleteable for garbage collection.
+ * This function does not physically erase the data, it only marks the record as
+ * deleteable for garbage collection.
  *
  * @param[in] file_id ID of a file to delete. Valid range 1 ... 0xBFFF
  * @param[in] record_id ID of a record to delete. Valid range 1 ... 0xFFFF
@@ -130,7 +133,8 @@ rd_status_t rt_flash_load (const uint16_t file_id, const uint16_t record_id,
  * @retval RD_ERROR_BUSY if another operation was ongoing.
  * @retval RD_ERROR_NOT_FOUND if given record was not found.
  *
- * @warning triggers garbage collection if there is no space available, which leads to long processing time.
+ * @warning Triggers garbage collection if there is no space available, which leads to
+ *          long processing time.
  */
 rd_status_t rt_flash_free (const uint16_t file_id, const uint16_t record_id);
 
@@ -152,8 +156,8 @@ rd_status_t rt_flash_gc_run (void);
 /**
  * @brief Check if flash is running an operation.
  *
- * @return True if flash is busy.
- * @return False otherwise.
+ * @retval true if flash is busy.
+ * @retval false if flash is not runnning operation.
  *
  */
 bool rt_flash_busy (void);
@@ -164,5 +168,5 @@ void print_error_cause (void);
 #endif
 
 
-/*@}*/
+/** @} */
 #endif

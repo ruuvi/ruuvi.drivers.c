@@ -121,15 +121,16 @@ Currently the drivers are being refactored for more consistent naming, better te
 coverage and Doxygen support.
 
 ## Upcoming refactors
- - Add unit to sensor configuration fields, e.g. `resolution`-> `resolution_bits`
- - Rewrite BLE advertising module
+ - ~~Add unit to sensor configuration fields, e.g. `resolution`-> `resolution_bits`~~
+ - ~~Rewrite BLE advertising module~~
  - Add default configuration value to header of each sensor
  - ~~Add a function to return sensor name to each sensor~~
  - ~~Add dummy initialization for sensor struct.~~
 
 ## Upcoming implementations
- - ~~TMP117 driver~~
- - Support more ADC inputs, differential ADC inputs.
+ - ~~Support more ADC inputs,~~ differential ADC inputs.
+ - 
+
 
 # Licenses
 All Ruuvi code is BSD-3 licensed.
@@ -142,6 +143,10 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+
+## 0.2.7 - In progress
+ - Purge flash before flash integration test.
+ - Disable SPI MISO pull-up by default.
 
 ## 0.2.6
  - Fix ADC task on multiple channel reads.
