@@ -99,6 +99,7 @@ void test_rt_adc_uninit_ok (void)
 void test_rt_adc_configure_se_ratiometric_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_configuration_t config = {0};
     err_code = rt_adc_configure_se (&config, RI_ADC_AINVDD, RATIOMETRIC);
@@ -108,6 +109,7 @@ void test_rt_adc_configure_se_ratiometric_ok (void)
 void test_rt_adc_configure_se_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_configuration_t config = {0};
     err_code = rt_adc_configure_se (&config, RI_ADC_AINVDD, ABSOLUTE);
@@ -118,7 +120,7 @@ void test_rt_adc_configure_se_invalid_handle (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_configuration_t config = {0};
-    err_code = rt_adc_configure_se (&config, RI_ADC_NONE, ABSOLUTE);
+    err_code = rt_adc_configure_se (&config, RI_ADC_GND, ABSOLUTE);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
 }
 
@@ -207,7 +209,7 @@ void test_rt_adc_voltage_get_ok (void)
  * After calling this function ADC is primed for measuring the voltage droop of battery.
  *
  * @retval RD_SUCCESS on success
- * @retval RD_ERROR_BUSY if ADC cannot be reserved
+ * @retval RD_ERROR_INVALID_STATE if ADC is already initialized.
  */
 void test_rt_adc_vdd_prepare_ok (void)
 {
@@ -217,6 +219,7 @@ void test_rt_adc_vdd_prepare_ok (void)
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_true);
     ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
     err_code = rt_adc_vdd_prepare (&config);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -231,7 +234,7 @@ void test_rt_adc_vdd_prepare_already_init (void)
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
     ri_adc_init_ExpectAnyArgsAndReturn (RD_ERROR_INVALID_STATE);
     err_code = rt_adc_vdd_prepare (&config);
-    TEST_ASSERT (RD_ERROR_BUSY == err_code);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
 /**
