@@ -556,4 +556,9 @@ rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
     return status;
 }
 
+bool ri_adc_mcu_is_valid_ch (const uint8_t ch)
+{
+    return ch < NRF_SAADC_CHANNEL_COUNT;
+}
+
 #endif

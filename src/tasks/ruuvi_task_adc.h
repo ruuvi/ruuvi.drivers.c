@@ -150,7 +150,7 @@ rd_status_t rt_adc_ratio_get (rd_sensor_data_t * const data);
  * After calling this function ADC is primed for measuring the voltage droop of battery.
  *
  * @retval RD_SUCCESS on success
- * @retval RD_ERROR_BUSY if ADC cannot be reserved
+ * @retval RD_ERROR_INVALID_STATE if ADC is already initialized.
  */
 rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_configuration);
 
