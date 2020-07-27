@@ -31,6 +31,12 @@
 #  define RUUVI_NRF5_SDK15_FLASH_ENABLED RUUVI_NRF5_SDK15_ENABLED
 #endif
 
+#ifdef APP_FLASH_PAGES
+#   define RI_FLASH_PAGES APP_FLASH_PAGES
+#else
+#   define RI_FLASH_PAGES (10U)
+#endif
+
 /**
  * @brief Get total size of usable flash, excluding any overhead bytes
  *
