@@ -146,10 +146,15 @@ static rd_status_t ri_uart_read_buf (ri_comm_message_t * const msg)
     else
     {
         nrfx_err_t status = NRF_SUCCESS;
-        size_t bytes_read = 0;
-        status |= nrf_serial_read (&serial_uart, msg->data, msg->data_length, &bytes_read, 0);
-        // nrf_serial_read caps read data length to msg->data_length
-        msg->data_length = (uint8_t) (bytes_read & 0xFFU);
+        size_t bytes_read = nrf_queue_utilization_get (&serial_queues_rxq);
+
+        if (msg->data_length < bytes_read)
+        {
+            bytes_read = msg->data_length;
+        }
+
+        status |= nrf_queue_read (&serial_queues_rxq, msg->data, bytes_read);
+        msg->data_length = bytes_read;
         msg->repeat_count = 1;
         err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
         m_rxcnt = 0;

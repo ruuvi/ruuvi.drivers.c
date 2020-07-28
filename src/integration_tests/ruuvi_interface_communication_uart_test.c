@@ -25,8 +25,8 @@
  */
 
 static ri_comm_channel_t m_channel;
-static bool m_has_sent;
-static bool m_has_received;
+static uint8_t m_has_sent;
+static uint8_t m_has_received;
 static ri_comm_message_t rx_data;
 
 static rd_status_t uart_isr (ri_comm_evt_t evt,
@@ -43,11 +43,11 @@ static rd_status_t uart_isr (ri_comm_evt_t evt,
             break;
 
         case RI_COMM_SENT:
-            m_has_sent = true;
+            m_has_sent++;
             break;
 
         case RI_COMM_RECEIVED:
-            m_has_received = true;
+            m_has_received++;
             rx_data.data_length = RI_COMM_MESSAGE_MAX_LENGTH;
             m_channel.read (&rx_data);
             break;
@@ -161,7 +161,8 @@ static bool uart_run_test (const char * const test_data)
 
     if ( (RD_SUCCESS != err_code)
             || memcmp (&rx_data, &msg, sizeof (ri_comm_message_t))
-            || timeout)
+            || timeout
+            || (m_has_received != 1))
     {
         status = true;
     }
@@ -269,7 +270,8 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
 
         if ( (RD_SUCCESS != err_code)
                 || memcmp (&rx_data.data, cutoff_index, rx_data.data_length)
-                || timeout)
+                || timeout
+                || (m_has_received != 2))
         {
             status = true;
         }
