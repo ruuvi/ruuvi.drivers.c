@@ -48,7 +48,7 @@
 
 static ri_adc_pins_config_t adc_photo_pins_config =
 {
-    .p_pin.channel = RI_ADC_NONE,
+    .p_pin.channel = RI_ADC_GND,
 #ifdef RI_ADC_ADV_CONFIG
     .p_pin.resistor = RI_ADC_RESISTOR_DISABLED,
 #endif
