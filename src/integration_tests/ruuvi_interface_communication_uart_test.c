@@ -220,6 +220,8 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
 {
     bool status = false;
     bool timeout = false;
+    m_has_sent = 0;
+    m_has_received = 0;
     rd_status_t err_code = RD_SUCCESS;
     printfp ("\"rx_corrupt\":");
     err_code |= uart_init_test (input, output);
@@ -254,12 +256,10 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
                                     test_data + RI_COMM_MESSAGE_MAX_LENGTH);
         msg.data_length = written;
         const char * cutoff_index = test_data + strlen (test_data) - written;
-        m_has_sent = false;
-        m_has_received = false;
         memset (&rx_data, 0, sizeof (rx_data));
         err_code |= m_channel.send (&msg);
 
-        while (! (m_has_sent && m_has_received)
+        while ( ( (m_has_sent < 2) && (m_has_received < 2))
                 && (!timeout))
         {
             if (TEST_TIMEOUT_MS < ri_rtc_millis())
@@ -271,7 +271,8 @@ bool ri_uart_rx_test (const rd_test_print_fp printfp, const ri_gpio_id_t input,
         if ( (RD_SUCCESS != err_code)
                 || memcmp (&rx_data.data, cutoff_index, rx_data.data_length)
                 || timeout
-                || (m_has_received != 2))
+                || (m_has_received != 2)
+                || (m_has_sent != 2))
         {
             status = true;
         }
