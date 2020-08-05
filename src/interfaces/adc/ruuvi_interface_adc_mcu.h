@@ -216,7 +216,7 @@ rd_status_t ri_adc_stop (uint8_t channel_num);
  * @retval RD_ERROR_INVALID_STATE if ADC channel is locked.
  */
 rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
-                                 uint16_t * p_data);
+                                 int16_t * p_data);
 
 /**
  * @brief Get ADC data in volts.
