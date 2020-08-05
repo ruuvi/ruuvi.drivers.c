@@ -474,14 +474,14 @@ rd_status_t ri_adc_configure (uint8_t channel_num,
 }
 
 rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
-                                 uint16_t * p_data)
+                                 int16_t * p_data)
 {
     rd_status_t status = RD_ERROR_INVALID_STATE;
     nrf_saadc_value_t adc_buf;
 
     if (NRF_SUCCESS == nrf_drv_saadc_sample_convert (channel_num, &adc_buf))
     {
-        (*p_data) = (uint16_t) (adc_buf);
+        (*p_data) = (int16_t) (adc_buf);
         status = RD_SUCCESS;
     }
 
@@ -493,7 +493,7 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
  */
 static rd_status_t nrf5_adc_get_raw (uint8_t channel_num,
                                      ri_adc_get_data_t * p_config,
-                                     uint16_t * const p_data)
+                                     int16_t * const p_data)
 {
     rd_status_t status = RD_SUCCESS;
 
