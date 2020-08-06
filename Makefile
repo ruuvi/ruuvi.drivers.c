@@ -272,3 +272,10 @@ astyle:
 			  "src/*.h" \
 			  "src/*.c" \
 			  "test/*.c"
+
+sync:
+	@echo Synchronizing GIT...
+	# TODO: reject if repo is not clean
+	git submodule update --init --recursive
+	git submodule sync --recursive
+	git submodule update --init --recursive
