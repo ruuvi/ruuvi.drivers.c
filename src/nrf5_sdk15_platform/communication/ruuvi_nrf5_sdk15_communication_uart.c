@@ -44,7 +44,6 @@ static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event
                 LOGD ("RX\r\n");
 
                 if ( ( ( (char *) (p_serial->p_ctx->p_config->p_buffers->p_rxb)) [0] == '\n')
-                        || ( ( (uint8_t *)(p_serial->p_ctx->p_config->p_buffers->p_rxb)) [0] == 0x12)
                         || ++m_rxcnt >= RI_COMM_MESSAGE_MAX_LENGTH)
                 {
                   ri_comm_message_t msg = {0};
