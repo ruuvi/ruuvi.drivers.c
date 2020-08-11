@@ -6,7 +6,7 @@
  *
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_driver_sensor.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -159,17 +159,17 @@ typedef struct
  * the remainder of the aggregate shall be initialized implicitly the same as
  * objects that have static storage duration.
  */
-/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_ACC_X_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_x_g=1})
-/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_ACC_Y_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_y_g=1})
-/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_ACC_Z_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_z_g=1})
-/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_HUMI_FIELD ((rd_sensor_data_fields_t){.datas.humidity_rh=1})
-/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_PRES_FIELD ((rd_sensor_data_fields_t){.datas.pressure_pa=1})
-/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */;
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_TEMP_FIELD ((rd_sensor_data_fields_t){.datas.temperature_c=1})
 
 
@@ -553,5 +553,56 @@ rd_status_t validate_default_input_set (uint8_t * const input, const uint8_t mod
  */
 rd_status_t validate_default_input_get (uint8_t * const input);
 
-/*@}*/
+/**
+ * @brief Check if sensor has valid data at given index.
+ *
+ * Data is considered valid if target->fields and target->valid both are set.
+ * Index is referred to number of fields.
+ *
+ * Typical usage:
+ * @code
+ * const uint8_t fieldcount = rd_sensor_data_fieldcount(p_data);
+ * for(uint8_t ii = 0; ii < fieldcount; ii++)
+ * {
+ *     if(rd_sensor_has_valid_data(p_data, ii)
+ *     {
+ *        do_stuff(p_data->data[ii], rd_sensor_field_type(p_data, ii));
+ *     }
+ * }
+ * @endcode
+ *
+ * @param[in] target Pointer to data to check.
+ * @param[in] index index of data to check.
+ * @retval true If data at target->data[index] has a valid value.
+ * @retval false If target is NULL, index is higher than fields in data or data at
+ *               index is not marked as valid.
+ *
+ * @note To determine the type of data, use @ref rd_sensor_field_type.
+ */
+bool rd_sensor_has_valid_data (const rd_sensor_data_t * const target,
+                               const uint8_t index);
+
+/**
+ * @brief Check the type of data at given index.
+ *
+ * This function is used to determine what type of data given index has.
+ *
+ * Typical usage:
+ * @code
+ * rd_sensor_data_bitfield_t type = rd_sensor_field_type(p_data, index);
+ * if(1 == type.temperature_c)
+ * {
+ *    do_stuff_with_temperature (p_data->data[index])
+ * }
+ * @endcode
+ *
+ * @param[in] target Data to check
+ * @param[in] index  Index of field to check.
+ * @return rd_sensor_data_bitfield_t with field corresponding to index set, or 0 if
+ *                                   target doesn't have any data type at given index.
+ */
+rd_sensor_data_bitfield_t rd_sensor_field_type (const rd_sensor_data_t * const target,
+        const uint8_t index);
+
+/** @} */
 #endif

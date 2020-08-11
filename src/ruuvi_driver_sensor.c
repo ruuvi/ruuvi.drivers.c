@@ -215,6 +215,61 @@ void rd_sensor_data_set (rd_sensor_data_t * const target,
     }
 }
 
+bool rd_sensor_has_valid_data (const rd_sensor_data_t * const target,
+                               const uint8_t index)
+{
+    uint8_t fieldcount = rd_sensor_data_fieldcount (target);
+    rd_sensor_data_fields_t check = target->fields;
+    uint8_t target_index = 0U;
+    uint32_t mask = 0U;
+
+    // Verify bounds
+    if (fieldcount > index)
+    {
+        // Find target field
+        for (uint8_t ii = 0U; ii < index; ii++)
+        {
+            // Null trailing fields
+            target_index = (uint8_t) __builtin_ctz (check.bitfield);
+            mask = 1U << target_index;
+            check.bitfield &= ~mask;
+        }
+    }
+
+    target_index = (uint8_t) __builtin_ctz (check.bitfield);
+    mask = 1U << target_index;
+    // Check if field at given index is marked valid, convert to bool.
+    return !! (target->valid.bitfield & mask);
+}
+
+rd_sensor_data_bitfield_t rd_sensor_field_type (const rd_sensor_data_t * const target,
+        const uint8_t index)
+{
+    uint8_t fieldcount = rd_sensor_data_fieldcount (target);
+    rd_sensor_data_fields_t check = target->fields;
+    uint8_t target_index = 0U;
+    uint32_t mask = 0U;
+
+    // Verify bounds
+    if (fieldcount > index)
+    {
+        // Find target field
+        for (uint8_t ii = 0U; ii < index; ii++)
+        {
+            // Null trailing fields
+            target_index = (uint8_t) __builtin_ctz (check.bitfield);
+            mask = 1U << target_index;
+            check.bitfield &= ~mask;
+        }
+    }
+
+    // return given bitfield
+    target_index = (uint8_t) __builtin_ctz (check.bitfield);
+    mask = 1U << target_index;
+    check.bitfield &= mask;
+    return check.datas;
+}
+
 void rd_sensor_data_populate (rd_sensor_data_t * const target,
                               const rd_sensor_data_t * const provided,
                               const rd_sensor_data_fields_t requested)
