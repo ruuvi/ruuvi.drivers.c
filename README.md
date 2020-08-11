@@ -149,6 +149,7 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
  - Disable SPI MISO pull-up by default.
  - Fix UART read retriggering data received event.
  - Add yield uninit
+ - Add helper functions for parsing sensor data.
 
 ## 0.2.6
  - Fix ADC task on multiple channel reads.
