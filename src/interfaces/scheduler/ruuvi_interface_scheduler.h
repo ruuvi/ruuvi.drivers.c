@@ -4,7 +4,7 @@
  * @defgroup scheduler Interface for scheduling tasks to be executed later.
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_scheduler.h
  * @author Otso Jousimaa <otso@ojousima.net>
