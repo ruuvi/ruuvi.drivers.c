@@ -55,7 +55,7 @@ rd_status_t ri_yield_init (void);
 /**
  * @brief Uninitializes yielding functions.
  *
- * Clears state from previous initializations. This should be called before 
+ * Clears state from previous initializations. This should be called before
  * uninitializing timers if timer-based low-power delay is in use.
  *
  * @return RD_SUCCESS.
