@@ -183,7 +183,7 @@ void rt_gatt_set_on_disconn_isr (const ri_comm_cb_t cb);
 /** @brief Setup data received event handler.
  *
  *  The event handler has signature of @code void(*rt_gatt_cb_t)(void* p_event_data, uint16_t event_size) @endcode
- *  where event data is NULL and event_size is 0.
+ *  where event data is pointer to raw bytes and event_size is length of received data.
  *  The event handler is called in interrupt context.
  *
  * @param[in] cb Callback which gets called on data received in interrupt context.

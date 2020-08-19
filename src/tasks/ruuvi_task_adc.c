@@ -22,7 +22,6 @@
 #include "ruuvi_interface_adc_mcu.h"
 #include "ruuvi_interface_atomic.h"
 
-#define RD_ADC_USE_CHANNEL      0
 #define RD_ADC_USE_DIVIDER      1.00f
 #define RD_ADC_USE_VDD          3.30f
 
@@ -33,12 +32,51 @@
 #define RD_ADC_CLEAN_BYTE       0
 #define RD_ADC_INIT_BYTE        0
 
+#define RT_ADC_CH_UNUSED        (0xFFU) //!< Channel not assigned.
+
 static ri_atomic_t m_is_init;
 static bool m_is_configured;
 static bool m_vdd_prepared;
 static bool m_vdd_sampled;
 static bool m_ratio;
 static float m_vdd;
+static uint8_t m_handle; //!< handle of last ADC used.
+static uint8_t m_channel[RI_ADC_CH_NUM]; //!< Channel assigment for handles.
+static uint8_t m_next_channel; //!< Next channel to be assigned.
+
+/**
+ * @brief assign ADC channel for a handle
+ *
+ * @retval RD_SUCCESS If channel was assigned or handle already has channel.
+ * @retval RD_ERROR_RESOURCES If there are no channels available.
+ * @retval RD_ERROR_INVALID_PARAM If
+ */
+static rd_status_t channel_assign (const uint8_t handle)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (handle > RI_ADC_CH_NUM)
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
+    else if (RT_ADC_CH_UNUSED == m_channel[handle])
+    {
+        if (ri_adc_mcu_is_valid_ch (m_next_channel))
+        {
+            m_channel[handle] = m_next_channel++;
+        }
+        else
+        {
+            err_code |= RD_ERROR_RESOURCES;
+        }
+    }
+    else
+    {
+        // No action needed.
+    }
+
+    return err_code;
+}
 
 
 static ri_adc_pins_config_t pins_config =
@@ -79,17 +117,17 @@ static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
         p_data->timestamp_ms = RD_UINT64_INVALID;
         rd_sensor_data_t d_adc;
         rd_sensor_data_fields_t adc_fields = {.bitfield = RD_ADC_DEFAULT_BITFIELD};
-        float adc_values[RD_ADC_DATA_COUNTER];
+        float adc_values[RD_ADC_DATA_COUNTER] = {0};
 
         if (false == m_ratio)
         {
-            status = ri_adc_get_data_absolute (RD_ADC_USE_CHANNEL,
+            status = ri_adc_get_data_absolute (m_channel[m_handle],
                                                &options,
                                                &adc_values[RD_ADC_DATA_START]);
         }
         else
         {
-            status = ri_adc_get_data_ratio (RD_ADC_USE_CHANNEL,
+            status = ri_adc_get_data_ratio (m_channel[m_handle],
                                             &options,
                                             &adc_values[RD_ADC_DATA_START]);
         }
@@ -120,6 +158,12 @@ rd_status_t rt_adc_init (void)
     }
     else
     {
+        for (size_t ii = 0; ii < RI_ADC_CH_NUM; ii++)
+        {
+            m_channel[ii] = RT_ADC_CH_UNUSED;
+        }
+
+        m_next_channel = 0;
         err_code |= ri_adc_init (NULL);
     }
 
@@ -133,8 +177,15 @@ rd_status_t rt_adc_uninit (void)
     m_vdd_prepared = false;
     m_vdd_sampled = false;
     m_ratio = false;
-    err_code |= ri_adc_stop (RD_ADC_USE_CHANNEL);
-    err_code |= ri_adc_uninit (false);
+    err_code |= ri_adc_stop (m_channel[m_handle]);
+    err_code |= ri_adc_uninit (true);
+
+    for (size_t ii = 0; ii < RI_ADC_CH_NUM; ii++)
+    {
+        m_channel[ii] = RT_ADC_CH_UNUSED;
+    }
+
+    m_next_channel = 0;
 
     if (!ri_atomic_flag (&m_is_init, false))
     {
@@ -144,12 +195,6 @@ rd_status_t rt_adc_uninit (void)
     return err_code;
 }
 
-/**
- * @brief Check if ADC is initialized.
- *
- * @retval true if ADC is initialized.
- * @retval false if ADC is not initialized.
- */
 inline bool rt_adc_is_init (void)
 {
     return (RD_ADC_INIT_BYTE != m_is_init);
@@ -164,6 +209,10 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
+    else if (RI_ADC_GND == handle)
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
     else
     {
         pins_config.p_pin.channel = handle;
@@ -177,9 +226,16 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
             m_ratio = true;
         }
 
-        err_code |= ri_adc_configure (RD_ADC_USE_CHANNEL,
-                                      &pins_config,
-                                      &absolute_config);
+        // Handle is used as channel index, however there is NONE at index 0.
+        m_handle = handle;
+        err_code |= channel_assign (m_handle);
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= ri_adc_configure (m_channel[m_handle],
+                                          &pins_config,
+                                          &absolute_config);
+        }
     }
 
     if (RD_SUCCESS == err_code)
@@ -255,7 +311,7 @@ rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_config
     err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_AINVDD,
                                      ABSOLUTE);
     m_vdd_prepared = (RD_SUCCESS == err_code);
-    return (RD_SUCCESS == err_code) ? RD_SUCCESS : RD_ERROR_BUSY;
+    return err_code;
 }
 
 rd_status_t rt_adc_vdd_sample (void)

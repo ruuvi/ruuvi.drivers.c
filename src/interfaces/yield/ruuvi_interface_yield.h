@@ -53,6 +53,16 @@ void ri_yield_indication_set (const ri_yield_state_ind_fp_t
 rd_status_t ri_yield_init (void);
 
 /**
+ * @brief Uninitializes yielding functions.
+ *
+ * Clears state from previous initializations. This should be called before
+ * uninitializing timers if timer-based low-power delay is in use.
+ *
+ * @return RD_SUCCESS.
+ */
+rd_status_t ri_yield_uninit (void);
+
+/**
  * @brief Initializes yielding functions.
  *
  * Enables using timer + RTC to shutdown the device for millisecond-sleeps.

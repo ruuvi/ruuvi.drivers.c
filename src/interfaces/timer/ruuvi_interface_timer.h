@@ -4,7 +4,7 @@
  * @defgroup timer Interface for timing tasks to be exeuted later.
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_timer.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -53,7 +53,7 @@
  *   err_code |= ri_timer_start (m_timer, (10 * 1000U), &tx);
  *   return err_code
  * }
- *
+ * @endcode
  *
  *
  */
@@ -149,5 +149,5 @@ rd_status_t ri_timer_start (ri_timer_id_t timer_id,
  * returns RD_SUCCESS on success, error code from stack on error
  */
 rd_status_t ri_timer_stop (ri_timer_id_t timer_id);
-
+/** @} */
 #endif

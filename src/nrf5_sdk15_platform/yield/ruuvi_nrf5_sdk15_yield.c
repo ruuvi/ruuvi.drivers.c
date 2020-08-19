@@ -24,7 +24,8 @@ static ri_timer_id_t wakeup_timer;     //!< timer ID for wakeup
 #endif
 
 static bool m_lp = false;              //!< low-power mode enabled flag
-static volatile bool m_wakeup = false; //!< wakeup flag
+static bool m_is_init = false;         //!< Module initialized flag
+static volatile bool m_wakeup = false; //!< Wakeup flag, also concurrency barrier.
 static ri_yield_state_ind_fp_t m_ind;  //!< State indication function
 
 #ifdef FLOAT_ABI_HARD
@@ -94,6 +95,7 @@ rd_status_t ri_yield_init (void)
     m_lp = false;
     m_wakeup = false;
     m_ind = NULL;
+    m_is_init = true;
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
@@ -112,6 +114,7 @@ rd_status_t ri_yield_low_power_enable (const bool enable)
     if (timer_status == RD_SUCCESS)
     {
         m_lp = enable;
+        m_wakeup = true;
     }
     else
     {
@@ -145,7 +148,7 @@ rd_status_t ri_delay_ms (uint32_t time)
     rd_status_t err_code = RD_SUCCESS;
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
 
-    if (m_lp)
+    if (m_lp && m_wakeup)
     {
         m_wakeup = false;
         err_code |= ri_timer_start (wakeup_timer, time, NULL);
@@ -178,6 +181,16 @@ rd_status_t ri_delay_us (uint32_t time)
 void ri_yield_indication_set (const ri_yield_state_ind_fp_t indication)
 {
     m_ind = indication;
+}
+
+rd_status_t ri_yield_uninit (void)
+{
+    m_ind = NULL;
+    wakeup_timer = NULL;
+    m_wakeup = false;
+    m_lp = false;
+    m_is_init = false;
+    return RD_SUCCESS;
 }
 
 #endif
