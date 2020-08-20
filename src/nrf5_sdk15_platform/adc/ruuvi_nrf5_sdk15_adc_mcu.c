@@ -248,7 +248,7 @@ static float raw_adc_to_volts (uint8_t channel_num,
  */
 static float raw_adc_to_ratio (uint8_t channel_num,
                                ri_adc_get_data_t * p_config,
-                               uint16_t * adc)
+                               int16_t * adc)
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];
@@ -544,7 +544,7 @@ rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
                                    ri_adc_get_data_t * p_config,
                                    float * p_data)
 {
-    uint16_t data;
+    int16_t data;
     // Input check in function.
     rd_status_t status = nrf5_adc_get_raw (channel_num, p_config, &data);
 
