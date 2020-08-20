@@ -120,6 +120,9 @@ rd_status_t rt_gatt_on_nus_isr (ri_comm_evt_t evt,
             break;
 
         case RI_COMM_RECEIVED:
+            LOGD ("<<<;");
+            LOGDHEX (p_data, data_len);
+            LOGD (";\r\n");
             (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
             break;
 
@@ -297,7 +300,7 @@ rd_status_t rt_gatt_send_asynchronous (ri_comm_message_t
         {
             LOGD (">>>;");
             LOGDHEX (p_msg->data, p_msg->data_length);
-            LOGD ("\r\n");
+            LOGD (";\r\n");
         }
         else if (RD_ERROR_RESOURCES == err_code)
         {
