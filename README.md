@@ -144,8 +144,9 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 
 # Changelog
 
-## 0.2.7 - In progress
+## 0.3.0
  - Purge flash before flash integration test.
+ - Require fixed flash area in nRF5_SDK15 implementation. 
  - Disable SPI MISO pull-up by default.
  - Fix UART read retriggering data received event.
  - Add yield uninit

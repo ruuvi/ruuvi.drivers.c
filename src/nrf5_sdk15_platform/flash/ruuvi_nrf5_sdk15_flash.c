@@ -60,6 +60,36 @@
 #error Invalid FDS backend.
 #endif
 
+/* Inspired by CODE_* macros in app_util.h */
+#if defined(__SES_ARM)
+/* In flash_placement.xml
+ *
+ * <ProgramSection alignment="4" keep="Yes" load="No" name=".storage_flash"
+ *  start="0x60000" size="0x15000" address_symbol="__start_storage_flash"
+ *  end_symbol="__stop_storage_flash" />
+ *
+ */
+extern uint32_t __start_storage_flash;
+extern uint32_t __stop_storage_flash;
+
+#define FSTORAGE_SECTION_START ((uint32_t)&__start_storage_flash)
+#define FSTORAGE_SECTION_END   ((uint32_t)&__stop_storage_flash)
+#elif defined ( __GNUC__ )
+/* In linker:
+ *
+ * .storage_flash 0x60000 (NOLOAD) :
+ * {
+ *  __start_storage_flash = .;
+ *  KEEP(*(SORT(.storage_flash*)))
+ *  __stop_storage_flash = . + 0x15000;
+ * } > FLASH
+ */
+extern uint32_t __start_storage_flash;
+extern uint32_t __stop_storage_flash;
+#define FSTORAGE_SECTION_START ((uint32_t)&__start_storage_flash)
+#define FSTORAGE_SECTION_END   ((uint32_t)&__stop_storage_flash)
+#endif
+
 #include <string.h>
 
 /**
@@ -75,15 +105,21 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Implement persistent flash storage.
  *
- *
  */
 
 #define LOG_LEVEL RI_LOG_LEVEL_DEBUG
 
 NRF_FSTORAGE_DEF (nrf_fstorage_t m_fs1) =
 {
-    // The flash area boundaries are set in fds_init().
+    /* Set a handler for fstorage events. */
     .evt_handler = NULL,
+
+    /* These below are the boundaries of the flash space assigned to this instance of fstorage.
+     * You must set these manually, even at runtime, before nrf_fstorage_init() is called.
+     * The function nrf5_flash_end_addr_get() can be used to retrieve the last address on the
+     * last page of flash available to write data. */
+    .start_addr = FSTORAGE_SECTION_START,
+    .end_addr   = FSTORAGE_SECTION_END
 };
 
 static size_t m_number_of_pages = 0;
@@ -456,6 +492,22 @@ rd_status_t ri_flash_gc_run (void)
     return fds_to_ruuvi_error (rc);
 }
 
+#if 0
+// Use for autodetecting flash bounds
+static uint32_t flash_end_addr (void)
+{
+    uint32_t const bootloader_addr = NRF_UICR->NRFFW[0];
+    uint32_t const page_sz         = NRF_FICR->CODEPAGESIZE;
+#ifndef NRF52810_XXAA
+    uint32_t const code_sz         = NRF_FICR->CODESIZE;
+#else
+    // Number of flash pages, necessary to emulate the NRF52810 on NRF52832.
+    uint32_t const code_sz         = 48;
+#endif
+    return (bootloader_addr != 0xFFFFFFFF) ? bootloader_addr : (code_sz * page_sz);
+}
+#endif
+
 /**
  * @brief Initialize flash
  *
@@ -514,32 +566,9 @@ rd_status_t ri_flash_uninit (void)
     return err_code;
 }
 
-static uint32_t flash_end_addr (void)
-{
-    uint32_t const bootloader_addr = NRF_UICR->NRFFW[0];
-    uint32_t const page_sz         = NRF_FICR->CODEPAGESIZE;
-#ifndef NRF52810_XXAA
-    uint32_t const code_sz         = NRF_FICR->CODESIZE;
-#else
-    // Number of flash pages, necessary to emulate the NRF52810 on NRF52832.
-    uint32_t const code_sz         = 48;
-#endif
-    return (bootloader_addr != 0xFFFFFFFF) ? bootloader_addr : (code_sz * page_sz);
-}
-
-
-static void flash_bounds_set (void)
-{
-    uint32_t flash_size  = (FDS_PHY_PAGES * FDS_PHY_PAGE_SIZE * sizeof (uint32_t));
-    m_fs1.end_addr   = flash_end_addr();
-    m_fs1.start_addr = m_fs1.end_addr - flash_size;
-}
-
 /** Erase FDS */
 void ri_flash_purge (void)
 {
-    flash_bounds_set();
-
     for (int p = 0; p < FDS_VIRTUAL_PAGES; p++)
     {
 #if   defined(NRF51)
