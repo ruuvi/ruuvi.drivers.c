@@ -149,6 +149,7 @@ typedef struct
     unsigned int voc_ppm : 1;          //!< Volatile organic compounds, parts per million.
     unsigned int voltage_v : 1;        //!< Voltage, volts.
     unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
+    unsigned int reserved: 10;         //!< Reserved bits, force remainder of bitfield to 0.
 } rd_sensor_data_bitfield_t;
 
 /**
