@@ -144,6 +144,9 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 
 # Changelog
 
+## 0.3.1
+ - Add explicit reserved bits to rd_sensor_data_bitfield_t to be zeroed in initialization.
+
 ## 0.3.0
  - Purge flash before flash integration test.
  - Require fixed flash area in nRF5_SDK15 implementation. 
