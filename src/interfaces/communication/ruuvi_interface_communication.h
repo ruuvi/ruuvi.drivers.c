@@ -21,8 +21,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/** @brief maximum length for device information strings */
+/** @brief Maximum length for device information strings. */
 #define RI_COMM_DIS_STRLEN 32
+/** @brief Set ri_comm_message_t->repeat_count to this value to e.g. advertise fixed data
+           until explicitly stopped. */
+#define RI_COMM_MSG_REPEAT_FOREVER (0U)
 
 /** @brief Application message definition. */
 typedef struct ri_comm_message_t
@@ -30,7 +33,7 @@ typedef struct ri_comm_message_t
     uint8_t data[RI_COMM_MESSAGE_MAX_LENGTH]; //!< Data payload.
     uint8_t data_length;                      //!< Length of data
     uint8_t repeat_count;                     //!< Number of times to repeat the message,
-    //   0 for infinite sends, 1 for send once.
+    // RI_COMM_MSG_REPEAT_FOREVER for infinite sends, 1 for send once.
 } ri_comm_message_t;
 
 /** @brief Communication event type */

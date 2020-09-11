@@ -111,10 +111,10 @@ rd_status_t rt_adv_stop (void);
  *
  *  Call @ref rt_adv_stop to stop advertisements on repeat.
  *
- *  @param[in] msg message to be sent as manufacturer specific data payload
- *  @retval    RD_ERROR_NULL if msg is NULL
+ *  @param[in] msg message to be sent as manufacturer specific data payload.
+ *  @retval    RD_ERROR_NULL if msg is NULL.
  *  @retval    RD_ERROR_INVALID_STATE if advertising isn't initialized or started.
- *  @retval    RD_ERROR_DATA_SIZE if payload size is larger than 24 bytes
+ *  @retval    RD_ERROR_DATA_SIZE if payload size is larger than 24 bytes.
  *  @return    error code from stack on other error.
  */
 rd_status_t rt_adv_send_data (ri_comm_message_t * const msg);
