@@ -229,6 +229,28 @@ rd_status_t rt_gatt_init (const char * const name)
     return err_code;
 }
 
+rd_status_t rt_gatt_uninit (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    if (rt_adv_is_init())
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        ri_radio_modulation_t modulation = RI_RADIO_BLE_1MBPS;
+        err_code |= ri_radio_get_modulation (&modulation);
+        rt_gatt_set_on_received_isr(NULL);
+        rt_gatt_set_on_sent_isr(NULL);
+        rt_gatt_set_on_connected_isr(NULL);
+        rt_gatt_set_on_disconn_isr(NULL);
+        err_code |= ri_radio_uninit();
+        memset(&m_channel, 0, sizeof(m_channel));
+        err_code |= ri_radio_init(modulation);
+    }
+    return err_code;
+}
+
 rd_status_t rt_gatt_enable (void)
 {
     rd_status_t err_code = RD_SUCCESS;
