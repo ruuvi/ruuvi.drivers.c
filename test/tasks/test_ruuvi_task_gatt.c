@@ -311,13 +311,13 @@ void test_rt_gatt_init_max_len_name (void)
 }
 
 /**
- * @brief Uninitialize GATT. 
+ * @brief Uninitialize GATT.
  *
- * After calling this function callbacks, characteristics and services are cleared. 
+ * After calling this function callbacks, characteristics and services are cleared.
  *
- * @note Nordic SDK requires radio uninitialization to reset GATT service states. 
- *       If any other task is using radio, this function will return error. 
- *       This function will re-initialize radio after GATT is uninitialized with original 
+ * @note Nordic SDK requires radio uninitialization to reset GATT service states.
+ *       If any other task is using radio, this function will return error.
+ *       This function will re-initialize radio after GATT is uninitialized with original
  *       modulation.
  *
  *
@@ -330,8 +330,8 @@ void test_rt_gatt_uninit_ok (void)
     ri_radio_modulation_t modulation = RI_RADIO_BLE_2MBPS;
     rt_adv_is_init_ExpectAndReturn (false);
     ri_radio_get_modulation_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_radio_get_modulation_ReturnThruPtr_p_modulation(&modulation);
-    ri_radio_uninit_ExpectAndReturn(RD_SUCCESS);
+    ri_radio_get_modulation_ReturnThruPtr_p_modulation (&modulation);
+    ri_radio_uninit_ExpectAndReturn (RD_SUCCESS);
     ri_radio_init_ExpectAndReturn (modulation, RD_SUCCESS);
     rd_status_t err_code = rt_gatt_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);

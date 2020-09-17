@@ -112,13 +112,13 @@ rd_status_t rt_gatt_nus_init();
 rd_status_t rt_gatt_init (const char * const name);
 
 /**
- * @brief Uninitialize GATT. 
+ * @brief Uninitialize GATT.
  *
- * After calling this function callbacks, characteristics and services are cleared. 
+ * After calling this function callbacks, characteristics and services are cleared.
  *
- * @note Nordic SDK requires radio uninitialization to reset GATT service states. 
- *       If any other task is using radio, this function will return error. 
- *       This function will re-initialize radio after GATT is uninitialized with original 
+ * @note Nordic SDK requires radio uninitialization to reset GATT service states.
+ *       If any other task is using radio, this function will return error.
+ *       This function will re-initialize radio after GATT is uninitialized with original
  *       modulation.
  *
  *
