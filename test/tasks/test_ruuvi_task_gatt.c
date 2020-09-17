@@ -513,19 +513,22 @@ void test_rt_gatt_callbacks_null()
 void test_rt_gatt_uninit_ok (void)
 {
     ri_radio_modulation_t modulation = RI_RADIO_BLE_2MBPS;
+    test_rt_gatt_dis_init_ok();
+    test_rt_gatt_enable_ok_with_nus();
+    test_rt_gatt_dfu_init_ok();
     rt_adv_is_init_ExpectAndReturn (false);
     ri_radio_get_modulation_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_radio_get_modulation_ReturnThruPtr_p_modulation (&modulation);
     ri_radio_uninit_ExpectAndReturn (RD_SUCCESS);
-    ri_gatt_uninit_ExpectAndReturn(RD_SUCCESS);
+    ri_gatt_uninit_ExpectAndReturn (RD_SUCCESS);
     ri_radio_init_ExpectAndReturn (modulation, RD_SUCCESS);
     rd_status_t err_code = rt_gatt_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (!rt_gatt_is_init());
-    tearDown();
     setUp();
     test_rt_gatt_dis_init_ok();
     test_rt_gatt_enable_ok_with_nus();
+    test_rt_gatt_dfu_init_ok();
 }
 
 void test_rt_gatt_uninit_adv_ongoing (void)
