@@ -246,8 +246,12 @@ rd_status_t rt_gatt_uninit (void)
         rt_gatt_set_on_connected_isr (NULL);
         rt_gatt_set_on_disconn_isr (NULL);
         err_code |= ri_radio_uninit();
+        err_code |= ri_gatt_uninit();
         memset (&m_channel, 0, sizeof (m_channel));
         err_code |= ri_radio_init (modulation);
+        m_is_init = false;
+        m_dis_is_init = false;
+        m_nus_is_init = false;
     }
 
     return err_code;
