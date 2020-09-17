@@ -311,41 +311,6 @@ void test_rt_gatt_init_max_len_name (void)
 }
 
 /**
- * @brief Uninitialize GATT.
- *
- * After calling this function callbacks, characteristics and services are cleared.
- *
- * @note Nordic SDK requires radio uninitialization to reset GATT service states.
- *       If any other task is using radio, this function will return error.
- *       This function will re-initialize radio after GATT is uninitialized with original
- *       modulation.
- *
- *
- * @retval RD_SUCCESS on success.
- * @retval RD_ERROR_INVALID_STATE if GATT cannot be uninitialized.
- *
- */
-void test_rt_gatt_uninit_ok (void)
-{
-    ri_radio_modulation_t modulation = RI_RADIO_BLE_2MBPS;
-    rt_adv_is_init_ExpectAndReturn (false);
-    ri_radio_get_modulation_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    ri_radio_get_modulation_ReturnThruPtr_p_modulation (&modulation);
-    ri_radio_uninit_ExpectAndReturn (RD_SUCCESS);
-    ri_radio_init_ExpectAndReturn (modulation, RD_SUCCESS);
-    rd_status_t err_code = rt_gatt_uninit();
-    TEST_ASSERT (RD_SUCCESS == err_code);
-}
-
-void test_rt_gatt_uninit_adv_ongoing (void)
-{
-    ri_radio_modulation_t modulation = RI_RADIO_BLE_1MBPS;
-    rt_adv_is_init_ExpectAndReturn (true);
-    rd_status_t err_code = rt_gatt_uninit();
-    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
-}
-
-/**
  * @brief Start advertising GATT connection to devices.
  *
  * Calling this function is not enough to let users to connect, you must also update advertised data
@@ -512,6 +477,7 @@ void test_rt_gatt_callbacks_ok()
     TEST_ASSERT (m_con_cb);
     TEST_ASSERT (m_discon_cb);
 }
+
 void test_rt_gatt_callbacks_null()
 {
     test_rt_gatt_nus_init_ok();
@@ -527,4 +493,45 @@ void test_rt_gatt_callbacks_null()
     TEST_ASSERT_FALSE (m_tx_cb);
     TEST_ASSERT_FALSE (m_con_cb);
     TEST_ASSERT_FALSE (m_discon_cb);
+}
+
+/**
+ * @brief Uninitialize GATT.
+ *
+ * After calling this function callbacks, characteristics and services are cleared.
+ *
+ * @note Nordic SDK requires radio uninitialization to reset GATT service states.
+ *       If any other task is using radio, this function will return error.
+ *       This function will re-initialize radio after GATT is uninitialized with original
+ *       modulation.
+ *
+ *
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if GATT cannot be uninitialized.
+ *
+ */
+void test_rt_gatt_uninit_ok (void)
+{
+    ri_radio_modulation_t modulation = RI_RADIO_BLE_2MBPS;
+    rt_adv_is_init_ExpectAndReturn (false);
+    ri_radio_get_modulation_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_radio_get_modulation_ReturnThruPtr_p_modulation (&modulation);
+    ri_radio_uninit_ExpectAndReturn (RD_SUCCESS);
+    ri_gatt_uninit_ExpectAndReturn(RD_SUCCESS);
+    ri_radio_init_ExpectAndReturn (modulation, RD_SUCCESS);
+    rd_status_t err_code = rt_gatt_uninit();
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (!rt_gatt_is_init());
+    tearDown();
+    setUp();
+    test_rt_gatt_dis_init_ok();
+    test_rt_gatt_enable_ok_with_nus();
+}
+
+void test_rt_gatt_uninit_adv_ongoing (void)
+{
+    ri_radio_modulation_t modulation = RI_RADIO_BLE_1MBPS;
+    rt_adv_is_init_ExpectAndReturn (true);
+    rd_status_t err_code = rt_gatt_uninit();
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
