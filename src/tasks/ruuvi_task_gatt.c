@@ -252,6 +252,7 @@ rd_status_t rt_gatt_uninit (void)
         m_is_init = false;
         m_dis_is_init = false;
         m_nus_is_init = false;
+        m_dfu_is_init = false;
     }
 
     return err_code;
