@@ -144,6 +144,10 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 
 # Changelog
 
+## 0.3.2
+ - Do not configure a secondary PHY for 2 MBIT/s advertisement if data fits in primary adv.
+ - Add GATT uninit task. 
+
 ## 0.3.1
  - Add explicit reserved bits to rd_sensor_data_bitfield_t to be zeroed in initialization.
 
