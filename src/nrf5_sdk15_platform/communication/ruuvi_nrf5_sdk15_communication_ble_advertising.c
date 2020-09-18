@@ -120,9 +120,9 @@ static rd_status_t prepare_tx()
             adv.data.scan_rsp_data.p_data = adv.scan_data;
         }
 
-        nrf_code |= sd_ble_gap_adv_set_configure (& (m_adv_handle),
-                    & (adv.data),
-                    & (adv.params));
+        nrf_code |= sd_ble_gap_adv_set_configure (&m_adv_handle,
+                    &adv.data,
+                    &adv.params);
         nrf_code |= sd_ble_gap_tx_power_set (BLE_GAP_TX_POWER_ROLE_ADV,
                                              m_adv_handle,
                                              adv.tx_pwr);
@@ -297,7 +297,8 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
         // Build specification for data into ble_advdata_t advdata
         ble_advdata_t advdata = {0};
         // Only valid flag
-        uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
+        uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED
+                              | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE;
         // Build manufacturer specific data
         ble_advdata_manuf_data_t manuf_specific_data;
         // Preserve const of data passed to us.
@@ -405,8 +406,7 @@ static rd_status_t set_phy_type (const ri_comm_message_t * const p_message,
     {
         err_code |= ri_radio_get_modulation (&modulation);
 
-        if (p_message->data_length > NONEXTENDED_ADV_MAX_LEN
-                || RI_RADIO_BLE_2MBPS == modulation)
+        if (p_message->data_length > NONEXTENDED_ADV_MAX_LEN)
         {
             sec_phy_required = true;
             extended_required = true;
