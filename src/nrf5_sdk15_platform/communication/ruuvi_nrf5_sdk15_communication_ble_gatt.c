@@ -400,7 +400,7 @@ static void gatt_evt_handler (nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const 
             && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
     {
         //m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-        LOGW ("Changing MTU size is not supported\r\n");
+        LOGD ("Changing MTU size is not supported\r\n");
     }
 }
 
