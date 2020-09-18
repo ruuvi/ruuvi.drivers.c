@@ -145,6 +145,7 @@ If you're a first time contributor, please leave a note saying that BSD-3 licens
 # Changelog
 
 ## 0.3.2
+ - Add Generic Discoverable flag to advertisements. 
  - Do not configure a secondary PHY for 2 MBIT/s advertisement if data fits in primary adv.
  - Add GATT uninit task. 
 
