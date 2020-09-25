@@ -347,7 +347,8 @@ rd_status_t ri_flash_record_delete (const uint32_t page_id,
     if (FDS_SUCCESS == rc)
     {
         rc = fds_record_delete (&desc);
-        if(FDS_SUCCESS == rc)
+
+        if (FDS_SUCCESS == rc)
         {
             m_fds_processing = true;
         }
