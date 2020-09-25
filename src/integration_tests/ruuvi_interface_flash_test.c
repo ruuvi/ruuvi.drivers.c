@@ -18,7 +18,7 @@
  *
  * Integration test flash module implementation.
  */
-
+#define F_BIG_RECORD_SIZE 0x900U
 #define F_TEST_PAGE   0x0002U
 #define F_TEST_RECORD 0x0001U
 static const char f_data1[] = "Flash test data 1";
@@ -262,6 +262,7 @@ static bool ri_flash_delete_test (const rd_test_print_fp printfp)
         printfp ("\"pass\",\r\n");
     }
 
+    (void) ri_flash_uninit();
     return status;
 }
 
@@ -296,16 +297,23 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
         {
             err_code = ri_flash_record_set (F_TEST_PAGE, F_TEST_RECORD, sizeof (f_data1), f_data1);
             err_code |= ri_flash_free_size_get (&size);
-        } while ( ( (4000 < size) && (RD_SUCCESS == err_code)) || (RD_ERROR_BUSY == err_code));
+        } while ( ( (F_BIG_RECORD_SIZE < size) && (RD_SUCCESS == err_code))
+
+                  || (RD_ERROR_BUSY == err_code));
 
         // Test that garbage collection works
         err_code = ri_flash_gc_run();
+
+        if (!ri_flash_is_busy())
+        {
+            status = true;
+        }
 
         while (ri_flash_is_busy()) {};
 
         err_code |= ri_flash_free_size_get (&size);
 
-        if ( (RD_SUCCESS != err_code) || (4000 > size))
+        if ( (RD_SUCCESS != err_code) || (F_BIG_RECORD_SIZE > size))
         {
             status = true;
         }
@@ -323,7 +331,6 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
     err_code = ri_flash_uninit();
     return status;
 }
-
 
 /**
  * @brief Run all flash tests.

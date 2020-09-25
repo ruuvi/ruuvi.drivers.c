@@ -143,6 +143,8 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.3.3 
+ - Fix flash record delete on nRF5 SDK15 not marking flash driver as busy.
 
 ## 0.3.2
  - Add Generic Discoverable flag to advertisements. 

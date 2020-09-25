@@ -347,6 +347,11 @@ rd_status_t ri_flash_record_delete (const uint32_t page_id,
     if (FDS_SUCCESS == rc)
     {
         rc = fds_record_delete (&desc);
+
+        if (FDS_SUCCESS == rc)
+        {
+            m_fds_processing = true;
+        }
     }
 
     return fds_to_ruuvi_error (rc);
@@ -563,6 +568,7 @@ rd_status_t ri_flash_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     m_fds_initialized = false;
+    m_fds_processing = false;
     return err_code;
 }
 
