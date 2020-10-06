@@ -295,7 +295,10 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
         // Test that checking free size works
         do
         {
+            while (ri_flash_is_busy()) {};
+
             err_code = ri_flash_record_set (F_TEST_PAGE, F_TEST_RECORD, sizeof (f_data1), f_data1);
+
             err_code |= ri_flash_free_size_get (&size);
         } while ( ( (F_BIG_RECORD_SIZE < size) && (RD_SUCCESS == err_code))
 
@@ -303,11 +306,6 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
 
         // Test that garbage collection works
         err_code = ri_flash_gc_run();
-
-        if (!ri_flash_is_busy())
-        {
-            status = true;
-        }
 
         while (ri_flash_is_busy()) {};
 
