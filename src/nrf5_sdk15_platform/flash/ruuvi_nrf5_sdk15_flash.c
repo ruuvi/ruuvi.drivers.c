@@ -346,11 +346,15 @@ rd_status_t ri_flash_record_delete (const uint32_t page_id,
 
     if (FDS_SUCCESS == rc)
     {
+        // If there is room in FDS queue, it will get executed right away and
+        // processing flag is reset when record_delete exits.
+        m_fds_processing = true;
         rc = fds_record_delete (&desc);
 
-        if (FDS_SUCCESS == rc)
+        // If operation was not queued, mark processing as false.
+        if (FDS_SUCCESS != rc)
         {
-            m_fds_processing = true;
+            m_fds_processing = false;
         }
     }
 
