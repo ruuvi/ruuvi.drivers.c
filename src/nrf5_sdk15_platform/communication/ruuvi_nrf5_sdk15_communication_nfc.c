@@ -169,28 +169,28 @@ rd_status_t ri_nfc_data_set (void)
 
     // Create NFC NDEF text record description in English
     ret_code_t err_code = NRF_SUCCESS;
-    uint8_t fw_code[] = {'s', 'w'}; // Firmware
+    uint8_t fw_code[] = RI_NFC_SW_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_fw_rec,
                                    UTF_8,
                                    fw_code,
                                    sizeof (fw_code),
                                    nfc_fw_buf,
                                    nfc_fw_length);
-    uint8_t addr_code[] = {'a', 'd'}; // Address
+    uint8_t addr_code[] = RI_NFC_ADDR_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_addr_rec,
                                    UTF_8,
                                    addr_code,
                                    sizeof (addr_code),
                                    nfc_addr_buf,
                                    nfc_addr_length);
-    uint8_t id_code[] = {'i', 'd'}; // ID
+    uint8_t id_code[] = RI_NFC_ID_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_id_rec,
                                    UTF_8,
                                    id_code,
                                    sizeof (id_code),
                                    nfc_id_buf,
                                    nfc_id_length);
-    uint8_t data_code[] = {'d', 'a'}; // ID
+    uint8_t data_code[] = RI_NFC_DATA_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_bin_rec,                              \
                                    UTF_8,                                    \
                                    data_code, sizeof (data_code),             \

@@ -143,6 +143,10 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.3.4 (in progress)
+ - Fix flash record delete on nRF5 SDK15 marking flash driver as busy after operation has already been executed.
+ - Fix NFC data field language header, "da" -> "dt"
+
 ## 0.3.3 
  - Fix flash record delete on nRF5 SDK15 not marking flash driver as busy.
 
