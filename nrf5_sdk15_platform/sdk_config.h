@@ -1749,6 +1749,15 @@
   #define FDS_VIRTUAL_PAGE_SIZE 1024
 #endif
 
+// <o> FDS_VIRTUAL_PAGES_RESERVED - The number of virtual flash pages that are used by other modules. 
+// <i> FDS module stores its data in the last pages of the flash memory.
+// <i> By setting this value, you can move flash end address used by the FDS.
+// <i> As a result the reserved space can be used by other modules.
+
+#ifndef FDS_VIRTUAL_PAGES_RESERVED
+#define FDS_VIRTUAL_PAGES_RESERVED 0
+#endif
+
 // </h>
 //==========================================================
 
