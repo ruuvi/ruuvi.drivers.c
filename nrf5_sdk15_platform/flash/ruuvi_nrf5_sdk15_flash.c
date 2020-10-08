@@ -77,7 +77,7 @@ static ruuvi_driver_status_t fds_to_ruuvi_error(ret_code_t err_code)
 {
   switch(err_code)
   {
-    case FDS_SUCCESS:
+    case NRF_SUCCESS:
       return RUUVI_DRIVER_SUCCESS;
 
     case FDS_ERR_OPERATION_TIMEOUT:
@@ -141,7 +141,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
   switch(p_evt->id)
   {
     case FDS_EVT_INIT:
-      if(p_evt->result == FDS_SUCCESS)
+      if(p_evt->result == NRF_SUCCESS)
       {
         m_fds_initialized = true;
         ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "FDS init\r\n");
@@ -151,7 +151,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
 
     case FDS_EVT_WRITE:
     {
-      if(p_evt->result == FDS_SUCCESS)
+      if(p_evt->result == NRF_SUCCESS)
       {
         ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record written\r\n");
         m_fds_processing = false;
@@ -161,7 +161,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
 
     case FDS_EVT_UPDATE:
     {
-      if(p_evt->result == FDS_SUCCESS)
+      if(p_evt->result == NRF_SUCCESS)
       {
         ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record updated\r\n");
         m_fds_processing = false;
@@ -171,7 +171,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
 
     case FDS_EVT_DEL_RECORD:
     {
-      if(p_evt->result == FDS_SUCCESS)
+      if(p_evt->result == NRF_SUCCESS)
       {
         ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Record deleted\r\n");
         m_fds_processing = false;
@@ -181,7 +181,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
 
     case FDS_EVT_DEL_FILE:
     {
-      if(p_evt->result == FDS_SUCCESS)
+      if(p_evt->result == NRF_SUCCESS)
       {
         ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "File deleted\r\n");
         m_fds_processing = false;
@@ -191,7 +191,7 @@ static void fds_evt_handler(fds_evt_t const* p_evt)
 
     case FDS_EVT_GC:
     {
-      if(p_evt->result == FDS_SUCCESS)
+      if(p_evt->result == NRF_SUCCESS)
       {
         ruuvi_interface_log(RUUVI_INTERFACE_LOG_INFO, "Garbage collected\r\n");
         m_fds_processing = false;
@@ -275,7 +275,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_delete(const uint32_t page_id
   };
   ret_code_t rc = fds_record_find(page_id, record_id, &desc, &tok);
 
-  if(FDS_SUCCESS == rc)
+  if(NRF_SUCCESS == rc)
   {
     rc = fds_record_delete(&desc);
   }
@@ -321,7 +321,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_set(const uint32_t page_id,
   ret_code_t rc = fds_record_find(page_id, record_id, &desc, &tok);
 
   // If record was found
-  if(FDS_SUCCESS == rc)
+  if(NRF_SUCCESS == rc)
   {
     /* Start write */
     m_fds_processing = true;
@@ -386,7 +386,7 @@ ruuvi_driver_status_t ruuvi_interface_flash_record_get(const uint32_t page_id,
   err_code |= fds_to_ruuvi_error(rc);
 
   // If file was found
-  if(FDS_SUCCESS == rc)
+  if(NRF_SUCCESS == rc)
   {
     fds_flash_record_t record = {0};
     /* Open the record and read its contents. */
