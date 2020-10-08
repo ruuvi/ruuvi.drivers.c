@@ -22,7 +22,7 @@
  */
 static inline uint8_t ruuvi_to_nrf_pin_map(const ruuvi_interface_gpio_id_t pin)
 {
-  return (pin.port_pin.port << 5) + pin.port_pin.pin;
+  return (pin.pin >> 8U) + (pin.pin & 0x1FU);
 }
 /*@}*/
 #endif
