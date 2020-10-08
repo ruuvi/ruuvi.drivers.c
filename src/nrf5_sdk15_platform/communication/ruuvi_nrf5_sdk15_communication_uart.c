@@ -49,7 +49,10 @@ static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event
                 if ( ( ( (char *) (p_serial->p_ctx->p_config->p_buffers->p_rxb)) [0] == '\n')
                         || ++m_rxcnt >= RI_COMM_MESSAGE_MAX_LENGTH)
                 {
-                    m_channel->on_evt (RI_COMM_RECEIVED, NULL, 0);
+                    ri_comm_message_t msg = {0};
+                    msg.data_length = RI_COMM_MESSAGE_MAX_LENGTH;
+                    m_channel->read (&msg);
+                    m_channel->on_evt (RI_COMM_RECEIVED, (void *) &msg.data[0], msg.data_length);
                 }
 
                 break;

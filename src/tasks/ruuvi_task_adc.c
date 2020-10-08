@@ -117,7 +117,7 @@ static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
         p_data->timestamp_ms = RD_UINT64_INVALID;
         rd_sensor_data_t d_adc;
         rd_sensor_data_fields_t adc_fields = {.bitfield = RD_ADC_DEFAULT_BITFIELD};
-        float adc_values[RD_ADC_DATA_COUNTER];
+        float adc_values[RD_ADC_DATA_COUNTER] = {0};
 
         if (false == m_ratio)
         {

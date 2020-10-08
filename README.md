@@ -143,11 +143,28 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
+## 0.3.4 (in progress)
+ - Fix flash record delete on nRF5 SDK15 marking flash driver as busy after operation has already been executed.
+ - Fix NFC data field language header, "da" -> "dt"
 
-## 0.2.7 - In progress
+## 0.3.3 
+ - Fix flash record delete on nRF5 SDK15 not marking flash driver as busy.
+
+## 0.3.2
+ - Add Generic Discoverable flag to advertisements. 
+ - Do not configure a secondary PHY for 2 MBIT/s advertisement if data fits in primary adv.
+ - Add GATT uninit task. 
+
+## 0.3.1
+ - Add explicit reserved bits to rd_sensor_data_bitfield_t to be zeroed in initialization.
+
+## 0.3.0
  - Purge flash before flash integration test.
+ - Require fixed flash area in nRF5_SDK15 implementation. 
  - Disable SPI MISO pull-up by default.
  - Fix UART read retriggering data received event.
+ - Add yield uninit
+ - Add helper functions for parsing sensor data.
 
 ## 0.2.6
  - Fix ADC task on multiple channel reads.

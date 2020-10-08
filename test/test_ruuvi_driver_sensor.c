@@ -722,3 +722,139 @@ void test_rd_sensor_is_init_null (void)
     bool is_init = rd_sensor_is_init (NULL);
     TEST_ASSERT (!is_init);
 }
+
+/**
+ * @brief Check if sensor has valid data at given index.
+ *
+ * Data is considered valid if target->fields and target->valid both are set.
+ * Index is referred to number of fields.
+ *
+ * Typical usage:
+ * @code
+ * const uint8_t fieldcount = rd_sensor_data_fieldcount(p_data);
+ * for(uint8_t ii = 0; ii < fieldcount; ii++)
+ * {
+ *     if(rd_sensor_has_valid_data(p_data, ii)
+ *     {
+ *        do_stuff(p_data->data[ii], rd_sensor_field_type(p_data, ii));
+ *     }
+ * }
+ * @endcode
+ *
+ * @param[in] target Pointer to data to check.
+ * @param[in] index index of data to check.
+ * @retval true If data at target->data[index] has a valid value.
+ * @retval false If target is NULL, index is higher than fields in data or data at
+ *               index is not marked as valid.
+ *
+ * @note To determine the type of data, use @ref rd_sensor_field_type.
+ */
+void test_rd_sensor_has_valid_data_first (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    mock_bme (&bme_data);
+    TEST_ASSERT (rd_sensor_has_valid_data (&bme_data, 0));
+}
+
+void test_rd_sensor_has_valid_data_last (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    mock_bme (&bme_data);
+    TEST_ASSERT (rd_sensor_has_valid_data (&bme_data, 2));
+}
+
+void test_rd_sensor_has_valid_data_null (void)
+{
+    TEST_ASSERT (!rd_sensor_has_valid_data (NULL, 0));
+}
+
+void test_rd_sensor_has_valid_data_overflow (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    mock_bme (&bme_data);
+    TEST_ASSERT (!rd_sensor_has_valid_data (&bme_data, 3));
+}
+
+void test_rd_sensor_has_valid_data_not_valid (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    TEST_ASSERT (!rd_sensor_has_valid_data (&bme_data, 1));
+}
+
+/**
+ * @brief Check the type of data at given index.
+ *
+ * This function is used to determine what type of data given index has.
+ *
+ * Typical usage:
+ * @code
+ * rd_sensor_data_bitfield_t type = rd_sensor_field_type(p_data, index);
+ * if(1 == type.temperature_c)
+ * {
+ *    do_stuff_with_temperature (p_data->data[index])
+ * }
+ * @endcode
+ *
+ * @param[in] target Data to check
+ * @param[in] index  Index of field to check.
+ * @return rd_sensor_data_bitfield_t with field corresponding to index set, or 0 if
+ *                                   target doesn't have any data type at given index.
+ */
+void test_rd_sensor_field_type_first (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    rd_sensor_data_bitfield_t type = rd_sensor_field_type (&bme_data, 0);
+    rd_sensor_data_bitfield_t expected = {.humidity_rh = 1};
+    TEST_ASSERT (!memcmp (&type, &expected, sizeof (rd_sensor_data_bitfield_t)));
+}
+
+void test_rd_sensor_field_type_last (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    rd_sensor_data_bitfield_t type = rd_sensor_field_type (&bme_data, 2);
+    rd_sensor_data_bitfield_t expected = {.temperature_c = 1};
+    TEST_ASSERT (!memcmp (&type, &expected, sizeof (rd_sensor_data_bitfield_t)));
+}
+
+void test_rd_sensor_field_type_overflow (void)
+{
+    float bme_values[3] = {0};
+    rd_sensor_data_t bme_data = {0};
+    bme_data.fields = bme280_provided;
+    bme_data.data = bme_values;
+    bme_data.timestamp_ms = 1;
+    rd_sensor_data_bitfield_t type = rd_sensor_field_type (&bme_data, 3);
+    rd_sensor_data_bitfield_t expected = {0};
+    TEST_ASSERT (!memcmp (&type, &expected, sizeof (rd_sensor_data_bitfield_t)));
+}
+
+void test_rd_sensor_field_type_null (void)
+{
+    rd_sensor_data_bitfield_t type = rd_sensor_field_type (NULL, 0);
+    rd_sensor_data_bitfield_t expected = {0};
+    TEST_ASSERT (!memcmp (&type, &expected, sizeof (rd_sensor_data_bitfield_t)));
+}

@@ -112,6 +112,23 @@ rd_status_t rt_gatt_nus_init();
 rd_status_t rt_gatt_init (const char * const name);
 
 /**
+ * @brief Uninitialize GATT.
+ *
+ * After calling this function callbacks, characteristics and services are cleared.
+ *
+ * @note Nordic SDK requires radio uninitialization to reset GATT service states.
+ *       If any other task is using radio, this function will return error.
+ *       This function will re-initialize radio after GATT is uninitialized with original
+ *       modulation.
+ *
+ *
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_INVALID_STATE if GATT cannot be uninitialized.
+ *
+ */
+rd_status_t rt_gatt_uninit (void);
+
+/**
  * @brief Start advertising GATT connection to devices.
  *
  * Calling this function is not enough to let users to connect, you must also update advertised data
@@ -183,7 +200,7 @@ void rt_gatt_set_on_disconn_isr (const ri_comm_cb_t cb);
 /** @brief Setup data received event handler.
  *
  *  The event handler has signature of @code void(*rt_gatt_cb_t)(void* p_event_data, uint16_t event_size) @endcode
- *  where event data is NULL and event_size is 0.
+ *  where event data is pointer to raw bytes and event_size is length of received data.
  *  The event handler is called in interrupt context.
  *
  * @param[in] cb Callback which gets called on data received in interrupt context.
