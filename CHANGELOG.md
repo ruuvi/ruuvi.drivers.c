@@ -1,9 +1,12 @@
 # Changelog
 
-## 3.4.1 - in progress
+## 3.4.1
  - Optimize GATT throughput/energy consumption by using longer interval on connection
    + slave latency. Before: ~25 kBps between nRF52 devkits on 1 MBit / s and 2 MBit / s.
    After: ~20 kBps at 1 Mbit/s, 30 kBps at 2 Mbit / s. 
+ - Use updated SDK overrides
+    * Fixes crash when interrupt triggers while enabling bootloader service.
+    * Update NFC binaries to SDK 17.2 version
 
 ## 3.4.0
  - Fix GPIO on ports > 0 on NRF SDK. 
