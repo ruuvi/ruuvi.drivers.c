@@ -97,7 +97,7 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
-#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_DEBUG
+#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_INFO
 #endif
 #define LOG(msg) ri_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
 #define LOGD(msg) ri_log(RI_LOG_LEVEL_DEBUG, msg)
@@ -121,11 +121,14 @@ static ble_gap_phys_t m_phys =
     .tx_phys = BLE_GAP_PHY_1MBPS
 };
 
-// XXX
-#define MIN_CONN_INTERVAL MSEC_TO_UNITS(150, UNIT_1_25_MS)
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(300, UNIT_1_25_MS)
-#define SLAVE_LATENCY     0
-#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(15000, UNIT_10_MS)
+// Values selected for optimizing throughput/energy.
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(485, UNIT_1_25_MS)
+// Apple guideline: max interval >= min interval + 15 ms
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(500, UNIT_1_25_MS)
+// Apple guideline: MAX_CONN_INTERVAL * SLAVE_LATENCY <= 2 s.
+#define SLAVE_LATENCY     3
+// Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) * 3 < CONN_SUP_TIMEOUT
+#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(8000, UNIT_10_MS)
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)

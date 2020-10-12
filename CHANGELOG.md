@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.1 - in progress
+ - Optimize GATT throughput/energy consumption by using longer interval on connection
+   + slave latency. Before: ~25 kBps between nRF52 devkits on 1 MBit / s and 2 MBit / s.
+   After: ~20 kBps at 1 Mbit/s, 30 kBps at 2 Mbit / s. 
+
 ## 3.4.0
  - Fix GPIO on ports > 0 on NRF SDK. 
  - Fix flash record delete on nRF5 SDK15 marking flash driver as busy after operation has already been executed.

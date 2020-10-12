@@ -27,7 +27,7 @@
  *
  * Integration test BLE GATT implementation.
  */
-#define GATT_TX_TEST_TIMEOUT_MS (20000U)
+#define GATT_TX_TEST_TIMEOUT_MS (10000U)
 
 static ri_comm_channel_t m_channel;
 static ri_comm_channel_t m_adv;     //!< Required to establish GATT connection
@@ -174,16 +174,21 @@ static float tx_throughput_test (void)
 
     for (uint16_t ii = 0U; ii < TEST_GATT_PACKET_NUM;)
     {
-        // 5 + 5 + 3 + 5 + 1 + NULL = 20 bytes
-        snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s%05d / %05d.", test_data,
-                   ii, TEST_GATT_PACKET_NUM);
-        msg.data_length = TEST_GATT_PACKET_LEN;
-        msg.repeat_count = 1U;
-        err_code = m_channel.send (&msg);
+        err_code = RD_SUCCESS;
 
-        if (RD_SUCCESS == err_code)
+        while (RD_SUCCESS == err_code)
         {
-            ii++;
+            // 5 + 5 + 3 + 5 + 1 + NULL = 20 bytes
+            snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s%05d / %05d.", test_data,
+                       ii, TEST_GATT_PACKET_NUM);
+            msg.data_length = TEST_GATT_PACKET_LEN;
+            msg.repeat_count = 1U;
+            err_code |= m_channel.send (&msg);
+
+            if (RD_SUCCESS == err_code)
+            {
+                ii++;
+            }
         }
 
         ri_yield();
