@@ -33,7 +33,7 @@ static struct
     volatile uint8_t tx_updated;   // New data should be written to buffer
     volatile uint8_t configurable; // Allow NFC to write configuration
     uint8_t nfc_ndef_msg[ (RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS + 1)
-                          *RI_COMM_DIS_STRLEN];
+                          * RI_COMM_DIS_STRLEN];
     volatile size_t  nfc_ndef_msg_len;
     uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC (
                                                                 RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
