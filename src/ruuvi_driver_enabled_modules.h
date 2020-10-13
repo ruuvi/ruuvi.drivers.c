@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "3.4.1"
+#define RUUVI_DRIVERS_SEMVER "3.4.2"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
