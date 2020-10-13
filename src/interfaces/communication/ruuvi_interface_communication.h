@@ -22,7 +22,7 @@
 #include <stdint.h>
 
 /** @brief Maximum length for device information strings. */
-#define RI_COMM_DIS_STRLEN 32
+#define RI_COMM_DIS_STRLEN 48
 /** @brief Set ri_comm_message_t->repeat_count to this value to e.g. advertise fixed data
            until explicitly stopped. */
 #define RI_COMM_MSG_REPEAT_FOREVER (0U)
