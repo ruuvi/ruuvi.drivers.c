@@ -4,8 +4,8 @@
 
 /**
  * @addtogroup BLE
- * @{
  */
+/** @{ */
 /**
  * @file ruuvi_interface_communication_ble_advertising_test.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -42,4 +42,5 @@ bool ri_communication_ble_advertising_run_integration_test (const rd_test_print_
         printfp,
         const ri_radio_modulation_t modulation);
 
+/** @} */
 #endif

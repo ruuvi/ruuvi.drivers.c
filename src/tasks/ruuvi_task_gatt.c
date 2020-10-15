@@ -120,6 +120,9 @@ rd_status_t rt_gatt_on_nus_isr (ri_comm_evt_t evt,
             break;
 
         case RI_COMM_RECEIVED:
+            LOGD ("<<<;");
+            LOGDHEX (p_data, data_len);
+            LOGD (";\r\n");
             (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
             break;
 
@@ -226,6 +229,35 @@ rd_status_t rt_gatt_init (const char * const name)
     return err_code;
 }
 
+rd_status_t rt_gatt_uninit (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (rt_adv_is_init())
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        ri_radio_modulation_t modulation = RI_RADIO_BLE_1MBPS;
+        err_code |= ri_radio_get_modulation (&modulation);
+        rt_gatt_set_on_received_isr (NULL);
+        rt_gatt_set_on_sent_isr (NULL);
+        rt_gatt_set_on_connected_isr (NULL);
+        rt_gatt_set_on_disconn_isr (NULL);
+        err_code |= ri_radio_uninit();
+        err_code |= ri_gatt_uninit();
+        memset (&m_channel, 0, sizeof (m_channel));
+        err_code |= ri_radio_init (modulation);
+        m_is_init = false;
+        m_dis_is_init = false;
+        m_nus_is_init = false;
+        m_dfu_is_init = false;
+    }
+
+    return err_code;
+}
+
 rd_status_t rt_gatt_enable (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -297,7 +329,7 @@ rd_status_t rt_gatt_send_asynchronous (ri_comm_message_t
         {
             LOGD (">>>;");
             LOGDHEX (p_msg->data, p_msg->data_length);
-            LOGD ("\r\n");
+            LOGD (";\r\n");
         }
         else if (RD_ERROR_RESOURCES == err_code)
         {

@@ -30,7 +30,7 @@ static bool m_gpio_is_init = false;
  */
 static inline uint8_t ruuvi_to_nrf_pin_map (const ri_gpio_id_t pin)
 {
-    return ( (pin >> 3) & 0xE0) + (pin & 0x1F);
+    return (pin >> 8U) + (pin & 0x1FU);
 }
 
 /**

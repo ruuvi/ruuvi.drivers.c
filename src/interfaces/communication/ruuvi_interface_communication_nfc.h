@@ -15,6 +15,11 @@
 #  define RUUVI_NRF5_SDK15_NFC_ENABLED  RUUVI_NRF5_SDK15_ENABLED
 #endif
 
+#define RI_NFC_ID_FIELD_CODE {'i', 'd'}
+#define RI_NFC_ADDR_FIELD_CODE {'a', 'd'}
+#define RI_NFC_SW_FIELD_CODE {'s', 'w'}
+#define RI_NFC_DATA_FIELD_CODE {'d', 't'}
+
 
 /*
  * Initializes NFC hardware.

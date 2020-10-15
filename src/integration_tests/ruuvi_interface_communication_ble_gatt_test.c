@@ -7,6 +7,7 @@
 #include "ruuvi_interface_communication_ble_gatt.h"
 #include "ruuvi_interface_communication_radio_test.h"
 #include "ruuvi_interface_communication.h"
+#include "ruuvi_interface_flash.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_timer.h"
 #include "ruuvi_interface_yield.h"
@@ -26,7 +27,7 @@
  *
  * Integration test BLE GATT implementation.
  */
-#define GATT_TX_TEST_TIMEOUT_MS (20000U)
+#define GATT_TX_TEST_TIMEOUT_MS (10000U)
 
 static ri_comm_channel_t m_channel;
 static ri_comm_channel_t m_adv;     //!< Required to establish GATT connection
@@ -107,6 +108,7 @@ static bool ri_gatt_init_test (const rd_test_print_fp printfp,
     printfp ("\"init\":");
     status |= ri_gatt_init_norad_test();
     err_code |= ri_timer_init();
+    err_code |= ri_flash_init();
     err_code |= ri_radio_init (modulation);
     err_code |= ri_gatt_init ();
     // nRF SDK requires complete radio re-init.
@@ -136,6 +138,7 @@ static bool ri_gatt_init_test (const rd_test_print_fp printfp,
     ri_gatt_nus_uninit (&m_channel);
     ri_radio_uninit();
     ri_gatt_uninit ();
+    ri_flash_uninit();
     ri_timer_uninit();
     return status;
 }
@@ -171,16 +174,21 @@ static float tx_throughput_test (void)
 
     for (uint16_t ii = 0U; ii < TEST_GATT_PACKET_NUM;)
     {
-        // 5 + 5 + 3 + 5 + 1 + NULL = 20 bytes
-        snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s%05d / %05d.", test_data,
-                   ii, TEST_GATT_PACKET_NUM);
-        msg.data_length = TEST_GATT_PACKET_LEN;
-        msg.repeat_count = 1U;
-        err_code = m_channel.send (&msg);
+        err_code = RD_SUCCESS;
 
-        if (RD_SUCCESS == err_code)
+        while (RD_SUCCESS == err_code)
         {
-            ii++;
+            // 5 + 5 + 3 + 5 + 1 + NULL = 20 bytes
+            snprintf ( (char *) & msg.data, RI_COMM_MESSAGE_MAX_LENGTH, "%s%05d / %05d.", test_data,
+                       ii, TEST_GATT_PACKET_NUM);
+            msg.data_length = TEST_GATT_PACKET_LEN;
+            msg.repeat_count = 1U;
+            err_code |= m_channel.send (&msg);
+
+            if (RD_SUCCESS == err_code)
+            {
+                ii++;
+            }
         }
 
         ri_yield();
@@ -206,6 +214,7 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
     err_code |= ri_rtc_init();
     err_code |= ri_timer_init();
     err_code |= ri_yield_low_power_enable (true);
+    err_code |= ri_flash_init();
     err_code |= ri_radio_init (modulation);
     // Advertise NUS to tester.
     err_code |= ri_adv_init (&m_adv);
@@ -276,6 +285,7 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
     ri_delay_ms (2000); //!< Wait for disconnect packet to go through.
     ri_radio_uninit();
     ri_gatt_uninit (); // GATT can only be uninit after radio.
+    err_code |= ri_flash_uninit();
     ri_yield_low_power_enable (false);
     ri_timer_uninit();
     ri_rtc_uninit();

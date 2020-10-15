@@ -33,7 +33,7 @@ static struct
     volatile uint8_t tx_updated;   // New data should be written to buffer
     volatile uint8_t configurable; // Allow NFC to write configuration
     uint8_t nfc_ndef_msg[ (RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS + 1)
-                          *RI_COMM_DIS_STRLEN];
+                          * RI_COMM_DIS_STRLEN];
     volatile size_t  nfc_ndef_msg_len;
     uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC (
                                                                 RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
@@ -169,28 +169,28 @@ rd_status_t ri_nfc_data_set (void)
 
     // Create NFC NDEF text record description in English
     ret_code_t err_code = NRF_SUCCESS;
-    uint8_t fw_code[] = {'s', 'w'}; // Firmware
+    uint8_t fw_code[] = RI_NFC_SW_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_fw_rec,
                                    UTF_8,
                                    fw_code,
                                    sizeof (fw_code),
                                    nfc_fw_buf,
                                    nfc_fw_length);
-    uint8_t addr_code[] = {'a', 'd'}; // Address
+    uint8_t addr_code[] = RI_NFC_ADDR_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_addr_rec,
                                    UTF_8,
                                    addr_code,
                                    sizeof (addr_code),
                                    nfc_addr_buf,
                                    nfc_addr_length);
-    uint8_t id_code[] = {'i', 'd'}; // ID
+    uint8_t id_code[] = RI_NFC_ID_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_id_rec,
                                    UTF_8,
                                    id_code,
                                    sizeof (id_code),
                                    nfc_id_buf,
                                    nfc_id_length);
-    uint8_t data_code[] = {'d', 'a'}; // ID
+    uint8_t data_code[] = RI_NFC_DATA_FIELD_CODE;
     NFC_NDEF_TEXT_RECORD_DESC_DEF (nfc_bin_rec,                              \
                                    UTF_8,                                    \
                                    data_code, sizeof (data_code),             \

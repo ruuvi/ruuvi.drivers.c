@@ -121,11 +121,14 @@ static ble_gap_phys_t m_phys =
     .tx_phys = BLE_GAP_PHY_1MBPS
 };
 
-// XXX
-#define MIN_CONN_INTERVAL MSEC_TO_UNITS(150, UNIT_1_25_MS)
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(300, UNIT_1_25_MS)
-#define SLAVE_LATENCY     0
-#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(15000, UNIT_10_MS)
+// Values selected for optimizing throughput/energy.
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(485, UNIT_1_25_MS)
+// Apple guideline: max interval >= min interval + 15 ms
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(500, UNIT_1_25_MS)
+// Apple guideline: MAX_CONN_INTERVAL * SLAVE_LATENCY <= 2 s.
+#define SLAVE_LATENCY     3
+// Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) * 3 < CONN_SUP_TIMEOUT
+#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(8000, UNIT_10_MS)
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
@@ -177,7 +180,7 @@ static ret_code_t gap_params_init (void)
     return err_code;
 }
 
-/**@brief Function for handling errors from the Connection Parameters module.
+/** @brief Function for handling errors from the Connection Parameters module.
  *
  * @param[in] nrf_error  Error code containing information about what went wrong.
  */
@@ -294,11 +297,14 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             LOG ("BLE Connected \r\n");
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
-            // Request preferred PHY on connection - 2MBPS fails on Mac OSX / web bluetooth
+#           if 0
+            // Request preferred PHY on connection -
+            // Crashes connection on older iOS devices and Macs.
             err_code = sd_ble_gap_phy_update (p_ble_evt->evt.gap_evt.conn_handle, &m_phys);
             char msg[128];
             snprintf (msg, sizeof (msg), "Request PHY update to %s.\r\n", phy_str (m_phys));
             LOG (msg);
+#           endif
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
@@ -397,7 +403,7 @@ static void gatt_evt_handler (nrf_ble_gatt_t * p_gatt, nrf_ble_gatt_evt_t const 
             && (p_evt->evt_id == NRF_BLE_GATT_EVT_ATT_MTU_UPDATED))
     {
         //m_ble_nus_max_data_len = p_evt->params.att_mtu_effective - OPCODE_LENGTH - HANDLE_LENGTH;
-        LOGW ("Changing MTU size is not supported\r\n");
+        LOGD ("Changing MTU size is not supported\r\n");
     }
 }
 

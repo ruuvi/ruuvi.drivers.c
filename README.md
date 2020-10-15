@@ -12,7 +12,9 @@
 
 Ruuvi embedded drivers used across various platforms. Generally you should not use this 
 repository as-is, but rather as a submodule included in your project.
-Repository is under active development (alpha), expect breaking changes.
+
+Version 3.4.0 and upwards are considered stable and no breaking changes will be introduced
+to interfaces or tasks, i.e. no unit test or integration test is changed or deleted without updating the major version. Non-tested functionality and failing tests are subject to change.
 
 # Structure
 ## Folders
@@ -38,7 +40,7 @@ which implement them are not unit tested but integration tested instead.
 
 ## Tasks
 Tasks are larger functionalities, such as "get battery voltage" or "Broadcast this data".
-Top keep the tasks unit testable, they must contain only references to interfaces which
+To keep the tasks unit testable, they must contain only references to interfaces which
 allows mocking the hardware dependencies. 
 
 ## File and variable naming
@@ -74,23 +76,23 @@ On SPI the handle is GPIO pin of Chip Select, on I2C the handle is I2C address o
 sensor.
 
 ### Initializing sensor
-All sensors have `ruuvi_interface_sensor_init(ruuvi_driver_sensor_t*, ruuvi_driver_bus_t, uint8_t)` -function which should be called before usage. Check the interface definition of detailed explanation of any initialization parameters.
- * ruuvi_driver_sensor_t* is a pointer to sensor struct which will get initialized with proper function pointers
+All sensors have `ruuvi_interface_sensor_init(ruuvi_driver_sensor_t*, ruuvi_driver_bus_t, uint8_t)`  function which must be called before usage. Check the interface definition of detailed explanation of any initialization parameters.
+ * rd_sensor_t* is a pointer to sensor struct which will get initialized with proper function pointers
  * bus is the bus being used for sensor, such as I2C, SPI or NONE for MCU internal peripherals
- * uint8_t is a handle for the sensor. For I2C it's the device address, for SPI it's GPIO which controls the peripheral sensor and for NONE it could be ADC channel.
- * Sensor must return RUUVI_DRIVER_SUCCESS on first init.
+ * uint8_t is a handle for the sensor. For I2C it's the device address, for SPI it's GPIO which controls the peripheral sensor and for NONE it could be e.g. ADC channel.
+ * Sensor must return RD_SUCCESS on first init.
  * None of the sensor function pointers may be NULL after init
- * Sensor should return RUUVI_DRIVER_ERROR_INVALID_STATE when initializing sensor which is already init. May return other error if check for it triggers first.
- * Sensor must return RUUVI_DRIVER_SUCCESS on first uninit
+ * Sensor should return RD_ERROR_INVALID_STATE when initializing sensor which is already init.  Sensor may return other error if check for it triggers first.
+ * Sensor must return RD_SUCCESS on first uninit
  * All of sensor function pointers must be NULL after uninit
  * Sensor must be in lowest-power state possible after init
  * Sensor must be in lowest-power state available after uninit.
  * Sensor configuration is not defined before init and after uninit
  * Sensor initialization must be successful after uninit.
- * Init and Uninit must return RUUVI_DRIVER_ERROR_NULL if pointer to the sensor struct is NULL.
+ * Init and Uninit must return RD_ERROR_NULL if pointer to the sensor struct is NULL.
 
 ## Building documentation
-Run `doxygen`
+Run `doxygen`.
 
 ## Formatting code
 Run `astyle --project=.astylerc ./target_file`. To format the entire project,
@@ -101,6 +103,8 @@ astyle --project=.astylerc --recursive "./nrf5_sdk15_platform/*.c"
 astyle --project=.astylerc --recursive "./nrf5_sdk15_platform/*.h"
 ```
 
+Or just `make astyle`
+
 # Testing
 ## Unit tests
 Unit tests are run by Ceedling and they are completely hardware-independent. 
@@ -108,28 +112,13 @@ They can be run by e.g. Travis. The unit tests are in `test` folder.
 
 ## Integration tests
 Integration tests are run on actual hardware and cannot be run on the cloud.
-Integration tests are in `src/integration_tests` folder.
+Integration tests are in `src/integration_tests` folder. Application should run the
+integration tests. 
 
 ## System and acceptance testing. 
 System testing and acceptance testing are in the scope of main application and 
 not handled here.
 
-# Progress
-The repository is under active development and major refactors are to be expected.
-You can follow more detailed development blog at [Ruuvi Blog](https://blog.ruuvi.com).
-Currently the drivers are being refactored for more consistent naming, better test 
-coverage and Doxygen support.
-
-## Upcoming refactors
- - Add unit to sensor configuration fields, e.g. `resolution`-> `resolution_bits`
- - Rewrite BLE advertising module
- - Add default configuration value to header of each sensor
- - ~~Add a function to return sensor name to each sensor~~
- - ~~Add dummy initialization for sensor struct.~~
-
-## Upcoming implementations
- - ~~TMP117 driver~~
- - Support more ADC inputs, differential ADC inputs.
 
 # Licenses
 All Ruuvi code is BSD-3 licensed.
@@ -142,52 +131,4 @@ All contributions are welcome, from typographical fixes to feedback on design an
 If you're a first time contributor, please leave a note saying that BSD-3 licensing is ok for you.
 
 # Changelog
-## 0.2.3 
- - Add relative ADC, NTC, photodiode support.
-
-## 0.2.2
- - Add PWM support.
-
-## 0.2.1
- - Add I2C, SPI, LIS2DH12, SHTCX support.
-
-## 0.2.0
- - Non-compatible changes to BLE interface and implementation.
-
-## 0.1.6
- - Integration test DC/DC.
- - Integration test timer.
- - Integration test scheduler.
- - Unit test NFC task. Integration test NFC
- - NRF SDK 15: Use SD reset function if SD is enabled in power interface reset.
-
-## 0.1.5
- - Add nrf15_sdk log enable macro to ruuvi_interface_log.h.
- - Fix nRF5 SDK15 watchdog reinitialization assert.
- - Unit test task_flash, integration test ri_flash.
- - Unit test and integration test GPIO.
-
-## 0.1.4
- - Fix button task compilation when button task is not enabled.
- - Remove RTC, Power tasks as they unnecessarily wrap interface.
- - Add watchdog.
-
-## 0.1.3
- - Add unit tests for tasks.
- - Support multiple button initialization.
-
-## 0.1.2
- - Fix some globally visible names not following the refactored scheme.
-
-## 0.1.1
- - Fix some globally visible names not following the refactored scheme.
- - Pass RI_COMMUNICATION_TIMEOUT to application from BLE Scan.
-
-## 0.1.0 
- - Change to 0.x Semver to signal that project is in alpha.
-
-## 3.3.0
- - Add semantic versioning string.
-
-## 3.0.0 ... 3.2.0 
-Alpha versions, do not use for anything.
+See CHANGELOG.md

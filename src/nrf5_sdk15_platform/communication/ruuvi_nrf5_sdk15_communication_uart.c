@@ -17,11 +17,9 @@
 #define LOG(msg)  (ri_log(LOG_LEVEL, msg))
 #define LOGD(msg)  (ri_log(RI_LOG_LEVEL_DEBUG, msg))
 
-#define OP_QUEUES_SIZE          3
-#define APP_TIMER_PRESCALER     NRF_SERIAL_APP_TIMER_PRESCALER
-
 static const ri_comm_channel_t * m_channel; //!< Pointer to application control structure.
 static uint16_t m_rxcnt = 0; //!< Counter of received bytes after last read.
+static uint16_t m_txcnt = 0; //!< Counter of bytes to send before tx complete.
 
 static void sleep_handler (void)
 {
@@ -37,7 +35,12 @@ static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event
         {
             case NRF_SERIAL_EVENT_TX_DONE: ///< Requested TX transfer completed.
                 LOGD ("TX\r\n");
-                m_channel->on_evt (RI_COMM_SENT, NULL, 0);
+
+                if (0 == (--m_txcnt))
+                {
+                    m_channel->on_evt (RI_COMM_SENT, NULL, 0);
+                }
+
                 break;
 
             case NRF_SERIAL_EVENT_RX_DATA: ///< Requested RX transfer completed.
@@ -46,7 +49,10 @@ static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event
                 if ( ( ( (char *) (p_serial->p_ctx->p_config->p_buffers->p_rxb)) [0] == '\n')
                         || ++m_rxcnt >= RI_COMM_MESSAGE_MAX_LENGTH)
                 {
-                    m_channel->on_evt (RI_COMM_RECEIVED, NULL, 0);
+                    ri_comm_message_t msg = {0};
+                    msg.data_length = RI_COMM_MESSAGE_MAX_LENGTH;
+                    m_channel->read (&msg);
+                    m_channel->on_evt (RI_COMM_RECEIVED, (void *) &msg.data[0], msg.data_length);
                 }
 
                 break;
@@ -114,11 +120,16 @@ static rd_status_t ri_uart_send_async (ri_comm_message_t * const msg)
     {
         err_code |= RD_ERROR_NOT_SUPPORTED;
     }
+    else if (0 != m_txcnt)
+    {
+        err_code |= RD_ERROR_BUSY;
+    }
     else
     {
         nrfx_err_t status = NRF_SUCCESS;
         size_t written = 0;
         status |= nrf_serial_write (&serial_uart, msg->data, msg->data_length, &written, 0);
+        m_txcnt = written;
         err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
 
         if (written != msg->data_length)
@@ -146,10 +157,15 @@ static rd_status_t ri_uart_read_buf (ri_comm_message_t * const msg)
     else
     {
         nrfx_err_t status = NRF_SUCCESS;
-        size_t bytes_read = 0;
-        status |= nrf_serial_read (&serial_uart, msg->data, msg->data_length, &bytes_read, 0);
-        // nrf_serial_read caps read data length to msg->data_length
-        msg->data_length = (uint8_t) (bytes_read & 0xFFU);
+        size_t bytes_read = nrf_queue_utilization_get (&serial_queues_rxq);
+
+        if (msg->data_length < bytes_read)
+        {
+            bytes_read = msg->data_length;
+        }
+
+        status |= nrf_queue_read (&serial_queues_rxq, msg->data, bytes_read);
+        msg->data_length = bytes_read;
         msg->repeat_count = 1;
         err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
         m_rxcnt = 0;

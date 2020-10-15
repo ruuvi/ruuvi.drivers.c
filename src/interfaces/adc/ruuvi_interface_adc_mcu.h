@@ -26,23 +26,24 @@
 /* Analog input channels of device */
 typedef enum
 {
-    RI_ADC_NONE,          //!< No input
-    RI_ADC_AIN0,          //!< Channel 0 of ADC
-    RI_ADC_AIN1,          //!< Channel 1 of ADC
-    RI_ADC_AIN2,          //!< Channel 2 of ADC
-    RI_ADC_AIN3,          //!< Channel 3 of ADC
-    RI_ADC_AIN4,          //!< Channel 4 of ADC
-    RI_ADC_AIN5,          //!< Channel 5 of ADC
-    RI_ADC_AIN6,          //!< Channel 6 of ADC
-    RI_ADC_AIN7,          //!< Channel 7 of ADC
-    RI_ADC_AINVDD,        //!< Analog supply voltage
+    RI_ADC_GND,           //!< GND of device.
+    RI_ADC_AIN0,          //!< Channel 0 of ADC.
+    RI_ADC_AIN1,          //!< Channel 1 of ADC.
+    RI_ADC_AIN2,          //!< Channel 2 of ADC.
+    RI_ADC_AIN3,          //!< Channel 3 of ADC.
+    RI_ADC_AIN4,          //!< Channel 4 of ADC.
+    RI_ADC_AIN5,          //!< Channel 5 of ADC.
+    RI_ADC_AIN6,          //!< Channel 6 of ADC.
+    RI_ADC_AIN7,          //!< Channel 7 of ADC.
+    RI_ADC_AINVDD,        //!< Analog supply voltage.
+    RI_ADC_CH_NUM         //!< Number of ADC inputs.
 } ri_adc_channel_t;
 
-/* ADC reference voltage */
+/* ADC reference voltage. */
 typedef enum
 {
-    RI_ADC_VREF_INTERNAL, //!< Internal voltage reference
-    RI_ADC_VREF_EXTERNAL  //!< External voltage reference
+    RI_ADC_VREF_INTERNAL, //!< Internal voltage reference.
+    RI_ADC_VREF_EXTERNAL  //!< External voltage reference.
 } ri_adc_vref_t;
 
 /* ADC mode */
@@ -161,7 +162,7 @@ typedef struct
  * @retval true if ADC is initialized.
  * @retval false if ADC is not initialized.
  */
-bool  ri_adc_is_init (void);
+bool ri_adc_is_init (void);
 /**
  * @brief Initialization of ADC
  *
@@ -215,7 +216,7 @@ rd_status_t ri_adc_stop (uint8_t channel_num);
  * @retval RD_ERROR_INVALID_STATE if ADC channel is locked.
  */
 rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
-                                 uint16_t * p_data);
+                                 int16_t * p_data);
 
 /**
  * @brief Get ADC data in volts.
@@ -245,4 +246,12 @@ rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
                                    ri_adc_get_data_t * p_config,
                                    float * p_data);
 
+/**
+ * @brief Return true if given channel  index can be used by underlying implementation.
+ *
+ * @param[in] ch Channel to check.
+ * @retval true Channel can be used (but might be reserved).
+ * @retval false Channel is out of bounds.
+ */
+bool ri_adc_mcu_is_valid_ch (const uint8_t ch);
 #endif
