@@ -7,7 +7,10 @@
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_nrf5_sdk15_error.h"
 #include "ruuvi_nrf5_sdk15_gpio.h"
+#include "ruuvi_interface_rtc.h"
 #include "nrf_serial.h"
+
+#define RUUVI_NRF5_UART_BUSY_TIMEOUT_MS (1000U)
 
 #ifndef RUUVI_NRF5_SDK15_UART_LOG_LEVEL
 #define LOG_LEVEL RI_LOG_LEVEL_INFO
@@ -20,6 +23,7 @@
 static const ri_comm_channel_t * m_channel; //!< Pointer to application control structure.
 static uint16_t m_rxcnt = 0; //!< Counter of received bytes after last read.
 static uint16_t m_txcnt = 0; //!< Counter of bytes to send before tx complete.
+static uint64_t last_tx_time = 0; //!< Time when last UART transmit operation call.
 
 static void sleep_handler (void)
 {
@@ -110,6 +114,13 @@ static nrf_uarte_baudrate_t ruuvi_to_nrf_baudrate (const ri_uart_baudrate_t baud
 static rd_status_t ri_uart_send_async (ri_comm_message_t * const msg)
 {
     rd_status_t err_code = RD_SUCCESS;
+    ri_rtc_init();
+
+    //Fix, to prevent BUSY on UART_TX.
+    if ( (last_tx_time + RUUVI_NRF5_UART_BUSY_TIMEOUT_MS) < ri_rtc_millis())
+    {
+        m_txcnt = 0;
+    }
 
     if (NULL == msg)
     {
@@ -130,6 +141,7 @@ static rd_status_t ri_uart_send_async (ri_comm_message_t * const msg)
         size_t written = 0;
         status |= nrf_serial_write (&serial_uart, msg->data, msg->data_length, &written, 0);
         m_txcnt = written;
+        last_tx_time = ri_rtc_millis();
         err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (status);
 
         if (written != msg->data_length)
