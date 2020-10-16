@@ -1,7 +1,9 @@
 # Changelog
+## 3.4.4
+ - Fix UART driver locking if TX interrupt is missed
+
 ## 3.4.3
  - Update NRF5 SDK15 overrides to include NFCT.c from SDK 17.0.2
- - Fix UART driver locking if TX interrupt is missed
 
 ## 3.4.2
  - Increase DIS string limit to 48 to fit build metadata, such as "Ruuvi FW 3.29.0-RC8+default"
