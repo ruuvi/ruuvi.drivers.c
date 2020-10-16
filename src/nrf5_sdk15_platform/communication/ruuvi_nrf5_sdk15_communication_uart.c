@@ -122,7 +122,7 @@ static rd_status_t ri_uart_send_async (ri_comm_message_t * const msg)
     }
     else if (0 != m_txcnt)
     {
-        if(NRF_MTX_LOCKED == serial_uart.p_ctx->write_lock)
+        if (NRF_MTX_LOCKED == serial_uart.p_ctx->write_lock)
         {
             err_code |= RD_ERROR_BUSY;
         }
