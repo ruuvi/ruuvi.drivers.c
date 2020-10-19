@@ -1,4 +1,7 @@
 # Changelog
+## 3.4.5 - in progress
+ - Fix GPIO port mappingon NRF5 SDK 15 when port > 0.
+
 ## 3.4.4
  - Fix UART driver locking if TX interrupt is missed
 
