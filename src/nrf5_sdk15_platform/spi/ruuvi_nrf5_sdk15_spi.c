@@ -149,7 +149,7 @@ rd_status_t ri_spi_init (const ri_spi_init_config_t *
     return (status | ruuvi_nrf5_sdk15_to_ruuvi_error (err_code));
 }
 
-bool ri_spi_is_init()
+bool ri_spi_is_init (void)
 {
     return m_spi_init_done;
 }
@@ -159,7 +159,7 @@ bool ri_spi_is_init()
  *
  * @return RD_SUCCESS
  **/
-rd_status_t ri_spi_uninit()
+rd_status_t ri_spi_uninit (void)
 {
     nrf_drv_spi_uninit (&spi);
     m_spi_init_done = false;

@@ -161,7 +161,7 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-bool ri_i2c_is_init()
+bool ri_i2c_is_init (void)
 {
     return m_i2c_is_init;
 }
