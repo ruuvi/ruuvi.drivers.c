@@ -87,9 +87,9 @@ rd_status_t ri_lis2dh12_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
 rd_status_t ri_lis2dh12_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_lis2dh12_mode_set (uint8_t *);
+rd_status_t ri_lis2dh12_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_lis2dh12_mode_get (uint8_t *);
+rd_status_t ri_lis2dh12_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const data);
 
@@ -141,7 +141,7 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable);
  * @return error code from stack on other error.
  *
  */
-rd_status_t ri_lis2dh12_activity_interrupt_use (const bool enable,
+rd_status_t ri_lis2dh12_active_interrupt (const bool enable,
         float * limit_g);
 
 /** @brief context for LIS2DH12 */
