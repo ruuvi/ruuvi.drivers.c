@@ -152,8 +152,8 @@ typedef struct
 /* ADC result config struct. */
 typedef struct
 {
-    float vdd;
-    float divider;
+    rd_float vdd;
+    rd_float divider;
 } ri_adc_get_data_t;
 
 /**
@@ -230,7 +230,7 @@ rd_status_t ri_adc_get_raw_data (uint8_t channel_num,
  */
 rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
                                       ri_adc_get_data_t * p_config,
-                                      float * p_data);
+                                      rd_float * p_data);
 
 /**
  * @brief Get ADC data in volts.
@@ -244,7 +244,7 @@ rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
  */
 rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
                                    ri_adc_get_data_t * p_config,
-                                   float * p_data);
+                                   rd_float * p_data);
 
 /**
  * @brief Return true if given channel  index can be used by underlying implementation.

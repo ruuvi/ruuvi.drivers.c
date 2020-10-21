@@ -169,6 +169,6 @@ void ri_flash_purge (void);
  * @return True if flash is running an operation.
  * @return False if flash is idle.
  */
-bool ri_flash_is_busy();
+bool ri_flash_is_busy (void);
 /*@}*/
 #endif

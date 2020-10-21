@@ -80,7 +80,7 @@ rd_status_t ri_spi_init (const ri_spi_init_config_t *
  * @return @c true if SPI is initialized
  * @return @c false otherwise
  */
-bool ri_spi_is_init();
+bool ri_spi_is_init (void);
 
 /**
  * @brief Uninitialize SPI driver.
@@ -91,7 +91,7 @@ bool ri_spi_is_init();
  * @return RD_SUCCESS
  * @warning Uninitializes the SPI peripheral, may or may not uninitialize the associated gpio pins.
  **/
-rd_status_t ri_spi_uninit();
+rd_status_t ri_spi_uninit (void);
 
 /**
  * @brief SPI transfer function.

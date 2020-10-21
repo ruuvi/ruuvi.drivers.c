@@ -103,7 +103,7 @@ rd_status_t ri_radio_init (const ri_radio_modulation_t modulation);
  *  @retval    RD_ERROR_FORBIDDEN if radio is in use by other user
  *  @note      It's not possible to uninitialize radio from another user than original initializer.
  */
-rd_status_t ri_radio_uninit ();
+rd_status_t ri_radio_uninit (void);
 
 /**
  * Writes maximum 64-bit unique address of the device to the pointer. This address
@@ -146,7 +146,7 @@ void ri_radio_activity_callback_set (const ri_radio_activity_interrupt_fp_t hand
  *
  * @return true if radio is initialized, false otherwise.
  */
-bool ri_radio_is_init();
+bool ri_radio_is_init (void);
 
 /**
  * @brief Get the modulation used by application.

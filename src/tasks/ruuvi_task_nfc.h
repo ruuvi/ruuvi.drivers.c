@@ -137,7 +137,7 @@ void rt_nfc_set_on_sent_isr (const ri_comm_cb_t cb);
  *
  * @return true if NFC is connected, false otherwise.
  */
-bool rt_nfc_is_connected();
+bool rt_nfc_is_connected (void);
 
 // Let Ceedling test internal functions
 #ifdef CEEDLING

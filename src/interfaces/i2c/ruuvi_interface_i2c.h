@@ -68,7 +68,7 @@ rd_status_t ri_i2c_uninit (void);
  *
  * @return true if I2C is initialized, false otherwise.
  **/
-bool ri_i2c_is_init();
+bool ri_i2c_is_init (void);
 
 /**
  * @brief I2C read function.
