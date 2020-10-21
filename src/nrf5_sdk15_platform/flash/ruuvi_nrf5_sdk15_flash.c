@@ -593,7 +593,7 @@ void ri_flash_purge (void)
     }
 }
 
-bool ri_flash_is_busy()
+bool ri_flash_is_busy (void)
 {
     return m_fds_processing;
 }

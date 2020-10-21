@@ -51,7 +51,7 @@
 #define RD_ERROR_FATAL            (1U<<31U)  ///< Program should always reset after this
 
 typedef uint32_t rd_status_t; ///< bitfield for representing errors
-
+typedef float    rd_float;    ///< Ruuvi driver float type
 /**
  * @brief Check given error code and compare it to non-fatal errors.
  *
@@ -86,7 +86,7 @@ void rd_error_check (const rd_status_t error,
  *
  * @return errors occured after last call to this function.
  */
-rd_status_t rd_errors_clear();
+rd_status_t rd_errors_clear (void);
 
 /* @brief Application callback on error
  *

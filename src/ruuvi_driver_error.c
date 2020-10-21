@@ -78,7 +78,7 @@ void rd_error_check (rd_status_t error,
  *
  * @return errors occured after last call to this function.
  */
-rd_status_t rd_errors_clear()
+rd_status_t rd_errors_clear (void)
 {
     rd_status_t errors = m_errors;
     m_errors = RD_SUCCESS;

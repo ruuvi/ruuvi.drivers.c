@@ -73,7 +73,7 @@
 #define ADC_BITS_RESOLUTION_14 14
 #define ADC_BITS_RESOLUTION_NUM 4
 
-static float pre_scaling_values[ADC_PRE_SCALING_NUM] =
+static rd_float pre_scaling_values[ADC_PRE_SCALING_NUM] =
 {
     ADC_PRE_SCALING_COMPENSATION_1_6,
     ADC_PRE_SCALING_COMPENSATION_1_5,
@@ -215,26 +215,26 @@ static inline nrf_saadc_gain_t ruuvi_to_nrf_gain (const ri_adc_gain_t gain)
 /**
  * @brief convert @ref raw adc value to volts.
  */
-static float raw_adc_to_volts (uint8_t channel_num,
+static rd_float raw_adc_to_volts (uint8_t channel_num,
                                ri_adc_get_data_t * p_config,
                                int16_t * adc)
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];
     uint16_t counts = 1 << nrf_to_bits_resolution (adc_config.resolution);
-    float result;
+    rd_float result;
 
     // Only voltages referred to internal VREF are accurate.
     if (NRF_SAADC_REFERENCE_INTERNAL == p_ch_config->reference)
     {
-        result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
+        result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (rd_float) (*adc) / (rd_float) counts) *
                   pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
                   p_config->divider);
     }
     // This relies on VDD accuracy and is at best indicative.
     else
     {
-        result = (p_config->vdd * ( (float) (*adc) / (float) counts) // Raw ADC ref VDD
+        result = (p_config->vdd * ( (rd_float) (*adc) / (rd_float) counts) // Raw ADC ref VDD
                   * pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] // Prescaling
                   / ADC_REF_EXT_VDD_DIV // ADC ref prescaling
                   * p_config->divider); // External divider
@@ -246,20 +246,20 @@ static float raw_adc_to_volts (uint8_t channel_num,
 /**
  * @brief convert @ref raw adc value to ratio to VDD.
  */
-static float raw_adc_to_ratio (uint8_t channel_num,
+static rd_float raw_adc_to_ratio (uint8_t channel_num,
                                ri_adc_get_data_t * p_config,
                                int16_t * adc)
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];
     uint16_t counts = 1 << nrf_to_bits_resolution (adc_config.resolution);
-    float result;
+    rd_float result;
 
     // This relies on VDD accuracy and is at best indicative.
     if (NRF_SAADC_REFERENCE_INTERNAL == p_ch_config->reference)
     {
         // Absolute voltage
-        result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (float) (*adc) / (float) counts) *
+        result = (ADC_REF_VOLTAGE_IN_VOLTS * ( (rd_float) (*adc) / (rd_float) counts) *
                   pre_scaling_values[ (uint8_t) nrf_to_ruuvi_gain (p_ch_config->gain)] *
                   p_config->divider);
         // Divided to a ratio
@@ -268,7 +268,7 @@ static float raw_adc_to_ratio (uint8_t channel_num,
     // Measurement referred to VDD.
     else
     {
-        result = ( (float) (*adc) / (float) counts);
+        result = ( (rd_float) (*adc) / (rd_float) counts);
     }
 
     return result;
@@ -526,7 +526,7 @@ static rd_status_t nrf5_adc_get_raw (uint8_t channel_num,
 
 rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
                                       ri_adc_get_data_t * p_config,
-                                      float * p_data)
+                                      rd_float * p_data)
 {
     int16_t data;
     // Input check in function.
@@ -542,7 +542,7 @@ rd_status_t ri_adc_get_data_absolute (uint8_t channel_num,
 
 rd_status_t ri_adc_get_data_ratio (uint8_t channel_num,
                                    ri_adc_get_data_t * p_config,
-                                   float * p_data)
+                                   rd_float * p_data)
 {
     int16_t data;
     // Input check in function.
