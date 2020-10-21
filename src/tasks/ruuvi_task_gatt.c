@@ -56,7 +56,7 @@ static inline size_t safe_strlen (const char * s, size_t maxlen)
 {
     size_t i;
 
-    for (i = 0; (i < maxlen) && ('\0' != s[i]); ++i);
+    for (i = 0; (i < maxlen) && ('\0' != s[i]); ++i) {};
 
     return i;
 }

@@ -94,7 +94,7 @@ rd_status_t rt_gatt_dis_init (const ri_comm_dis_init_t * const dis);
  *
  * @note To actually use the data in application, user must setup at least data received callback with @ref rt_gatt_set_on_received_isr
  */
-rd_status_t rt_gatt_nus_init();
+rd_status_t rt_gatt_nus_init (void);
 
 /**
  * @brief Initialize GATT. Must be called as a first function in rt_gatt.
@@ -138,7 +138,7 @@ rd_status_t rt_gatt_uninit (void);
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-rd_status_t rt_gatt_enable();
+rd_status_t rt_gatt_enable (void);
 
 /**
  * @brief Stop advertising GATT connection to devices.
@@ -150,21 +150,21 @@ rd_status_t rt_gatt_enable();
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-rd_status_t rt_gatt_disable();
+rd_status_t rt_gatt_disable (void);
 
 /**
  * @brief check if GATT task is initialized
  *
  * @return true if GATT is initialized, false otherwise.
  */
-bool rt_gatt_is_init();
+bool rt_gatt_is_init (void);
 
 /**
  * @brief check if NUS is connected, i.e. central has registered to TX notifications.
  *
  * @return true if NUS is connected is initialized, false otherwise.
  */
-bool rt_gatt_nus_is_connected();
+bool rt_gatt_nus_is_connected (void);
 
 /** @brief Check if Nordic UART Service is enabled.
  *
@@ -175,7 +175,7 @@ bool rt_gatt_nus_is_connected();
  *
  * @return true if GATT is initialized and ready to accept connection, false otherwise.
  */
-bool rt_gatt_is_nus_enabled();
+bool rt_gatt_is_nus_enabled (void);
 
 /** @brief Setup connection event handler.
  *

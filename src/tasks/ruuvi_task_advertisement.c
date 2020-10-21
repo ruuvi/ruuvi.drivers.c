@@ -27,8 +27,12 @@ static size_t safe_strlen (const char * s, size_t maxlen)
     size_t i;
 
     for (i = 0; i < maxlen; ++i)
+    {
         if (s[i] == '\0')
-        { break; }
+        {
+            break;
+        }
+    }
 
     return i;
 }
