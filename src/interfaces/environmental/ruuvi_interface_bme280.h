@@ -76,9 +76,9 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
 rd_status_t ri_bme280_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_bme280_mode_set (uint8_t *);
+rd_status_t ri_bme280_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_bme280_mode_get (uint8_t *);
+rd_status_t ri_bme280_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
                                 data);
