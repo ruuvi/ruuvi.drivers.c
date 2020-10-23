@@ -1,5 +1,4 @@
 #include "unity.h"
-
 #include "ruuvi_driver_sensor.h"
 #include "mock_ruuvi_interface_lis2dh12.h"
 
@@ -129,7 +128,7 @@ const rd_sensor_t mock_lis2dh12_dev =
     .fifo_enable           = ri_lis2dh12_fifo_use,
     .fifo_interrupt_enable = ri_lis2dh12_fifo_interrupt_use,
     .fifo_read             = ri_lis2dh12_fifo_read,
-    .level_interrupt_set   = ri_lis2dh12_activity_interrupt_use,
+    .level_interrupt_set   = ri_lis2dh12_active_interrupt,
     .provides.datas.acceleration_x_g = 1,
     .provides.datas.acceleration_y_g = 1,
     .provides.datas.acceleration_z_g = 1,
