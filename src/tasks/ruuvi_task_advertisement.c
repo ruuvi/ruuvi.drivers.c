@@ -20,6 +20,8 @@
 #include "ruuvi_task_advertisement.h"
 #include "ruuvi_task_gatt.h"
 
+#define MAX_TX_SIZE 24  //!< Send size limit
+
 // https://github.com/arm-embedded/gcc-arm-none-eabi.debian/blob/master/src/libiberty/strnlen.c
 // Not included when compiled with std=c99.
 static size_t safe_strlen (const char * s, size_t maxlen)
@@ -28,7 +30,7 @@ static size_t safe_strlen (const char * s, size_t maxlen)
 
     for (i = 0; i < maxlen; ++i)
     {
-        if (s[i] == '\0')
+        if ('\0' == s[i])
         {
             break;
         }
@@ -99,7 +101,7 @@ rd_status_t rt_adv_send_data (ri_comm_message_t * const msg)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
-    else if (24 < msg->data_length)
+    else if (MAX_TX_SIZE < msg->data_length)
     {
         err_code |= RD_ERROR_DATA_SIZE;
     }

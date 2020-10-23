@@ -39,7 +39,7 @@ static bool m_is_configured;
 static bool m_vdd_prepared;
 static bool m_vdd_sampled;
 static bool m_ratio;
-static float m_vdd;
+static rd_float m_vdd;
 static uint8_t m_handle; //!< handle of last ADC used.
 static uint8_t m_channel[RI_ADC_CH_NUM]; //!< Channel assigment for handles.
 static uint8_t m_next_channel; //!< Next channel to be assigned.
@@ -117,7 +117,7 @@ static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
         p_data->timestamp_ms = RD_UINT64_INVALID;
         rd_sensor_data_t d_adc;
         rd_sensor_data_fields_t adc_fields = {.bitfield = RD_ADC_DEFAULT_BITFIELD};
-        float adc_values[RD_ADC_DATA_COUNTER] = {0};
+        rd_float adc_values[RD_ADC_DATA_COUNTER] = {0};
 
         if (false == m_ratio)
         {
@@ -145,7 +145,7 @@ static rd_status_t rt_adc_mcu_data_get (rd_sensor_data_t * const
         }
     }
 
-    return RD_SUCCESS;
+    return status;
 }
 
 rd_status_t rt_adc_init (void)
@@ -204,8 +204,9 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
                                  const uint8_t handle, const rt_adc_mode_t mode)
 {
     rd_status_t err_code = RD_SUCCESS;
+    RD_UNUSED_PARAMETER (config);
 
-    if (!rt_adc_is_init() || m_is_configured)
+    if ( (!rt_adc_is_init()) || (m_is_configured))
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
@@ -250,7 +251,7 @@ rd_status_t rt_adc_sample (void)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (!rt_adc_is_init() || !m_is_configured)
+    if ( (!rt_adc_is_init()) || (!m_is_configured))
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
@@ -262,7 +263,7 @@ rd_status_t rt_adc_voltage_get (rd_sensor_data_t * const data)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (!rt_adc_is_init() || !m_is_configured)
+    if ( (!rt_adc_is_init()) || (!m_is_configured))
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
@@ -285,7 +286,7 @@ rd_status_t rt_adc_ratio_get (rd_sensor_data_t * const data)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (!rt_adc_is_init() || !m_is_configured)
+    if ( (!rt_adc_is_init()) || (!m_is_configured))
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
@@ -326,7 +327,7 @@ rd_status_t rt_adc_vdd_sample (void)
     {
         rd_sensor_data_t battery;
         memset (&battery, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
-        float battery_values;
+        rd_float battery_values;
         battery.data = &battery_values;
         battery.fields.datas.voltage_v = RD_ADC_DATA_COUNTER;
         err_code |= rt_adc_voltage_get (&battery);
@@ -339,7 +340,7 @@ rd_status_t rt_adc_vdd_sample (void)
     return err_code;
 }
 
-rd_status_t rt_adc_vdd_get (float * const battery)
+rd_status_t rt_adc_vdd_get (rd_float * const battery)
 {
     rd_status_t err_code = RD_SUCCESS;
 

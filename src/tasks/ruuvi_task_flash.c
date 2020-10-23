@@ -9,9 +9,11 @@
  * @date 2019-11-18 provide compile time choice incase no flash is available
  * This module has 2 sets of code:
  *  If flash is enabled:
- *    on_error: In the event of a fatal error, the error, source file and line number are stored in an error file in flash.
+ *    on_error: In the event of a fatal error, the error, source file and line number
+ *              are stored in an error file in flash.
  *              Then calls the bootloader, failing that reset.
- *    task_flash_init: calls print_error_cause which retrieves error file from flash and logs it(requires nRF52 DK board).
+ *    task_flash_init: calls print_error_cause which retrieves error file from flash
+ *              and logs it(requires nRF52 DK board).
  *              Then sets up on_error as the call back error handler.
  *  If no flash:
  *    on_error: In the event of a fatal error calls the bootloader, failing that reset.
@@ -55,7 +57,7 @@ typedef struct
 {
     rd_status_t error;
     char filename[32];
-    int line;
+    int32_t line;
 } rt_flash_error_cause_t;
 
 #if 0

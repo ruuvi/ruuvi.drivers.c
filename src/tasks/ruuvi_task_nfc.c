@@ -28,7 +28,9 @@
 #include <stdio.h>
 #include <string.h>
 
-static ri_comm_channel_t m_channel;   //!< Handle for NFC comms.
+#define NFC_INIT_DATA_LEN 6            //!< Init data length.
+
+static ri_comm_channel_t m_channel;    //!< Handle for NFC comms.
 static ri_comm_cb_t m_on_connected;    //!< Callback for connection established.
 static ri_comm_cb_t m_on_disconnected; //!< Callback for connection lost.
 static ri_comm_cb_t m_on_received;     //!< Callback for data received.
@@ -43,7 +45,6 @@ static bool m_nfc_is_initialized;      //!< True while NFC is initialized.
  * such as feeding softdevice data buffers during connection event.
  * Care must be taken to not call any function which requires external peripherals,
  * such as sensors in this context.
- *
  * If sensors must be read / configured as a response to NFC event, schedule
  * the action and send the results back during next connection event by buffering
  * the response with rt_nfc_send.
@@ -64,20 +65,26 @@ rd_status_t rt_nfc_isr (ri_comm_evt_t evt, void * p_data, size_t data_len)
         // Note: This gets called only after the NFC notifications have been registered.
         case RI_COMM_CONNECTED:
             m_nfc_is_connected = true;
-            (NULL != m_on_connected) ? m_on_connected (p_data, data_len) : false;
+
+            if (NULL != m_on_connected) { m_on_connected (p_data, data_len); }
+
             break;
 
         case RI_COMM_DISCONNECTED:
             m_nfc_is_connected = false;
-            (NULL != m_on_disconnected) ? m_on_disconnected (p_data, data_len) : false;
+
+            if (NULL != m_on_disconnected) { m_on_disconnected (p_data, data_len); }
+
             break;
 
         case RI_COMM_SENT:
-            (NULL != m_on_sent) ? m_on_sent (p_data, data_len) : false;
+            if (NULL != m_on_sent) { m_on_sent (p_data, data_len); }
+
             break;
 
         case RI_COMM_RECEIVED:
-            (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
+            if (NULL != m_on_received) { m_on_received (p_data, data_len); }
+
             break;
 
         default:
@@ -93,7 +100,7 @@ static
 rd_status_t sw_set (const char * const sw)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int written = 0;
+    int32_t written = 0;
 
     if (NULL == sw)
     {
@@ -114,8 +121,9 @@ rd_status_t sw_set (const char * const sw)
         }
         else
         {
+            uint8_t length = (uint8_t) (strlen ( (char *) fw_string));
             err_code |= ri_nfc_fw_version_set (fw_string,
-                                               strlen ( (char *) fw_string));
+                                               length);
         }
     }
 
@@ -128,7 +136,7 @@ static
 rd_status_t mac_set (const char * const mac)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int written = 0;
+    int32_t written = 0;
 
     if (NULL == mac)
     {
@@ -149,7 +157,8 @@ rd_status_t mac_set (const char * const mac)
         }
         else
         {
-            err_code |= ri_nfc_address_set (name, strlen ( (char *) name));
+            uint8_t length = (uint8_t) (strlen ( (char *) name));
+            err_code |= ri_nfc_address_set (name, length);
         }
     }
 
@@ -162,7 +171,7 @@ static
 rd_status_t id_set (const char * const id)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int written = 0;
+    int32_t written = 0;
 
     if (NULL == id)
     {
@@ -183,8 +192,9 @@ rd_status_t id_set (const char * const id)
         }
         else
         {
+            uint8_t length = (uint8_t) (strlen ( (char *) id_string));
             err_code |= ri_nfc_id_set (id_string,
-                                       strlen ( (char *) id_string));
+                                       length);
         }
     }
 
@@ -211,7 +221,7 @@ rd_status_t rt_nfc_init (ri_comm_dis_init_t * const init_data)
         err_code |= ri_nfc_init (&m_channel);
         ri_comm_message_t msg;
         memcpy (&msg.data, "Data:", sizeof ("Data:"));
-        msg.data_length = 6;
+        msg.data_length = NFC_INIT_DATA_LEN;
         m_channel.on_evt = rt_nfc_isr;
         err_code |= m_channel.send (&msg);
     }

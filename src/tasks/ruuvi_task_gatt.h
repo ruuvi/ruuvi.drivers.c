@@ -52,7 +52,8 @@ rd_status_t rt_gatt_send_asynchronous (ri_comm_message_t * const msg);
  * Call will return successfully even if the device doesn't have useable bootloader, however
  * program will reboot if user tries to enter bootloader in that case.
  *
- * To use the DFU service advertisement module must send connectable (and preferably scannable) advertisements.
+ * To use the DFU service advertisement module must send connectable
+ * (and preferably scannable) advertisements.
  *
  * @retval RD_SUCCESS GATT was initialized successfully
  * @retval RD_ERROR_INVALID_STATE DFU was already initialized or GATT is not initialized
@@ -65,9 +66,11 @@ rd_status_t rt_gatt_dfu_init (void);
  * GATT must be initialized before calling this function, and once initialized the DIS
  * service cannot be uninitialized.
  *
- * DIS service lets user read basic information, such as firmware version and hardware model over GATT in a standard format.
+ * DIS service lets user read basic information, such as firmware version and hardware
+ * model over GATT in a standard format.
  *
- * To use the DIS service advertisement module must send connectable (and preferably scannable) advertisements.
+ * To use the DIS service advertisement module must send connectable
+ * (and preferably scannable) advertisements.
  *
  * @param[in] dis structure containing data to be copied into DIS, can be freed after call finishes.
  *
@@ -92,7 +95,8 @@ rd_status_t rt_gatt_dis_init (const ri_comm_dis_init_t * const dis);
  * @retval RD_ERROR_NULL if given NULL as the information.
  * @retval RD_ERROR_INVALID_STATE DIS was already initialized or GATT is not initialized
  *
- * @note To actually use the data in application, user must setup at least data received callback with @ref rt_gatt_set_on_received_isr
+ * @note To actually use the data in application, user must setup at least data received callback
+ * with @ref rt_gatt_set_on_received_isr
  */
 rd_status_t rt_gatt_nus_init (void);
 
@@ -101,7 +105,8 @@ rd_status_t rt_gatt_nus_init (void);
  *
  * After calling this function underlying software stack is ready to setup GATT services.
  *
- * @param[in] name Full name of device to be advertised in scan responses. Maximum 11 chars + trailing NULL. Must not be NULL, 0-length string is valid.
+ * @param[in] name Full name of device to be advertised in scan responses. Maximum 11 chars +
+ * trailing NULL. Must not be NULL, 0-length string is valid.
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_NULL if name is NULL (use 0-length string instead)

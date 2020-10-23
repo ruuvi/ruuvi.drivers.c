@@ -107,23 +107,30 @@ rd_status_t rt_gatt_on_nus_isr (ri_comm_evt_t evt,
         // Note: This gets called only after the NUS notifications have been registered.
         case RI_COMM_CONNECTED:
             m_nus_is_connected = true;
-            (NULL != m_on_connected) ? m_on_connected (p_data, data_len) : false;
+
+            if (NULL != m_on_connected) { m_on_connected (p_data, data_len);}
+
             break;
 
         case RI_COMM_DISCONNECTED:
             m_nus_is_connected = false;
-            (NULL != m_on_disconnected) ? m_on_disconnected (p_data, data_len) : false;
+
+            if (NULL != m_on_disconnected) { m_on_disconnected (p_data, data_len);}
+
             break;
 
         case RI_COMM_SENT:
-            (NULL != m_on_sent) ? m_on_sent (p_data, data_len) : false;
+            if (NULL != m_on_sent) { m_on_sent (p_data, data_len); }
+
             break;
 
         case RI_COMM_RECEIVED:
             LOGD ("<<<;");
             LOGDHEX (p_data, data_len);
             LOGD (";\r\n");
-            (NULL != m_on_received) ? m_on_received (p_data, data_len) : false;
+
+            if (NULL != m_on_received) { m_on_received (p_data, data_len); }
+
             break;
 
         default:

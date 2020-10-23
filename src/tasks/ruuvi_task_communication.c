@@ -50,7 +50,7 @@ static rd_status_t u64_to_hexstr (const uint64_t value, char * const str,
         bit_offset -= BITS_PER_BYTE;
     }
 
-    if ( (written + NULL_LEN) < CHAR_PER_BYTE * bytes
+    if ( ( (written + NULL_LEN) < CHAR_PER_BYTE * bytes)
             || (str_len < written + NULL_LEN))
     {
         status |= RD_ERROR_INVALID_LENGTH;

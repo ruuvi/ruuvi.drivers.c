@@ -175,7 +175,7 @@ rd_status_t rt_adc_vdd_sample (void);
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if rt_adc_vdd_sample wasn't called.
  */
-rd_status_t rt_adc_vdd_get (float * const vdd);
+rd_status_t rt_adc_vdd_get (rd_float * const vdd);
 
 /*@}*/
 #endif // TASK_ADC_H
