@@ -12,17 +12,28 @@ rd_status_t rd_sensor_configuration_set (const rd_sensor_t *
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == sensor || NULL == config) { return RD_ERROR_NULL; }
+    if ( (NULL == sensor) || (NULL == config))
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        if (NULL == sensor->samplerate_set)
+        {
+            err_code = RD_ERROR_INVALID_STATE;
+        }
+        else
+        {
+            uint8_t sleep = RD_SENSOR_CFG_SLEEP;
+            err_code |= sensor->mode_set (&sleep);
+            err_code |= sensor->samplerate_set (& (config->samplerate));
+            err_code |= sensor->resolution_set (& (config->resolution));
+            err_code |= sensor->scale_set (& (config->scale));
+            err_code |= sensor->dsp_set (& (config->dsp_function), & (config->dsp_parameter));
+            err_code |= sensor->mode_set (& (config->mode));
+        }
+    }
 
-    if (NULL == sensor->samplerate_set) { return RD_ERROR_INVALID_STATE; }
-
-    uint8_t sleep = RD_SENSOR_CFG_SLEEP;
-    err_code |= sensor->mode_set (&sleep);
-    err_code |= sensor->samplerate_set (& (config->samplerate));
-    err_code |= sensor->resolution_set (& (config->resolution));
-    err_code |= sensor->scale_set (& (config->scale));
-    err_code |= sensor->dsp_set (& (config->dsp_function), & (config->dsp_parameter));
-    err_code |= sensor->mode_set (& (config->mode));
     return err_code;
 }
 
@@ -31,15 +42,26 @@ rd_status_t rd_sensor_configuration_get (const rd_sensor_t *
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == sensor || NULL == config) { return RD_ERROR_NULL; }
+    if ( (NULL == sensor) || (NULL == config))
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        if (NULL == sensor->samplerate_set)
+        {
+            err_code = RD_ERROR_INVALID_STATE;
+        }
+        else
+        {
+            err_code |= sensor->samplerate_get (& (config->samplerate));
+            err_code |= sensor->resolution_get (& (config->resolution));
+            err_code |= sensor->scale_get (& (config->scale));
+            err_code |= sensor->dsp_get (& (config->dsp_function), & (config->dsp_parameter));
+            err_code |= sensor->mode_get (& (config->mode));
+        }
+    }
 
-    if (NULL == sensor->samplerate_set) { return RD_ERROR_INVALID_STATE; }
-
-    err_code |= sensor->samplerate_get (& (config->samplerate));
-    err_code |= sensor->resolution_get (& (config->resolution));
-    err_code |= sensor->scale_get (& (config->scale));
-    err_code |= sensor->dsp_get (& (config->dsp_function), & (config->dsp_parameter));
-    err_code |= sensor->mode_get (& (config->mode));
     return err_code;
 }
 
@@ -55,59 +77,76 @@ rd_status_t rd_sensor_timestamp_function_set (
 // Calls the timestamp function and returns it's value. returns 0 if timestamp function is NULL
 uint64_t rd_sensor_timestamp_get (void)
 {
-    if (NULL == millis)
+    uint64_t result = 0;
+
+    if (NULL != millis)
     {
-        return 0;
+        result = millis();
     }
 
-    return millis();
+    return result;
 }
 
 static rd_status_t rd_fifo_enable_ni (const bool enable)
 {
+    RD_UNUSED_PARAMETER (enable);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_fifo_interrupt_enable_ni (const bool enable)
 {
+    RD_UNUSED_PARAMETER (enable);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_fifo_read_ni (size_t * num_elements, rd_sensor_data_t * data)
 {
+    RD_UNUSED_PARAMETER (num_elements);
+    RD_UNUSED_PARAMETER (data);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_data_get_ni (rd_sensor_data_t * const data)
 {
+    RD_UNUSED_PARAMETER (data);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_init_ni (rd_sensor_t * const
                                p_sensor, const rd_bus_t bus, const uint8_t handle)
 {
+    RD_UNUSED_PARAMETER (p_sensor);
+    RD_UNUSED_PARAMETER (bus);
+    RD_UNUSED_PARAMETER (handle);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_setup_ni (uint8_t * const value)
 {
+    RD_UNUSED_PARAMETER (value);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_level_interrupt_use_ni (const bool enable,
-        float * limit_g)
+        rd_float * limit_g)
 {
+    RD_UNUSED_PARAMETER (enable);
+    RD_UNUSED_PARAMETER (limit_g);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_dsp_ni (uint8_t * const dsp, uint8_t * const parameter)
 {
+    RD_UNUSED_PARAMETER (dsp);
+    RD_UNUSED_PARAMETER (parameter);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
 static rd_status_t rd_sensor_configuration_ni (const rd_sensor_t *
         sensor, rd_sensor_configuration_t * config)
 {
+    RD_UNUSED_PARAMETER (sensor);
+    RD_UNUSED_PARAMETER (config);
     return RD_ERROR_NOT_INITIALIZED;
 }
 
@@ -172,10 +211,10 @@ static inline uint8_t get_index_of_field (const rd_sensor_data_t * const target,
     return index;
 }
 
-float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
-                            const rd_sensor_data_fields_t requested)
+rd_float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
+                               const rd_sensor_data_fields_t requested)
 {
-    float rvalue = RD_FLOAT_INVALID;
+    rd_float rvalue = RD_FLOAT_INVALID;
 
     // If one value was requested and is available return value.
     if ( (NULL != provided)
@@ -190,7 +229,7 @@ float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
 
 void rd_sensor_data_set (rd_sensor_data_t * const target,
                          const rd_sensor_data_fields_t field,
-                         const float value)
+                         const rd_float value)
 {
     // If there isn't valid requested data, return
     if (NULL == target)
@@ -320,7 +359,7 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
                 {
                     .bitfield = (1U << index)
                 };
-                float value = rd_sensor_data_parse (provided, next);
+                rd_float value = rd_sensor_data_parse (provided, next);
                 rd_sensor_data_set (target, next, value);
             }
 
@@ -332,7 +371,8 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
 
 inline uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target)
 {
-    return __builtin_popcount (target->fields.bitfield);
+    uint8_t result = (uint8_t) __builtin_popcount (target->fields.bitfield);
+    return result;
 }
 
 rd_status_t validate_default_input_set (uint8_t * const input, const uint8_t mode)

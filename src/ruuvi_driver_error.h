@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+//#include "nordic_common.h"
 
 #define RD_FLOAT_INVALID  NAN            //!< Signal that value should not be used.
 #define RD_UINT64_INVALID UINT64_MAX     //!< Signal that value should not be used.
@@ -50,6 +51,8 @@
 #define RD_ERROR_NOT_ENABLED      (1U<<21U)  ///< Driver is not enabled
 #define RD_ERROR_FATAL            (1U<<31U)  ///< Program should always reset after this
 
+#define RD_UNUSED_PARAMETER(X)    ((void)(X))    ///< Unused parameters
+
 typedef uint32_t rd_status_t; ///< bitfield for representing errors
 typedef float    rd_float;    ///< Ruuvi driver float type
 /**
@@ -66,7 +69,7 @@ typedef float    rd_float;    ///< Ruuvi driver float type
  * @param[in] line line from which the function was called
  **/
 void rd_error_check (const rd_status_t error,
-                     const rd_status_t non_fatal_mask, const char * p_file, const int line);
+                     const rd_status_t non_fatal_mask, const char * p_file, const int32_t line);
 
 /**
  * @brief Shorthand macro for calling the @ref rd_error_check with current file & line

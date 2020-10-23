@@ -34,14 +34,19 @@
  *
  * If function does not make sense for the sensor, it will return error code.
  *
- * Return name: Return a pointer to a constant 8-byte long string which represensts sensor, e.g. LIS2DH12\0 or BME280\0\0
+ * Return name: Return a pointer to a constant 8-byte long string
+ * which represensts sensor, e.g. LIS2DH12\0 or BME280\0\0
  *
- * INIT, UNINT: Init will prepare sensor for use, reset the sensor, run self-test and place it in low-power mode. Additionally function pointers will be set up by init.
+ * INIT, UNINT: Init will prepare sensor for use, reset the sensor,
+ * run self-test and place it in low-power mode. Additionally function
+ * pointers will be set up by init.
  *              Uninit will release any resources used by sensor
  *
- * Samplerate: Applicable on continuous mode, how often sensor takes samples. Hz
+ * Samplerate: Applicable on continuous mode, how often
+ * sensor takes samples. Hz
  *
- * DSP: DSP function and parameter, i.e. "OVERSAMPLING, 16". Return error if the device does not support it.
+ * DSP: DSP function and parameter, i.e. "OVERSAMPLING, 16".
+ * Return error if the device does not support it.
  *
  * scale: Maximum scale in a meaningful physical unit, such as celcius or pascal.
  *
@@ -50,7 +55,8 @@
  * mode: Sleep, single, continuous.
  *  - Sleep mode should enter lowest-power state available
  *  - Single will return once new data is available with data_get call
- *  - Continuous: Sensor will sample at given rate. Returns immediately, data will be available after first sample
+ *  - Continuous: Sensor will sample at given rate. Returns immediately,
+ * data will be available after first sample
  *
  * data get: return latest sample from sensor
  */
@@ -65,12 +71,18 @@
 
 // Constants for sensor configuration and status
 #define RD_SENSOR_CFG_DEFAULT         (0U)      //!< Default value, always valid for the sensor.
-#define RD_SENSOR_CFG_CUSTOM_1        (0xC9U)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_2        (0xCAU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_3        (0xCBU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_4        (0xCCU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_5        (0xCDU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
-#define RD_SENSOR_CFG_CUSTOM_6        (0xCEU)   //!< Configuration range is 0...200, i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_1        (0xC9U)   //!< Configuration range is 0...200,
+//!< i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_2        (0xCAU)   //!< Configuration range is 0...200,
+//!< i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_3        (0xCBU)   //!< Configuration range is 0...200,
+//!< i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_4        (0xCCU)   //!< Configuration range is 0...200,
+//!< i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_5        (0xCDU)   //!< Configuration range is 0...200,
+//!< i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
+#define RD_SENSOR_CFG_CUSTOM_6        (0xCEU)   //!< Configuration range is 0...200,
+//!< i.e. 0 ... 0xC8. Use C9 ... CF as sensor-specific values.
 #define RD_SENSOR_ERR_INVALID         (0xE0U)   //!< Error code, given parameter is invalid
 #define RD_SENSOR_ERR_NOT_IMPLEMENTED (0xE1U)   //!< Error code, given parameter is not implemented (todo)
 #define RD_SENSOR_ERR_NOT_SUPPORTED   (0xE2U)   //!< Error code, given parameter is not supported by sensor
@@ -156,7 +168,7 @@ typedef struct
  * C99 Standard 6.7.8.21
  * If there are fewer initializers in a brace-enclosed list than there are
  * elements or members of an aggregate, or fewer characters in a string literal
- * used to initialize an array of known size than there are elements in the array,
+ * used to initialize an array of known size than there are elements in the arraey,
  * the remainder of the aggregate shall be initialized implicitly the same as
  * objects that have static storage duration.
  */
@@ -206,7 +218,7 @@ typedef struct rd_sensor_data_t
     fields; //!< Description of datafields which may be contained in this sample.
     rd_sensor_data_fields_t valid;  //!< Listing of valid data in this sample.
     /** @brief Data of sensor. Must contain as many elements as fields has bits set. */
-    float * data;
+    rd_float * data;
 } rd_sensor_data_t;
 
 /** @brief Forward declare type definition of sensor structure */
@@ -235,21 +247,25 @@ typedef rd_status_t (*rd_sensor_init_fp) (rd_sensor_t * const
  *  @brief Setup a parameter of a sensor.
  *  The function will modify the pointed data to the actual value which was written
  *
- *  @param[in,out] parameter value to write to sensor configuration. Actual value written to sensor as output
+ *  @param[in,out] parameter value to write to sensor configuration.
+ *  Actual value written to sensor as output
  *  @return RD_SUCCESS on success
  *  @return RD_ERROR_NULL if parameter is NULL
  *  @return RD_ERROR_NOT_SUPPORTED if sensor cannot support given parameter
- *  @return RD_ERROR_NOT_IMPLEMENTED if the sensor could support parameter, but it's not implemented in fw.
+ *  @return RD_ERROR_NOT_IMPLEMENTED if the sensor could support parameter,
+ *  but it's not implemented in fw.
  **/
 typedef rd_status_t (*rd_sensor_setup_fp) (uint8_t * parameter);
 
 /**
  * @brief Configure sensor digital signal processing.
- * Takes DSP function and a DSP parameter as input, configured value or error code as output.
+ * Takes DSP function and a DSP parameter as input, configured value or
+ * error code as output.
  * Modifies input parameters to actual values written on the sensor.
  * DSP functions are run on the sensor HW, not in the platform FW.
  *
- * @param[in,out] dsp_function. DSP function to run on sensor. Can be a combination of several functions.
+ * @param[in,out] dsp_function. DSP function to run on sensor.
+ * Can be a combination of several functions.
  * @param[in,out] dsp_parameter. Parameter to DSP function(s)
  * @return RD_SUCCESS on success
  * @return RD_ERROR_NULL if either parameter is NULL
@@ -345,7 +361,7 @@ typedef rd_status_t (*rd_sensor_fifo_enable_fp) (const bool enable);
 *
 */
 typedef rd_status_t (*rd_sensor_level_interrupt_use_fp) (const bool enable,
-        float * limit_g);
+        rd_float * limit_g);
 
 /**
  * @brief Return number of milliseconds since the start of RTC.
@@ -506,8 +522,8 @@ void rd_sensor_data_populate (rd_sensor_data_t * const target,
  * @return     sensor value if found, RD_FLOAT_INVALID if the provided data didn't
  *             have a valid value.
  */
-float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
-                            const rd_sensor_data_fields_t requested);
+rd_float rd_sensor_data_parse (const rd_sensor_data_t * const provided,
+                               const rd_sensor_data_fields_t requested);
 
 /**
  * @brief Count number of floats required for this data structure.
@@ -533,7 +549,7 @@ uint8_t rd_sensor_data_fieldcount (const rd_sensor_data_t * const target);
  */
 void rd_sensor_data_set (rd_sensor_data_t * const target,
                          const rd_sensor_data_fields_t field,
-                         const float value);
+                         const rd_float value);
 
 /**
  * @brief Validate that given setting can be set on a sensor which supports only default value.
