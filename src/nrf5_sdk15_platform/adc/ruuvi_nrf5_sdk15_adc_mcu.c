@@ -216,8 +216,8 @@ static inline nrf_saadc_gain_t ruuvi_to_nrf_gain (const ri_adc_gain_t gain)
  * @brief convert @ref raw adc value to volts.
  */
 static rd_float raw_adc_to_volts (uint8_t channel_num,
-                               ri_adc_get_data_t * p_config,
-                               int16_t * adc)
+                                  ri_adc_get_data_t * p_config,
+                                  int16_t * adc)
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];
@@ -247,8 +247,8 @@ static rd_float raw_adc_to_volts (uint8_t channel_num,
  * @brief convert @ref raw adc value to ratio to VDD.
  */
 static rd_float raw_adc_to_ratio (uint8_t channel_num,
-                               ri_adc_get_data_t * p_config,
-                               int16_t * adc)
+                                  ri_adc_get_data_t * p_config,
+                                  int16_t * adc)
 {
     nrf_saadc_channel_config_t * p_ch_config =
         p_channel_configs[channel_num];

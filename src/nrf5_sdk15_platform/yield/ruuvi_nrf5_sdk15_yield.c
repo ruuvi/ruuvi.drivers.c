@@ -143,7 +143,7 @@ rd_status_t ri_yield (void)
     return RD_SUCCESS;
 }
 
-rd_status_t ri_delay_ms (uint32_t time)
+rd_status_t ri_delay_ms (uint32_t ri_time)
 {
     rd_status_t err_code = RD_SUCCESS;
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
@@ -151,7 +151,7 @@ rd_status_t ri_delay_ms (uint32_t time)
     if (m_lp && m_wakeup)
     {
         m_wakeup = false;
-        err_code |= ri_timer_start (wakeup_timer, time, NULL);
+        err_code |= ri_timer_start (wakeup_timer, ri_time, NULL);
 
         while (RD_SUCCESS == err_code && !m_wakeup)
         {
@@ -166,15 +166,15 @@ rd_status_t ri_delay_ms (uint32_t time)
 #endif
     else
     {
-        nrf_delay_ms (time);
+        nrf_delay_ms (ri_time);
     }
 
     return err_code;
 }
 
-rd_status_t ri_delay_us (uint32_t time)
+rd_status_t ri_delay_us (uint32_t ri_time)
 {
-    nrf_delay_us (time);
+    nrf_delay_us (ri_time);
     return RD_SUCCESS;
 }
 

@@ -36,7 +36,8 @@ static struct
                           * RI_COMM_DIS_STRLEN];
     volatile size_t  nfc_ndef_msg_len;
     uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC (
-                                                                RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
+                                                                RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS)];
+    // Buffer to contain incoming data descriptors
     size_t msg_index;         // Store index of our record
     ri_comm_evt_handler_fp_t * on_nfc_evt;
 } nrf5_sdk15_nfc_state;
@@ -75,7 +76,10 @@ static void nfc_callback (void * context,
             break;
 
         case NFC_T4T_EVENT_NDEF_READ:
-            if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)) { (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMM_SENT, NULL, 0); }
+            if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt))
+            {
+                (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMM_SENT, NULL, 0);
+            }
 
             break;
 
@@ -88,10 +92,18 @@ static void nfc_callback (void * context,
                 nrf5_sdk15_nfc_state.rx_updated = true;
 
                 // If tag is not configurable by NFC, set flag to overwrite received data.
-                if (!nrf5_sdk15_nfc_state.configurable) { nrf5_sdk15_nfc_state.tx_updated = true;}
+                if (!nrf5_sdk15_nfc_state.configurable)
+                {
+                    nrf5_sdk15_nfc_state.tx_updated = true;
+                }
 
-                // Do not process data in interrupt context, you should rather schedule data processing. Note: If incoming data is long, it might exceed max size.
-                if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt)) { (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (RI_COMM_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength); }
+                // Do not process data in interrupt context, you should rather schedule data processing.
+                // Note: If incoming data is long, it might exceed max size.
+                if (NULL != * (nrf5_sdk15_nfc_state.on_nfc_evt))
+                {
+                    (* (nrf5_sdk15_nfc_state.on_nfc_evt)) (
+                        RI_COMM_RECEIVED, nrf5_sdk15_nfc_state.nfc_ndef_msg, dataLength);
+                }
             }
 
             break;

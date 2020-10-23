@@ -29,7 +29,7 @@
 #include "sdk_errors.h"
 
 /** @brief Application callback for radio events */
-static ri_radio_activity_interrupt_fp_t on_radio_activity_callback = NULL;
+static ri_radio_active_interrupt_fp_t on_radio_activity_callback = NULL;
 static ri_radio_modulation_t m_modulation; //<! Modulation for radio ops.
 
 /** @brief Start of RAM in memory space */
@@ -152,7 +152,7 @@ rd_status_t ri_radio_address_set (const uint64_t address)
 }
 
 
-void ri_radio_activity_callback_set (const ri_radio_activity_interrupt_fp_t handler)
+void ri_radio_activity_callback_set (const ri_radio_active_interrupt_fp_t handler)
 {
     // Warn user if CB is not NULL and non-null pointer is set, do not overwrite previous pointer.
     if (NULL != handler && NULL != on_radio_activity_callback)

@@ -163,7 +163,7 @@ static nrf_pwm_clk_t ruuvi_get_base_config (float * const frequency,
 }
 
 rd_status_t ri_gpio_pwm_start (const ri_gpio_id_t pin, const ri_gpio_mode_t mode,
-                               float * const frequency, float * const duty_cycle)
+                               rd_float * const frequency, rd_float * const duty_cycle)
 {
     rd_status_t res = RD_ERROR_INVALID_STATE;
 

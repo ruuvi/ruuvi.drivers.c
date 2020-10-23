@@ -97,17 +97,22 @@ static void nrf52832_temperature_sample (void)
     {
         NRF_TEMP->TASKS_START = 1; /** Start the temperature measurement. */
 
-        /* Busy wait while temperature measurement is not finished, you can skip waiting if you enable interrupt for DATARDY event and read the result in the interrupt. */
-        /*lint -e{845} // A zero has been given as right argument to operator '|'" */
+        /* Busy wait while temperature measurement is not finished,
+         * you can skip waiting if you enable interrupt for DATARDY event
+         * and read the result in the interrupt. */
+        /* lint -e{845} // A zero has been given as right argument to operator '|'" */
         while (NRF_TEMP->EVENTS_DATARDY == 0)
         {
             // Do nothing.
         }
 
         NRF_TEMP->EVENTS_DATARDY = 0;
-        /**@note Workaround for PAN_028 rev2.0A anomaly 29 - TEMP: Stop task clears the TEMP register. */
+        /**@note Workaround for PAN_028 rev2.0A anomaly 29 - TEMP:
+         * Stop task clears the TEMP register. */
         raw_temp = nrf_temp_read();
-        /**@note Workaround for PAN_028 rev2.0A anomaly 30 - TEMP: Temp module analog front end does not power down when DATARDY event occurs. */
+        /**@note Workaround for PAN_028 rev2.0A anomaly 30 - TEMP:
+         * Temp module analog front end does not power down
+         * when DATARDY event occurs. */
         NRF_TEMP->TASKS_STOP = 1; /** Stop the temperature measurement. */
     }
 
@@ -123,7 +128,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init (ruuvi_driver_senso
     if (true == sensor_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
 
     ruuvi_driver_sensor_initialize (environmental_sensor);
-    // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
+    // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP:
+    //  Temperature offset value has to be manually loaded to the TEMP module
     nrf_temp_init();
     tsample     = RUUVI_DRIVER_UINT64_INVALID;
     temperature = RUUVI_DRIVER_FLOAT_INVALID;
@@ -165,7 +171,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit (
     return RUUVI_DRIVER_SUCCESS;
 }
 
-// Continuous sampling is not supported, mark pointed value as default even if parameter is one of no-changes
+// Continuous sampling is not supported,
+// mark pointed value as default even if parameter is one of no-changes
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_set (
     uint8_t * samplerate)
 {
@@ -187,7 +194,8 @@ ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_get (
     return RUUVI_DRIVER_SUCCESS;
 }
 
-// Temperature resolution is fixed to 10 bits, including sign. Return error to driver, but mark used value to pointer.
+// Temperature resolution is fixed to 10 bits, including sign.
+// Return error to driver, but mark used value to pointer.
 ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_set (
     uint8_t * resolution)
 {

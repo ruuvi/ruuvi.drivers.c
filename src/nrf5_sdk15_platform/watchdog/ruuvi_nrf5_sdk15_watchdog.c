@@ -56,7 +56,8 @@ wdt_evt_handler_t      m_on_trigger;
  */
 void wdt_event_handler (void)
 {
-    //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
+    // NOTE: The max amount of time we can spend in WDT interrupt is
+    // two cycles of 32768[Hz] clock - after that, reset occurs
     if (NULL != m_on_trigger)
     {
         m_on_trigger();

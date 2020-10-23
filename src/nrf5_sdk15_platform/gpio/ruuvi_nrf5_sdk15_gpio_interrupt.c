@@ -36,7 +36,8 @@ rd_status_t ri_gpio_interrupt_init (
        The GPIOTE driver is a shared resource that can be used by multiple modules in an application.
        Therefore, it can be initialized only once. If a module is using the driver,
        it must check if it has already been initialized by calling the function nrf_drv_gpiote_is_init.
-       If this function returns false, the module must initialize the driver by calling the function nrf_drv_gpiote_init.
+       If this function returns false, the module must initialize the driver by calling
+       the function nrf_drv_gpiote_init.
 
        The following code example shows how to initialize the driver:
     */
