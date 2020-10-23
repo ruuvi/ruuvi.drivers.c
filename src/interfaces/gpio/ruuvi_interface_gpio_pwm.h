@@ -67,7 +67,7 @@ rd_status_t ri_gpio_pwm_uninit (void);
  * @retval RD_ERROR_INVALID_PARAM Pin, mode, frequency or duty cycle were somehow invalid.
  */
 rd_status_t ri_gpio_pwm_start (const ri_gpio_id_t pin, const ri_gpio_mode_t mode,
-                               float * const frequency, float * const duty_cycle);
+                               rd_float * const frequency, rd_float * const duty_cycle);
 
 /**
  * @brief Stop PWM on given pin.

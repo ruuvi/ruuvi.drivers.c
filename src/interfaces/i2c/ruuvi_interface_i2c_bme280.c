@@ -21,6 +21,9 @@
 #include "ruuvi_interface_i2c.h"
 #include "ruuvi_interface_yield.h"
 
+#define I2C_BME280_BUFF_SIZE_MIN    1   //!< Minimum size of buffer.
+#define I2C_BME280_BUFF_SIZE_MAX    2   //!< Maximum size of buffer.
+
 /*
  * Data on the bus should be like
  * |------------+---------------------|
@@ -38,15 +41,27 @@ int8_t ri_i2c_bme280_write (uint8_t dev_id, uint8_t reg_addr,
                             uint8_t * reg_data, uint16_t len)
 {
     rd_status_t err_code = RD_SUCCESS;
+    int8_t result = 0;
 
     // Support only 1-byte writes
-    if (1 > len || 2 < len) { return -1; }
+    if ( (I2C_BME280_BUFF_SIZE_MIN > len) || (I2C_BME280_BUFF_SIZE_MAX < len))
+    {
+        result = -1;
+    }
+    else
+    {
+        uint8_t wbuf[I2C_BME280_BUFF_SIZE_MAX] = {0};
+        wbuf[0] = reg_addr;
+        wbuf[1] = reg_data[0];
+        err_code |= ri_i2c_write_blocking (dev_id, wbuf, I2C_BME280_BUFF_SIZE_MAX, true);
 
-    uint8_t wbuf[2] = {0};
-    wbuf[0] = reg_addr;
-    wbuf[1] = reg_data[0];
-    err_code |= ri_i2c_write_blocking (dev_id, wbuf, 2, true);
-    return (RD_SUCCESS == err_code) ? 0 : -1;
+        if (RD_SUCCESS != err_code)
+        {
+            result = -1;
+        }
+    }
+
+    return result;
 }
 
 /*
@@ -69,8 +84,15 @@ int8_t ri_i2c_bme280_read (uint8_t dev_id, uint8_t reg_addr,
                            uint8_t * reg_data, uint16_t len)
 {
     rd_status_t err_code = RD_SUCCESS;
+    int8_t result = 0;
     err_code |= ri_i2c_write_blocking (dev_id, &reg_addr, 1, true);
     err_code |= ri_i2c_read_blocking (dev_id, reg_data, len);
-    return (RD_SUCCESS == err_code) ? 0 : -1;
+
+    if (RD_SUCCESS != err_code)
+    {
+        result = -1;
+    }
+
+    return result;
 }
 #endif

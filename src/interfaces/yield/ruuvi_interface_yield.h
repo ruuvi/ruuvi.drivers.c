@@ -91,12 +91,12 @@ rd_status_t ri_yield (void);
   * function is affected by low-power delay enable, which uses sleep mode and timer to
   * return out of sleep.
   *
-  * @param time number of milliseconds to delay.
+  * @param ri_time number of milliseconds to delay.
   * @return RD_SUCCESS on success, error code from stack on error.
   * @warning Underlying implementation may block execution and keep CPU active leading to high power consumption
   * @warning The timing is indicative only and should not be relied for precise timing.
   **/
-rd_status_t ri_delay_ms (uint32_t time);
+rd_status_t ri_delay_ms (uint32_t ri_time);
 
 /**
   * @brief Delay a given number of microseconds.
@@ -105,12 +105,12 @@ rd_status_t ri_delay_ms (uint32_t time);
   * If you need exact timing use timers or for example PWM peripheral.
   * This function does not use low-power mode to maintain better precision on timing.
   *
-  * @param time number of microseconds to delay.
+  * @param ri_time number of microseconds to delay.
   * @return RD_SUCCESS on success, error code from stack on error.
   * @warning Underlying implementation may block execution and keep CPU active leading to high power consumption
   * @warning The timing is indicative only and should not be relied for precise timing.
   **/
-rd_status_t ri_delay_us (uint32_t time);
+rd_status_t ri_delay_us (uint32_t ri_time);
 
 /*@}*/
 

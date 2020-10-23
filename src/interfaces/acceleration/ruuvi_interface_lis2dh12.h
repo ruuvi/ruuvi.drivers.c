@@ -142,7 +142,7 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable);
  *
  */
 rd_status_t ri_lis2dh12_active_interrupt (const bool enable,
-        float * limit_g);
+        rd_float * limit_g);
 
 /** @brief context for LIS2DH12 */
 typedef struct

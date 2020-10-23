@@ -7,7 +7,6 @@
 #include "ruuvi_interface_yield.h"
 #include "ruuvi_interface_log.h"
 #include "lis2dh12_reg.h"
-#include "nordic_common.h"
 
 
 #include <stdlib.h>
@@ -43,43 +42,43 @@
 #define NM_BIT_DIVEDER (64U) //!< Normal mode uses 10 bits in 16 bit field, leading to 2^6 factor in results.
 #define MOTION_THRESHOLD_MAX (0x7FU) // Highest threshold value allowed.
 
-#define ACC_X                   0
-#define ACC_Y                   1
-#define ACC_Z                   2
-#define ACC_XYZ_NUM             3
+#define ACC_X                   0           //!< Num of axis(X) in a row
+#define ACC_Y                   1           //!< Num of axis(Y) in a row
+#define ACC_Z                   2           //!< Num of axis(Z) in a row
+#define ACC_XYZ_NUM             3           //!< Num of axises
 
-#define ACC_SAMPLERATE_1HZ      (1U)
-#define ACC_SAMPLERATE_10HZ     (10U)
-#define ACC_SAMPLERATE_25HZ     (25U)
-#define ACC_SAMPLERATE_50HZ     (50U)
-#define ACC_SAMPLERATE_100HZ    (100U)
-#define ACC_SAMPLERATE_200HZ    (200U)
-#define ACC_SAMPLERATE_400HZ    (400U)
+#define ACC_SAMPLERATE_1HZ      (1U)        //!< Samplerate on 1Hz
+#define ACC_SAMPLERATE_10HZ     (10U)       //!< Samplerate on 10Hz
+#define ACC_SAMPLERATE_25HZ     (25U)       //!< Samplerate on 25Hz
+#define ACC_SAMPLERATE_50HZ     (50U)       //!< Samplerate on 50Hz
+#define ACC_SAMPLERATE_100HZ    (100U)      //!< Samplerate on 100Hz
+#define ACC_SAMPLERATE_200HZ    (200U)      //!< Samplerate on 200Hz
+#define ACC_SAMPLERATE_400HZ    (400U)      //!< Samplerate on 400Hz
 
-#define ACC_RESOLUTION_8BITS    (8U)
-#define ACC_RESOLUTION_10BITS   (10U)
-#define ACC_RESOLUTION_12BITS   (12U)
+#define ACC_RESOLUTION_8BITS    (8U)        //!< Data resolution - 8 bits
+#define ACC_RESOLUTION_10BITS   (10U)       //!< Data resolution - 10 bits
+#define ACC_RESOLUTION_12BITS   (12U)       //!< Data resolution - 12 bits
 
-#define ACC_SCALE_2G            (2U)
-#define ACC_SCALE_4G            (4U)
-#define ACC_SCALE_8G            (8U)
-#define ACC_SCALE_16G           (16U)
+#define ACC_SCALE_2G            (2U)        //!< Scale - 2G
+#define ACC_SCALE_4G            (4U)        //!< Scale - 4G
+#define ACC_SCALE_8G            (8U)        //!< Scale - 8G
+#define ACC_SCALE_16G           (16U)       //!< Scale - 16G
 
-#define ACC_DSP_MODE_0          (0U)
-#define ACC_DSP_MODE_1          (1U)
-#define ACC_DSP_MODE_2          (2U)
-#define ACC_DSP_MODE_3          (3U)
+#define ACC_DSP_MODE_0          (0U)        //!< DSP mode 0 value
+#define ACC_DSP_MODE_1          (1U)        //!< DSP mode 1 value
+#define ACC_DSP_MODE_2          (2U)        //!< DSP mode 2 value
+#define ACC_DSP_MODE_3          (3U)        //!< DSP mode 3 value
 
-#define ACC_ODR_DELAY           7000
+#define ACC_ODR_DELAY           7000        //!< Delay of ODR
 
-#define ACC_G_TO_MG_DIVIDER     (1000.0f)
+#define ACC_G_TO_MG_DIVIDER     (1000.0f)   //!< Diveder from g to mg
 
-#define ACC_SCALE_DIV_2G        (0.016f)
-#define ACC_SCALE_DIV_4G        (0.032f)
-#define ACC_SCALE_DIV_8G        (0.062f)
-#define ACC_SCALE_DIV_16G       (0.186f)
+#define ACC_SCALE_DIV_2G        (0.016f)    //!< Scale divider on 2G
+#define ACC_SCALE_DIV_4G        (0.032f)    //!< Scale divider on 4G
+#define ACC_SCALE_DIV_8G        (0.062f)    //!< Scale divider on 8G
+#define ACC_SCALE_DIV_16G       (0.186f)    //!< Scale divider on 16G
 
-#define ACC_FIFO_WATERMARK      31
+#define ACC_FIFO_WATERMARK      31          //!< Fifo watermark
 
 /** @brief Representation of 3*2 bytes buffer as 3*int16_t */
 typedef union
@@ -110,22 +109,23 @@ static rd_status_t lis2dh12_verify_sensor_sleep (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = 0;
-    ri_lis2dh12_mode_get(&mode);
-    if(RD_SENSOR_CFG_SLEEP != mode)
+    ri_lis2dh12_mode_get (&mode);
+
+    if (RD_SENSOR_CFG_SLEEP != mode)
     {
         err_code = RD_ERROR_INVALID_STATE;
     }
+
     return err_code;
 }
 
 #ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
-static void lis2dh12_log_debug ( const char *fmt, ... )
+static void lis2dh12_log_debug (const char * fmt, ...)
 {
     char buff[1024] = {0};
-    snprintf(buff, sizeof(buff), ":%d:%s(): " fmt,
-            __LINE__, __func__, ##__VA_ARGS__);
-    ri_log(RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL, buff);
-
+    snprintf (buff, sizeof (buff), ":%d:%s(): " fmt,
+              __LINE__, __func__, ##__VA_ARGS__);
+    ri_log (RUUVI_NRF5_SDK15_LIS2GH12_LOG_LEVEL, buff);
 }
 #endif
 
@@ -320,6 +320,7 @@ static rd_status_t selftest (void)
     {
         err_code |= RD_SUCCESS;
     }
+
 #ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
     lis2dh12_log_debug ("selftest = LIS2DH12_ST_POSITIVE.Error = %08x\r\n", err_code);
 #endif
@@ -337,6 +338,7 @@ static rd_status_t selftest (void)
     {
         err_code |= RD_SUCCESS;
     }
+
 #ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
     lis2dh12_log_debug ("selftest = LIS2DH12_ST_NEGATIVE.Error = %08x\r\n", err_code);
 #endif
@@ -365,6 +367,7 @@ static rd_status_t selftest (void)
     {
         err_code |= RD_SUCCESS;
     }
+
 #ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
     lis2dh12_log_debug ("end. Error = %08x\r\n", err_code);
 #endif
@@ -377,6 +380,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
 #ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
     lis2dh12_log_debug ("begin\r\n");
 #endif
+
     if (NULL == p_sensor)
     {
         err_code |= RD_ERROR_NULL;
@@ -457,6 +461,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
             memset (&dev, 0, sizeof (dev));
         }
     }
+
 #ifdef RUUVI_NRF5_SDK15_LIS2GH12_DEBUG
     lis2dh12_log_debug ("end. Error = %08x\r\n", err_code);
 #endif
@@ -471,8 +476,8 @@ rd_status_t ri_lis2dh12_uninit (rd_sensor_t * p_sensor,
                                 rd_bus_t bus, uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
-    UNUSED_PARAMETER (bus);
-    UNUSED_PARAMETER (handle);
+    RD_UNUSED_PARAMETER (bus);
+    RD_UNUSED_PARAMETER (handle);
 
     if (NULL == p_sensor)
     {
@@ -514,7 +519,8 @@ rd_status_t ri_lis2dh12_samplerate_set (uint8_t * samplerate)
         lis2dh12_verify_sensor_sleep();
         int32_t lis_ret_code;
 
-        if (RD_SENSOR_CFG_NO_CHANGE != *samplerate){
+        if (RD_SENSOR_CFG_NO_CHANGE != *samplerate)
+        {
             if (RD_SENSOR_CFG_MIN == *samplerate)      { dev.samplerate = LIS2DH12_ODR_1Hz;   }
             else if (RD_SENSOR_CFG_MAX == *samplerate)      { dev.samplerate = LIS2DH12_ODR_5kHz376_LP_1kHz344_NM_HP; }
             else if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { dev.samplerate = LIS2DH12_ODR_1Hz;   }
@@ -530,6 +536,7 @@ rd_status_t ri_lis2dh12_samplerate_set (uint8_t * samplerate)
             else if (RD_SENSOR_CFG_CUSTOM_3 == *samplerate) { dev.samplerate = LIS2DH12_ODR_5kHz376_LP_1kHz344_NM_HP; }
             else { *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED; err_code |= RD_ERROR_NOT_SUPPORTED; }
         }
+
         if (RD_SUCCESS == err_code)
         {
             lis_ret_code = lis2dh12_data_rate_set (& (dev.ctx), dev.samplerate);
@@ -556,6 +563,7 @@ rd_status_t ri_lis2dh12_samplerate_set (uint8_t * samplerate)
 rd_status_t ri_lis2dh12_samplerate_get (uint8_t * samplerate)
 {
     rd_status_t err_code = RD_SUCCESS;
+
     if (NULL == samplerate)
     {
         err_code = RD_ERROR_NULL;
@@ -627,6 +635,7 @@ rd_status_t ri_lis2dh12_samplerate_get (uint8_t * samplerate)
 rd_status_t ri_lis2dh12_resolution_set (uint8_t * resolution)
 {
     rd_status_t err_code = RD_SUCCESS;
+
     if (NULL == resolution)
     {
         err_code = RD_ERROR_NULL;
@@ -646,6 +655,7 @@ rd_status_t ri_lis2dh12_resolution_set (uint8_t * resolution)
             else if (ACC_RESOLUTION_12BITS >= *resolution) { dev.resolution = LIS2DH12_HR_12bit; }
             else { *resolution = RD_SENSOR_ERR_NOT_SUPPORTED; err_code |= RD_ERROR_NOT_SUPPORTED; }
         }
+
         if (RD_SUCCESS == err_code)
         {
             lis_ret_code = lis2dh12_operating_mode_set (& (dev.ctx), dev.resolution);
@@ -662,12 +672,14 @@ rd_status_t ri_lis2dh12_resolution_set (uint8_t * resolution)
             err_code |= ri_lis2dh12_resolution_get (resolution);
         }
     }
+
     return err_code;
 }
 
 rd_status_t ri_lis2dh12_resolution_get (uint8_t * resolution)
 {
     rd_status_t err_code = RD_SUCCESS;
+
     if (NULL == resolution)
     {
         err_code = RD_ERROR_NULL;
@@ -706,6 +718,7 @@ rd_status_t ri_lis2dh12_resolution_get (uint8_t * resolution)
                 break;
         }
     }
+
     return err_code;
 }
 
@@ -715,6 +728,7 @@ rd_status_t ri_lis2dh12_resolution_get (uint8_t * resolution)
 rd_status_t ri_lis2dh12_scale_set (uint8_t * scale)
 {
     rd_status_t err_code = RD_SUCCESS;
+
     if (NULL == scale)
     {
         err_code = RD_ERROR_NULL;
@@ -756,12 +770,14 @@ rd_status_t ri_lis2dh12_scale_set (uint8_t * scale)
             err_code |= ri_lis2dh12_scale_get (scale);
         }
     }
+
     return err_code;
 }
 
 rd_status_t ri_lis2dh12_scale_get (uint8_t * scale)
 {
     rd_status_t err_code = RD_SUCCESS;
+
     if (NULL == scale)
     {
         err_code = RD_ERROR_NULL;
@@ -804,6 +820,7 @@ rd_status_t ri_lis2dh12_scale_get (uint8_t * scale)
                 break;
         }
     }
+
     return err_code;
 }
 
@@ -879,6 +896,7 @@ static rd_status_t ri_lis2dh12_dsp_high_pass_set (uint8_t * parameter)
             err_code |= RD_SUCCESS;
         }
     }
+
     return err_code;
 }
 
@@ -893,7 +911,8 @@ static rd_status_t ri_lis2dh12_dsp_high_pass_set (uint8_t * parameter)
 rd_status_t ri_lis2dh12_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
     rd_status_t err_code = RD_SUCCESS;
-    if ((NULL == dsp) || (NULL == parameter))
+
+    if ( (NULL == dsp) || (NULL == parameter))
     {
         err_code = RD_ERROR_NULL;
     }
@@ -902,7 +921,8 @@ rd_status_t ri_lis2dh12_dsp_set (uint8_t * dsp, uint8_t * parameter)
         lis2dh12_verify_sensor_sleep();
         int32_t lis_ret_code;
         // Read original values in case one is NO_CHANGE and other should be adjusted.
-        uint8_t orig_dsp, orig_param;
+        uint8_t orig_dsp;
+        uint8_t orig_param;
         err_code |= ri_lis2dh12_dsp_get (&orig_dsp, &orig_param);
 
         if (RD_SENSOR_CFG_NO_CHANGE == *dsp)       { *dsp       = orig_dsp; }
@@ -916,7 +936,7 @@ rd_status_t ri_lis2dh12_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
         if (RD_SENSOR_DSP_HIGH_PASS == *dsp)
         {
-            err_code = ri_lis2dh12_dsp_high_pass_set(parameter);
+            err_code = ri_lis2dh12_dsp_high_pass_set (parameter);
         }
         // Has no effect, but kept for future-proofness.
         else if (RD_SENSOR_DSP_LAST == *dsp)
@@ -939,6 +959,7 @@ rd_status_t ri_lis2dh12_dsp_set (uint8_t * dsp, uint8_t * parameter)
             err_code = RD_ERROR_NOT_SUPPORTED;
         }
     }
+
     return err_code;
 }
 
@@ -970,7 +991,7 @@ rd_status_t ri_lis2dh12_dsp_get (uint8_t * dsp, uint8_t * parameter)
         err_code |= RD_SUCCESS;
     }
 
-    if (mode) { *dsp = RD_SENSOR_DSP_HIGH_PASS; }
+    if (mode != 0) { *dsp = RD_SENSOR_DSP_HIGH_PASS; }
     else { *dsp = RD_SENSOR_DSP_LAST; }
 
     switch (hpcf)
@@ -1046,6 +1067,7 @@ static rd_status_t ri_lis2dh12_mode_single_set (uint8_t * mode)
 
         *mode = RD_SENSOR_CFG_SLEEP;
     }
+
     return err_code;
 }
 
@@ -1060,9 +1082,10 @@ rd_status_t ri_lis2dh12_mode_set (uint8_t * mode)
     else
     {
         int32_t lis_ret_code;
+
         if (RD_SENSOR_CFG_SINGLE == *mode)
         {
-            err_code = ri_lis2dh12_mode_single_set(mode);
+            err_code = ri_lis2dh12_mode_single_set (mode);
         }
         // Do not store power down mode to dev structure, so we can continue at previous data rate
         // when mode is set to continous.
@@ -1099,6 +1122,7 @@ rd_status_t ri_lis2dh12_mode_set (uint8_t * mode)
             err_code |= RD_ERROR_INVALID_PARAM;
         }
     }
+
     return err_code;
 }
 
@@ -1128,6 +1152,7 @@ rd_status_t ri_lis2dh12_mode_get (uint8_t * mode)
                 break;
         }
     }
+
     return err_code;
 }
 
@@ -1344,7 +1369,6 @@ rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const
     }
     else
     {
-
         int32_t lis_ret_code;
         axis3bit16_t raw_acceleration;
         uint8_t raw_temperature[2];
@@ -1387,7 +1411,7 @@ rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const
         else { RD_ERROR_CHECK (RD_ERROR_INTERNAL, ~RD_ERROR_FATAL); }
 
         // If we have valid data, return it.
-        if ((RD_UINT64_INVALID != data->timestamp_ms)
+        if ( (RD_UINT64_INVALID != data->timestamp_ms)
                 && (RD_SUCCESS == err_code))
         {
             rd_sensor_data_t d_acceleration;
@@ -1410,6 +1434,7 @@ rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const
                                      data->fields);
         }
     }
+
     return err_code;
 }
 
@@ -1448,57 +1473,77 @@ rd_status_t ri_lis2dh12_fifo_use (const bool enable)
     return err_code;
 }
 
-static rd_status_t ri_lis2dh12_fifo_read_elements (uint8_t elements,
-                                                   size_t * num_elements,
-                                                   rd_sensor_data_t * p_data)
+static rd_status_t ri_lis2dh12_fifo_read_elements (size_t * num_elements,
+        rd_sensor_data_t * p_data)
 {
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
-    // 31 FIFO + latest
-    elements++;
+    uint8_t elements = 0;
+    lis_ret_code = lis2dh12_fifo_data_level_get (& (dev.ctx), &elements);
 
-    // Do not read more than buffer size
-    if (elements > (uint8_t)(*num_elements)) { elements = (uint8_t)(*num_elements); }
-
-    // get current time
-    p_data->timestamp_ms = rd_sensor_timestamp_get();
-    // Read all elements
-    axis3bit16_t raw_acceleration;
-    rd_float acceleration[ACC_XYZ_NUM];
-
-    for (size_t ii = 0; ii < elements; ii++)
+    if (LIS_SUCCESS != lis_ret_code)
     {
-        lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.u8bit);
-
-        if (LIS_SUCCESS != lis_ret_code)
-        {
-            err_code |= RD_ERROR_INTERNAL;
-        }
-        else
-        {
-            err_code |= RD_SUCCESS;
-        }
-
-        // Compensate data with resolution, scale
-        err_code |= rawToMg (&raw_acceleration, acceleration);
-        rd_sensor_data_t d_acceleration;
-        rd_sensor_data_fields_t acc_fields = {.bitfield = 0};
-        acc_fields.datas.acceleration_x_g = 1;
-        acc_fields.datas.acceleration_y_g = 1;
-        acc_fields.datas.acceleration_z_g = 1;
-        //Convert mG to G
-        acceleration[ACC_X] = acceleration[ACC_X] / ACC_G_TO_MG_DIVIDER;
-        acceleration[ACC_Y] = acceleration[ACC_Y] / ACC_G_TO_MG_DIVIDER;
-        acceleration[ACC_Z] = acceleration[ACC_Z] / ACC_G_TO_MG_DIVIDER;
-        d_acceleration.data = acceleration;
-        d_acceleration.valid  = acc_fields;
-        d_acceleration.fields = acc_fields;
-        rd_sensor_data_populate (& (p_data[ii]),
-                                 &d_acceleration,
-                                 p_data[ii].fields);
+        err_code |= RD_ERROR_INTERNAL;
+    }
+    else
+    {
+        err_code |= RD_SUCCESS;
     }
 
-    *num_elements = elements;
+    if (!elements)
+    {
+        *num_elements = 0;
+        err_code = RD_SUCCESS;
+    }
+    else
+    {
+        // 31 FIFO + latest
+        elements++;
+
+        // Do not read more than buffer size
+        if (elements > (uint8_t) (*num_elements)) { elements = (uint8_t) (*num_elements); }
+
+        // get current time
+        p_data->timestamp_ms = rd_sensor_timestamp_get();
+        // Read all elements
+        axis3bit16_t raw_acceleration;
+        rd_float acceleration[ACC_XYZ_NUM];
+
+        for (size_t ii = 0; ii < elements; ii++)
+        {
+            lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.u8bit);
+
+            if (LIS_SUCCESS != lis_ret_code)
+            {
+                err_code |= RD_ERROR_INTERNAL;
+            }
+            else
+            {
+                err_code |= RD_SUCCESS;
+            }
+
+            // Compensate data with resolution, scale
+            err_code |= rawToMg (&raw_acceleration, acceleration);
+            rd_sensor_data_t d_acceleration;
+            rd_sensor_data_fields_t acc_fields = {.bitfield = 0};
+            acc_fields.datas.acceleration_x_g = 1;
+            acc_fields.datas.acceleration_y_g = 1;
+            acc_fields.datas.acceleration_z_g = 1;
+            //Convert mG to G
+            acceleration[ACC_X] = acceleration[ACC_X] / ACC_G_TO_MG_DIVIDER;
+            acceleration[ACC_Y] = acceleration[ACC_Y] / ACC_G_TO_MG_DIVIDER;
+            acceleration[ACC_Z] = acceleration[ACC_Z] / ACC_G_TO_MG_DIVIDER;
+            d_acceleration.data = acceleration;
+            d_acceleration.valid  = acc_fields;
+            d_acceleration.fields = acc_fields;
+            rd_sensor_data_populate (& (p_data[ii]),
+                                     &d_acceleration,
+                                     p_data[ii].fields);
+        }
+
+        *num_elements = elements;
+    }
+
     return err_code;
 }
 
@@ -1508,35 +1553,15 @@ rd_status_t ri_lis2dh12_fifo_read (size_t * num_elements,
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if ((NULL == num_elements) || (NULL == p_data))
+    if ( (NULL == num_elements) || (NULL == p_data))
     {
         err_code = RD_ERROR_NULL;
     }
     else
     {
-        uint8_t elements = 0;
-        int32_t lis_ret_code;
-        lis_ret_code = lis2dh12_fifo_data_level_get (& (dev.ctx), &elements);
-
-        if (LIS_SUCCESS != lis_ret_code)
-        {
-            err_code |= RD_ERROR_INTERNAL;
-        }
-        else
-        {
-            err_code |= RD_SUCCESS;
-        }
-
-        if (!elements)
-        {
-            *num_elements = 0;
-            err_code = RD_SUCCESS;
-        }
-        else
-        {
-            err_code |= ri_lis2dh12_fifo_read_elements(elements, num_elements, p_data);
-        }
+        err_code |= ri_lis2dh12_fifo_read_elements (num_elements, p_data);
     }
+
     return err_code;
 }
 
@@ -1580,9 +1605,10 @@ rd_status_t ri_lis2dh12_fifo_interrupt_use (const bool enable)
     return err_code;
 }
 
-static rd_float ri_lis2dh12_get_divisor(uint8_t scale)
+static rd_float ri_lis2dh12_get_divisor (uint8_t scale)
 {
     rd_float divisor;
+
     switch (scale)
     {
         case ACC_SCALE_2G:
@@ -1605,12 +1631,13 @@ static rd_float ri_lis2dh12_get_divisor(uint8_t scale)
             divisor = ACC_SCALE_DIV_2G;
             break;
     }
+
     return divisor;
 }
 
-static rd_status_t ri_lis2dh12_reconfig_interrupt(lis2dh12_hp_t high_pass,
-                                                  lis2dh12_int1_cfg_t *p_cfg,
-                                                  lis2dh12_ctrl_reg6_t *p_ctrl6)
+static rd_status_t ri_lis2dh12_reconfig_interrupt (lis2dh12_hp_t high_pass,
+        lis2dh12_int1_cfg_t * p_cfg,
+        lis2dh12_ctrl_reg6_t * p_ctrl6)
 {
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
@@ -1649,6 +1676,7 @@ static rd_status_t ri_lis2dh12_reconfig_interrupt(lis2dh12_hp_t high_pass,
     {
         err_code |= RD_SUCCESS;
     }
+
     return err_code;
 }
 
@@ -1711,7 +1739,8 @@ rd_status_t ri_lis2dh12_active_interrupt (const bool enable, rd_float * const li
         {
             err_code |= RD_SUCCESS;
         }
-        divisor = ri_lis2dh12_get_divisor(scale);
+
+        divisor = ri_lis2dh12_get_divisor (scale);
         threshold = (uint32_t) (*limit_g / divisor) + 1;
 
         if (threshold > MOTION_THRESHOLD_MAX)
@@ -1722,7 +1751,7 @@ rd_status_t ri_lis2dh12_active_interrupt (const bool enable, rd_float * const li
         {
             *limit_g = ( (rd_float) threshold) * divisor;
             // Configure INTERRUPT 1 Threshold
-            lis_ret_code = lis2dh12_int1_gen_threshold_set (& (dev.ctx), (uint8_t)threshold);
+            lis_ret_code = lis2dh12_int1_gen_threshold_set (& (dev.ctx), (uint8_t) threshold);
 
             if (LIS_SUCCESS != lis_ret_code)
             {
@@ -1741,7 +1770,7 @@ rd_status_t ri_lis2dh12_active_interrupt (const bool enable, rd_float * const li
 
     if (RD_SUCCESS == err_code)
     {
-        err_code |= ri_lis2dh12_reconfig_interrupt(high_pass,&cfg,&ctrl6);
+        err_code |= ri_lis2dh12_reconfig_interrupt (high_pass, &cfg, &ctrl6);
     }
 
     return err_code;

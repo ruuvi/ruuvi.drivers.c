@@ -60,7 +60,7 @@ typedef struct
  *
  *  @param[in] evt Type of radio event
  */
-typedef void (*ri_radio_activity_interrupt_fp_t) (const ri_radio_activity_evt_t evt);
+typedef void (*ri_radio_active_interrupt_fp_t) (const ri_radio_activity_evt_t evt);
 
 /**
  * @brief Check how many radio channels are enabled.
@@ -139,7 +139,7 @@ rd_status_t ri_radio_address_set (uint64_t const address);
  * This function allows driver to notify application on all radio activity.
  * @param[in] handler Function to call on radio event. Set to @c NULL to disable radio-level callback.
  */
-void ri_radio_activity_callback_set (const ri_radio_activity_interrupt_fp_t handler);
+void ri_radio_activity_callback_set (const ri_radio_active_interrupt_fp_t handler);
 
 /**
  * @brief Check if radio is initialized

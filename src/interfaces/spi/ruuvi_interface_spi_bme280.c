@@ -29,12 +29,19 @@ int8_t ri_spi_bme280_write (uint8_t dev_id, uint8_t reg_addr,
 {
     rd_status_t err_code = RD_SUCCESS;
     ri_gpio_id_t ss;
-    ss = RD_HANDLE_TO_GPIO (dev_id);
+    int8_t result = 0;
+    ss = (ri_gpio_id_t) RD_HANDLE_TO_GPIO (dev_id);
     err_code |= ri_gpio_write (ss, RI_GPIO_LOW);
     err_code |= ri_spi_xfer_blocking (&reg_addr, 1, NULL, 0);
     err_code |= ri_spi_xfer_blocking (reg_data, len, NULL, 0);
     err_code |= ri_gpio_write (ss, RI_GPIO_HIGH);
-    return (RD_SUCCESS == err_code) ? 0 : -1;
+
+    if (RD_SUCCESS != err_code)
+    {
+        result = -1;
+    }
+
+    return result;
 }
 
 int8_t ri_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr,
@@ -42,12 +49,19 @@ int8_t ri_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr,
 {
     rd_status_t err_code = RD_SUCCESS;
     ri_gpio_id_t ss;
-    ss = RD_HANDLE_TO_GPIO (dev_id);
+    int8_t result = 0;
+    ss = (ri_gpio_id_t) RD_HANDLE_TO_GPIO (dev_id);
     err_code |= ri_gpio_write (ss, RI_GPIO_LOW);
     err_code |= ri_spi_xfer_blocking (&reg_addr, 1, NULL, 0);
     err_code |= ri_spi_xfer_blocking (NULL, 0, reg_data, len);
     err_code |= ri_gpio_write (ss, RI_GPIO_HIGH);
-    return (RD_SUCCESS == err_code) ? 0 : -1;
+
+    if (RD_SUCCESS != err_code)
+    {
+        result = -1;
+    }
+
+    return result;
 }
 /*@}*/
 #endif

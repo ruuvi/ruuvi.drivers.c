@@ -40,7 +40,6 @@
 #include "shtc1.h"
 #include <string.h>
 
-
 /*
  * INSTRUCTIONS
  * ============
@@ -61,6 +60,7 @@
  */
 int16_t sensirion_i2c_select_bus (uint8_t bus_idx)
 {
+    RD_UNUSED_PARAMETER (bus_idx);
     // IMPLEMENT or leave empty if all sensors are located on one single bus
     RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
     return 0;
@@ -96,8 +96,15 @@ void sensirion_i2c_release (void)
 int8_t sensirion_i2c_read (uint8_t address, uint8_t * data, uint16_t count)
 {
     rd_status_t err_code = RD_SUCCESS;
+    int8_t result = 0;
     err_code |= ri_i2c_read_blocking (address, data, count);
-    return (RD_SUCCESS == err_code) ? 0 : -STATUS_ERR_BAD_DATA;
+
+    if (RD_SUCCESS != err_code)
+    {
+        result = -STATUS_ERR_BAD_DATA;
+    }
+
+    return result;
 }
 
 /**
@@ -115,9 +122,10 @@ int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data,
                             uint16_t count)
 {
     rd_status_t err_code = RD_SUCCESS;
+    int8_t result = 0;
 
     // data is const, NRF function is not. Make local copy
-    if (count > SENSIRION_COMMAND_SIZE || count < SENSIRION_COMMAND_SIZE)
+    if ( (count > SENSIRION_COMMAND_SIZE) || (count < SENSIRION_COMMAND_SIZE))
     {
         RD_ERROR_CHECK (RD_ERROR_INVALID_LENGTH, RD_SUCCESS);
     }
@@ -125,7 +133,13 @@ int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data,
     uint8_t deepcpy[SENSIRION_COMMAND_SIZE];
     memcpy (deepcpy, data, SENSIRION_COMMAND_SIZE);
     err_code |= ri_i2c_write_blocking (address, deepcpy, count, true);
-    return (RD_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
+
+    if (RD_SUCCESS != err_code)
+    {
+        result = STATUS_ERR_BAD_DATA;
+    }
+
+    return result;
 }
 
 #endif

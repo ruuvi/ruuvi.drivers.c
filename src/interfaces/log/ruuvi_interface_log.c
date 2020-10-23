@@ -318,6 +318,7 @@ void ri_log_hex (const ri_log_severity_t severity,
 rd_status_t ri_log_init (const ri_log_severity_t
                          min_severity)
 {
+    RD_UNUSED_PARAMETER (min_severity);
     return RD_SUCCESS;
 }
 
@@ -343,6 +344,8 @@ rd_status_t ri_log_flush (void)
 void ri_log (const ri_log_severity_t severity,
              const char * const message)
 {
+    RD_UNUSED_PARAMETER (severity);
+    RD_UNUSED_PARAMETER (message);
     return;
 }
 
@@ -360,6 +363,9 @@ void ri_log_hex (const ri_log_severity_t severity,
                  const uint8_t * const bytes,
                  size_t byte_length)
 {
+    RD_UNUSED_PARAMETER (severity);
+    RD_UNUSED_PARAMETER (bytes);
+    RD_UNUSED_PARAMETER (byte_length);
     return;
 }
 
@@ -375,6 +381,9 @@ void ri_log_hex (const ri_log_severity_t severity,
 size_t ri_error_to_string (rd_status_t error, char * error_string,
                            size_t space_remaining)
 {
+    RD_UNUSED_PARAMETER (error);
+    RD_UNUSED_PARAMETER (error_string);
+    RD_UNUSED_PARAMETER (space_remaining);
     return space_remaining;
 }
 
@@ -388,6 +397,9 @@ size_t ri_error_to_string (rd_status_t error, char * error_string,
 void ri_log_sensor_configuration (const ri_log_severity_t level,
                                   const rd_sensor_configuration_t * const configuration, const char * unit)
 {
+    RD_UNUSED_PARAMETER (level);
+    RD_UNUSED_PARAMETER (configuration);
+    RD_UNUSED_PARAMETER (unit);
     return;
 }
 
