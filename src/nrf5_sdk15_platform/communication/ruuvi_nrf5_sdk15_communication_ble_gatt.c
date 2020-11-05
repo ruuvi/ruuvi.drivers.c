@@ -122,13 +122,13 @@ static ble_gap_phys_t m_phys =
 };
 
 // Values selected for optimizing throughput/energy.
-#define MIN_CONN_INTERVAL MSEC_TO_UNITS(485, UNIT_1_25_MS)
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(485U, UNIT_1_25_MS)
 // Apple guideline: max interval >= min interval + 15 ms
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(500, UNIT_1_25_MS)
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(500U, UNIT_1_25_MS)
 // Apple guideline: MAX_CONN_INTERVAL * SLAVE_LATENCY <= 2 s.
-#define SLAVE_LATENCY     3
+#define SLAVE_LATENCY     (0U)
 // Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) * 3 < CONN_SUP_TIMEOUT
-#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(8000, UNIT_10_MS)
+#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(8000U, UNIT_10_MS)
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
