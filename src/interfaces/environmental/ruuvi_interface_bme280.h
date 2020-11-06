@@ -46,6 +46,8 @@
  * @endcode
  */
 
+#define BME280_HUMIDITY_OFFSET (-3.0f) //!< Generally, BMEs show 3% too little. Compensate.
+
 /**
  * @brief Implement delay in Bosch signature
  *
