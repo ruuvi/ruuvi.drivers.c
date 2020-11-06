@@ -72,18 +72,15 @@ static uint64_t tsample;
 static const char m_sensor_name[] = "BME280";
 
 /** @brief Function for checking that sensor is in sleep mode before configuration */
-static rd_status_t bme280_verify_sensor_sleep (void)
+#ifndef CEEDLING
+static
+#endif
+bool bme280_verify_sensor_sleep (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = 0;
     ri_bme280_mode_get (&mode);
-
-    if (RD_SENSOR_CFG_SLEEP != mode)
-    {
-        err_code = RD_ERROR_INVALID_STATE;
-    }
-
-    return err_code;
+    return (RD_SENSOR_CFG_SLEEP == mode);
 }
 
 /** @brief Function for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
@@ -109,7 +106,7 @@ static rd_status_t BME_TO_RUUVI_ERROR (int8_t rslt)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (BME280_OK) { err_code = RD_SUCCESS; }
+    if (err_code == BME280_OK) { err_code = RD_SUCCESS; }
     else if (BME280_E_DEV_NOT_FOUND == rslt)  { err_code = RD_ERROR_NOT_FOUND; }
     else if (BME280_E_NULL_PTR == rslt)  { err_code = RD_ERROR_NULL; }
     else if (BME280_E_COMM_FAIL == rslt) { err_code = RD_ERROR_BUSY; }
@@ -124,18 +121,24 @@ void bosch_delay_ms (uint32_t time_ms)
 }
 
 // BME280 datasheet Appendix B.
-static uint32_t bme280_max_meas_time (uint8_t oversampling)
+#ifndef CEEDLING
+static 
+#endif
+uint32_t bme280_max_meas_time (const uint8_t oversampling)
 {
     // Time
-    rd_float rd_time = BME280_MEAS_TIME_CONST1 + \
-                       BME280_MEAS_TIME_CONST2 * BME280_MEAS_TIME_CONST3 * oversampling + \
-                       BME280_MEAS_TIME_CONST4 * BME280_MEAS_TIME_CONST5;
+    float rd_time = BME280_MEAS_TIME_CONST1 + \
+                    BME280_MEAS_TIME_CONST2 * BME280_MEAS_TIME_CONST3 * oversampling + \
+                    BME280_MEAS_TIME_CONST4 * BME280_MEAS_TIME_CONST5;
     // Roundoff + margin
     uint32_t ret_time = (uint32_t) (BME280_MEAS_TIME_CONST6 + (uint32_t) rd_time);
     return ret_time;
 }
 
-static rd_status_t bme280_spi_init (struct bme280_dev * const p_dev, const uint8_t handle)
+#ifndef CEEDLING
+static
+#endif
+rd_status_t bme280_spi_init (struct bme280_dev * const p_dev, const uint8_t handle)
 {
     rd_status_t err_code = RD_ERROR_NOT_ENABLED;
 #if RI_BME280_SPI_ENABLED
@@ -149,7 +152,10 @@ static rd_status_t bme280_spi_init (struct bme280_dev * const p_dev, const uint8
     return err_code;
 }
 
-static rd_status_t bme280_i2c_init (struct bme280_dev * const p_dev, const uint8_t handle)
+#ifndef CEEDLING
+static
+#endif
+rd_status_t bme280_i2c_init (struct bme280_dev * const p_dev, const uint8_t handle)
 {
     rd_status_t err_code = RD_ERROR_NOT_ENABLED;
 #if RI_BME280_I2C_ENABLED
@@ -184,12 +190,6 @@ static void bme280_ri_setup (rd_sensor_t * const environmental_sensor)
     environmental_sensor->provides.datas.humidity_rh = 1;
     environmental_sensor->provides.datas.pressure_pa = 1;
     tsample = RD_UINT64_INVALID;
-}
-
-static rd_status_t ri_bme280_init_internal (rd_sensor_t *
-        environmental_sensor, rd_bus_t bus, uint8_t handle)
-{
-    rd_status_t err_code = RD_SUCCESS;
 }
 
 /** Initialize BME280 into low-power mode **/
@@ -270,6 +270,35 @@ rd_status_t ri_bme280_uninit (rd_sensor_t * sensor,
     return err_code;
 }
 
+#ifndef CEEDLING
+static
+#endif
+rd_status_t ri2bme_rate (struct bme280_dev * p_dev, uint8_t * const samplerate)
+{
+    rd_status_t err_code  = RD_SUCCESS;
+
+    if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
+    else if (*samplerate == BME280_SAMPLERATE_1000MS) { p_dev->settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
+    else if (*samplerate == BME280_SAMPLERATE_500MS)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_500_MS; }
+    else if (*samplerate <= BME280_SAMPLERATE_125MS)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_125_MS; }
+    else if (*samplerate <= BME280_SAMPLERATE_62_5MS) { p_dev->settings.standby_time = BME280_STANDBY_TIME_62_5_MS; }
+    else if (*samplerate <= BME280_SAMPLERATE_20MS)   { p_dev->settings.standby_time = BME280_STANDBY_TIME_20_MS; }
+    else if (*samplerate <= BME280_SAMPLERATE_10MS)   { p_dev->settings.standby_time = BME280_STANDBY_TIME_10_MS; }
+    else if (*samplerate <= BME280_SAMPLERATE_0_5MS)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
+    else if (RD_SENSOR_CFG_MIN == *samplerate) { p_dev->settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
+    else if (RD_SENSOR_CFG_MAX == *samplerate) { p_dev->settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
+    else
+    {
+        if (RD_SENSOR_CFG_NO_CHANGE != *samplerate)
+        {
+            *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
+            err_code |= RD_ERROR_NOT_SUPPORTED;
+        }
+    }
+
+    return err_code;
+}
+
 rd_status_t ri_bme280_samplerate_set (uint8_t * samplerate)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -278,35 +307,19 @@ rd_status_t ri_bme280_samplerate_set (uint8_t * samplerate)
     {
         err_code = RD_ERROR_NULL;
     }
-    else
+    else if (bme280_verify_sensor_sleep())
     {
-        bme280_verify_sensor_sleep();
-
-        if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-        else if (*samplerate == BME280_SAMPLERATE_1000MS) { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-        else if (*samplerate == BME280_SAMPLERATE_500MS)  { dev.settings.standby_time = BME280_STANDBY_TIME_500_MS; }
-        else if (*samplerate <= BME280_SAMPLERATE_125MS)  { dev.settings.standby_time = BME280_STANDBY_TIME_125_MS; }
-        else if (*samplerate <= BME280_SAMPLERATE_62_5MS) { dev.settings.standby_time = BME280_STANDBY_TIME_62_5_MS; }
-        else if (*samplerate <= BME280_SAMPLERATE_20MS)   { dev.settings.standby_time = BME280_STANDBY_TIME_20_MS; }
-        else if (*samplerate <= BME280_SAMPLERATE_10MS)   { dev.settings.standby_time = BME280_STANDBY_TIME_10_MS; }
-        else if (*samplerate <= BME280_SAMPLERATE_0_5MS)  { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
-        else if (RD_SENSOR_CFG_MIN == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-        else if (RD_SENSOR_CFG_MAX == *samplerate) { dev.settings.standby_time = BME280_STANDBY_TIME_0_5_MS; }
-        else
-        {
-            if (RD_SENSOR_CFG_NO_CHANGE != *samplerate)
-            {
-                *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
-                err_code |= RD_ERROR_NOT_SUPPORTED;
-            }
-        }
+        err_code = ri2bme_rate (&dev, samplerate);
 
         if (RD_SUCCESS == err_code)
         {
-            // BME 280 must be in standby while configured
-            err_code |=  BME_TO_RUUVI_ERROR (bme280_set_sensor_settings (BME280_STANDBY_SEL, &dev));
+            err_code |= BME_TO_RUUVI_ERROR (bme280_set_sensor_settings (BME280_STANDBY_SEL, &dev));
             err_code |= ri_bme280_samplerate_get (samplerate);
         }
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
@@ -829,10 +842,16 @@ rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
             {
                 rd_sensor_data_t d_environmental = {0};
                 rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-                rd_float env_values[BME280_SENS_NUM];
-                env_values[BME280_HUMIDITY] = (rd_float) comp_data.humidity + ;
-                env_values[BME280_PRESSURE] = (rd_float) comp_data.pressure;
-                env_values[BME280_TEMPERATURE] = (rd_float) comp_data.temperature;
+                float env_values[BME280_SENS_NUM];
+                env_values[BME280_HUMIDITY] = (float) (comp_data.humidity - BME280_HUMIDITY_OFFSET);
+
+                if (env_values[BME280_HUMIDITY] > 100.0f)
+                {
+                    env_values[BME280_HUMIDITY] = 100.0f;
+                }
+
+                env_values[BME280_PRESSURE] = (float) comp_data.pressure;
+                env_values[BME280_TEMPERATURE] = (float) comp_data.temperature;
                 env_fields.datas.humidity_rh = 1U;
                 env_fields.datas.pressure_pa = 1U;
                 env_fields.datas.temperature_c = 1U;

@@ -84,5 +84,14 @@ rd_status_t ri_bme280_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
                                 data);
+
+#ifdef CEEDLING
+#include "bme280_defs.h"
+rd_status_t bme280_i2c_init (struct bme280_dev * const p_dev, const uint8_t handle);
+rd_status_t bme280_spi_init (struct bme280_dev * const p_dev, const uint8_t handle);
+rd_status_t ri2bme_rate (struct bme280_dev * p_dev, uint8_t * const samplerate);
+uint32_t bme280_max_meas_time (const uint8_t oversampling);
+#endif
+
 /*@}*/
 #endif
