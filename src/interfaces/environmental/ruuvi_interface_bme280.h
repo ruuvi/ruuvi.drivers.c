@@ -22,7 +22,7 @@
 /**
  * @file ruuvi_interface_bme280.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-04-28
+ * @date 2020-11-05
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for BME280 basic usage. The underlying platform must provide

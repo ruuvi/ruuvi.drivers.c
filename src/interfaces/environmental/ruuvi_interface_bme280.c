@@ -65,7 +65,10 @@
 #define BME280_SENS_NUM                  (3)
 
 /** State variables **/
-static struct bme280_dev dev = {0};
+#ifndef CEEDLING
+static 
+#endif 
+struct bme280_dev dev = {0};
 static uint64_t tsample;
 static const char m_sensor_name[] = "BME280";
 
@@ -103,9 +106,11 @@ static rd_status_t BME_TO_RUUVI_ERROR (int8_t rslt)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (BME280_E_DEV_NOT_FOUND == rslt)  { err_code = RD_ERROR_NOT_FOUND; }
-    if (BME280_E_NULL_PTR == rslt)  { err_code = RD_ERROR_NULL; }
-    if (BME280_E_COMM_FAIL == rslt) { err_code = RD_ERROR_BUSY; }
+    if(BME280_OK) { err_code = RD_SUCCESS; }
+    else if (BME280_E_DEV_NOT_FOUND == rslt)  { err_code = RD_ERROR_NOT_FOUND; }
+    else if (BME280_E_NULL_PTR == rslt)  { err_code = RD_ERROR_NULL; }
+    else if (BME280_E_COMM_FAIL == rslt) { err_code = RD_ERROR_BUSY; }
+    else { err_code = RD_ERROR_INTERNAL; }
 
     return err_code;
 }
