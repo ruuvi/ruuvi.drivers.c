@@ -63,6 +63,9 @@
 #define BME280_TEMPERATURE               (2)
 #define BME280_SENS_NUM                  (3)
 
+#define BME280_HUMIDITY_MAX_VALUE        (100.0f)
+#define BME280_UNUSED_PARAMETER(X)       ((void)(X))
+
 /** State variables **/
 #ifndef CEEDLING
 static
@@ -112,7 +115,7 @@ static rd_status_t BME_TO_RUUVI_ERROR (int8_t rslt)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (err_code == BME280_OK) { err_code = RD_SUCCESS; }
+    if (BME280_OK == err_code) { err_code = RD_SUCCESS; }
     else if (BME280_E_DEV_NOT_FOUND == rslt)  { err_code = RD_ERROR_NOT_FOUND; }
     else if (BME280_E_NULL_PTR == rslt)  { err_code = RD_ERROR_NULL; }
     else if (BME280_E_COMM_FAIL == rslt) { err_code = RD_ERROR_BUSY; }
@@ -137,15 +140,17 @@ uint32_t bme280_max_meas_time (const uint8_t oversampling)
                     BME280_MEAS_TIME_CONST2 * BME280_MEAS_TIME_CONST3 * oversampling + \
                     BME280_MEAS_TIME_CONST4 * BME280_MEAS_TIME_CONST5;
     // Roundoff + margin
-    uint32_t ret_time = (uint32_t) (BME280_MEAS_TIME_CONST6 + (uint32_t) rd_time);
+    uint32_t ret_time = (uint32_t) rd_time;
+    ret_time += BME280_MEAS_TIME_CONST6;
     return ret_time;
 }
 
 #ifndef CEEDLING
 static
 #endif
-rd_status_t bme280_spi_init (struct bme280_dev * const p_dev, const uint8_t handle)
+rd_status_t bme280_spi_init (const struct bme280_dev * const p_dev, const uint8_t handle)
 {
+    BME280_UNUSED_PARAMETER (p_dev);
     rd_status_t err_code = RD_ERROR_NOT_ENABLED;
 #if RI_BME280_SPI_ENABLED
     dev.dev_id = handle;
@@ -161,8 +166,9 @@ rd_status_t bme280_spi_init (struct bme280_dev * const p_dev, const uint8_t hand
 #ifndef CEEDLING
 static
 #endif
-rd_status_t bme280_i2c_init (struct bme280_dev * const p_dev, const uint8_t handle)
+rd_status_t bme280_i2c_init (const struct bme280_dev * const p_dev, const uint8_t handle)
 {
+    BME280_UNUSED_PARAMETER (p_dev);
     rd_status_t err_code = RD_ERROR_NOT_ENABLED;
 #if RI_BME280_I2C_ENABLED
     dev.dev_id = handle;
@@ -284,8 +290,8 @@ rd_status_t ri2bme_rate (struct bme280_dev * p_dev, uint8_t * const samplerate)
     rd_status_t err_code  = RD_SUCCESS;
 
     if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-    else if (*samplerate == BME280_SAMPLERATE_1000MS) { p_dev->settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
-    else if (*samplerate == BME280_SAMPLERATE_500MS)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_500_MS; }
+    else if (BME280_SAMPLERATE_1000MS == *samplerate) { p_dev->settings.standby_time = BME280_STANDBY_TIME_1000_MS; }
+    else if (BME280_SAMPLERATE_500MS == *samplerate)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_500_MS; }
     else if (*samplerate <= BME280_SAMPLERATE_125MS)  { p_dev->settings.standby_time = BME280_STANDBY_TIME_125_MS; }
     else if (*samplerate <= BME280_SAMPLERATE_62_5MS) { p_dev->settings.standby_time = BME280_STANDBY_TIME_62_5_MS; }
     else if (*samplerate <= BME280_SAMPLERATE_20MS)   { p_dev->settings.standby_time = BME280_STANDBY_TIME_20_MS; }
@@ -522,14 +528,14 @@ static rd_status_t ri_bme280_dsp_setup_over (uint8_t * parameter)
     return err_code;
 }
 
-static rd_status_t ri_bme280_dsp_setup (uint8_t * p_settings_sel, uint8_t * dsp,
+static rd_status_t ri_bme280_dsp_setup (uint8_t * p_settings_sel, const uint8_t * dsp,
                                         uint8_t * parameter)
 {
     rd_status_t err_code = RD_SUCCESS;
 
     // Error if DSP is not last, and if dsp is something else than IIR or OS
     if ( (RD_SENSOR_DSP_LAST != *dsp) &&
-            (~ (RD_SENSOR_DSP_LOW_PASS | RD_SENSOR_DSP_OS) & (*dsp)))
+            (~ (RD_SENSOR_DSP_LOW_PASS | RD_SENSOR_DSP_OS) & (*dsp)) != 0)
     {
         err_code = RD_ERROR_NOT_SUPPORTED;
     }
@@ -584,7 +590,7 @@ static rd_status_t ri_bme280_dsp_setup (uint8_t * p_settings_sel, uint8_t * dsp,
         }
 
         if ( (RD_SUCCESS == err_code) &&
-                (RD_SENSOR_DSP_OS & *dsp))
+                ( (RD_SENSOR_DSP_OS & *dsp) != 0))
         {
             err_code = ri_bme280_dsp_setup_over (parameter);
         }
@@ -618,16 +624,16 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
             if ( (RD_SUCCESS != err_code)  &&
                     ( (RD_SENSOR_DSP_LAST == *dsp) ||
-                      (*parameter == BME280_DSP_MODE_0) ||
-                      (*parameter == BME280_DSP_MODE_1)))
+                      (BME280_DSP_MODE_0 == *parameter) ||
+                      (BME280_DSP_MODE_1 == *parameter)))
             {
                 err_code = RD_SUCCESS;
             }
 
             if ( (RD_SUCCESS != err_code) &&
-                    ( (*parameter == BME280_DSP_MODE_2) ||
-                      (*parameter == BME280_DSP_MODE_3) ||
-                      (*parameter == BME280_DSP_MODE_4)))
+                    ( (BME280_DSP_MODE_2 == *parameter) ||
+                      (BME280_DSP_MODE_3 == *parameter) ||
+                      (BME280_DSP_MODE_4 == *parameter)))
             {
                 err_code = RD_SUCCESS;
             }
@@ -872,9 +878,9 @@ rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
                 float env_values[BME280_SENS_NUM];
                 env_values[BME280_HUMIDITY] = (float) (comp_data.humidity - BME280_HUMIDITY_OFFSET);
 
-                if (env_values[BME280_HUMIDITY] > 100.0f)
+                if (env_values[BME280_HUMIDITY] > BME280_HUMIDITY_MAX_VALUE)
                 {
-                    env_values[BME280_HUMIDITY] = 100.0f;
+                    env_values[BME280_HUMIDITY] = BME280_HUMIDITY_MAX_VALUE;
                 }
 
                 env_values[BME280_PRESSURE] = (float) comp_data.pressure;
