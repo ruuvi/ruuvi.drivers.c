@@ -75,12 +75,18 @@ static const char m_sensor_name[] = "BME280";
 #ifndef CEEDLING
 static
 #endif
-bool bme280_verify_sensor_sleep (void)
+rd_status_t bme280_verify_sensor_sleep (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = 0;
     ri_bme280_mode_get (&mode);
-    return (RD_SENSOR_CFG_SLEEP == mode);
+
+    if (RD_SENSOR_CFG_SLEEP != mode)
+    {
+        err_code = RD_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
 }
 
 /** @brief Function for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
@@ -122,7 +128,7 @@ void bosch_delay_ms (uint32_t time_ms)
 
 // BME280 datasheet Appendix B.
 #ifndef CEEDLING
-static 
+static
 #endif
 uint32_t bme280_max_meas_time (const uint8_t oversampling)
 {
@@ -307,7 +313,7 @@ rd_status_t ri_bme280_samplerate_set (uint8_t * samplerate)
     {
         err_code = RD_ERROR_NULL;
     }
-    else if (bme280_verify_sensor_sleep())
+    else if (RD_SUCCESS == bme280_verify_sensor_sleep())
     {
         err_code = ri2bme_rate (&dev, samplerate);
 
@@ -387,10 +393,19 @@ rd_status_t ri_bme280_resolution_set (uint8_t * resolution)
     }
     else
     {
-        bme280_verify_sensor_sleep();
-        uint8_t original = *resolution;
-        *resolution = RD_SENSOR_CFG_DEFAULT;
-        bme280_success_on_valid (original);
+        err_code = bme280_verify_sensor_sleep();
+
+        if (RD_SUCCESS == err_code)
+        {
+            uint8_t original = *resolution;
+            *resolution = RD_SENSOR_CFG_DEFAULT;
+            err_code = bme280_success_on_valid (original);
+
+            if (RD_SUCCESS != err_code)
+            {
+                err_code = RD_ERROR_NOT_SUPPORTED;
+            }
+        }
     }
 
     return err_code;
@@ -422,10 +437,19 @@ rd_status_t ri_bme280_scale_set (uint8_t * scale)
     }
     else
     {
-        bme280_verify_sensor_sleep();
-        uint8_t original = *scale;
-        *scale = RD_SENSOR_CFG_DEFAULT;
-        bme280_success_on_valid (original);
+        err_code = bme280_verify_sensor_sleep();
+
+        if (RD_SUCCESS == err_code)
+        {
+            uint8_t original = *scale;
+            *scale = RD_SENSOR_CFG_DEFAULT;
+            err_code = bme280_success_on_valid (original);
+
+            if (RD_SUCCESS != err_code)
+            {
+                err_code = RD_ERROR_NOT_SUPPORTED;
+            }
+        }
     }
 
     return err_code;
@@ -580,35 +604,38 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter)
     }
     else
     {
-        bme280_verify_sensor_sleep();
-
-        // Validate configuration
-        if ( (RD_SENSOR_CFG_DEFAULT != *parameter)
-                && (RD_SENSOR_CFG_MIN     != *parameter)
-                && (RD_SENSOR_CFG_MAX     != *parameter))
-        {
-            err_code = RD_ERROR_NOT_SUPPORTED;
-        }
-
-        if ( (RD_SUCCESS != err_code)  &&
-                ( (RD_SENSOR_DSP_LAST == *dsp) ||
-                  (*parameter == BME280_DSP_MODE_0) ||
-                  (*parameter == BME280_DSP_MODE_1)))
-        {
-            err_code = RD_SUCCESS;
-        }
-
-        if ( (RD_SUCCESS != err_code) &&
-                ( (*parameter == BME280_DSP_MODE_2) ||
-                  (*parameter == BME280_DSP_MODE_3) ||
-                  (*parameter == BME280_DSP_MODE_4)))
-        {
-            err_code = RD_SUCCESS;
-        }
+        err_code = bme280_verify_sensor_sleep();
 
         if (RD_SUCCESS == err_code)
         {
-            err_code = ri_bme280_dsp_setup (&settings_sel, dsp, parameter);
+            // Validate configuration
+            if ( (RD_SENSOR_CFG_DEFAULT != *parameter)
+                    && (RD_SENSOR_CFG_MIN     != *parameter)
+                    && (RD_SENSOR_CFG_MAX     != *parameter))
+            {
+                err_code = RD_ERROR_NOT_SUPPORTED;
+            }
+
+            if ( (RD_SUCCESS != err_code)  &&
+                    ( (RD_SENSOR_DSP_LAST == *dsp) ||
+                      (*parameter == BME280_DSP_MODE_0) ||
+                      (*parameter == BME280_DSP_MODE_1)))
+            {
+                err_code = RD_SUCCESS;
+            }
+
+            if ( (RD_SUCCESS != err_code) &&
+                    ( (*parameter == BME280_DSP_MODE_2) ||
+                      (*parameter == BME280_DSP_MODE_3) ||
+                      (*parameter == BME280_DSP_MODE_4)))
+            {
+                err_code = RD_SUCCESS;
+            }
+
+            if (RD_SUCCESS == err_code)
+            {
+                err_code = ri_bme280_dsp_setup (&settings_sel, dsp, parameter);
+            }
         }
     }
 
