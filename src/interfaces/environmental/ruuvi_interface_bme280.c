@@ -64,7 +64,8 @@
 #define BME280_SENS_NUM                  (3)
 
 #define BME280_HUMIDITY_MAX_VALUE        (100.0f)
-#define BME280_UNUSED_PARAMETER(X)       ((void)(X))
+
+typedef float bme_float;
 
 /** State variables **/
 #ifndef CEEDLING
@@ -136,9 +137,9 @@ static
 uint32_t bme280_max_meas_time (const uint8_t oversampling)
 {
     // Time
-    float rd_time = BME280_MEAS_TIME_CONST1 + \
-                    BME280_MEAS_TIME_CONST2 * BME280_MEAS_TIME_CONST3 * oversampling + \
-                    BME280_MEAS_TIME_CONST4 * BME280_MEAS_TIME_CONST5;
+    bme_float rd_time = BME280_MEAS_TIME_CONST1 + \
+                        BME280_MEAS_TIME_CONST2 * BME280_MEAS_TIME_CONST3 * oversampling + \
+                        BME280_MEAS_TIME_CONST4 * BME280_MEAS_TIME_CONST5;
     // Roundoff + margin
     uint32_t ret_time = (uint32_t) rd_time;
     ret_time += BME280_MEAS_TIME_CONST6;
@@ -150,7 +151,7 @@ static
 #endif
 rd_status_t bme280_spi_init (const struct bme280_dev * const p_dev, const uint8_t handle)
 {
-    BME280_UNUSED_PARAMETER (p_dev);
+    (void) (p_dev);
     rd_status_t err_code = RD_ERROR_NOT_ENABLED;
 #if RI_BME280_SPI_ENABLED
     dev.dev_id = handle;
@@ -168,7 +169,7 @@ static
 #endif
 rd_status_t bme280_i2c_init (const struct bme280_dev * const p_dev, const uint8_t handle)
 {
-    BME280_UNUSED_PARAMETER (p_dev);
+    (void) (p_dev);
     rd_status_t err_code = RD_ERROR_NOT_ENABLED;
 #if RI_BME280_I2C_ENABLED
     dev.dev_id = handle;
@@ -844,6 +845,13 @@ rd_status_t ri_bme280_mode_get (uint8_t * mode)
     return err_code;
 }
 
+static void ri_bme280_check_humiduty (float * p_value)
+{
+    if (*p_value > BME280_HUMIDITY_MAX_VALUE)
+    {
+        *p_value = BME280_HUMIDITY_MAX_VALUE;
+    }
+}
 
 rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
                                 p_data)
@@ -877,12 +885,7 @@ rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
                 rd_sensor_data_fields_t env_fields = {.bitfield = 0};
                 float env_values[BME280_SENS_NUM];
                 env_values[BME280_HUMIDITY] = (float) (comp_data.humidity - BME280_HUMIDITY_OFFSET);
-
-                if (env_values[BME280_HUMIDITY] > BME280_HUMIDITY_MAX_VALUE)
-                {
-                    env_values[BME280_HUMIDITY] = BME280_HUMIDITY_MAX_VALUE;
-                }
-
+                ri_bme280_check_humiduty (&env_values[BME280_HUMIDITY]);
                 env_values[BME280_PRESSURE] = (float) comp_data.pressure;
                 env_values[BME280_TEMPERATURE] = (float) comp_data.temperature;
                 env_fields.datas.humidity_rh = 1U;
