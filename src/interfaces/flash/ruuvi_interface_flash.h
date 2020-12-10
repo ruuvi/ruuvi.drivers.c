@@ -2,15 +2,15 @@
 #define  RUUVI_INTERFACE_FLASH_H
 
 /**
- * @defgroup Flash Flash storage
+ * @defgroup Flash Flash storage.
  * @brief Interface and implementations for storing data into flash in a persistent manner.
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_flash.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-10-11
+ * @date 2020-12-10
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Interface functions to persistent flash storage.
  *
@@ -38,25 +38,25 @@
 #endif
 
 /**
- * @brief Get total size of usable flash, excluding any overhead bytes
+ * @brief Get total size of usable flash, excluding any overhead bytes.
  *
  * @param[out] size Size of useable storage in bytes.
- * @return RD_SUCCESS on success
- * @return RD_ERROR_NULL if size is null
- * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if size is null.
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
+ * @retval error code from stack on other error.
  */
 rd_status_t ri_flash_total_size_get (size_t * size);
 
 /**
  * @brief Get size of usable page, excluding any overhead bytes
- * If returned value is N, a record of N bytes must fit in one page
+ * If returned value is N, a record of N bytes must fit in one page.
  *
  * @param[out] size Size of useable storage in bytes.
- * @return RD_SUCCESS on success
- * @return RD_ERROR_NULL if size is null
- * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if size is null.
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
+ * @retval error code from stack on other error.
  */
 rd_status_t ri_flash_page_size_get (size_t * size);
 
@@ -64,15 +64,15 @@ rd_status_t ri_flash_page_size_get (size_t * size);
  * @brief Get total size of free flash.
  *
  * @param[out] size  size of useable storage in bytes.
- * @return RD_SUCCESS on success
- * @return RD_ERROR_NULL if size is null
- * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if size is null.
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
+ * @retval error code from stack on other error.
  */
 rd_status_t ri_flash_free_size_get (size_t * size);
 
 /**
- * @brief mark a record for deletion.
+ * @brief Mark a record for deletion.
  *
  * Note that this only marks the record as freed
  * and does not physically overwrite the flash.
@@ -81,16 +81,17 @@ rd_status_t ri_flash_free_size_get (size_t * size);
  * @param[in] file_id ID of file which contains the record.
  * @param[in] record_id ID of record to delete.
  *
- * @return RD_SUCCESS if deletion was queued
- * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @return RD_ERROR_BUSY if another operation was ongoing
- * @return RD_ERROR_NOT_FOUND if give record was not found.
+ * @retval RD_SUCCESS if deletion was queued.
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
+ * @retval RD_ERROR_BUSY if another operation was ongoing.
+ * @retval RD_ERROR_NOT_FOUND if give record was not found.
  */
 rd_status_t ri_flash_record_delete (const uint32_t file_id,
                                     const uint32_t record_id);
 
 /**
- * @brief Set data to record in page
+ * @brief Set data to record in page.
+ *
  * Automatically runs garbage collection if record cannot fit on page.
  * Returns after data is successfully written or error has occured.
  *
@@ -98,18 +99,19 @@ rd_status_t ri_flash_record_delete (const uint32_t file_id,
  * @param[in] record_id ID of a record. Can be a random number.
  * @param[in] data_size size data to store
  * @param[in] data pointer to data to store.
- * @return RD_SUCCESS on success
- * @return RD_ERROR_NULL if data is null
- * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @return RD_ERROR_DATA_SIZE if record is too large to fit on page
- * @return RD_ERROR_NO_MEM if this record cannot fit on page.
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if data is null
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
+ * @retval RD_ERROR_BUSY if another operation is ongoing.
+ * @retval RD_ERROR_DATA_SIZE if record is too large to fit on page
+ * @retval RD_ERROR_NO_MEM if this record cannot fit on page.
+ * @retval error code from stack on other error
  */
 rd_status_t ri_flash_record_set (const uint32_t page_id,
                                  const uint32_t record_id, const size_t data_size, const void * const data);
 
 /**
- * @brief Get data from record in page
+ * @brief Get data from record in page.
  *
  * Returns after data is read and ready to be used or error has occured.
  *
@@ -117,21 +119,21 @@ rd_status_t ri_flash_record_set (const uint32_t page_id,
  * @param[in] record_id: ID of a record. Can be a random number.
  * @param[in,out] data_size input: Maximum size of data to retrieve. Output: Number of bytes retrieved.
  * @param data[in] pointer to memory which will be filled with retrieved data
- * @return RD_SUCCESS on success
- * @return RD_ERROR_NULL if data is null
- * @return RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @return RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if data is null.
+ * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
+ * @retval RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
+ * @retval error code from stack on other error.
  */
-rd_status_t ri_flash_record_get (const uint32_t page_id,
-                                 const uint32_t record_id, const size_t data_size, void * const data);
+rd_status_t ri_flash_record_get (const uint32_t page_id, const uint32_t record_id, 
+                                 const size_t data_size, void * const data);
 
 /**
  * @brief Run garbage collection.
  *
- * @return RD_SUCCESS on success
- * @return RD_INVALID_STATE if flash is not initialized
- * @return error code from stack on other error
+ * @retval RD_SUCCESS on success.
+ * @retval RD_INVALID_STATE if flash is not initialized.
+ * @retval error code from stack on other error.
  */
 rd_status_t ri_flash_gc_run (void);
 
@@ -141,11 +143,13 @@ rd_status_t ri_flash_gc_run (void);
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if flash is already initialized.
+ * @retval RD_ERROR_INVALID_LENGTH if space configured in linker does not
+ *                                 match space reserved by implementation.
  */
 rd_status_t ri_flash_init (void);
 
 /**
- * Unintialize flash.
+ * @brief Unintialize flash.
  * After uninitialization only initialization can be used.
  *
  * @retval RD_SUCCESS on success.
@@ -153,7 +157,7 @@ rd_status_t ri_flash_init (void);
 rd_status_t ri_flash_uninit (void);
 
 /**
- * @brief Purge flash
+ * @brief Purge flash.
  *
  * This function is used to "rescue" flash which cannot be initialized normally,
  * for example after data corruption. Completely erases all data content on flash.
@@ -164,11 +168,13 @@ rd_status_t ri_flash_uninit (void);
 void ri_flash_purge (void);
 
 /**
- * @brief Check if flash is busy
+ * @brief Check if flash is busy.
  *
  * @return True if flash is running an operation.
  * @return False if flash is idle.
  */
 bool ri_flash_is_busy();
-/*@}*/
+
+/** @} */
+
 #endif
