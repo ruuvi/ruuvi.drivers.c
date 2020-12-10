@@ -125,7 +125,7 @@ rd_status_t ri_flash_record_set (const uint32_t page_id,
  * @retval RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
  * @retval error code from stack on other error.
  */
-rd_status_t ri_flash_record_get (const uint32_t page_id, const uint32_t record_id, 
+rd_status_t ri_flash_record_get (const uint32_t page_id, const uint32_t record_id,
                                  const size_t data_size, void * const data);
 
 /**

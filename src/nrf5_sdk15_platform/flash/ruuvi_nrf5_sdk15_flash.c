@@ -518,12 +518,11 @@ rd_status_t ri_flash_init (void)
         err_code |= fds_to_ruuvi_error (rc);
 
         // Test that FDS allocation matches our expectation
-        if( (m_fs.start_addr != m_fs_check.start_addr)
-            || (m_fs.end_addr == m_fs_check.end_addr))
+        if ( (m_fs.start_addr != m_fs_check.start_addr)
+                || (m_fs.end_addr == m_fs_check.end_addr))
         {
-          err_code |= RD_ERROR_INVALID_LENGTH;
+            err_code |= RD_ERROR_INVALID_LENGTH;
         }
-        
 
         if (RD_SUCCESS == err_code)
         {
