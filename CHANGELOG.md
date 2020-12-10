@@ -1,6 +1,8 @@
 # Changelog
 ## 3.4.5 - in progress
- - Fix GPIO port mappingon NRF5 SDK 15 when port > 0.
+ - Fix GPIO port mapping on NRF5 SDK 15 when port > 0.
+ - Fix Flash erase not clearing out everythingon nRF5 SDK15
+ - Add +3 RH offset to BME280 to fix offset observed in devices
 
 ## 3.4.4
  - Fix UART driver locking if TX interrupt is missed
