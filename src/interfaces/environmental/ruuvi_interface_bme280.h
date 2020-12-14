@@ -22,7 +22,7 @@
 /**
  * @file ruuvi_interface_bme280.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-04-28
+ * @date 2020-11-05
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for BME280 basic usage. The underlying platform must provide
@@ -45,6 +45,8 @@
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
  * @endcode
  */
+
+#define BME280_HUMIDITY_OFFSET (-3.0f) //!< Generally, BMEs show 3% too little. Compensate.
 
 /**
  * @brief Implement delay in Bosch signature
@@ -76,11 +78,20 @@ rd_status_t ri_bme280_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
 rd_status_t ri_bme280_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_bme280_mode_set (uint8_t *);
+rd_status_t ri_bme280_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_bme280_mode_get (uint8_t *);
+rd_status_t ri_bme280_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_bme280_data_get (rd_sensor_data_t * const
                                 data);
+
+#ifdef CEEDLING
+#include "bme280_defs.h"
+rd_status_t bme280_i2c_init (const struct bme280_dev * const p_dev, const uint8_t handle);
+rd_status_t bme280_spi_init (const struct bme280_dev * const p_dev, const uint8_t handle);
+rd_status_t ri2bme_rate (struct bme280_dev * p_dev, uint8_t * const samplerate);
+uint32_t bme280_max_meas_time (const uint8_t oversampling);
+#endif
+
 /*@}*/
 #endif
