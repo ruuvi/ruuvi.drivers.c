@@ -109,21 +109,6 @@ extern uint32_t __stop_storage_flash;
 
 #define LOG_LEVEL RI_LOG_LEVEL_DEBUG
 
-NRF_FSTORAGE_DEF (nrf_fstorage_t m_fs_check) =
-{
-    /* Set a handler for fstorage events. */
-    .evt_handler = NULL,
-
-    /* These below are the boundaries of the flash space assigned to this instance of fstorage.
-     * You must set these manually, even at runtime, before nrf_fstorage_init() is called.
-     * The function nrf5_flash_end_addr_get() can be used to retrieve the last address on the
-     * last page of flash available to write data. */
-    .start_addr = FSTORAGE_SECTION_START,
-    .end_addr   = FSTORAGE_SECTION_END
-};
-
-extern nrf_fstorage_t m_fs; //!< FS instance of FDS.
-
 static size_t m_number_of_pages = 0;
 
 /** @brief convert FDS error to ruuvi error */
@@ -431,6 +416,7 @@ rd_status_t ri_flash_record_get (const uint32_t page_id,
                                  const uint32_t record_id, const size_t data_size, void * const data)
 {
     rd_status_t err_code = RD_SUCCESS;
+    ret_code_t rc = NRF_SUCCESS;
 
     if (NULL == data)
     {
@@ -449,7 +435,7 @@ rd_status_t ri_flash_record_get (const uint32_t page_id,
         rd_status_t err_code = RD_SUCCESS;
         fds_record_desc_t desc = {0};
         fds_find_token_t  tok  = {0};
-        ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
+        rc = fds_record_find (page_id, record_id, &desc, &tok);
         err_code |= fds_to_ruuvi_error (rc);
 
         // If file was found
@@ -467,11 +453,10 @@ rd_status_t ri_flash_record_get (const uint32_t page_id,
             memcpy (data, record.p_data, record.p_header->length_words * 4);
             /* Close the record when done reading. */
             rc = fds_record_close (&desc);
-            err_code |= fds_to_ruuvi_error (rc);
         }
     }
 
-    return err_code;
+    return err_code | fds_to_ruuvi_error (rc);
 }
 
 rd_status_t ri_flash_gc_run (void)
@@ -510,19 +495,13 @@ rd_status_t ri_flash_init (void)
         /* Register first to receive an event when initialization is complete. */
         if (!m_fds_registered)
         {
+            rc |= flash_bounds_set(FSTORAGE_SECTION_START, FSTORAGE_SECTION_END);
             (void) fds_register (fds_evt_handler);
             m_fds_registered = true;
         }
 
         rc = fds_init();
         err_code |= fds_to_ruuvi_error (rc);
-
-        // Test that FDS allocation matches our expectation
-        if ( (m_fs.start_addr != m_fs_check.start_addr)
-                || (m_fs.end_addr == m_fs_check.end_addr))
-        {
-            err_code |= RD_ERROR_INVALID_LENGTH;
-        }
 
         if (RD_SUCCESS == err_code)
         {
@@ -553,15 +532,19 @@ rd_status_t ri_flash_uninit (void)
 /** Erase FDS */
 void ri_flash_purge (void)
 {
-    for (int p = 0; p < FDS_PHY_PAGES; p++)
-    {
+    ret_code_t rc = NRF_SUCCESS;
 #if   defined(NRF51)
-        int erase_unit = 1024;
+        const int erase_unit = 1024;
 #elif defined(NRF52_SERIES)
-        int erase_unit = 4096;
+        const int erase_unit = 4096;
 #endif
-        int page = (m_fs.start_addr / erase_unit) + p; // erase unit == virtual page size
-        ret_code_t rc = sd_flash_page_erase (page);
+    const int total_pages = (FSTORAGE_SECTION_END - FSTORAGE_SECTION_START) 
+                            / erase_unit;
+    for (int p = 0; (p < total_pages) && (NRF_SUCCESS == rc); p++)
+    {
+
+        int page = (FSTORAGE_SECTION_START / erase_unit) + p; // erase unit == virtual page size
+        rc = sd_flash_page_erase (page);
         ri_delay_ms (200);
         RD_ERROR_CHECK (rc, RD_SUCCESS);
     }
