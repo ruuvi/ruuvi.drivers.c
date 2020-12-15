@@ -495,7 +495,7 @@ rd_status_t ri_flash_init (void)
         /* Register first to receive an event when initialization is complete. */
         if (!m_fds_registered)
         {
-            rc |= flash_bounds_set(FSTORAGE_SECTION_START, FSTORAGE_SECTION_END);
+            rc |= flash_bounds_set (FSTORAGE_SECTION_START, FSTORAGE_SECTION_END);
             (void) fds_register (fds_evt_handler);
             m_fds_registered = true;
         }
@@ -534,15 +534,15 @@ void ri_flash_purge (void)
 {
     ret_code_t rc = NRF_SUCCESS;
 #if   defined(NRF51)
-        const int erase_unit = 1024;
+    const int erase_unit = 1024;
 #elif defined(NRF52_SERIES)
-        const int erase_unit = 4096;
+    const int erase_unit = 4096;
 #endif
-    const int total_pages = (FSTORAGE_SECTION_END - FSTORAGE_SECTION_START) 
+    const int total_pages = (FSTORAGE_SECTION_END - FSTORAGE_SECTION_START)
                             / erase_unit;
+
     for (int p = 0; (p < total_pages) && (NRF_SUCCESS == rc); p++)
     {
-
         int page = (FSTORAGE_SECTION_START / erase_unit) + p; // erase unit == virtual page size
         rc = sd_flash_page_erase (page);
         ri_delay_ms (200);
