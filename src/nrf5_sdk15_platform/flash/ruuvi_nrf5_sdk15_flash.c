@@ -97,30 +97,17 @@ extern uint32_t __stop_storage_flash;
  * @brief Interface and implementations for storing data into flash in a persistent manner.
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_nrf5_sdk15_flash.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-02-11
+ * @date 2020-12-10
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @brief Implement persistent flash storage.
  *
  */
 
 #define LOG_LEVEL RI_LOG_LEVEL_DEBUG
-
-NRF_FSTORAGE_DEF (nrf_fstorage_t m_fs1) =
-{
-    /* Set a handler for fstorage events. */
-    .evt_handler = NULL,
-
-    /* These below are the boundaries of the flash space assigned to this instance of fstorage.
-     * You must set these manually, even at runtime, before nrf_fstorage_init() is called.
-     * The function nrf5_flash_end_addr_get() can be used to retrieve the last address on the
-     * last page of flash available to write data. */
-    .start_addr = FSTORAGE_SECTION_START,
-    .end_addr   = FSTORAGE_SECTION_END
-};
 
 static size_t m_number_of_pages = 0;
 
@@ -258,271 +245,242 @@ static void fds_evt_handler (fds_evt_t const * p_evt)
     }
 }
 
-/**
- * @brief Get total size of usable flash, including any overhead bytes.
- *
- * @param[out] size Size of useable storage in bytes.
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_NULL if size is null
- * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_total_size_get (size_t * const size)
 {
-    if (NULL == size) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
+    if (NULL == size)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (false == m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        ri_flash_page_size_get (size);
+        *size *= m_number_of_pages;
+    }
 
-    ri_flash_page_size_get (size);
-    *size *= m_number_of_pages;
-    return RD_SUCCESS;
+    return err_code;
 }
 
-/**
- * @brief Get largest unit of continuous storage.
- *
- * This is maximum size of element that can be stored.
- * Try running garbage collection if you cannot fit enough data into the block.
- *
- * @param[out] size Size of largest continous block in bytes.
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_NULL if size is null
- * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_free_size_get (size_t * const size)
 {
-    if (NULL == size) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
+    if (NULL == size)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (false == m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        // Read filesystem status
+        fds_stat_t stat = {0};
+        ret_code_t rc = fds_stat (&stat);
+        *size = stat.largest_contig * sizeof (uint32_t);
+        err_code |= fds_to_ruuvi_error (rc);
+    }
 
-    // Read filesystem status
-    fds_stat_t stat = {0};
-    ret_code_t rc = fds_stat (&stat);
-    *size = stat.largest_contig * 4;
-    return fds_to_ruuvi_error (rc);
+    return err_code;
 }
 
-/**
- * @brief Get size of usable page, including any overhead bytes.
- *
- * @param[out] size Size of a storage block in bytes.
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_NULL if size is null
- * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_page_size_get (size_t * size)
 {
-    if (NULL == size) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
+    if (NULL == size)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (false == m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *size = FDS_VIRTUAL_PAGE_SIZE;
+    }
 
-    *size = FDS_VIRTUAL_PAGE_SIZE;
-    return RD_SUCCESS;
+    return err_code;
 }
 
-/**
- * @brief Delete a record.
- *
- * This function only marks the record as deleted and does not erase or free space.
- * Run garbage collection to clear deleted records.
- *
- * @param[in] page_id Id of page where record is.
- * @param[in] page_id Id of record to delete.
- * @retval RD_SUCCESS on success.
- * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized.
- * @retval RD_ERROR_NOT_FOUND if target record can't be found.
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_record_delete (const uint32_t page_id,
                                     const uint32_t record_id)
 {
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    fds_record_desc_t desc = {0};
-    fds_find_token_t  tok  = {0};
-    ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
-
-    if (FDS_SUCCESS == rc)
+    if (false == m_fds_initialized)
     {
-        // If there is room in FDS queue, it will get executed right away and
-        // processing flag is reset when record_delete exits.
-        m_fds_processing = true;
-        rc = fds_record_delete (&desc);
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        fds_record_desc_t desc = {0};
+        fds_find_token_t  tok  = {0};
+        ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
 
-        // If operation was not queued, mark processing as false.
-        if (FDS_SUCCESS != rc)
+        if (FDS_SUCCESS == rc)
         {
-            m_fds_processing = false;
+            // If there is room in FDS queue, it will get executed right away and
+            // processing flag is reset when record_delete exits.
+            m_fds_processing = true;
+            rc = fds_record_delete (&desc);
+
+            // If operation was not queued, mark processing as false.
+            if (FDS_SUCCESS != rc)
+            {
+                m_fds_processing = false;
+            }
         }
+
+        err_code |= fds_to_ruuvi_error (rc);
     }
 
-    return fds_to_ruuvi_error (rc);
+    return err_code;
 }
 
-/**
- * Set data to record in page. Writes a new record if given record ID does not exist in page.
- * Updates record if it already exists.
- * Automatically runs garbage collection if record cannot fit on page.
- *
- * @param[in] page_id ID of a page. Can be random number.
- * @param[in] record_id ID of a record. Can be a random number.
- * @param[in] data_size size data to store
- * @param[in] data pointer to data to store.
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_NULL if data is null
- * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @retval RD_ERROR_DATA_SIZE if record is too large to fit on page
- * @retval RD_ERROR_NO_MEM if this record cannot fit on page.
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_record_set (const uint32_t page_id,
                                  const uint32_t record_id, const size_t data_size, const void * const data)
 {
-    if (NULL == data) { return RD_ERROR_NULL; }
-
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
-
-    /* Wait for process to complete */
-    if (m_fds_processing) { return RD_ERROR_BUSY; }
-
     rd_status_t err_code = RD_SUCCESS;
-    fds_record_desc_t desc = {0};
-    fds_find_token_t  tok  = {0};
-    /* A record structure. */
-    fds_record_t const record =
-    {
-        .file_id           = page_id,
-        .key               = record_id,
-        .data.p_data       = data,
-        /* The length of a record is always expressed in 4-byte units (words). */
-        .data.length_words = (data_size + 3) / sizeof (uint32_t),
-    };
-    ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
 
-    // If record was found
-    if (FDS_SUCCESS == rc)
+    if (NULL == data)
     {
-        /* Start write */
-        m_fds_processing = true;
-        rc = fds_record_update (&desc, &record);
-        err_code |= fds_to_ruuvi_error (rc);
-
-        if (RD_SUCCESS != err_code)
-        {
-            m_fds_processing = false;
-            return err_code;
-        }
+        err_code |= RD_ERROR_NULL;
     }
-    // If record was not found
+    else if (false == m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (m_fds_processing)
+    {
+        err_code |= RD_ERROR_BUSY;
+    }
     else
     {
-        /* Start write */
-        m_fds_processing = true;
-        desc.record_id = record_id;
-        rc = fds_record_write (&desc, &record);
-        err_code |= fds_to_ruuvi_error (rc);
-
-        if (RD_SUCCESS != err_code)
+        rd_status_t err_code = RD_SUCCESS;
+        fds_record_desc_t desc = {0};
+        fds_find_token_t  tok  = {0};
+        /* A record structure. */
+        fds_record_t const record =
         {
-            m_fds_processing = false;
-            return err_code;
+            .file_id           = page_id,
+            .key               = record_id,
+            .data.p_data       = data,
+            /* The length of a record is always expressed in 4-byte units (words). */
+            .data.length_words = (data_size + 3) / sizeof (uint32_t),
+        };
+        ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
+
+        // If record was found
+        if (FDS_SUCCESS == rc)
+        {
+            /* Start write */
+            m_fds_processing = true;
+            rc = fds_record_update (&desc, &record);
+            err_code |= fds_to_ruuvi_error (rc);
+
+            if (RD_SUCCESS != err_code)
+            {
+                m_fds_processing = false;
+                return err_code;
+            }
+        }
+        // If record was not found
+        else
+        {
+            /* Start write */
+            m_fds_processing = true;
+            desc.record_id = record_id;
+            rc = fds_record_write (&desc, &record);
+            err_code |= fds_to_ruuvi_error (rc);
+
+            if (RD_SUCCESS != err_code)
+            {
+                m_fds_processing = false;
+                return err_code;
+            }
         }
     }
 
     return err_code;
 }
 
-/**
- * Get data from record in page
- *
- * param[in] page_id ID of a page. Can be random number.
- * param[in] record_id ID of a record. Can be a random number.
- * param[in] data_size size data to load
- * @param[out] data pointer to load with data.
- * @retval RD_SUCCESS on success
- * @retval RD_ERROR_NULL if data is null
- * @retval RD_ERROR_INVALID_STATE if flash storage is not initialized
- * @retval RD_ERROR_NOT_FOUND if given page id does not exist or if given record_id does not exist on given page.
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_record_get (const uint32_t page_id,
                                  const uint32_t record_id, const size_t data_size, void * const data)
 {
-    if (NULL == data) { return RD_ERROR_NULL; }
-
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
-
-    if (m_fds_processing) { return RD_ERROR_BUSY; }
-
     rd_status_t err_code = RD_SUCCESS;
-    fds_record_desc_t desc = {0};
-    fds_find_token_t  tok  = {0};
-    ret_code_t rc = fds_record_find (page_id, record_id, &desc, &tok);
-    err_code |= fds_to_ruuvi_error (rc);
+    ret_code_t rc = NRF_SUCCESS;
 
-    // If file was found
-    if (FDS_SUCCESS == rc)
+    if (NULL == data)
     {
-        fds_flash_record_t record = {0};
-        /* Open the record and read its contents. */
-        rc = fds_record_open (&desc, &record);
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (false == m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (m_fds_processing)
+    {
+        err_code |= RD_ERROR_BUSY;
+    }
+    else
+    {
+        rd_status_t err_code = RD_SUCCESS;
+        fds_record_desc_t desc = {0};
+        fds_find_token_t  tok  = {0};
+        rc = fds_record_find (page_id, record_id, &desc, &tok);
         err_code |= fds_to_ruuvi_error (rc);
 
-        // Check length
-        if (record.p_header->length_words * 4 > data_size) { return RD_ERROR_DATA_SIZE; }
+        // If file was found
+        if (FDS_SUCCESS == rc)
+        {
+            fds_flash_record_t record = {0};
+            /* Open the record and read its contents. */
+            rc = fds_record_open (&desc, &record);
+            err_code |= fds_to_ruuvi_error (rc);
 
-        /* Copy the data from flash into RAM. */
-        memcpy (data, record.p_data, record.p_header->length_words * 4);
-        /* Close the record when done reading. */
-        rc = fds_record_close (&desc);
+            // Check length
+            if (record.p_header->length_words * 4 > data_size) { return RD_ERROR_DATA_SIZE; }
+
+            /* Copy the data from flash into RAM. */
+            memcpy (data, record.p_data, record.p_header->length_words * 4);
+            /* Close the record when done reading. */
+            rc = fds_record_close (&desc);
+        }
+    }
+
+    return err_code | fds_to_ruuvi_error (rc);
+}
+
+rd_status_t ri_flash_gc_run (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (false == m_fds_initialized)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (m_fds_processing)
+    {
+        err_code |= RD_ERROR_BUSY;
+    }
+    else
+    {
+        m_fds_processing = true;
+        ret_code_t rc = fds_gc();
         err_code |= fds_to_ruuvi_error (rc);
     }
 
     return err_code;
 }
 
-/**
- * @brief Run garbage collection.
- *
- * @retval RD_SUCCESS on success
- * @retval RD_INVALID_STATE if flash is not initialized
- * @retval error code from stack on other error
- */
-rd_status_t ri_flash_gc_run (void)
-{
-    if (false == m_fds_initialized) { return RD_ERROR_INVALID_STATE; }
-
-    if (m_fds_processing) { return RD_ERROR_BUSY; }
-
-    m_fds_processing = true;
-    ret_code_t rc = fds_gc();
-    return fds_to_ruuvi_error (rc);
-}
-
-#if 0
-// Use for autodetecting flash bounds
-static uint32_t flash_end_addr (void)
-{
-    uint32_t const bootloader_addr = NRF_UICR->NRFFW[0];
-    uint32_t const page_sz         = NRF_FICR->CODEPAGESIZE;
-#ifndef NRF52810_XXAA
-    uint32_t const code_sz         = NRF_FICR->CODESIZE;
-#else
-    // Number of flash pages, necessary to emulate the NRF52810 on NRF52832.
-    uint32_t const code_sz         = 48;
-#endif
-    return (bootloader_addr != 0xFFFFFFFF) ? bootloader_addr : (code_sz * page_sz);
-}
-#endif
-
-/**
- * @brief Initialize flash
- *
- * @retval RD_SUCCESS on success
- * @retval error code from stack on other error
- */
 rd_status_t ri_flash_init (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -537,6 +495,7 @@ rd_status_t ri_flash_init (void)
         /* Register first to receive an event when initialization is complete. */
         if (!m_fds_registered)
         {
+            rc |= flash_bounds_set (FSTORAGE_SECTION_START, FSTORAGE_SECTION_END);
             (void) fds_register (fds_evt_handler);
             m_fds_registered = true;
         }
@@ -562,12 +521,6 @@ rd_status_t ri_flash_init (void)
     return err_code;
 }
 
-/**
- * Unintialize flash.
- * After uninitialization only initialization can be used.
- *
- * @retval RD_SUCCESS on success.
- */
 rd_status_t ri_flash_uninit (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -579,15 +532,19 @@ rd_status_t ri_flash_uninit (void)
 /** Erase FDS */
 void ri_flash_purge (void)
 {
-    for (int p = 0; p < FDS_VIRTUAL_PAGES; p++)
-    {
+    ret_code_t rc = NRF_SUCCESS;
 #if   defined(NRF51)
-        int erase_unit = 1024;
+    const int erase_unit = 1024;
 #elif defined(NRF52_SERIES)
-        int erase_unit = 4096;
+    const int erase_unit = 4096;
 #endif
-        int page = m_fs1.start_addr / erase_unit + p; // erase unit == virtual page size
-        ret_code_t rc = sd_flash_page_erase (page);
+    const int total_pages = (FSTORAGE_SECTION_END - FSTORAGE_SECTION_START)
+                            / erase_unit;
+
+    for (int p = 0; (p < total_pages) && (NRF_SUCCESS == rc); p++)
+    {
+        int page = (FSTORAGE_SECTION_START / erase_unit) + p; // erase unit == virtual page size
+        rc = sd_flash_page_erase (page);
         ri_delay_ms (200);
         RD_ERROR_CHECK (rc, RD_SUCCESS);
     }
@@ -597,6 +554,5 @@ bool ri_flash_is_busy()
 {
     return m_fds_processing;
 }
-
 
 #endif
