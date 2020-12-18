@@ -2,11 +2,11 @@
 /**
  * @addtogroup adc_tasks
  */
-/*@{*/
+/** @{ */
 /**
  * @file rt_adc.c
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-11-28
+ * @date 2020-12-17
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  */
 #include "ruuvi_driver_enabled_modules.h"
@@ -339,7 +339,7 @@ rd_status_t rt_adc_vdd_sample (void)
     return err_code;
 }
 
-rd_status_t rt_adc_vdd_get (float * const battery)
+rd_status_t rt_adc_vdd_get (float * const vdd)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -355,4 +355,4 @@ rd_status_t rt_adc_vdd_get (float * const battery)
     return err_code;
 }
 #endif
-/*@}*/
+/** @} */
