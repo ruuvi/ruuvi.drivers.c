@@ -6,15 +6,15 @@
  * @brief Internal Analog-to-digital converter control.
  *
  */
-/*@}*/
+/** @} */
 /**
  * @addtogroup adc_tasks
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_task_adc.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-20-27
+ * @date 2020-12-18
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Read ADC. Important: The ADC peripheral is shared by many different functions
@@ -62,7 +62,7 @@ typedef enum
 } rt_adc_mode_t;  //!< ADC against absolute reference or ratio to VDD
 
 /**
- * @brief Reserve ADC
+ * @brief Reserve ADC.
  *
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_INVALID_STATE if ADC is already initialized.
@@ -86,7 +86,7 @@ rd_status_t rt_adc_uninit (void);
 bool rt_adc_is_init (void);
 
 /**
- * @brief Configure ADC before sampling
+ * @brief Configure ADC before sampling.
  *
  * This function readies the ADC for sampling.
  * Configuring the ADC may take some time (< 1 ms) while actual sample must be as fast
@@ -117,7 +117,7 @@ rd_status_t rt_adc_configure_se (rd_sensor_configuration_t * const config,
 rd_status_t rt_adc_sample (void);
 
 /**
- * @brief Populate data with latest sample.
+ * @brief Get latest sample of VDD. 
  *
  * The data is absolute voltage relative to device ground.
  *

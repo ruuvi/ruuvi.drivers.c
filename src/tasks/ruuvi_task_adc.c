@@ -22,22 +22,16 @@
 #include "ruuvi_interface_adc_mcu.h"
 #include "ruuvi_interface_atomic.h"
 
-#define RD_ADC_USE_DIVIDER      1.00f
-#define RD_ADC_USE_VDD          3.30f
-
-#define RD_ADC_DATA_COUNTER     1
 #define RD_ADC_DATA_START       0
 
 #define RD_ADC_DEFAULT_BITFIELD 0
-#define RD_ADC_CLEAN_BYTE       0
-#define RD_ADC_INIT_BYTE        0
 
 #define RT_ADC_CH_UNUSED        (0xFFU) //!< Channel not assigned.
 
 static ri_atomic_t m_is_init;
 static bool m_is_configured;
-static bool m_vdd_prepared;
-static bool m_vdd_sampled;
+static ri_atomic_t m_vdd_prepared;
+static ri_atomic_t m_vdd_sampled;
 static bool m_ratio;
 static float m_vdd;
 static uint8_t m_handle; //!< handle of last ADC used.
@@ -310,6 +304,7 @@ rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_config
     err_code |= rt_adc_init();
     err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_AINVDD,
                                      ABSOLUTE);
+    m_vdd_sampled = false;
     m_vdd_prepared = (RD_SUCCESS == err_code);
     return err_code;
 }
@@ -324,11 +319,10 @@ rd_status_t rt_adc_vdd_sample (void)
     }
     else
     {
-        rd_sensor_data_t battery;
-        memset (&battery, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
-        float battery_values;
-        battery.data = &battery_values;
-        battery.fields.datas.voltage_v = RD_ADC_DATA_COUNTER;
+        rd_sensor_data_t battery = {0};
+        float battery_value = 0;
+        battery.data = &battery_value;
+        battery.fields.datas.voltage_v = 1;
         err_code |= rt_adc_voltage_get (&battery);
         m_vdd = rd_sensor_data_parse (&battery, battery.fields);
         err_code |= rt_adc_uninit();
@@ -345,7 +339,7 @@ rd_status_t rt_adc_vdd_get (float * const vdd)
 
     if (true == m_vdd_sampled)
     {
-        *battery = m_vdd;
+        *vdd = m_vdd;
     }
     else
     {
