@@ -40,8 +40,8 @@
  * @param[in] p_reg_data pointer to data to be written.
  * @param[in] len length of data to be written.
  **/
-uint32_t ri_spi_dps310_write (uint8_t dev_id, uint8_t reg_addr,
-                              uint8_t * p_reg_data, uint16_t len);
+uint32_t ri_spi_dps310_write (const void * const comm_ctx, const uint8_t reg_addr,
+                              const uint8_t * const data, const uint8_t data_len);
 
 /**
  * @brief SPI Read function for DPS310
@@ -54,8 +54,8 @@ uint32_t ri_spi_dps310_write (uint8_t dev_id, uint8_t reg_addr,
  * @param[in] p_reg_data pointer to data to be received.
  * @param[in] len length of data to be received.
  **/
-uint32_t ri_spi_dps310_read (uint8_t dev_id, uint8_t reg_addr,
-                             uint8_t * reg_data, uint16_t len);
+uint32_t ri_spi_dps310_read (const void * const comm_ctx, const uint8_t reg_addr,
+                             uint8_t * const data, const uint8_t data_len);
 /** @} */
 
 #endif // RUUVI_INTERFACE_SPI_DPS310_H

@@ -62,6 +62,7 @@
   :enforce_strict_ordering: TRUE
   :plugins:
     - :ignore
+    - :ignore_arg
     - :callback
     - :return_thru_ptr
     - :array

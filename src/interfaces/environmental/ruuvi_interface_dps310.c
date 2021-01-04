@@ -4,25 +4,36 @@
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_spi_dps310.h"
 #include "ruuvi_interface_yield.h"
+#include <stdint.h>
+
+static void dps_sleep (const uint32_t ms)
+{
+    (void) ri_delay_ms (ms);
+}
 
 // Singleton access for compatibility with other driver implementations.
+static uint8_t spi_comm_handle;
 static dps310_ctx_t singleton_ctx_spi =
 {
     .write = &ri_spi_dps310_write,
     .read  = &ri_spi_dps310_read,
-    .sleep = &ri_delay_ms
+    .sleep = &dps_sleep,
+    .comm_ctx = &spi_comm_handle
 };
 static uint8_t singleton_comm_ctx;
 static const char * const name = "DPS310";
 
-static __attribute__ ( (nonnull))
-rd_status_t dps310_singleton_setup (rd_sensor_t * const p_sensor, const rd_bus_t bus)
+static __attribute__ ( (nonnull)) rd_status_t
+dps310_singleton_setup (rd_sensor_t * const p_sensor,
+                        const rd_bus_t bus,
+                        const uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
 
     if (RD_BUS_SPI == bus)
     {
         p_sensor->p_ctx = &singleton_ctx_spi;
+        spi_comm_handle = handle;
     }
     else if (RD_BUS_I2C == bus)
     {
@@ -72,7 +83,7 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
     {
         if (NULL == p_sensor->p_ctx)
         {
-            dps310_singleton_setup (p_sensor, bus);
+            dps310_singleton_setup (p_sensor, bus, handle);
         }
 
         if (RD_SUCCESS == err_code)
@@ -97,7 +108,20 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
 
 rd_status_t ri_dps310_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+
+    if (NULL == sensor)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        // Error code can be ignored.
+        (void) dps310_uninit (sensor->p_ctx);
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_samplerate_set (uint8_t * samplerate)
