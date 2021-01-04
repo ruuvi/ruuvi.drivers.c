@@ -13,3 +13,6 @@
 [submodule "STMems_Standard_C_drivers"]
 	path = STMems_Standard_C_drivers
 	url = https://github.com/ojousima/STMems_Standard_C_drivers
+[submodule "ruuvi.dps310.c"]
+	path = ruuvi.dps310.c
+	url = https://github.com/ruuvi/ruuvi.dps310.c

@@ -35,6 +35,7 @@
   :source:
     - BME280_driver/*
     - BME280_driver/selftest/*
+    - ruuvi.dps310.c/*
     - src/*
     - src/tasks/**
     - src/interfaces/**

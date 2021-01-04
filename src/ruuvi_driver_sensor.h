@@ -362,14 +362,16 @@ typedef uint64_t (*rd_sensor_timestamp_fp) (void);
  */
 typedef struct rd_sensor_t
 {
-    /** @brief sensor human-readable name. Should be at most 8 bytes long. */
+    /** @brief Sensor human-readable name. Should be at most 8 bytes long. */
     const char * name;
+    /** @brief handle for sensor internal context */
+    void * p_ctx;
     /** @brief Description of data fields the sensor is able to provide. */
     rd_sensor_data_fields_t provides;
     /** @brief @ref rd_sensor_init_fp */
-    rd_sensor_init_fp   init;
+    rd_sensor_init_fp  init;
     /** @brief @ref rd_sensor_init_fp */
-    rd_sensor_init_fp   uninit;
+    rd_sensor_init_fp  uninit;
     /** @brief @ref rd_sensor_setup_fp */
     rd_sensor_setup_fp samplerate_set;
     /** @brief @ref rd_sensor_setup_fp */
