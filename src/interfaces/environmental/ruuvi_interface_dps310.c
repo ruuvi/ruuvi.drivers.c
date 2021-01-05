@@ -133,6 +133,10 @@ rd_status_t ri_dps310_samplerate_set (uint8_t * samplerate)
     {
         err_code |= RD_ERROR_NULL;
     }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
     else if (RD_SENSOR_CFG_NO_CHANGE == *samplerate)
     {
         // No action needed.
@@ -320,22 +324,100 @@ rd_status_t ri_dps310_samplerate_get (uint8_t * samplerate)
 
 rd_status_t ri_dps310_resolution_set (uint8_t * resolution)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+
+    if (NULL == resolution)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if ( (RD_SENSOR_CFG_DEFAULT == *resolution)
+              || (RD_SENSOR_CFG_MIN == *resolution)
+              || (RD_SENSOR_CFG_MAX == *resolution)
+              || (RD_SENSOR_CFG_NO_CHANGE == *resolution))
+    {
+        *resolution = RD_SENSOR_CFG_DEFAULT;
+    }
+    else
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_resolution_get (uint8_t * resolution)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+
+    if (NULL == resolution)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *resolution = RD_SENSOR_CFG_DEFAULT;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_scale_set (uint8_t * scale)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+
+    if (NULL == scale)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if ( (RD_SENSOR_CFG_DEFAULT == *scale)
+              || (RD_SENSOR_CFG_MIN == *scale)
+              || (RD_SENSOR_CFG_MAX == *scale)
+              || (RD_SENSOR_CFG_NO_CHANGE == *scale))
+    {
+        *scale = RD_SENSOR_CFG_DEFAULT;
+    }
+    else
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_scale_get (uint8_t * scale)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+
+    if (NULL == scale)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *scale = RD_SENSOR_CFG_DEFAULT;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_dsp_set (uint8_t * dsp, uint8_t * parameter)

@@ -123,6 +123,7 @@ void test_ri_dps310_samplerate_set_ok (void)
     test_ri_dps310_init_singleton();
     // Take address of singleton context to simulate state updates in driver
     dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
 
     for (uint8_t rate = 0U; rate < 129U; rate ++)
     {
@@ -288,18 +289,108 @@ void test_ri_dps310_samplerate_set_ok (void)
         }
     }
 }
-/** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_samplerate_get (uint8_t * samplerate);
+
+// sanplerate_get is tested through set, not need to test separately.
+
+void test_ri_dps310_resolution_set_default (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t resolution = RD_SENSOR_CFG_DEFAULT;
+    ri_dps310_resolution_set (&resolution);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == resolution);
+}
+
+void test_ri_dps310_resolution_set_min (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t resolution = RD_SENSOR_CFG_MIN;
+    ri_dps310_resolution_set (&resolution);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == resolution);
+}
+
+void test_ri_dps310_resolution_set_max (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t resolution = RD_SENSOR_CFG_MAX;
+    ri_dps310_resolution_set (&resolution);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == resolution);
+}
+
+void test_ri_dps310_resolution_set_no_change (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t resolution = RD_SENSOR_CFG_NO_CHANGE;
+    ri_dps310_resolution_set (&resolution);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == resolution);
+}
+
+// resolution get gets tested by resolution set.
+
+void test_ri_dps310_scale_set_default (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t scale = RD_SENSOR_CFG_DEFAULT;
+    ri_dps310_scale_set (&scale);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == scale);
+}
+
+void test_ri_dps310_scale_set_min (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t scale = RD_SENSOR_CFG_MIN;
+    ri_dps310_scale_set (&scale);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == scale);
+}
+
+void test_ri_dps310_scale_set_max (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t scale = RD_SENSOR_CFG_MAX;
+    ri_dps310_scale_set (&scale);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == scale);
+}
+
+void test_ri_dps310_scale_set_no_change (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t scale = RD_SENSOR_CFG_NO_CHANGE;
+    ri_dps310_scale_set (&scale);
+    TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == scale);
+}
 
 #if 0
-/** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_resolution_set (uint8_t * resolution);
-/** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_resolution_get (uint8_t * resolution);
-/** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_scale_set (uint8_t * scale);
-/** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_scale_get (uint8_t * scale);
 /** @brief @ref rd_sensor_dsp_fp */
 rd_status_t ri_dps310_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
