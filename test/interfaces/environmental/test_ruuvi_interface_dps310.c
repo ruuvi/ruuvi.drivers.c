@@ -116,11 +116,182 @@ void test_ri_dps310_uninit_null (void)
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
 
-#if 0
-/** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_samplerate_set (uint8_t * samplerate);
+void test_ri_dps310_samplerate_set_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    // Take address of singleton context to simulate state updates in driver
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+
+    for (uint8_t rate = 0U; rate < 129U; rate ++)
+    {
+        // DEFAULT rate, 1/s
+        if (0U == rate)
+        {
+            p_ctx->temp_mr = 1U;
+            p_ctx->pres_mr = 1U;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_1,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_1,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (1U == rate);
+            rate = 0;
+        }
+        else if (1U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_1;
+            p_ctx->pres_mr = DPS310_MR_1;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_1,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_1,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (1U == rate);
+        }
+        else if (2U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_2;
+            p_ctx->pres_mr = DPS310_MR_2;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_2,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_2,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (2U == rate);
+        }
+        else if (3U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_4;
+            p_ctx->pres_mr = DPS310_MR_4;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_4,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_4,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (4U == rate);
+        }
+        else if (5U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_8;
+            p_ctx->pres_mr = DPS310_MR_8;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_8,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_8,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (8U == rate);
+        }
+        else if (9U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_16;
+            p_ctx->pres_mr = DPS310_MR_16;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_16,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_16,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (16U == rate);
+        }
+        else if (17U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_32;
+            p_ctx->pres_mr = DPS310_MR_32;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_32,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_32,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (32U == rate);
+        }
+        else if (33U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_64;
+            p_ctx->pres_mr = DPS310_MR_64;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_64,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_64,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (64U == rate);
+        }
+        else if (65U == rate)
+        {
+            p_ctx->temp_mr = DPS310_MR_128;
+            p_ctx->pres_mr = DPS310_MR_128;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_128,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_osr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                DPS310_MR_128,
+                                                0,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_osr();
+            ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (128U == rate);
+        }
+        else
+        {
+            err_code = ri_dps310_samplerate_set (&rate);
+            TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
+        }
+    }
+}
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_dps310_samplerate_get (uint8_t * samplerate);
+
+#if 0
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_dps310_resolution_set (uint8_t * resolution);
 /** @brief @ref rd_sensor_setup_fp */
