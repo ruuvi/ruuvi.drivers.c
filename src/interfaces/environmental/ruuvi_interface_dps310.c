@@ -422,12 +422,223 @@ rd_status_t ri_dps310_scale_get (uint8_t * scale)
 
 rd_status_t ri_dps310_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if ( (RD_SENSOR_DSP_LAST == *dsp)
+              || (RD_SENSOR_CFG_DEFAULT == *dsp))
+    {
+        dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                          singleton_ctx_spi.temp_mr,
+                                          DPS310_OS_1);
+        dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                          singleton_ctx_spi.pres_mr,
+                                          DPS310_OS_1);
+    }
+    else if (RD_SENSOR_DSP_OS == *dsp)
+    {
+        if (RD_SENSOR_CFG_NO_CHANGE == *parameter)
+        {
+            // No action needed.
+        }
+        else if (RD_SENSOR_CFG_DEFAULT == *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_DEFAULT_OS);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_DEFAULT_OS);
+        }
+        else if ( (RD_SENSOR_CFG_MIN == *parameter) || (1U == *parameter))
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_1);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_1);
+        }
+        else if (RD_SENSOR_CFG_MAX == *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_128);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_128);
+        }
+        else if (2U == *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_2);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_2);
+        }
+        else if (4U >= *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_4);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_4);
+        }
+        else if (8U >= *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_8);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_8);
+        }
+        else if (16U >= *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_16);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_16);
+        }
+        else if (32U >= *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_32);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_32);
+        }
+        else if (64U >= *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_64);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_64);
+        }
+        else if (128U >= *parameter)
+        {
+            dps_status |= dps310_config_temp (&singleton_ctx_spi,
+                                              singleton_ctx_spi.temp_mr,
+                                              DPS310_OS_128);
+            dps_status |= dps310_config_pres (&singleton_ctx_spi,
+                                              singleton_ctx_spi.pres_mr,
+                                              DPS310_OS_128);
+        }
+        else
+        {
+            err_code |= RD_ERROR_NOT_SUPPORTED;
+        }
+    }
+
+    if (DPS310_SUCCESS == dps_status)
+    {
+        err_code |= ri_dps310_dsp_get (dsp, parameter);
+    }
+    else
+    {
+        err_code |= RD_ERROR_INTERNAL;
+    }
+
+    return err_code;
+}
+
+static uint8_t dps310_os_to_samplerate (const dps310_os_t os)
+{
+    uint8_t rate;
+
+    switch (os)
+    {
+        case DPS310_OS_1:
+            rate = 1U;
+            break;
+
+        case DPS310_OS_2:
+            rate = 2U;
+            break;
+
+        case DPS310_OS_4:
+            rate = 4U;
+            break;
+
+        case DPS310_OS_8:
+            rate = 8U;
+            break;
+
+        case DPS310_OS_16:
+            rate = 16U;
+            break;
+
+        case DPS310_OS_32:
+            rate = 32U;
+            break;
+
+        case DPS310_OS_64:
+            rate = 64U;
+            break;
+
+        case DPS310_OS_128:
+            rate = 128U;
+            break;
+
+        default:
+            rate = 0U;
+            break;
+    }
+
+    return rate;
 }
 
 rd_status_t ri_dps310_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t sampling = 0;
+
+    // Separate rates for temperature and pressure aren't supported
+    // by interface, so can check only temperature rate.
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (singleton_ctx_spi.temp_osr > DPS310_OS_1)
+    {
+        sampling = dps310_os_to_samplerate (singleton_ctx_spi.temp_osr);
+
+        if (sampling > 1)
+        {
+            *dsp = RD_SENSOR_DSP_OS;
+            *parameter = sampling;
+        }
+        else
+        {
+            err_code = RD_ERROR_INTERNAL;
+        }
+    }
+    else if (singleton_ctx_spi.temp_osr == DPS310_OS_1)
+    {
+        *dsp = RD_SENSOR_CFG_DEFAULT;
+        *parameter = 1U;
+    }
+    else
+    {
+        err_code = RD_ERROR_INTERNAL;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_mode_set (uint8_t * mode)

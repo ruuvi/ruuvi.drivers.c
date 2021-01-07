@@ -130,8 +130,8 @@ void test_ri_dps310_samplerate_set_ok (void)
         // DEFAULT rate, 1/s
         if (0U == rate)
         {
-            p_ctx->temp_mr = 1U;
-            p_ctx->pres_mr = 1U;
+            p_ctx->temp_mr = DPS310_MR_1;
+            p_ctx->pres_mr = DPS310_MR_1;
             dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
                                                 DPS310_MR_1,
                                                 0,
@@ -390,11 +390,241 @@ void test_ri_dps310_scale_set_no_change (void)
     TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == scale);
 }
 
+
+void test_ri_dps310_dsp_set_last (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t dsp_func  = RD_SENSOR_DSP_LAST;
+    uint8_t dsp_param = RD_SENSOR_CFG_DEFAULT;
+    p_ctx->temp_osr = DPS310_OS_1;
+    p_ctx->pres_osr = DPS310_OS_1;
+    dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                        0,
+                                        DPS310_OS_1,
+                                        DPS310_SUCCESS);
+    dps310_config_temp_IgnoreArg_temp_mr();
+    dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                        0,
+                                        DPS310_OS_1,
+                                        DPS310_SUCCESS);
+    dps310_config_pres_IgnoreArg_pres_mr();
+    err_code = ri_dps310_dsp_set (&dsp_func, &dsp_param);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_DSP_LAST == dsp_func);
+}
+
+
+void test_ri_dps310_dsp_set_os (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    // Take address of singleton context to simulate state updates in driver
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t dsp_func = RD_SENSOR_DSP_OS;
+
+    for (uint8_t os = 0U; os < 129U; os ++)
+    {
+        uint8_t dsp_func = RD_SENSOR_DSP_OS;
+
+        // DEFAULT os, 1/s
+        if (0U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_1;
+            p_ctx->pres_osr = DPS310_OS_1;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_1,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_1,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (1U == os);
+            os = 0;
+        }
+        else if (1U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_1;
+            p_ctx->pres_osr = DPS310_OS_1;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_1,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_1,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (1U == os);
+        }
+        else if (2U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_2;
+            p_ctx->pres_osr = DPS310_OS_2;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_2,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_2,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (2U == os);
+        }
+        else if (3U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_4;
+            p_ctx->pres_osr = DPS310_OS_4;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_4,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_4,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (4U == os);
+        }
+        else if (5U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_8;
+            p_ctx->pres_osr = DPS310_OS_8;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_8,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_8,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (8U == os);
+        }
+        else if (9U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_16;
+            p_ctx->pres_osr = DPS310_OS_16;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_16,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_16,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (16U == os);
+        }
+        else if (17U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_32;
+            p_ctx->pres_osr = DPS310_OS_32;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_32,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_32,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (32U == os);
+        }
+        else if (33U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_64;
+            p_ctx->pres_osr = DPS310_OS_64;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_64,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_64,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (64U == os);
+        }
+        else if (65U == os)
+        {
+            p_ctx->temp_osr = DPS310_OS_128;
+            p_ctx->pres_osr = DPS310_OS_128;
+            dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_128,
+                                                DPS310_SUCCESS);
+            dps310_config_temp_IgnoreArg_temp_mr();
+            dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                                0,
+                                                DPS310_OS_128,
+                                                DPS310_SUCCESS);
+            dps310_config_pres_IgnoreArg_pres_mr();
+            ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (128U == os);
+        }
+        else
+        {
+            err_code = ri_dps310_dsp_set (&dsp_func, &os);
+            TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
+        }
+    }
+}
+
+void test_ri_dps310_dsp_set_default (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t dsp_func  = RD_SENSOR_CFG_DEFAULT;
+    uint8_t dsp_param = RD_SENSOR_CFG_DEFAULT;
+    p_ctx->temp_osr = DPS310_OS_1;
+    p_ctx->pres_osr = DPS310_OS_1;
+    dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                        0,
+                                        DPS310_OS_1,
+                                        DPS310_SUCCESS);
+    dps310_config_temp_IgnoreArg_temp_mr();
+    dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                        0,
+                                        DPS310_OS_1,
+                                        DPS310_SUCCESS);
+    dps310_config_pres_IgnoreArg_pres_mr();
+    err_code = ri_dps310_dsp_set (&dsp_func, &dsp_param);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_DSP_LAST == dsp_func);
+    TEST_ASSERT (1U == dsp_param);
+}
+
+// DSP_GET is tested by setters.
 #if 0
 /** @brief @ref rd_sensor_dsp_fp */
-rd_status_t ri_dps310_dsp_set (uint8_t * dsp, uint8_t * parameter);
-/** @brief @ref rd_sensor_dsp_fp */
-rd_status_t ri_dps310_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_dps310_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
