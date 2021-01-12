@@ -623,12 +623,42 @@ void test_ri_dps310_dsp_set_default (void)
 }
 
 // DSP_GET is tested by setters.
-#if 0
-/** @brief @ref rd_sensor_dsp_fp */
-/** @brief @ref rd_sensor_setup_fp */
+
+void test_ri_dps310_mode_set_single_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton ();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    uint8_t mode = RD_SENSOR_CFG_SINGLE;
+    dps310_measure_temp_once_sync_ExpectAndReturn (p_ctx, NULL, DPS310_SUCCESS);
+    dps310_measure_temp_once_sync_IgnoreArg_result ();
+    dps310_measure_pres_once_sync_ExpectAndReturn (p_ctx, NULL, DPS310_SUCCESS);
+    dps310_measure_pres_once_sync_IgnoreArg_result ();
+    rd_sensor_timestamp_get_ExpectAndReturn(1000U);
+    err_code = ri_dps310_mode_set (&mode);
+    TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_ri_dps310_mode_set_continuous_ok (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    dps310_measure_continuous_async_ExpectAndReturn (p_ctx, DPS310_SUCCESS);
+    err_code = ri_dps310_mode_set(&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
 rd_status_t ri_dps310_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_dps310_mode_get (uint8_t * mode);
-/** @brief @ref rd_sensor_data_fp */
+
+// MODE_GET is tested by setters
+#if 0
 rd_status_t ri_dps310_data_get (rd_sensor_data_t * const data);
 #endif

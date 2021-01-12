@@ -22,6 +22,12 @@ static dps310_ctx_t singleton_ctx_spi =
 };
 static uint8_t singleton_comm_ctx;
 static const char * const name = "DPS310";
+typedef struct {
+    uint64_t timestamp_ms;
+    float pressure_pa;
+    float temperature_c;
+}ri_dps310_measurement_t;
+static ri_dps310_measurement_t last_data;
 
 static __attribute__ ( (nonnull)) rd_status_t
 dps310_singleton_setup (rd_sensor_t * const p_sensor,
@@ -643,12 +649,70 @@ rd_status_t ri_dps310_dsp_get (uint8_t * dsp, uint8_t * parameter)
 
 rd_status_t ri_dps310_mode_set (uint8_t * mode)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    dps310_status_t dps_status = DPS310_SUCCESS;
+    if(NULL == mode)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if ((RD_SENSOR_CFG_SLEEP == *mode)
+            || (RD_SENSOR_CFG_DEFAULT == *mode))
+    {
+        dps_status = dps310_standby(&singleton_ctx_spi);
+    }
+    else if (DPS310_READY != singleton_ctx_spi.device_status)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (RD_SENSOR_CFG_SINGLE == *mode)
+    {
+        dps_status |= dps310_measure_temp_once_sync (&singleton_ctx_spi, &last_data.temperature_c);
+        dps_status |= dps310_measure_pres_once_sync (&singleton_ctx_spi, &last_data.pressure_pa);
+        last_data.timestamp_ms = rd_sensor_timestamp_get();
+        *mode = RD_SENSOR_CFG_SLEEP;
+    }
+    else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
+    {
+        dps_status |= dps310_measure_continuous_async(&singleton_ctx_spi);
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
+
+    if (DPS310_SUCCESS != dps_status)
+    {
+        err_code |= RD_ERROR_INTERNAL;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_mode_get (uint8_t * mode)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    if(NULL == mode)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        switch(singleton_ctx_spi.device_status)
+        {
+            case DPS310_READY:
+                *mode = RD_SENSOR_CFG_SLEEP;
+                break;
+
+            case DPS310_CONTINUOUS:
+                *mode = RD_SENSOR_CFG_CONTINUOUS;
+                break;
+
+            default:
+                err_code |= RD_ERROR_INVALID_STATE;
+        }
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_dps310_data_get (rd_sensor_data_t * const data)
