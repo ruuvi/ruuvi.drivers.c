@@ -85,6 +85,19 @@ void test_ri_dps310_init_singleton (void)
     TEST_ASSERT (1U == *comm_ctx);
 }
 
+void test_ri_dps310_init_singleton_i2c_notimpl (void)
+{
+    rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
+    rd_status_t err_code = ri_dps310_init (&dps_ctx, RD_BUS_I2C, 1U);
+    TEST_ASSERT (RD_ERROR_NOT_IMPLEMENTED == err_code);
+}
+
+void test_ri_dps310_init_singleton_uart_notsupp (void)
+{
+    rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
+    rd_status_t err_code = ri_dps310_init (&dps_ctx, RD_BUS_UART, 1U);
+    TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
+}
 
 void test_ri_dps310_init_null (void)
 {
@@ -125,7 +138,7 @@ void test_ri_dps310_samplerate_set_ok (void)
     dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
     p_ctx->device_status = DPS310_READY;
 
-    for (uint8_t rate = 0U; rate < 129U; rate ++)
+    for (uint8_t rate = 0U; rate <= 129U; rate ++)
     {
         // DEFAULT rate, 1/s
         if (0U == rate)
@@ -290,6 +303,82 @@ void test_ri_dps310_samplerate_set_ok (void)
     }
 }
 
+void test_ri_dps310_samplerate_set_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    // Take address of singleton context to simulate state updates in driver
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    err_code = ri_dps310_samplerate_set (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_ri_dps310_samplerate_set_invalid_state (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    // Take address of singleton context to simulate state updates in driver
+    uint8_t rate = 1U;
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_CONTINUOUS;
+    err_code = ri_dps310_samplerate_set (&rate);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
+}
+
+void test_ri_dps310_samplerate_set_min (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    // Take address of singleton context to simulate state updates in driver
+    uint8_t rate = RD_SENSOR_CFG_MIN;
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    p_ctx->temp_mr = DPS310_MR_1;
+    p_ctx->pres_mr = DPS310_MR_1;
+    dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                        DPS310_MR_1,
+                                        0,
+                                        DPS310_SUCCESS);
+    dps310_config_temp_IgnoreArg_temp_osr();
+    dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                        DPS310_MR_1,
+                                        0,
+                                        DPS310_SUCCESS);
+    dps310_config_pres_IgnoreArg_pres_osr();
+    err_code = ri_dps310_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (1U == rate);
+}
+
+void test_ri_dps310_samplerate_set_max (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    // Take address of singleton context to simulate state updates in driver
+    uint8_t rate = RD_SENSOR_CFG_MAX;
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    p_ctx->temp_mr = DPS310_MR_128;
+    p_ctx->pres_mr = DPS310_MR_128;
+    dps310_config_temp_ExpectAndReturn (dps_ctx.p_ctx,
+                                        DPS310_MR_128,
+                                        0,
+                                        DPS310_SUCCESS);
+    dps310_config_temp_IgnoreArg_temp_osr();
+    dps310_config_pres_ExpectAndReturn (dps_ctx.p_ctx,
+                                        DPS310_MR_128,
+                                        0,
+                                        DPS310_SUCCESS);
+    dps310_config_pres_IgnoreArg_pres_osr();
+    err_code = ri_dps310_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (128U == rate);
+}
 // sanplerate_get is tested through set, not need to test separately.
 
 void test_ri_dps310_resolution_set_default (void)

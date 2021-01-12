@@ -88,17 +88,20 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
             }
         }
 
-        dps_status = dps310_init (p_sensor->p_ctx);
+        if (RD_SUCCESS == err_code)
+        {
+            dps_status = dps310_init (p_sensor->p_ctx);
 
-        if (DPS310_SUCCESS == dps_status)
-        {
-            rd_sensor_initialize (p_sensor);
-            dps310_fp_setup (p_sensor);
-            p_sensor->name = name;
-        }
-        else
-        {
-            err_code |= RD_ERROR_NOT_FOUND;
+            if (DPS310_SUCCESS == dps_status)
+            {
+                rd_sensor_initialize (p_sensor);
+                dps310_fp_setup (p_sensor);
+                p_sensor->name = name;
+            }
+            else
+            {
+                err_code |= RD_ERROR_NOT_FOUND;
+            }
         }
     }
 
@@ -235,13 +238,17 @@ rd_status_t ri_dps310_samplerate_set (uint8_t * samplerate)
         err_code |= RD_ERROR_NOT_SUPPORTED;
     }
 
-    if (DPS310_SUCCESS == dps_status)
+    if ( (DPS310_SUCCESS == dps_status) && (RD_SUCCESS == err_code))
     {
         err_code |= ri_dps310_samplerate_get (samplerate);
     }
-    else
+    else if (RD_SUCCESS == err_code)
     {
         err_code |= RD_ERROR_INTERNAL;
+    }
+    else
+    {
+        // No action needed.
     }
 
     return err_code;
