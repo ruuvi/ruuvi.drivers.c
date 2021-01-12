@@ -636,7 +636,7 @@ void test_ri_dps310_mode_set_single_ok (void)
     dps310_measure_temp_once_sync_IgnoreArg_result ();
     dps310_measure_pres_once_sync_ExpectAndReturn (p_ctx, NULL, DPS310_SUCCESS);
     dps310_measure_pres_once_sync_IgnoreArg_result ();
-    rd_sensor_timestamp_get_ExpectAndReturn(1000U);
+    rd_sensor_timestamp_get_ExpectAndReturn (1000U);
     err_code = ri_dps310_mode_set (&mode);
     TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -651,7 +651,7 @@ void test_ri_dps310_mode_set_continuous_ok (void)
     dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
     p_ctx->device_status = DPS310_READY;
     dps310_measure_continuous_async_ExpectAndReturn (p_ctx, DPS310_SUCCESS);
-    err_code = ri_dps310_mode_set(&mode);
+    err_code = ri_dps310_mode_set (&mode);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 

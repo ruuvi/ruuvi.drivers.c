@@ -1,6 +1,6 @@
 language: c
 os: linux
-dist: trusty
+dist: bionic
 git:
   depth: false
 before_install:
@@ -14,6 +14,7 @@ install:
   && sudo apt-get install -qq
 - sudo apt-get install -qq pvs-studio
 - sudo apt-get install -qq doxygen
+- sudo apt install openjdk-11-jdk
 - gem install ceedling
 - pvs-studio-analyzer credentials $PVS_USERNAME $PVS_KEY
 - |
