@@ -30,28 +30,12 @@ typedef struct
 } ri_dps310_measurement_t;
 static ri_dps310_measurement_t last_data;
 
-static __attribute__ ( (nonnull)) rd_status_t
-dps310_singleton_setup (rd_sensor_t * const p_sensor,
-                        const rd_bus_t bus,
-                        const uint8_t handle)
+static __attribute__ ( (nonnull)) void
+dps310_singleton_spi_setup (rd_sensor_t * const p_sensor,
+                             const uint8_t handle)
 {
-    rd_status_t err_code = RD_SUCCESS;
-
-    if (RD_BUS_SPI == bus)
-    {
-        p_sensor->p_ctx = &singleton_ctx_spi;
-        spi_comm_handle = handle;
-    }
-    else if (RD_BUS_I2C == bus)
-    {
-        err_code |= RD_ERROR_NOT_IMPLEMENTED;
-    }
-    else
-    {
-        err_code |= RD_ERROR_NOT_SUPPORTED;
-    }
-
-    return err_code;
+    p_sensor->p_ctx = &singleton_ctx_spi;
+    spi_comm_handle = handle;
 }
 
 static __attribute__ ( (nonnull))
@@ -90,23 +74,31 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
     {
         if (NULL == p_sensor->p_ctx)
         {
-            dps310_singleton_setup (p_sensor, bus, handle);
-        }
-
-        if (RD_SUCCESS == err_code)
-        {
-            dps_status = dps310_init (p_sensor->p_ctx);
-
-            if (DPS310_SUCCESS == dps_status)
+            if(RD_BUS_SPI == bus)
             {
-                rd_sensor_initialize (p_sensor);
-                dps310_fp_setup (p_sensor);
-                p_sensor->name = name;
+                dps310_singleton_spi_setup (p_sensor, handle);
+            }
+            else if(RD_BUS_I2C == bus)
+            {
+                err_code |= RD_ERROR_NOT_IMPLEMENTED;
             }
             else
             {
-                err_code |= RD_ERROR_NOT_FOUND;
+                err_code |= RD_ERROR_NOT_SUPPORTED;
             }
+        }
+
+        dps_status = dps310_init (p_sensor->p_ctx);
+
+        if (DPS310_SUCCESS == dps_status)
+        {
+            rd_sensor_initialize (p_sensor);
+            dps310_fp_setup (p_sensor);
+            p_sensor->name = name;
+        }
+        else
+        {
+            err_code |= RD_ERROR_NOT_FOUND;
         }
     }
 
@@ -347,13 +339,14 @@ rd_status_t ri_dps310_resolution_set (uint8_t * resolution)
               || (RD_SENSOR_CFG_MAX == *resolution)
               || (RD_SENSOR_CFG_NO_CHANGE == *resolution))
     {
-        *resolution = RD_SENSOR_CFG_DEFAULT;
+        // No action needed.
     }
     else
     {
         err_code |= RD_ERROR_NOT_SUPPORTED;
     }
 
+    err_code |= ri_dps310_resolution_get (resolution);
     return err_code;
 }
 
@@ -365,10 +358,6 @@ rd_status_t ri_dps310_resolution_get (uint8_t * resolution)
     if (NULL == resolution)
     {
         err_code |= RD_ERROR_NULL;
-    }
-    else if (DPS310_READY != singleton_ctx_spi.device_status)
-    {
-        err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
@@ -396,13 +385,14 @@ rd_status_t ri_dps310_scale_set (uint8_t * scale)
               || (RD_SENSOR_CFG_MAX == *scale)
               || (RD_SENSOR_CFG_NO_CHANGE == *scale))
     {
-        *scale = RD_SENSOR_CFG_DEFAULT;
+        // No action needed.
     }
     else
     {
         err_code |= RD_ERROR_NOT_SUPPORTED;
     }
 
+    err_code |= ri_dps310_scale_get (scale);
     return err_code;
 }
 
@@ -414,10 +404,6 @@ rd_status_t ri_dps310_scale_get (uint8_t * scale)
     if (NULL == scale)
     {
         err_code |= RD_ERROR_NULL;
-    }
-    else if (DPS310_READY != singleton_ctx_spi.device_status)
-    {
-        err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
