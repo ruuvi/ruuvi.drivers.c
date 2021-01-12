@@ -32,7 +32,7 @@ static ri_dps310_measurement_t last_data;
 
 static __attribute__ ( (nonnull)) void
 dps310_singleton_spi_setup (rd_sensor_t * const p_sensor,
-                             const uint8_t handle)
+                            const uint8_t handle)
 {
     p_sensor->p_ctx = &singleton_ctx_spi;
     spi_comm_handle = handle;
@@ -74,11 +74,11 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
     {
         if (NULL == p_sensor->p_ctx)
         {
-            if(RD_BUS_SPI == bus)
+            if (RD_BUS_SPI == bus)
             {
                 dps310_singleton_spi_setup (p_sensor, handle);
             }
-            else if(RD_BUS_I2C == bus)
+            else if (RD_BUS_I2C == bus)
             {
                 err_code |= RD_ERROR_NOT_IMPLEMENTED;
             }
@@ -658,7 +658,6 @@ rd_status_t ri_dps310_mode_set (uint8_t * mode)
                       &last_data.temperature_c);
         dps_status |= dps310_measure_pres_once_sync (&singleton_ctx_spi, &last_data.pressure_pa);
         last_data.timestamp_ms = rd_sensor_timestamp_get();
-        *mode = RD_SENSOR_CFG_SLEEP;
     }
     else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
@@ -674,6 +673,7 @@ rd_status_t ri_dps310_mode_set (uint8_t * mode)
         err_code |= RD_ERROR_INTERNAL;
     }
 
+    err_code |= ri_dps310_mode_get (mode);
     return err_code;
 }
 

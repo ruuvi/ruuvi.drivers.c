@@ -653,6 +653,10 @@ void test_ri_dps310_mode_set_continuous_ok (void)
     dps310_measure_continuous_async_ExpectAndReturn (p_ctx, DPS310_SUCCESS);
     err_code = ri_dps310_mode_set (&mode);
     TEST_ASSERT (RD_SUCCESS == err_code);
+    // Use a separate call to mode_get to simulate mode_set changing DPS internal state-
+    p_ctx->device_status = DPS310_CONTINUOUS;
+    err_code = ri_dps310_mode_get (&mode);
+    TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
 }
 
 rd_status_t ri_dps310_mode_set (uint8_t * mode);
