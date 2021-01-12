@@ -1,5 +1,5 @@
 # Changelog
-## 3.4.5 - in progress
+## 3.4.5
  - Fix GPIO port mapping on NRF5 SDK 15 when port > 0.
  - Fix Flash erase not clearing out everything on nRF5 SDK15.
  - Add +3 RH offset to BME280 to fix offset observed in devices.
