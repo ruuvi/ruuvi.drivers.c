@@ -1,4 +1,5 @@
 #include "ruuvi_interface_dps310.h"
+#include "ruuvi_driver_enabled_modules.h"
 #include "dps310.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -6,6 +7,8 @@
 #include "ruuvi_interface_yield.h"
 #include <stdint.h>
 #include <string.h>
+
+#if (RI_DPS310_ENABLED || DOXYGEN)
 
 static void dps_sleep (const uint32_t ms)
 {
@@ -762,3 +765,5 @@ rd_status_t ri_dps310_data_get (rd_sensor_data_t * const data)
 
     return err_code;
 }
+
+#endif

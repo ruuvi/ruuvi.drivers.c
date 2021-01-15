@@ -1,9 +1,12 @@
+#include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_interface_spi_dps310.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_gpio.h"
 #include "ruuvi_interface_spi.h"
 #include <stdint.h>
+
+#if RI_DPS310_SPI_ENABLED
 
 uint32_t ri_spi_dps310_write (const void * const comm_ctx, const uint8_t reg_addr,
                               const uint8_t * const data, const uint8_t data_len)
@@ -30,3 +33,5 @@ uint32_t ri_spi_dps310_read (const void * const comm_ctx, const uint8_t reg_addr
     err_code |= ri_gpio_write (ss, RI_GPIO_HIGH);
     return err_code;
 }
+
+#endif
