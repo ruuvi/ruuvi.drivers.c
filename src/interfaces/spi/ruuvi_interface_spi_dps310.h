@@ -17,16 +17,6 @@
  * The wrappers will use Ruuvi Interface internally, so you don't have to port these to
  * use DPS310 on a new platform. You're required to port @ref Yield, @ref GPIO and @ref SPI.
  *
- * General usage is:
- * @code{c}
- * static struct bme280_dev dev = {0};
- * dev.dev_id = bme280_cs_pin;
- * dev.intf = BME280_SPI_INTF;
- * dev.read = ri_spi_bme280_read;
- * dev.write = ri_spi_bme280_write;
- * dev.delay_ms = bosch_delay_ms;
- * bme280_init(&dev);
- * @endcode
  */
 
 /**
@@ -39,6 +29,9 @@
  * @param[in] reg_addr DPS310 register address to write.
  * @param[in] p_reg_data pointer to data to be written.
  * @param[in] len length of data to be written.
+ *
+ * @retval 0 on Success.
+ * @return Error code from SPI implementation on error.
  **/
 uint32_t ri_spi_dps310_write (const void * const comm_ctx, const uint8_t reg_addr,
                               const uint8_t * const data, const uint8_t data_len);
@@ -53,6 +46,8 @@ uint32_t ri_spi_dps310_write (const void * const comm_ctx, const uint8_t reg_add
  * @param[in] reg_addr DPS310 register address to read.
  * @param[in] p_reg_data pointer to data to be received.
  * @param[in] len length of data to be received.
+ * @retval 0 on Success.
+ * @return Error code from SPI implementation on error.
  **/
 uint32_t ri_spi_dps310_read (const void * const comm_ctx, const uint8_t reg_addr,
                              uint8_t * const data, const uint8_t data_len);
