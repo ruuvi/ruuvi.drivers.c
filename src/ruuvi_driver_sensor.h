@@ -267,12 +267,14 @@ typedef rd_status_t (*rd_sensor_dsp_fp) (uint8_t * dsp_function,
  * in a row returns same data. Configure sensor in a single-shot mode to take a new sample
  * or leave sensor in a continuous mode to get updated data.
  *
+ * p_data may contain, some, none or all of fields sensor is able to provide.
+ * Fields which are already marked as valid will not be overwritten, filled fields
+ * will get marked as valid.
+ *
  * @param [out] p_data Pointer to sensor data @ref rd_sensor_data_t .
  * @return RD_SUCCESS on success
  * @return RD_ERROR_NULL if p_data is @c NULL.
  *
- * @warning if sensor data is not valid for any reason, data is populated with
- *          @c RD_FLOAT_INVALID.
  */
 typedef rd_status_t (*rd_sensor_data_fp) (rd_sensor_data_t * const p_data);
 

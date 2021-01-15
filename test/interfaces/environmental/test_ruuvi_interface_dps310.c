@@ -10,6 +10,10 @@
 
 #include "string.h"
 
+#define SIM_TIME_MS (1000U)
+#define SIM_TEMPERATURE_C (25.5F)
+#define SIM_PRESSURE_PA (100032.4F)
+
 static void dummy_sleep (const uint32_t ms)
 {
     // No action needed.
@@ -36,6 +40,11 @@ void tearDown (void)
 /** @brief @ref rd_sensor_init_fp */
 void test_ri_dps310_init_ok (void)
 {
+    const rd_sensor_data_fields_t expected =
+    {
+        .datas.temperature_c = 1,
+        .datas.pressure_pa = 1
+    };
     dps_ctx.p_ctx = &init_ctx;
     rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
     dps310_init_ExpectAndReturn (&init_ctx, DPS310_SUCCESS);
@@ -55,6 +64,7 @@ void test_ri_dps310_init_ok (void)
     TEST_ASSERT (&ri_dps310_dsp_set == dps_ctx.dsp_set);
     TEST_ASSERT (&ri_dps310_dsp_get == dps_ctx.dsp_get);
     TEST_ASSERT (&ri_dps310_data_get == dps_ctx.data_get);
+    TEST_ASSERT (expected.bitfield == dps_ctx.provides.bitfield);
 }
 
 void test_ri_dps310_init_singleton (void)
@@ -721,11 +731,19 @@ void test_ri_dps310_mode_set_single_ok (void)
     dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
     p_ctx->device_status = DPS310_READY;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
+    static float temperature_c = SIM_TEMPERATURE_C;
+    static float pressure_pa   = SIM_PRESSURE_PA;
     dps310_measure_temp_once_sync_ExpectAndReturn (p_ctx, NULL, DPS310_SUCCESS);
     dps310_measure_temp_once_sync_IgnoreArg_result ();
+    dps310_measure_temp_once_sync_ReturnThruPtr_result (&temperature_c);
     dps310_measure_pres_once_sync_ExpectAndReturn (p_ctx, NULL, DPS310_SUCCESS);
     dps310_measure_pres_once_sync_IgnoreArg_result ();
-    rd_sensor_timestamp_get_ExpectAndReturn (1000U);
+    dps310_measure_pres_once_sync_ReturnThruPtr_result (&pressure_pa);
+    rd_sensor_timestamp_get_ExpectAndReturn (SIM_TIME_MS);
+    rd_sensor_data_set_Expect (NULL, RD_SENSOR_PRES_FIELD, SIM_PRESSURE_PA);
+    rd_sensor_data_set_IgnoreArg_target();
+    rd_sensor_data_set_Expect (NULL, RD_SENSOR_TEMP_FIELD, SIM_TEMPERATURE_C);
+    rd_sensor_data_set_IgnoreArg_target();
     err_code = ri_dps310_mode_set (&mode);
     TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -748,10 +766,74 @@ void test_ri_dps310_mode_set_continuous_ok (void)
     TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
 }
 
-rd_status_t ri_dps310_mode_set (uint8_t * mode);
-/** @brief @ref rd_sensor_setup_fp */
+void test_ri_dps310_data_get_no_data (void)
+{
+    // Run singleton test to initialize sensor context.
+    test_ri_dps310_init_singleton();
+    dps310_ctx_t * const p_ctx = (dps310_ctx_t *) dps_ctx.p_ctx;
+    p_ctx->device_status = DPS310_READY;
+    const rd_sensor_data_fields_t fields =
+    {
+        .datas.temperature_c = 1,
+        .datas.pressure_pa = 1
+    };
+    float values[2];
+    rd_sensor_data_t data =
+    {
+        .fields = fields,
+        .data = values
+    };
+    rd_status_t err_code = ri_dps310_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (0 == data.valid.bitfield);
+}
 
-// MODE_GET is tested by setters
-#if 0
-rd_status_t ri_dps310_data_get (rd_sensor_data_t * const data);
-#endif
+void test_ri_dps310_data_get_single (void)
+{
+    const rd_sensor_data_fields_t fields =
+    {
+        .datas.temperature_c = 1,
+        .datas.pressure_pa = 1
+    };
+    float values[2];
+    rd_sensor_data_t data =
+    {
+        .fields = fields,
+        .data = values
+    };
+    // Simulate single sample being taken.
+    test_ri_dps310_mode_set_single_ok();
+    rd_sensor_data_populate_ExpectAnyArgs();
+    rd_status_t err_code = ri_dps310_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_ri_dps310_data_get_continuous (void)
+{
+    const rd_sensor_data_fields_t fields =
+    {
+        .datas.temperature_c = 1,
+        .datas.pressure_pa = 1
+    };
+    float values[2];
+    rd_sensor_data_t data =
+    {
+        .fields = fields,
+        .data = values
+    };
+    static float temperature_c = SIM_TEMPERATURE_C;
+    static float pressure_pa   = SIM_PRESSURE_PA;
+    // Simulate continuous mode.
+    test_ri_dps310_mode_set_continuous_ok();
+    dps310_get_last_result_ExpectAnyArgsAndReturn (DPS310_SUCCESS);
+    dps310_get_last_result_ReturnThruPtr_temp (&temperature_c);
+    dps310_get_last_result_ReturnThruPtr_pres (&pressure_pa);
+    rd_sensor_timestamp_get_ExpectAndReturn (SIM_TIME_MS);
+    rd_sensor_data_set_Expect (NULL, RD_SENSOR_PRES_FIELD, SIM_PRESSURE_PA);
+    rd_sensor_data_set_IgnoreArg_target();
+    rd_sensor_data_set_Expect (NULL, RD_SENSOR_TEMP_FIELD, SIM_TEMPERATURE_C);
+    rd_sensor_data_set_IgnoreArg_target();
+    rd_sensor_data_populate_ExpectAnyArgs();
+    rd_status_t err_code = ri_dps310_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}

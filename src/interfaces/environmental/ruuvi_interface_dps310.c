@@ -5,6 +5,7 @@
 #include "ruuvi_interface_spi_dps310.h"
 #include "ruuvi_interface_yield.h"
 #include <stdint.h>
+#include <string.h>
 
 static void dps_sleep (const uint32_t ms)
 {
@@ -22,13 +23,13 @@ static dps310_ctx_t singleton_ctx_spi =
 };
 static uint8_t singleton_comm_ctx;
 static const char * const name = "DPS310";
-typedef struct
+const rd_sensor_data_fields_t dps_fields =
 {
-    uint64_t timestamp_ms;
-    float pressure_pa;
-    float temperature_c;
-} ri_dps310_measurement_t;
-static ri_dps310_measurement_t last_data;
+    .datas.temperature_c = 1,
+    .datas.pressure_pa = 1
+};
+static float last_values[2];
+static rd_sensor_data_t last_data;
 
 static __attribute__ ( (nonnull)) void
 dps310_singleton_spi_setup (rd_sensor_t * const p_sensor,
@@ -97,6 +98,8 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
                 rd_sensor_initialize (p_sensor);
                 dps310_fp_setup (p_sensor);
                 p_sensor->name = name;
+                p_sensor->provides = dps_fields;
+                memset (&last_data, 0, sizeof (last_data));
             }
             else
             {
@@ -641,6 +644,16 @@ rd_status_t ri_dps310_dsp_get (uint8_t * dsp, uint8_t * parameter)
     return err_code;
 }
 
+static void last_sample_update (const float temp, const float pres, const uint64_t ts)
+{
+    memset (&last_data, 0, sizeof (last_data));
+    last_data.fields = dps_fields;
+    last_data.data = last_values;
+    last_data.timestamp_ms = ts;
+    rd_sensor_data_set (&last_data, RD_SENSOR_PRES_FIELD, pres);
+    rd_sensor_data_set (&last_data, RD_SENSOR_TEMP_FIELD, temp);
+}
+
 rd_status_t ri_dps310_mode_set (uint8_t * mode)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -661,10 +674,11 @@ rd_status_t ri_dps310_mode_set (uint8_t * mode)
     }
     else if (RD_SENSOR_CFG_SINGLE == *mode)
     {
-        dps_status |= dps310_measure_temp_once_sync (&singleton_ctx_spi,
-                      &last_data.temperature_c);
-        dps_status |= dps310_measure_pres_once_sync (&singleton_ctx_spi, &last_data.pressure_pa);
-        last_data.timestamp_ms = rd_sensor_timestamp_get();
+        float temperature;
+        float pressure;
+        dps_status |= dps310_measure_temp_once_sync (&singleton_ctx_spi, &temperature);
+        dps_status |= dps310_measure_pres_once_sync (&singleton_ctx_spi, &pressure);
+        last_sample_update (temperature, pressure, rd_sensor_timestamp_get());
     }
     else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
@@ -714,5 +728,37 @@ rd_status_t ri_dps310_mode_get (uint8_t * mode)
 
 rd_status_t ri_dps310_data_get (rd_sensor_data_t * const data)
 {
-    return RD_ERROR_NOT_IMPLEMENTED;
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode;
+    (void) ri_dps310_mode_get (&mode);
+
+    if (NULL == data)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    // Use cached last value if sensor is sleeping, verify there is a valid sample.
+    else if ( (mode == RD_SENSOR_CFG_SLEEP) && (last_data.timestamp_ms > 0))
+    {
+        rd_sensor_data_populate (data, &last_data, dps_fields);
+    }
+    else if (mode == RD_SENSOR_CFG_CONTINUOUS)
+    {
+        float temperature;
+        float pressure;
+        dps310_status_t dps_status = dps310_get_last_result (&singleton_ctx_spi,
+                                     &temperature, &pressure);
+        last_sample_update (temperature, pressure, rd_sensor_timestamp_get());
+        rd_sensor_data_populate (data, &last_data, dps_fields);
+
+        if (DPS310_SUCCESS != dps_status)
+        {
+            err_code |= RD_ERROR_INTERNAL;
+        }
+    }
+    else
+    {
+        // No action needed.
+    }
+
+    return err_code;
 }
