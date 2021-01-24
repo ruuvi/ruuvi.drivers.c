@@ -24,7 +24,7 @@ static dps310_ctx_t singleton_ctx_spi =
     .sleep = &dps_sleep,
     .comm_ctx = &spi_comm_handle
 };
-static uint8_t singleton_comm_ctx;
+
 static const char * const name = "DPS310";
 const rd_sensor_data_fields_t dps_fields =
 {
@@ -117,7 +117,6 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
 rd_status_t ri_dps310_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
-    dps310_status_t dps_status = DPS310_SUCCESS;
 
     if (NULL == sensor)
     {
@@ -337,7 +336,6 @@ rd_status_t ri_dps310_samplerate_get (uint8_t * samplerate)
 rd_status_t ri_dps310_resolution_set (uint8_t * resolution)
 {
     rd_status_t err_code = RD_SUCCESS;
-    dps310_status_t dps_status = DPS310_SUCCESS;
 
     if (NULL == resolution)
     {
@@ -366,7 +364,6 @@ rd_status_t ri_dps310_resolution_set (uint8_t * resolution)
 rd_status_t ri_dps310_resolution_get (uint8_t * resolution)
 {
     rd_status_t err_code = RD_SUCCESS;
-    dps310_status_t dps_status = DPS310_SUCCESS;
 
     if (NULL == resolution)
     {
@@ -383,7 +380,6 @@ rd_status_t ri_dps310_resolution_get (uint8_t * resolution)
 rd_status_t ri_dps310_scale_set (uint8_t * scale)
 {
     rd_status_t err_code = RD_SUCCESS;
-    dps310_status_t dps_status = DPS310_SUCCESS;
 
     if (NULL == scale)
     {
@@ -412,7 +408,6 @@ rd_status_t ri_dps310_scale_set (uint8_t * scale)
 rd_status_t ri_dps310_scale_get (uint8_t * scale)
 {
     rd_status_t err_code = RD_SUCCESS;
-    dps310_status_t dps_status = DPS310_SUCCESS;
 
     if (NULL == scale)
     {
@@ -732,7 +727,7 @@ rd_status_t ri_dps310_mode_get (uint8_t * mode)
 rd_status_t ri_dps310_data_get (rd_sensor_data_t * const data)
 {
     rd_status_t err_code = RD_SUCCESS;
-    uint8_t mode;
+    uint8_t mode = RD_SENSOR_CFG_DEFAULT;
     (void) ri_dps310_mode_get (&mode);
 
     if (NULL == data)
