@@ -391,8 +391,7 @@ static bool sensor_sleeps_after_init (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const
-        DUT)
+static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
     float values_new[MAX_SENSOR_PROVIDED_FIELDS];

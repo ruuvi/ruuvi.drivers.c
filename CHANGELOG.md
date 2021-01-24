@@ -1,4 +1,7 @@
 # Changelog
+## 3.5.0
+ - Add partial DPS310 support (SPI only, no FIFO, no interrupts)
+
 ## 3.4.5
  - Fix GPIO port mapping on NRF5 SDK 15 when port > 0.
  - Fix Flash erase not clearing out everything on nRF5 SDK15.
