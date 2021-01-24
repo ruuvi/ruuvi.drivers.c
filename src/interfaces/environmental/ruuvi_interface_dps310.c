@@ -76,6 +76,8 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
     }
     else
     {
+        rd_sensor_initialize (p_sensor);
+
         if (NULL == p_sensor->p_ctx)
         {
             if (RD_BUS_SPI == bus)
@@ -98,7 +100,6 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
 
             if (DPS310_SUCCESS == dps_status)
             {
-                rd_sensor_initialize (p_sensor);
                 dps310_fp_setup (p_sensor);
                 p_sensor->name = name;
                 p_sensor->provides = dps_fields;

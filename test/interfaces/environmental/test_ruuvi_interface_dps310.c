@@ -47,8 +47,8 @@ void test_ri_dps310_init_ok (void)
     };
     dps_ctx.p_ctx = &init_ctx;
     rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
-    dps310_init_ExpectAndReturn (&init_ctx, DPS310_SUCCESS);
     rd_sensor_initialize_Expect (&dps_ctx);
+    dps310_init_ExpectAndReturn (&init_ctx, DPS310_SUCCESS);
     rd_status_t err_code = ri_dps310_init (&dps_ctx, RD_BUS_SPI, 1U);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (&ri_dps310_init == dps_ctx.init);
@@ -70,9 +70,9 @@ void test_ri_dps310_init_ok (void)
 void test_ri_dps310_init_singleton (void)
 {
     rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
+    rd_sensor_initialize_Expect (&dps_ctx);
     dps310_init_ExpectAndReturn (NULL, DPS310_SUCCESS);
     dps310_init_IgnoreArg_ctx();
-    rd_sensor_initialize_Expect (&dps_ctx);
     rd_status_t err_code = ri_dps310_init (&dps_ctx, RD_BUS_SPI, 1U);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (&ri_dps310_init == dps_ctx.init);
@@ -98,6 +98,7 @@ void test_ri_dps310_init_singleton (void)
 void test_ri_dps310_init_singleton_i2c_notimpl (void)
 {
     rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
+    rd_sensor_initialize_Expect (&dps_ctx);
     rd_status_t err_code = ri_dps310_init (&dps_ctx, RD_BUS_I2C, 1U);
     TEST_ASSERT (RD_ERROR_NOT_IMPLEMENTED == err_code);
 }
@@ -105,6 +106,7 @@ void test_ri_dps310_init_singleton_i2c_notimpl (void)
 void test_ri_dps310_init_singleton_uart_notsupp (void)
 {
     rd_sensor_is_init_ExpectAndReturn (&dps_ctx, false);
+    rd_sensor_initialize_Expect (&dps_ctx);
     rd_status_t err_code = ri_dps310_init (&dps_ctx, RD_BUS_UART, 1U);
     TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
 }
