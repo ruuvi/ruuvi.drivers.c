@@ -936,7 +936,7 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
         }
         else
         {
-            printfp ("\"skipped\"\r\n");
+            printfp ("\"skipped\",\r\n");
         }
 
         status = test_sensor_data_print (p_sensor_ctx->init, p_sensor_ctx->bus,
