@@ -317,11 +317,11 @@ bool ri_uart_rx_short_test (const rd_test_print_fp printfp, const ri_gpio_id_t i
 
     if (status)
     {
-        printfp ("\"fail\",\r\n");
+        printfp ("\"fail\"\r\n");
     }
     else
     {
-        printfp ("\"pass\",\r\n");
+        printfp ("\"pass\"\r\n");
     }
 
     (void) ri_uart_uninit (&m_channel);
