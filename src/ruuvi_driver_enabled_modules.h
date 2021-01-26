@@ -248,6 +248,10 @@ data payload length is the maximum length */
 #   define RI_LIS2DH12_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_TMP117_ENABLED
+#   define RI_TMP117_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RI_SHTCX_ENABLED
 #   define RI_SHTCX_ENABLED ENABLE_DEFAULT
 #endif
