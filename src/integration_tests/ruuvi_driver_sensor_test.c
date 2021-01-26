@@ -864,7 +864,7 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
 
     if (RD_ERROR_NOT_FOUND == err_code)
     {
-        printfp ("\"skip\",\r\n");
+        printfp ("\"skip\"\r\n");
         p_sensor_ctx->sensor.uninit (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
                                      p_sensor_ctx->handle);
     }
