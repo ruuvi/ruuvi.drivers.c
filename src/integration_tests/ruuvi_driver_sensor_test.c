@@ -951,6 +951,8 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                            const rd_test_print_fp printfp)
 {
     uint8_t data_counter = 0;
+    uint8_t data_available = 0;
+    uint32_t data_check = p_data->fields.bitfield;
     char sensors_name[MAX_SENSORS][MAX_SENSOR_NAME_LEN] =
     {
         "acceleration_x_g",
@@ -976,6 +978,15 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
         "voltage_v",
         "voltage_ratio",
     };
+
+    /* Count enabled sensors */
+    for (int i = 0; i < MAX_SENSORS; i++)
+    {
+        if (data_check & BITFIELD_MASK)
+        { data_available++; }
+
+        data_check = data_check >> 1;
+    }
 
     if (NULL != p_data)
     {
@@ -1026,7 +1037,7 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                               (char *) &sensors_name[i][0]);
                 }
 
-                if (strstr (msg, "temperature_c"))
+                if (data_counter == data_available)
                 {
                     char * str = "\r\n";
                     strncat (msg, str, sizeof (str));
