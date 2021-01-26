@@ -1006,14 +1006,14 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                     if (0 == isnan (* ( (float *) (&p_data->data[data_counter]))))
                     {
                         snprintf (msg, sizeof (msg),
-                                  "\"%s\": \"%.2f\"\r\n",
+                                  "\"%s\": \"%.2f\"",
                                   (char *) &sensors_name[i][0],
                                   * ( (float *) (&p_data->data[data_counter])));
                     }
                     else
                     {
                         snprintf (msg, sizeof (msg),
-                                  "\"%s\": \"NAN\"\r\n",
+                                  "\"%s\": \"NAN\"",
                                   (char *) &sensors_name[i][0]);
                     }
 
@@ -1022,8 +1022,19 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                 else
                 {
                     snprintf (msg, sizeof (msg),
-                              "\"%s\": \"NAN\"\r\n",
+                              "\"%s\": \"NAN\"",
                               (char *) &sensors_name[i][0]);
+                }
+
+                if (strstr (msg, "temperature_c"))
+                {
+                    char * str = "\r\n";
+                    strncat (msg, str, sizeof (str));
+                }
+                else
+                {
+                    char * str = ",\r\n";
+                    strncat (msg, str, sizeof (str));
                 }
 
                 printfp (msg);
