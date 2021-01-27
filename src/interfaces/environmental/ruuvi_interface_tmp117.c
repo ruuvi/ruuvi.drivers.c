@@ -235,61 +235,69 @@ static float tmp117_read (void)
     return temperature;
 }
 
-rd_status_t ri_tmp117_init (rd_sensor_t *
-                            environmental_sensor, rd_bus_t bus, uint8_t handle)
+rd_status_t
+ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle)
 {
-    if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
-
-    if (m_address) { return RD_ERROR_INVALID_STATE; }
-
-    rd_sensor_initialize (environmental_sensor);
-    environmental_sensor->name = m_sensor_name;
     rd_status_t err_code = RD_SUCCESS;
-    m_address = handle;
-    size_t retries = 0;
 
-    switch (bus)
+    if (NULL == environmental_sensor)
     {
-        case RD_BUS_I2C:
-            do
-            {
-                err_code |= tmp117_validate_id();
-                retries++;
-            } while (RD_ERROR_TIMEOUT == err_code && retries < 5);
-
-            break;
-
-        default:
-            return  RD_ERROR_INVALID_PARAM;
+        err_code |= RD_ERROR_NULL;
     }
-
-    if (RD_SUCCESS != err_code) { err_code = RD_ERROR_NOT_FOUND; }
-
-    if (RD_SUCCESS == err_code)
+    else if (rd_sensor_is_init (environmental_sensor))
     {
-        err_code |= tmp117_soft_reset();
-        environmental_sensor->init              = ri_tmp117_init;
-        environmental_sensor->uninit            = ri_tmp117_uninit;
-        environmental_sensor->samplerate_set    = ri_tmp117_samplerate_set;
-        environmental_sensor->samplerate_get    = ri_tmp117_samplerate_get;
-        environmental_sensor->resolution_set    = ri_tmp117_resolution_set;
-        environmental_sensor->resolution_get    = ri_tmp117_resolution_get;
-        environmental_sensor->scale_set         = ri_tmp117_scale_set;
-        environmental_sensor->scale_get         = ri_tmp117_scale_get;
-        environmental_sensor->dsp_set           = ri_tmp117_dsp_set;
-        environmental_sensor->dsp_get           = ri_tmp117_dsp_get;
-        environmental_sensor->mode_set          = ri_tmp117_mode_set;
-        environmental_sensor->mode_get          = ri_tmp117_mode_get;
-        environmental_sensor->data_get          = ri_tmp117_data_get;
-        environmental_sensor->configuration_set = rd_sensor_configuration_set;
-        environmental_sensor->configuration_get = rd_sensor_configuration_get;
-        environmental_sensor->provides.datas.temperature_c = 1;
-        m_timestamp = RD_UINT64_INVALID;
-        m_temperature = NAN;
-        ms_per_cc = 1000;
-        ms_per_sample = 16;
-        m_continuous = false;
-        err_code |= tmp117_sleep();
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        rd_sensor_initialize (environmental_sensor);
+        environmental_sensor->name = m_sensor_name;
+        rd_status_t err_code = RD_SUCCESS;
+        m_address = handle;
+        size_t retries = 0;
+
+        switch (bus)
+        {
+            case RD_BUS_I2C:
+                do
+                {
+                    err_code |= tmp117_validate_id();
+                    retries++;
+                } while (RD_ERROR_TIMEOUT == err_code && retries < 5);
+
+                break;
+
+            default:
+                return  RD_ERROR_INVALID_PARAM;
+        }
+
+        if (RD_SUCCESS != err_code) { err_code = RD_ERROR_NOT_FOUND; }
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= tmp117_soft_reset();
+            environmental_sensor->init              = ri_tmp117_init;
+            environmental_sensor->uninit            = ri_tmp117_uninit;
+            environmental_sensor->samplerate_set    = ri_tmp117_samplerate_set;
+            environmental_sensor->samplerate_get    = ri_tmp117_samplerate_get;
+            environmental_sensor->resolution_set    = ri_tmp117_resolution_set;
+            environmental_sensor->resolution_get    = ri_tmp117_resolution_get;
+            environmental_sensor->scale_set         = ri_tmp117_scale_set;
+            environmental_sensor->scale_get         = ri_tmp117_scale_get;
+            environmental_sensor->dsp_set           = ri_tmp117_dsp_set;
+            environmental_sensor->dsp_get           = ri_tmp117_dsp_get;
+            environmental_sensor->mode_set          = ri_tmp117_mode_set;
+            environmental_sensor->mode_get          = ri_tmp117_mode_get;
+            environmental_sensor->data_get          = ri_tmp117_data_get;
+            environmental_sensor->configuration_set = rd_sensor_configuration_set;
+            environmental_sensor->configuration_get = rd_sensor_configuration_get;
+            environmental_sensor->provides.datas.temperature_c = 1;
+            m_timestamp = RD_UINT64_INVALID;
+            m_temperature = NAN;
+            ms_per_cc = 1000;
+            ms_per_sample = 16;
+            m_continuous = false;
+        }
     }
 
     return err_code;
@@ -616,5 +624,6 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
 
     return err_code;
 }
+
 /** @} */
 #endif
