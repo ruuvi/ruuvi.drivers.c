@@ -88,6 +88,13 @@ static void wakeup_handler (void * p_context)
     m_wakeup = true;
 }
 
+// Test if in interrupt mode
+bool ri_yield_is_interrupt_context (void)
+{
+    return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+}
+
+
 rd_status_t ri_yield_init (void)
 {
     fpu_init();
@@ -142,6 +149,7 @@ rd_status_t ri_yield (void)
 
     return RD_SUCCESS;
 }
+
 
 rd_status_t ri_delay_ms (uint32_t time)
 {

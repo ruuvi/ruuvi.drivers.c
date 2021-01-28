@@ -112,6 +112,16 @@ rd_status_t ri_delay_ms (uint32_t time);
   **/
 rd_status_t ri_delay_us (uint32_t time);
 
+/**
+  * @brief Check if current execution is in interrupt context.
+  *
+  * This function reads Interrupt Control and State Register (ICSR) to determine the
+  * interrupt status. The register is masked with VECTACTIVE mask.
+  *
+  * @return true if executrion is currently in interrupt context, false otherwise.
+  **/
+bool ri_yield_is_interrupt_context (void);
+
 /*@}*/
 
 #endif
