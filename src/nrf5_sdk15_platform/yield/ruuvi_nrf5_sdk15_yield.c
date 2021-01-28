@@ -150,7 +150,6 @@ rd_status_t ri_yield (void)
     return RD_SUCCESS;
 }
 
-
 rd_status_t ri_delay_ms (uint32_t time)
 {
     rd_status_t err_code = RD_SUCCESS;
