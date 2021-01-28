@@ -545,7 +545,7 @@ void ri_flash_purge (void)
     {
         int page = (FSTORAGE_SECTION_START / erase_unit) + p; // erase unit == virtual page size
         rc = sd_flash_page_erase (page);
-        ri_delay_ms (200);
+        ri_delay_us (200000);
         RD_ERROR_CHECK (rc, RD_SUCCESS);
     }
 }
