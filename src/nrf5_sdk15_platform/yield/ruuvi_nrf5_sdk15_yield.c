@@ -160,6 +160,11 @@ rd_status_t ri_delay_ms (uint32_t time)
         m_wakeup = false;
         err_code |= ri_timer_start (wakeup_timer, time, NULL);
 
+        if (ri_yield_is_interrupt_context)
+        {
+            ri_delay_us (1000 * time);
+        }
+
         while (RD_SUCCESS == err_code && !m_wakeup)
         {
             err_code |= ri_yield();

@@ -532,7 +532,6 @@ rd_status_t ri_flash_uninit (void)
 /** Erase FDS */
 void ri_flash_purge (void)
 {
-    uint32_t ms = 200;
     ret_code_t rc = NRF_SUCCESS;
 #if   defined(NRF51)
     const int erase_unit = 1024;
@@ -546,16 +545,7 @@ void ri_flash_purge (void)
     {
         int page = (FSTORAGE_SECTION_START / erase_unit) + p; // erase unit == virtual page size
         rc = sd_flash_page_erase (page);
-
-        if (ri_yield_is_interrupt_context)
-        {
-            ri_delay_us (1000 * ms);
-        }
-        else
-        {
-            ri_delay_ms (ms);
-        }
-
+        ri_delay_ms (200);
         RD_ERROR_CHECK (rc, RD_SUCCESS);
     }
 }
