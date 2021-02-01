@@ -88,7 +88,6 @@ static void wakeup_handler (void * p_context)
     m_wakeup = true;
 }
 
-// Test if in interrupt mode
 bool ri_yield_is_interrupt_context (void)
 {
     return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
