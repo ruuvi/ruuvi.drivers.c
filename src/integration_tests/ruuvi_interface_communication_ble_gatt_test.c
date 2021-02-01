@@ -24,10 +24,7 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2020-06-18
- *       2021-01-26 niksiboxi  fixup JSON
- *       2021-01-31 DG12 add/clean up commments.
- *                       Send clock, seq, MAC for Apple guys in HEX
- *                       CONSTANTS moved to .h
+ *
  * Integration test BLE GATT implementation.
  */
 #define GATT_TX_TEST_TIMEOUT_MS (10000U)
