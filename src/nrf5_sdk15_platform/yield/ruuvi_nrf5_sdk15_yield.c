@@ -155,19 +155,22 @@ rd_status_t ri_delay_ms (uint32_t time)
     rd_status_t err_code = RD_SUCCESS;
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
 
+    // Check that low-power delay is enabled and sleep timer is not running right now.
     if (m_lp && m_wakeup)
     {
-        m_wakeup = false;
-        err_code |= ri_timer_start (wakeup_timer, time, NULL);
-
-        if (ri_yield_is_interrupt_context)
+        if (ri_yield_is_interrupt_context())
         {
             ri_delay_us (1000 * time);
         }
-
-        while (RD_SUCCESS == err_code && !m_wakeup)
+        else
         {
-            err_code |= ri_yield();
+            m_wakeup = false;
+            err_code |= ri_timer_start (wakeup_timer, time, NULL);
+
+            while (RD_SUCCESS == err_code && !m_wakeup)
+            {
+                err_code |= ri_yield();
+            }
         }
     }
 
