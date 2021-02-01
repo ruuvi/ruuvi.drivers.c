@@ -88,6 +88,12 @@ static void wakeup_handler (void * p_context)
     m_wakeup = true;
 }
 
+bool ri_yield_is_interrupt_context (void)
+{
+    return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+}
+
+
 rd_status_t ri_yield_init (void)
 {
     fpu_init();
@@ -148,14 +154,22 @@ rd_status_t ri_delay_ms (uint32_t time)
     rd_status_t err_code = RD_SUCCESS;
 #if RUUVI_NRF5_SDK15_TIMER_ENABLED
 
+    // Check that low-power delay is enabled and sleep timer is not running right now.
     if (m_lp && m_wakeup)
     {
-        m_wakeup = false;
-        err_code |= ri_timer_start (wakeup_timer, time, NULL);
-
-        while (RD_SUCCESS == err_code && !m_wakeup)
+        if (ri_yield_is_interrupt_context())
         {
-            err_code |= ri_yield();
+            ri_delay_us (1000 * time);
+        }
+        else
+        {
+            m_wakeup = false;
+            err_code |= ri_timer_start (wakeup_timer, time, NULL);
+
+            while (RD_SUCCESS == err_code && !m_wakeup)
+            {
+                err_code |= ri_yield();
+            }
         }
     }
 
