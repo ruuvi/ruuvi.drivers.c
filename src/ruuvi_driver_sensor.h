@@ -167,11 +167,11 @@ typedef struct
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_ACC_Z_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_z_g=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
-#define RD_SENSOR_GYR_X_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_x_g=1})
+#define RD_SENSOR_GYR_X_FIELD ((rd_sensor_data_fields_t){.datas.gyro_x_dps=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
-#define RD_SENSOR_GYR_Y_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_y_g=1})
+#define RD_SENSOR_GYR_Y_FIELD ((rd_sensor_data_fields_t){.datas.gyro_y_dps=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
-#define RD_SENSOR_GYR_Z_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_z_g=1})
+#define RD_SENSOR_GYR_Z_FIELD ((rd_sensor_data_fields_t){.datas.gyro_z_dps=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_HUMI_FIELD ((rd_sensor_data_fields_t){.datas.humidity_rh=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
