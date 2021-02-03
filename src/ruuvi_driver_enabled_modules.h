@@ -256,6 +256,10 @@ data payload length is the maximum length */
 #   define RI_ADC_PHOTO_ENABLED      ENABLE_DEFAULT
 #endif
 
+#ifndef RUUVI_NRF5_SDK15_NRF52832_ENVIRONMENTAL_ENABLED
+#   define RUUVI_NRF5_SDK15_NRF52832_ENVIRONMENTAL_ENABLED ENABLE_DEFAULT
+#endif
+
 // TODO: Refactor configuration constants elsewhere
 #   define RI_ADC_PHOTO_CHANNEL      2
 #   define RI_ADC_PHOTO_DIVIDER      1.00f //!< Predivider installed on board
