@@ -113,8 +113,6 @@ static void nrf52832_temperature_sample (void)
 
     temperature = raw_temp / 4.0f;
     tsample = rd_sensor_timestamp_get();
-
-    printf("Temperature: %f\r\n", temperature);
 }
 
 rd_status_t ri_environmental_mcu_init (rd_sensor_t *

@@ -1,5 +1,5 @@
-#ifndef ri_ENVIRONMENTAL_MCU_H
-#define ri_ENVIRONMENTAL_MCU_H
+#ifndef RUUVI_INTERFACE_ENVIRONMENTAL_MCU_H
+#define RUUVI_INTERFACE_ENVIRONMENTAL_MCU_H
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 
@@ -29,16 +29,16 @@
  * Testing the interface with @ref test_sensor.h
  *
  * @code{.c}
- *  rd_ERROR_CHECK(err_code, rd_ERROR_SELFTEST);
- *  rd_status_t err_code = rd_SUCCESS;
- *  rd_bus_t bus = rd_BUS_NONE;
+ *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
+ *  rd_status_t err_code = RD_SUCCESS;
+ *  rd_bus_t bus = RD_BUS_NONE;
  *  uint8_t handle = 0;
  *  rd_sensor_init_fp init = ri_environmental_mcu_init;
  *  bus = NONE;
  *  err_code = test_sensor_init(init, bus, handle);
  *  err_code = test_sensor_setup(init, bus, handle);
  *  err_code = test_sensor_modes(init, bus, handle);
- *  rd_ERROR_CHECK(err_code, rd_ERROR_SELFTEST);
+ *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
  * @endcode
  */
 
