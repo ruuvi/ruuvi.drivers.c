@@ -118,6 +118,9 @@ static void nrf52832_temperature_sample (void)
 rd_status_t ri_environmental_mcu_init (rd_sensor_t *
         environmental_sensor, rd_bus_t bus, uint8_t handle)
 {
+    UNUSED_PARAMETER(bus);
+    UNUSED_PARAMETER(handle);
+
     if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
 
     if (true == sensor_is_init) { return RD_ERROR_INVALID_STATE; }
@@ -156,6 +159,9 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t *
 rd_status_t ri_environmental_mcu_uninit (
     rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle)
 {
+    UNUSED_PARAMETER(bus);
+    UNUSED_PARAMETER(handle);
+
     if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
 
     sensor_is_init = false;
@@ -191,16 +197,18 @@ rd_status_t ri_environmental_mcu_samplerate_get (
 rd_status_t ri_environmental_mcu_resolution_set (
     uint8_t * resolution)
 {
+    const int resolution_set = 10;
+
     if (NULL == resolution) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
     // If 10 bits was given, return success
-    if (10 == *resolution) {return RD_SUCCESS; }
+    if (resolution_set == *resolution) {return RD_SUCCESS; }
 
     // Otherwise mark the actual resolution
     uint8_t original = *resolution;
-    *resolution = 10;
+    *resolution = resolution_set;
     RETURN_SUCCESS_ON_VALID (original);
     return RD_ERROR_NOT_SUPPORTED;
 }
@@ -208,38 +216,44 @@ rd_status_t ri_environmental_mcu_resolution_set (
 rd_status_t ri_environmental_mcu_resolution_get (
     uint8_t * resolution)
 {
+    const int resolution_set = 10;
+
     if (NULL == resolution) { return RD_ERROR_NULL; }
 
-    *resolution = 10;
+    *resolution = resolution_set;
     return RD_SUCCESS;
 }
 
 // Scale cannot be set. Our scale is fixed at (2^9) / 4 = 128 (or -127).
 rd_status_t ri_environmental_mcu_scale_set (uint8_t * scale)
 {
+    const int fixed_scale = 128;
+
     if (NULL == scale) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
     // If 128 or less was given, return success
-    if (128 >= *scale)
+    if (fixed_scale >= *scale)
     {
-        *scale = 128;
+        *scale = fixed_scale;
         return RD_SUCCESS;
     }
 
     // Otherwise mark the actual scale
     uint8_t original = *scale;
-    *scale = 128;
+    *scale = fixed_scale;
     RETURN_SUCCESS_ON_VALID (original);
     return RD_ERROR_NOT_SUPPORTED;
 }
 
 rd_status_t ri_environmental_mcu_scale_get (uint8_t * scale)
 {
+    const int fixed_scale = 128;
+
     if (NULL == scale) { return RD_ERROR_NULL; }
 
-    *scale = 128;
+    *scale = fixed_scale;
     return RD_SUCCESS;
 }
 
@@ -247,7 +261,7 @@ rd_status_t ri_environmental_mcu_scale_get (uint8_t * scale)
 rd_status_t ri_environmental_mcu_dsp_set (uint8_t * dsp,
         uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    if ((NULL == dsp) || (NULL == parameter)) { return RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
@@ -274,7 +288,7 @@ rd_status_t ri_environmental_mcu_mode_set (uint8_t * mode)
     if (NULL == mode) { return RD_ERROR_NULL; }
 
     // Enter sleep by default and by explicit sleep commmand
-    if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
+    if ((RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
         autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
