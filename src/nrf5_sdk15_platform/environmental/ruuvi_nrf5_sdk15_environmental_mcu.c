@@ -90,13 +90,13 @@ static void nrf52832_temperature_sample (void)
     sd_softdevice_is_enabled (&sd_enabled);
 
     // If Nordic softdevice is enabled, we cannot use temperature peripheral directly
-    if (sd_enabled)
+    if (sd_enabled == NRF_SDH_ENABLED)
     {
         sd_temp_get (&raw_temp);
     }
 
     // If SD is not enabled, call the peripheral directly.
-    if (!sd_enabled)
+    if (sd_enabled != NRF_SDH_ENABLED)
     {
         NRF_TEMP->TASKS_START = 1; /** Start the temperature measurement. */
 
