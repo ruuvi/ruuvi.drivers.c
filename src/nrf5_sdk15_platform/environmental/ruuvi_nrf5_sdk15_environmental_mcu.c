@@ -114,7 +114,7 @@ static void nrf52832_temperature_sample (void)
         NRF_TEMP->TASKS_STOP = 1; /** Stop the temperature measurement. */
     }
 
-    temperature = raw_temp / 4.0f;
+    temperature = raw_temp / 4.0F;
     tsample = rd_sensor_timestamp_get();
 }
 
@@ -124,9 +124,11 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t *
     UNUSED_PARAMETER (bus);
     UNUSED_PARAMETER (handle);
 
-    if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (true == sensor_is_init) { return RD_ERROR_INVALID_STATE; }
+    if (NULL == environmental_sensor) { err_code |= RD_ERROR_NULL; }
+
+    if (true == sensor_is_init) { err_code |= RD_ERROR_INVALID_STATE; }
 
     rd_sensor_initialize (environmental_sensor);
     // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
@@ -156,7 +158,7 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t *
     environmental_sensor->name              = m_tmp_name;
     environmental_sensor->provides.datas.temperature_c = 1;
     sensor_is_init = true;
-    return RD_SUCCESS;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_uninit (
@@ -165,26 +167,30 @@ rd_status_t ri_environmental_mcu_uninit (
     UNUSED_PARAMETER (bus);
     UNUSED_PARAMETER (handle);
 
-    if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == environmental_sensor) { err_code |= RD_ERROR_NULL; }
 
     sensor_is_init = false;
     autorefresh = false;
     rd_sensor_uninitialize (environmental_sensor);
     tsample     = RD_UINT64_INVALID;
-    return RD_SUCCESS;
+    return err_code;
 }
 
 // Continuous sampling is not supported, mark pointed value as default even if parameter is one of no-changes
 rd_status_t ri_environmental_mcu_samplerate_set (
     uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == samplerate) { err_code |= RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
     uint8_t original = *samplerate;
     *samplerate = RD_SENSOR_CFG_DEFAULT;
     RETURN_SUCCESS_ON_VALID (original);
-    return RD_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_samplerate_get (
@@ -200,33 +206,39 @@ rd_status_t ri_environmental_mcu_samplerate_get (
 rd_status_t ri_environmental_mcu_resolution_set (
     uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == resolution) { err_code |= RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
     // If 10 bits was given, return success
-    if (NRF52_TEMP_SENSOR_RESOLUTION == *resolution) {return RD_SUCCESS; }
+    if (NRF52_TEMP_SENSOR_RESOLUTION == *resolution) {err_code |= RD_SUCCESS; }
 
     // Otherwise mark the actual resolution
     uint8_t original = *resolution;
     *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
     RETURN_SUCCESS_ON_VALID (original);
-    return RD_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_resolution_get (
     uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == resolution) { err_code |= RD_ERROR_NULL; }
 
     *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
-    return RD_SUCCESS;
+    return err_code;
 }
 
 // Scale cannot be set. Our scale is fixed at (2^9) / 4 = 128 (or -127).
 rd_status_t ri_environmental_mcu_scale_set (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == scale) { err_code |= RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
@@ -234,39 +246,43 @@ rd_status_t ri_environmental_mcu_scale_set (uint8_t * scale)
     if (NRF52_TEMP_FIXED_SCALE >= *scale)
     {
         *scale = NRF52_TEMP_FIXED_SCALE;
-        return RD_SUCCESS;
+        err_code |= RD_SUCCESS;
     }
 
     // Otherwise mark the actual scale
     uint8_t original = *scale;
     *scale = NRF52_TEMP_FIXED_SCALE;
     RETURN_SUCCESS_ON_VALID (original);
-    return RD_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_scale_get (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == scale) { err_code |= RD_ERROR_NULL; }
 
     *scale = NRF52_TEMP_FIXED_SCALE;
-    return RD_SUCCESS;
+    return err_code;
 }
 
 // Return success on DSP_LAST and acceptable defaults, not supported otherwise
 rd_status_t ri_environmental_mcu_dsp_set (uint8_t * dsp,
         uint8_t * parameter)
 {
-    if ( (NULL == dsp) || (NULL == parameter)) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if ( (NULL == dsp) || (NULL == parameter)) { err_code |= RD_ERROR_NULL; }
 
     VERIFY_SENSOR_SLEEPS();
 
-    if (RD_SENSOR_DSP_LAST == * dsp) { return RD_SUCCESS; }
+    if (RD_SENSOR_DSP_LAST == * dsp) { err_code |= RD_SUCCESS; }
 
     uint8_t original = *dsp;
     *dsp       = RD_SENSOR_ERR_NOT_SUPPORTED;
     *parameter = RD_SENSOR_ERR_NOT_SUPPORTED;
     RETURN_SUCCESS_ON_VALID (original);
-    return RD_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_dsp_get (uint8_t * dsp,
@@ -280,14 +296,16 @@ rd_status_t ri_environmental_mcu_dsp_get (uint8_t * dsp,
 // Start single on command, mark autorefresh with continuous
 rd_status_t ri_environmental_mcu_mode_set (uint8_t * mode)
 {
-    if (NULL == mode) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == mode) { err_code |= RD_ERROR_NULL; }
 
     // Enter sleep by default and by explicit sleep commmand
     if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
         autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
-        return RD_SUCCESS;
+        err_code |= RD_SUCCESS;
     }
 
     if (RD_SENSOR_CFG_SINGLE == *mode)
@@ -299,7 +317,7 @@ rd_status_t ri_environmental_mcu_mode_set (uint8_t * mode)
         if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
         {
             *mode = RD_SENSOR_CFG_CONTINUOUS;
-            return RD_ERROR_INVALID_STATE;
+            err_code |= RD_ERROR_INVALID_STATE;
         }
 
         // Enter sleep after measurement
@@ -307,21 +325,23 @@ rd_status_t ri_environmental_mcu_mode_set (uint8_t * mode)
         *mode = RD_SENSOR_CFG_SLEEP;
         // Global float is updated by sample
         nrf52832_temperature_sample();
-        return RD_SUCCESS;
+        err_code |= RD_SUCCESS;
     }
 
     if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         autorefresh = true;
-        return RD_SUCCESS;
+        err_code |= RD_SUCCESS;
     }
 
-    return RD_ERROR_INVALID_PARAM;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_mode_get (uint8_t * mode)
 {
-    if (NULL == mode) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == mode) { err_code |= RD_ERROR_NULL; }
 
     if (autorefresh)
     {
@@ -333,13 +353,15 @@ rd_status_t ri_environmental_mcu_mode_get (uint8_t * mode)
         *mode = RD_SENSOR_CFG_SLEEP;
     }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 rd_status_t ri_environmental_mcu_data_get (
     rd_sensor_data_t * const p_data)
 {
-    if (NULL == p_data) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == p_data) { err_code |= RD_ERROR_NULL; }
 
     if (autorefresh) { nrf52832_temperature_sample(); }
 
@@ -359,7 +381,7 @@ rd_status_t ri_environmental_mcu_data_get (
         p_data->timestamp_ms = tsample;
     }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 #endif
