@@ -105,13 +105,12 @@ static void nrf52832_temperature_sample (void)
     sd_softdevice_is_enabled (&sd_enabled);
 
     // If Nordic softdevice is enabled, we cannot use temperature peripheral directly
-    if (sd_enabled == NRF_SDH_ENABLED)
+    if (NRF_SDH_ENABLED == sd_enabled)
     {
         sd_temp_get (&raw_temp);
     }
-
     // If SD is not enabled, call the peripheral directly.
-    if (sd_enabled != NRF_SDH_ENABLED)
+    else
     {
         NRF_TEMP->TASKS_START = 1; /** Start the temperature measurement. */
 
@@ -131,7 +130,6 @@ static void nrf52832_temperature_sample (void)
 
     temperature = raw_temp / 4.0F;
     tsample = rd_sensor_timestamp_get();
-    printf ("Temperature: %f\r\n", temperature);
 }
 
 rd_status_t ri_environmental_mcu_init (rd_sensor_t *
@@ -156,31 +154,31 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t *
         nrf_temp_init();
         tsample     = RD_UINT64_INVALID;
         temperature = RD_FLOAT_INVALID;
+        // Setup function pointers
+        environmental_sensor->init              = ri_environmental_mcu_init;
+        environmental_sensor->uninit            = ri_environmental_mcu_uninit;
+        environmental_sensor->samplerate_set    =
+            ri_environmental_mcu_samplerate_set;
+        environmental_sensor->samplerate_get    =
+            ri_environmental_mcu_samplerate_get;
+        environmental_sensor->resolution_set    =
+            ri_environmental_mcu_resolution_set;
+        environmental_sensor->resolution_get    =
+            ri_environmental_mcu_resolution_get;
+        environmental_sensor->scale_set         = ri_environmental_mcu_scale_set;
+        environmental_sensor->scale_get         = ri_environmental_mcu_scale_get;
+        environmental_sensor->dsp_set           = ri_environmental_mcu_dsp_set;
+        environmental_sensor->dsp_get           = ri_environmental_mcu_dsp_get;
+        environmental_sensor->mode_set          = ri_environmental_mcu_mode_set;
+        environmental_sensor->mode_get          = ri_environmental_mcu_mode_get;
+        environmental_sensor->data_get          = ri_environmental_mcu_data_get;
+        environmental_sensor->configuration_set = rd_sensor_configuration_set;
+        environmental_sensor->configuration_get = rd_sensor_configuration_get;
+        environmental_sensor->name              = m_tmp_name;
+        environmental_sensor->provides.datas.temperature_c = 1;
+        sensor_is_init = true;
     }
 
-    // Setup function pointers
-    environmental_sensor->init              = ri_environmental_mcu_init;
-    environmental_sensor->uninit            = ri_environmental_mcu_uninit;
-    environmental_sensor->samplerate_set    =
-        ri_environmental_mcu_samplerate_set;
-    environmental_sensor->samplerate_get    =
-        ri_environmental_mcu_samplerate_get;
-    environmental_sensor->resolution_set    =
-        ri_environmental_mcu_resolution_set;
-    environmental_sensor->resolution_get    =
-        ri_environmental_mcu_resolution_get;
-    environmental_sensor->scale_set         = ri_environmental_mcu_scale_set;
-    environmental_sensor->scale_get         = ri_environmental_mcu_scale_get;
-    environmental_sensor->dsp_set           = ri_environmental_mcu_dsp_set;
-    environmental_sensor->dsp_get           = ri_environmental_mcu_dsp_get;
-    environmental_sensor->mode_set          = ri_environmental_mcu_mode_set;
-    environmental_sensor->mode_get          = ri_environmental_mcu_mode_get;
-    environmental_sensor->data_get          = ri_environmental_mcu_data_get;
-    environmental_sensor->configuration_set = rd_sensor_configuration_set;
-    environmental_sensor->configuration_get = rd_sensor_configuration_get;
-    environmental_sensor->name              = m_tmp_name;
-    environmental_sensor->provides.datas.temperature_c = 1;
-    sensor_is_init = true;
     return err_code;
 }
 
@@ -233,10 +231,19 @@ rd_status_t ri_environmental_mcu_samplerate_set (
 rd_status_t ri_environmental_mcu_samplerate_get (
     uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *samplerate = RD_SENSOR_CFG_DEFAULT;
-    return RD_SUCCESS;
+    if (NULL == samplerate)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        *samplerate = RD_SENSOR_CFG_DEFAULT;
+        err_code = RD_SUCCESS;
+    }
+
+    return  err_code;
 }
 
 // Temperature resolution is fixed to 10 bits, including sign. Return error to driver, but mark used value to pointer.
@@ -433,10 +440,14 @@ rd_status_t ri_environmental_mcu_mode_set (uint8_t * mode)
             err_code = RD_SUCCESS;
         }
     }
-    else    if (RD_SENSOR_CFG_CONTINUOUS == *mode)
+    else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         autorefresh = true;
         err_code = RD_SUCCESS;
+    }
+    else
+    {
+        err_code = RD_SENSOR_ERR_NOT_SUPPORTED;
     }
 
     return err_code;
@@ -446,16 +457,21 @@ rd_status_t ri_environmental_mcu_mode_get (uint8_t * mode)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == mode) { err_code = RD_ERROR_NULL; }
-
-    if (autorefresh)
+    if (NULL == mode)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else if (autorefresh)
     {
         *mode = RD_SENSOR_CFG_CONTINUOUS;
     }
-
-    if (!autorefresh)
+    else if (!autorefresh)
     {
         *mode = RD_SENSOR_CFG_SLEEP;
+    }
+    else
+    {
+        *mode = RD_SENSOR_ERR_INVALID;
     }
 
     return err_code;
@@ -466,24 +482,32 @@ rd_status_t ri_environmental_mcu_data_get (
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == p_data) { err_code = RD_ERROR_NULL; }
-
-    if (autorefresh) { nrf52832_temperature_sample(); }
-
-    if (!isnan (temperature))
+    if (NULL == p_data)
     {
-        rd_sensor_data_t d_environmental;
-        rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-        float env_values[1];
-        env_values[0] = temperature;
-        env_fields.datas.temperature_c = 1;
-        d_environmental.data = env_values;
-        d_environmental.valid  = env_fields;
-        d_environmental.fields = env_fields;
-        rd_sensor_data_populate (p_data,
-                                 &d_environmental,
-                                 p_data->fields);
-        p_data->timestamp_ms = tsample;
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        if (autorefresh)
+        {
+            nrf52832_temperature_sample();
+        }
+
+        if (!isnan (temperature))
+        {
+            rd_sensor_data_t d_environmental;
+            rd_sensor_data_fields_t env_fields = {.bitfield = 0};
+            float env_values[1];
+            env_values[0] = temperature;
+            env_fields.datas.temperature_c = 1;
+            d_environmental.data = env_values;
+            d_environmental.valid  = env_fields;
+            d_environmental.fields = env_fields;
+            rd_sensor_data_populate (p_data,
+                                     &d_environmental,
+                                     p_data->fields);
+            p_data->timestamp_ms = tsample;
+        }
     }
 
     return err_code;
