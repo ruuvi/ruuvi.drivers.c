@@ -100,7 +100,7 @@ static const char m_tmp_name[] = "nRF5TMP"; //!< Human-readable name
 static void nrf52832_temperature_sample (void)
 {
     uint8_t sd_enabled = NRF_SDH_ENABLED;
-    int32_t raw_temp;
+    int32_t raw_temp = 0;
     // Check if softdevice is enabled
     sd_softdevice_is_enabled (&sd_enabled);
 
