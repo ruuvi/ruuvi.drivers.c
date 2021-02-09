@@ -258,7 +258,7 @@ rd_status_t rt_gatt_uninit (void)
     return err_code;
 }
 
-rd_status_t rt_gatt_enable (void)
+rd_status_t rt_gatt_adv_enable (void)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -274,7 +274,7 @@ rd_status_t rt_gatt_enable (void)
     return err_code;
 }
 
-rd_status_t rt_gatt_disable (void)
+rd_status_t rt_gatt_adv_disable (void)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -398,12 +398,12 @@ rd_status_t rt_gatt_init (const char * const name)
     return RD_ERROR_NOT_ENABLED;
 }
 
-rd_status_t rt_gatt_enable()
+rd_status_t rt_gatt_adv_enable()
 {
     return RD_ERROR_NOT_ENABLED;
 }
 
-rd_status_t rt_gatt_disable()
+rd_status_t rt_gatt_adv_disable()
 {
     return RD_ERROR_NOT_ENABLED;
 }
