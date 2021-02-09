@@ -69,7 +69,7 @@ static inline ri_gpio_state_t led_to_pin_state (ri_gpio_id_t led, bool active)
     return state;
 }
 
-rd_status_t rt_led_init (const uint16_t * const leds,
+rd_status_t rt_led_init (const ri_gpio_id_t * const leds,
                          const ri_gpio_state_t * const active_states,
                          const size_t num_leds)
 {
@@ -123,7 +123,7 @@ rd_status_t rt_led_uninit (void)
     return err_code;
 }
 
-rd_status_t rt_led_write (const uint16_t led, const bool active)
+rd_status_t rt_led_write (const ri_gpio_id_t led, const bool active)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -150,7 +150,7 @@ void rt_led_activity_indicate (const bool active)
     (void) rt_led_write (m_activity_led, active);
 }
 
-rd_status_t rt_led_activity_led_set (uint16_t led)
+rd_status_t rt_led_activity_led_set (ri_gpio_id_t led)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -185,7 +185,7 @@ void rt_led_blink_isr (void * const p_context)
     active = !active;
 }
 
-rd_status_t rt_led_blink_start (const uint16_t led, const uint16_t interval_ms)
+rd_status_t rt_led_blink_start (const ri_gpio_id_t led, const uint16_t interval_ms)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -222,7 +222,7 @@ rd_status_t rt_led_blink_start (const uint16_t led, const uint16_t interval_ms)
     return err_code;
 }
 
-rd_status_t rt_led_blink_stop (const uint16_t led)
+rd_status_t rt_led_blink_stop (const ri_gpio_id_t led)
 {
     rd_status_t err_code = RD_SUCCESS;
 
