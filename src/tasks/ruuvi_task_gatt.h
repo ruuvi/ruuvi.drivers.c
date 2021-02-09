@@ -138,7 +138,7 @@ rd_status_t rt_gatt_uninit (void);
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-rd_status_t rt_gatt_enable();
+rd_status_t rt_gatt_adv_enable();
 
 /**
  * @brief Stop advertising GATT connection to devices.
@@ -150,7 +150,7 @@ rd_status_t rt_gatt_enable();
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-rd_status_t rt_gatt_disable();
+rd_status_t rt_gatt_adv_disable();
 
 /**
  * @brief check if GATT task is initialized
