@@ -227,7 +227,7 @@ bool ri_gpio_pwm_run_integration_test (const rd_test_print_fp printfp,
     ri_gpio_interrupt_disable (cfg.input);
     ri_gpio_interrupt_uninit();
     ri_gpio_uninit();
-    printfp ("},\r\n");
+    printfp ("}\r\n");
     return failed;
 }
 #endif
