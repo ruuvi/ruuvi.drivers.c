@@ -56,10 +56,11 @@
 
 #include <string.h>
 
-#define NRF52_TEMP_SENSOR_RESOLUTION 10
-#define NRF52_TEMP_FIXED_SCALE       128
+#define NRF52_TEMP_SENSOR_RESOLUTION (10U)
+#define NRF52_TEMP_FIXED_SCALE       (128U)
 
 // Function for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
+static inline __attribute__ ( (nonnull))
 rd_status_t success_on_valid (uint8_t param)
 {
     rd_status_t err_code = RD_ERROR_INVALID_PARAM;
@@ -76,6 +77,7 @@ rd_status_t success_on_valid (uint8_t param)
 }
 
 // Function for checking that sensor is in sleep mode before configuration
+static inline __attribute__ ( (nonnull))
 rd_status_t environmental_mcu_sensor_sleep (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -132,14 +134,15 @@ static void nrf52832_temperature_sample (void)
     tsample = rd_sensor_timestamp_get();
 }
 
-rd_status_t ri_environmental_mcu_init (rd_sensor_t *
-                                       environmental_sensor, rd_bus_t bus, uint8_t handle)
+rd_status_t ri_environmental_mcu_init (rd_sensor_t * sensor,
+                                       rd_bus_t bus,
+                                       uint8_t handle)
 {
     UNUSED_PARAMETER (bus);
     UNUSED_PARAMETER (handle);
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == environmental_sensor)
+    if (NULL == sensor)
     {
         err_code = RD_ERROR_NULL;
     }
@@ -149,47 +152,44 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t *
     }
     else
     {
-        rd_sensor_initialize (environmental_sensor);
+        rd_sensor_initialize (sensor);
         // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
         nrf_temp_init();
         tsample     = RD_UINT64_INVALID;
         temperature = RD_FLOAT_INVALID;
         // Setup function pointers
-        environmental_sensor->init              = ri_environmental_mcu_init;
-        environmental_sensor->uninit            = ri_environmental_mcu_uninit;
-        environmental_sensor->samplerate_set    =
-            ri_environmental_mcu_samplerate_set;
-        environmental_sensor->samplerate_get    =
-            ri_environmental_mcu_samplerate_get;
-        environmental_sensor->resolution_set    =
-            ri_environmental_mcu_resolution_set;
-        environmental_sensor->resolution_get    =
-            ri_environmental_mcu_resolution_get;
-        environmental_sensor->scale_set         = ri_environmental_mcu_scale_set;
-        environmental_sensor->scale_get         = ri_environmental_mcu_scale_get;
-        environmental_sensor->dsp_set           = ri_environmental_mcu_dsp_set;
-        environmental_sensor->dsp_get           = ri_environmental_mcu_dsp_get;
-        environmental_sensor->mode_set          = ri_environmental_mcu_mode_set;
-        environmental_sensor->mode_get          = ri_environmental_mcu_mode_get;
-        environmental_sensor->data_get          = ri_environmental_mcu_data_get;
-        environmental_sensor->configuration_set = rd_sensor_configuration_set;
-        environmental_sensor->configuration_get = rd_sensor_configuration_get;
-        environmental_sensor->name              = m_tmp_name;
-        environmental_sensor->provides.datas.temperature_c = 1;
+        sensor->init              = ri_environmental_mcu_init;
+        sensor->uninit            = ri_environmental_mcu_uninit;
+        sensor->samplerate_set    = ri_environmental_mcu_samplerate_set;
+        sensor->samplerate_get    = ri_environmental_mcu_samplerate_get;
+        sensor->resolution_set    = ri_environmental_mcu_resolution_set;
+        sensor->resolution_get    = ri_environmental_mcu_resolution_get;
+        sensor->scale_set         = ri_environmental_mcu_scale_set;
+        sensor->scale_get         = ri_environmental_mcu_scale_get;
+        sensor->dsp_set           = ri_environmental_mcu_dsp_set;
+        sensor->dsp_get           = ri_environmental_mcu_dsp_get;
+        sensor->mode_set          = ri_environmental_mcu_mode_set;
+        sensor->mode_get          = ri_environmental_mcu_mode_get;
+        sensor->data_get          = ri_environmental_mcu_data_get;
+        sensor->configuration_set = rd_sensor_configuration_set;
+        sensor->configuration_get = rd_sensor_configuration_get;
+        sensor->name              = m_tmp_name;
+        sensor->provides.datas.temperature_c = 1;
         sensor_is_init = true;
     }
 
     return err_code;
 }
 
-rd_status_t ri_environmental_mcu_uninit (
-    rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle)
+rd_status_t ri_environmental_mcu_uninit (rd_sensor_t * sensor,
+        rd_bus_t bus,
+        uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
     UNUSED_PARAMETER (bus);
     UNUSED_PARAMETER (handle);
 
-    if (NULL == environmental_sensor)
+    if (NULL == sensor)
     {
         err_code = RD_ERROR_NULL;
     }
@@ -197,7 +197,7 @@ rd_status_t ri_environmental_mcu_uninit (
     {
         sensor_is_init = false;
         autorefresh = false;
-        rd_sensor_uninitialize (environmental_sensor);
+        rd_sensor_uninitialize (sensor);
         tsample     = RD_UINT64_INVALID;
     }
 
@@ -260,7 +260,7 @@ rd_status_t ri_environmental_mcu_resolution_set (
     else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
     {
         *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
-        err_code = success_on_valid(original);
+        err_code = success_on_valid (original);
     }
     else
     {
@@ -300,7 +300,7 @@ rd_status_t ri_environmental_mcu_scale_set (uint8_t * scale)
     else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
     {
         *scale = NRF52_TEMP_FIXED_SCALE;
-        err_code = success_on_valid(original);
+        err_code = success_on_valid (original);
     }
     else
     {
@@ -344,7 +344,7 @@ rd_status_t ri_environmental_mcu_dsp_set (uint8_t * dsp,
         err_code = success_on_valid (original);
     }
     else
-    {       
+    {
         err_code |= RD_ERROR_INVALID_STATE;
     }
 
