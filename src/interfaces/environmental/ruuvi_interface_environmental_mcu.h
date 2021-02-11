@@ -17,7 +17,7 @@
 /**
  * @addtogroup ENVIRONMENTAL_MCU
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_environmental_mcu.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -77,5 +77,5 @@ rd_status_t ri_environmental_mcu_mode_get (uint8_t *);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_environmental_mcu_data_get (
     rd_sensor_data_t * const data);
-/*@}*/
+/** @} */
 #endif
