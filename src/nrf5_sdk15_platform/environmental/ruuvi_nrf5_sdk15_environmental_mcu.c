@@ -257,17 +257,14 @@ rd_status_t ri_environmental_mcu_resolution_set (
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (!environmental_mcu_sensor_sleep())
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
     {
-        err_code |= RD_ERROR_INVALID_STATE;
-    }
-    else if (!success_on_valid (original))
-    {
-        err_code |= RD_ERROR_NOT_SUPPORTED;
+        *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
+        err_code = success_on_valid(original);
     }
     else
     {
-        *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
@@ -300,17 +297,14 @@ rd_status_t ri_environmental_mcu_scale_set (uint8_t * scale)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (!environmental_mcu_sensor_sleep())
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
     {
-        err_code |= RD_ERROR_INVALID_STATE;
-    }
-    else if (!success_on_valid (original))
-    {
-        err_code |= RD_ERROR_NOT_SUPPORTED;
+        *scale = NRF52_TEMP_FIXED_SCALE;
+        err_code = success_on_valid(original);
     }
     else
     {
-        *scale = NRF52_TEMP_FIXED_SCALE;
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
@@ -343,18 +337,15 @@ rd_status_t ri_environmental_mcu_dsp_set (uint8_t * dsp,
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (!environmental_mcu_sensor_sleep())
-    {
-        err_code |= RD_ERROR_INVALID_STATE;
-    }
-    else if (!success_on_valid (original))
-    {
-        err_code |= RD_ERROR_INVALID_PARAM;
-    }
-    else
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
     {
         *dsp = RD_SENSOR_ERR_NOT_SUPPORTED;
         *parameter = RD_SENSOR_ERR_NOT_SUPPORTED;
+        err_code = success_on_valid (original);
+    }
+    else
+    {       
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
