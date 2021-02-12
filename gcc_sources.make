@@ -120,7 +120,6 @@ RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/communication/ruuvi_nrf5_sdk15_communication_radio.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/communication/ruuvi_nrf5_sdk15_communication_ble_advertising.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/communication/ruuvi_nrf5_sdk15_communication_ble_gatt.c \
-  $(PROJ_DIR)/src/nrf5_sdk15_platform/environmental/ruuvi_nrf5_sdk15_environmental_mcu.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/flash/ruuvi_nrf5_sdk15_flash.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/gpio/ruuvi_nrf5_sdk15_gpio.c \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/gpio/ruuvi_nrf5_sdk15_gpio_interrupt.c \
