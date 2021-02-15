@@ -177,5 +177,7 @@ rd_status_t rt_adc_vdd_sample (void);
  */
 rd_status_t rt_adc_vdd_get (float * const vdd);
 
+float rt_adc_test_sample (void);
+
 /*@}*/
 #endif // TASK_ADC_H

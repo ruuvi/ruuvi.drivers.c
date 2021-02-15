@@ -354,5 +354,33 @@ rd_status_t rt_adc_vdd_get (float * const battery)
 
     return err_code;
 }
+
+
+float rt_adc_test_sample (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_data_t test_sample;
+    ri_adc_pin_config_t pin_config;
+    pin_config.channel = RI_ADC_AIN0;
+    memset (&test_sample, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
+    float sample;
+    test_sample.data = &sample;
+    rd_sensor_configuration_t configuration =
+    {
+        .dsp_function = RD_SENSOR_CFG_DEFAULT,
+        .dsp_parameter = RD_SENSOR_CFG_DEFAULT,
+        .mode = RD_SENSOR_CFG_SINGLE,
+        .resolution = RD_SENSOR_CFG_DEFAULT,
+        .samplerate = RD_SENSOR_CFG_DEFAULT,
+        .scale = RD_SENSOR_CFG_DEFAULT
+    };
+    err_code |= rt_adc_init();
+    err_code |= rt_adc_configure_se (&configuration, RI_ADC_AIN0, ABSOLUTE);
+    m_vdd_prepared = (RD_SUCCESS == err_code);
+    err_code |= rt_adc_vdd_sample();
+    err_code |= rt_adc_vdd_get (&sample);
+    err_code |= rt_adc_uninit();
+    return sample;
+}
 #endif
 /*@}*/
