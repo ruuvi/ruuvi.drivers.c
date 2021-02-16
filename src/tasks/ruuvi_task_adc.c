@@ -366,7 +366,7 @@ float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
     if (rt_adc_configure_se (configuration, handle, ABSOLUTE) != RD_SUCCESS)
     {
         err_code |= RD_ERROR_INVALID_PARAM;
-        return NULL;
+        return 0;
     }
     else
     {
