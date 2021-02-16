@@ -188,7 +188,7 @@ rd_status_t rt_adc_vdd_get (float * const vdd);
  * @retval vdd VDD voltage in volts.
  */
 rd_status_t rt_adc_sample_channel (rd_sensor_configuration_t * const configuration,
-                                const uint8_t handle, float * const sample);
+                                   const uint8_t handle, float * const sample);
 
 /*@}*/
 #endif // TASK_ADC_H
