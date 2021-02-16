@@ -355,11 +355,10 @@ rd_status_t rt_adc_vdd_get (float * const battery)
     return err_code;
 }
 
-float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
-                          const uint8_t handle)
+rd_status_t rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
+                                const uint8_t handle, float * const sample)
 {
     rd_status_t err_code = RD_SUCCESS;
-    float sample = RD_FLOAT_INVALID;
 
     if (RD_SUCCESS == rt_adc_init())
     {
@@ -376,16 +375,16 @@ float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
 
         while (m_vdd_sampled)
         {
-            err_code |= rt_adc_vdd_get (&sample);
+            err_code |= rt_adc_vdd_get (sample);
             err_code |= rt_adc_uninit();
         }
     }
     else
     {
-        sample = RD_FLOAT_INVALID;
+        *sample = RD_FLOAT_INVALID;
     }
 
-    return sample;
+    return err_code;
 }
 #endif
 /*@}*/
