@@ -177,6 +177,16 @@ rd_status_t rt_adc_vdd_sample (void);
  */
 rd_status_t rt_adc_vdd_get (float * const vdd);
 
+/**
+ * @brief Get VDD Sample from selected ADC handle
+ *
+ * This function initializes ADC, reads VDD sample from selected handle
+ * and returns the sample as the float value.
+ *
+ * @param[in] config Configuration of ADC.
+ * @param[in] handle Handle to ADC, i.e. ADC pin.
+ * @retval vdd VDD voltage in volts.
+ */
 float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
                           const uint8_t handle);
 
