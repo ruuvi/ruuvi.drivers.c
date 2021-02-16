@@ -356,24 +356,24 @@ rd_status_t rt_adc_vdd_get (float * const battery)
 }
 
 
-float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
+adc_float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
                           const uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
-    float sample;
+    adc_float sample = RD_FLOAT_INVALID;
     err_code |= rt_adc_init();
 
-    if (rt_adc_configure_se (configuration, handle, ABSOLUTE) != RD_SUCCESS)
+    if (RD_SUCCESS == rt_adc_configure_se (configuration, handle, ABSOLUTE))
     {
-        err_code |= RD_ERROR_INVALID_PARAM;
-        return 0;
+        m_vdd_prepared = true;
+        err_code |= rt_adc_vdd_sample();
+        err_code |= rt_adc_vdd_get (&sample);
+        err_code |= rt_adc_uninit();        
     }
     else
     {
-        m_vdd_prepared = (RD_SUCCESS == err_code);
-        err_code |= rt_adc_vdd_sample();
-        err_code |= rt_adc_vdd_get (&sample);
-        err_code |= rt_adc_uninit();
+        err_code = RD_ERROR_INVALID_PARAM;
+        sample = 0.0f;
     }
 
     return sample;

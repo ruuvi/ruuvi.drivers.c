@@ -55,6 +55,8 @@
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_log.h"
 
+typedef float adc_float;
+
 typedef enum
 {
     RATIOMETRIC,    //!< ADC compares value to VDD
@@ -187,7 +189,7 @@ rd_status_t rt_adc_vdd_get (float * const vdd);
  * @param[in] handle Handle to ADC, i.e. ADC pin.
  * @retval vdd VDD voltage in volts.
  */
-float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
+adc_float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
                           const uint8_t handle);
 
 /*@}*/
