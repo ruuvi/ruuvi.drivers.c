@@ -355,11 +355,11 @@ rd_status_t rt_adc_vdd_get (float * const battery)
     return err_code;
 }
 
-adc_float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
+float rt_adc_test_sample (rd_sensor_configuration_t * const configuration,
                               const uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
-    adc_float sample = RD_FLOAT_INVALID;
+    float sample = RD_FLOAT_INVALID;
 
     if (RD_SUCCESS == rt_adc_init())
     {
