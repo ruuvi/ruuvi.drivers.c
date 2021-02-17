@@ -138,10 +138,12 @@ rd_status_t ri_i2c_init (const ri_i2c_init_config_t *
         .clear_bus_init     = true
     };
     // Verify that lines can be pulled up
+    ri_gpio_configure (config->bus_pwr, RI_GPIO_MODE_OUTPUT_HIGHDRIVE);
     ri_gpio_configure (config->scl, RI_GPIO_MODE_INPUT_PULLUP);
     ri_gpio_configure (config->sda, RI_GPIO_MODE_INPUT_PULLUP);
+    ri_gpio_write (config->bus_pwr, RI_GPIO_HIGH);
     ri_gpio_state_t state_scl, state_sda;
-    ri_delay_us (10);
+    ri_delay_us (100);
     ri_gpio_read (config->sda, &state_sda);
     ri_gpio_read (config->scl, &state_scl);
 
