@@ -1,16 +1,17 @@
 #ifndef RUUVI_TASK_ADC_H
 #define RUUVI_TASK_ADC_H
 
+/** @{ */
 /**
  * @addtogroup adc_tasks ADC tasks
  * @brief Internal Analog-to-digital converter control.
  *
  */
-/*@}*/
+/** @} */
 /**
  * @addtogroup adc_tasks
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_task_adc.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -180,15 +181,16 @@ rd_status_t rt_adc_vdd_get (float * const vdd);
 /**
  * @brief Get VDD Sample from selected ADC handle
  *
- * This function initializes ADC, reads VDD sample from selected handle
- * and returns the sample as the float value.
+ * This function initializes ADC, reads VDD sample from selected handle.
+ * The value is set as RD_FLOAT_INVALID on ADC initialization error.
  *
  * @param[in] config Configuration of ADC.
  * @param[in] handle Handle to ADC, i.e. ADC pin.
- * @retval vdd VDD voltage in volts.
+ * @retval RD_SUCCESS on success
+ * @retval error code from stack on error.
  */
 rd_status_t rt_adc_sample_channel (rd_sensor_configuration_t * const configuration,
                                    const uint8_t handle, float * const sample);
 
-/*@}*/
+/** @} */
 #endif // TASK_ADC_H
