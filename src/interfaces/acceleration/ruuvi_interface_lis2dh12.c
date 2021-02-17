@@ -279,6 +279,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
         LOGD ("dev_ctx_init. Error = %08x\r\n", err_code);
         rd_sensor_initialize (p_sensor);
         p_sensor->name = m_acc_name;
+        ri_delay_ms(10); //!< 5 ms power-up time + some margin
 
         if (RD_SUCCESS == err_code)
         {
