@@ -342,9 +342,14 @@ void test_rt_adc_ratio_get_fail (void)
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
-void test_rt_adc_test_sample (void)
+void test_rt_adc_sample_channel (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_data_t adc_data;
+    float test_sample;
+    test_rt_adc_init_ok();
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_configuration_t configuration =
     {
         .dsp_function = RD_SENSOR_CFG_DEFAULT,
@@ -354,7 +359,10 @@ void test_rt_adc_test_sample (void)
         .samplerate = RD_SENSOR_CFG_DEFAULT,
         .scale = RD_SENSOR_CFG_DEFAULT
     };
-    float test_sample;
-    err_code = rt_adc_sample_channel (&configuration, RI_ADC_AIN0, &test_sample);
+    err_code = rt_adc_configure_se (&configuration, RI_ADC_AIN0, ABSOLUTE);
+    ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
+    err_code = rt_adc_voltage_get (&adc_data);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
