@@ -346,7 +346,7 @@ void test_rt_adc_sample_channel (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_data_t adc_data;
-    float test_sample;
+    float data;
     test_rt_adc_init_ok();
     ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
@@ -363,11 +363,15 @@ void test_rt_adc_sample_channel (void)
     ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
     rd_sensor_timestamp_get_IgnoreAndReturn (0);
-    err_code = rt_adc_voltage_get(&adc_data);
+    err_code = rt_adc_voltage_get (&adc_data);
     ri_adc_stop_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
     ri_atomic_flag_ReturnThruPtr_flag (&m_false);
     err_code = rt_adc_uninit();
-    TEST_ASSERT (RD_SUCCESS == err_code);
+    test_rt_adc_vdd_prepare_ok();
+    test_rt_adc_vdd_sample_ok();
+    err_code = rt_adc_vdd_get (&data);
+    tearDown();
+    TEST_ASSERT (RD_SUCCESS == err_code);    
 }
