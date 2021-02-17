@@ -363,6 +363,11 @@ void test_rt_adc_sample_channel (void)
     ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
     rd_sensor_data_populate_ExpectAnyArgs ();
     rd_sensor_timestamp_get_IgnoreAndReturn (0);
-    err_code = rt_adc_voltage_get (&adc_data);
+    err_code = rt_adc_voltage_get(&adc_data);
+    ri_adc_stop_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_uninit_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
+    ri_atomic_flag_ReturnThruPtr_flag (&m_false);
+    err_code = rt_adc_uninit();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
