@@ -58,6 +58,8 @@ void dps310_fp_setup (rd_sensor_t * const p_sensor)
     p_sensor->mode_set = &ri_dps310_mode_set;
     p_sensor->mode_get = &ri_dps310_mode_get;
     p_sensor->data_get = &ri_dps310_data_get;
+    p_sensor->configuration_set = &rd_sensor_configuration_set;
+    p_sensor->configuration_get = &rd_sensor_configuration_get;
     return;
 }
 
@@ -127,6 +129,7 @@ rd_status_t ri_dps310_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle
     {
         // Error code can be ignored.
         (void) dps310_uninit (sensor->p_ctx);
+        rd_sensor_uninitialize (sensor);
     }
 
     return err_code;
@@ -320,15 +323,15 @@ rd_status_t ri_dps310_samplerate_get (uint8_t * samplerate)
         // Separate rates for temperature and pressure aren't supported
         // by interface, so can check only temperature rate.
         rate = dps310_mr_to_samplerate (singleton_ctx_spi.temp_mr);
-    }
 
-    if (0U == rate)
-    {
-        err_code |= RD_ERROR_INTERNAL;
-    }
-    else
-    {
-        *samplerate = rate;
+        if (0U == rate)
+        {
+            err_code |= RD_ERROR_INTERNAL;
+        }
+        else
+        {
+            *samplerate = rate;
+        }
     }
 
     return err_code;
