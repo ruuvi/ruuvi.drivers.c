@@ -51,8 +51,9 @@ void test_ri_spi_dps310_read (void)
     uint8_t gpio_handle = 33U;
     uint8_t data[8] = {0};
     uint8_t reg_addr = 0x01U;
+    uint8_t read_cmd = 0x81U;
     ri_gpio_write_ExpectAndReturn (0x101U, RI_GPIO_LOW, RD_SUCCESS);
-    ri_spi_xfer_blocking_ExpectWithArrayAndReturn (&reg_addr, 1, 1, NULL, 0, 0, RD_SUCCESS);
+    ri_spi_xfer_blocking_ExpectWithArrayAndReturn (&read_cmd, 1, 1, NULL, 0, 0, RD_SUCCESS);
     ri_spi_xfer_blocking_ExpectAndReturn (NULL, 0, data, 8, RD_SUCCESS);
     ri_gpio_write_ExpectAndReturn (0x101U, RI_GPIO_HIGH, RD_SUCCESS);
     uint32_t retval = ri_spi_dps310_read (&gpio_handle, reg_addr, data, sizeof (data));
