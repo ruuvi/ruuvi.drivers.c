@@ -47,9 +47,10 @@
  *
  */
 
-#define NUM_AXIS    (3U) //!< X, Y, Z.
-#define NM_BIT_DIVEDER (64U) //!< Normal mode uses 10 bits in 16 bit field, leading to 2^6 factor in results.
-#define MOTION_THRESHOLD_MAX (0x7FU) // Highest threshold value allowed.
+#define NUM_AXIS             (3U)    //!< X, Y, Z.
+#define NM_BIT_DIVEDER       (64U)   //!< Normal mode uses 10 bits in 16 bit field, leading to 2^6 factor in results.
+#define MOTION_THRESHOLD_MAX (0x7FU) //!< Highest threshold value allowed.
+#define PWRON_DELAY_MS       (10U)   //!< Milliseconds from poweron to sensor rdy. 5ms typ.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
@@ -279,6 +280,11 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
         LOGD ("dev_ctx_init. Error = %08x\r\n", err_code);
         rd_sensor_initialize (p_sensor);
         p_sensor->name = m_acc_name;
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= ri_delay_ms (PWRON_DELAY_MS);
+        }
 
         if (RD_SUCCESS == err_code)
         {
