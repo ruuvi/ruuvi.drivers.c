@@ -298,6 +298,7 @@ void test_ruuvi_interface_lis2dh12_init_ok (void)
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&m_sensor);
+    ri_delay_ms_ExpectAndReturn (10U, RD_SUCCESS);
     wai_ok();
     clear_sensor_state_ok();
     selftest_ok();
@@ -312,6 +313,7 @@ void test_ruuvi_interface_lis2dh12_init_st_zero_pos (void)
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&m_sensor);
+    ri_delay_ms_ExpectAndReturn (10U, RD_SUCCESS);
     wai_ok();
     clear_sensor_state_ok();
     selftest_zero_pos();
@@ -327,6 +329,7 @@ void test_ruuvi_interface_lis2dh12_init_st_zero_neg (void)
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&m_sensor);
+    ri_delay_ms_ExpectAndReturn (10U, RD_SUCCESS);
     wai_ok();
     clear_sensor_state_ok();
     selftest_zero_neg();
@@ -342,6 +345,7 @@ void test_ruuvi_interface_lis2dh12_init_wai_fail (void)
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&m_sensor);
+    ri_delay_ms_ExpectAndReturn (10U, RD_SUCCESS);
     wai_diffrent();
     rd_sensor_uninitialize_Expect (&m_sensor);
     err_code |= ri_lis2dh12_init (&m_sensor, m_bus, m_handle);
@@ -367,6 +371,7 @@ void test_ruuvi_interface_lis2dh12_init_clear_fail (void)
     rd_status_t err_code = RD_SUCCESS;
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&m_sensor);
+    ri_delay_ms_ExpectAndReturn (10U, RD_SUCCESS);
     wai_ok();
     clear_sensor_state_fail();
     rd_sensor_uninitialize_Expect (&m_sensor);
