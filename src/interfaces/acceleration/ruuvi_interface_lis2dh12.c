@@ -269,7 +269,7 @@ rd_status_t ri_lis2dh12_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t hand
         err_code |= RD_ERROR_NULL;
         LOGD ("p_sensor. Error = %08x\r\n", err_code);
     }
-    else if (NULL != dev.ctx.write_reg)
+    else if (rd_sensor_is_init (p_sensor))
     {
         err_code |= RD_ERROR_INVALID_STATE;
         LOGD ("write_reg. Error = %08x\r\n", err_code);

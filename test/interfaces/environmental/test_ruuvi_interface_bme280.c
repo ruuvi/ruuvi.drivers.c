@@ -213,6 +213,7 @@ void test_ri_bme280_init_dev_write (void)
     rd_bus_t bus = RD_BUS_SPI;
     dev.write = &ri_spi_bme280_write;
     uint8_t handle = 0;
+    rd_sensor_is_init_ExpectAnyArgsAndReturn (true);
     err_code = ri_bme280_init (p_environmental_sensor, bus, handle);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
@@ -233,6 +234,7 @@ void test_ri_bme280_init_invalid_bus (void)
     struct rd_sensor_t * p_environmental_sensor = &environmental_sensor;
     rd_bus_t bus = RD_BUS_UART;
     uint8_t handle = 0;
+    rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (p_environmental_sensor);
     err_code = ri_bme280_init (p_environmental_sensor, bus, handle);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
@@ -246,6 +248,7 @@ void test_ri_bme280_init_spi_ok (void)
     rd_bus_t bus = RD_BUS_SPI;
     uint8_t handle = 1;
     uint8_t bme_mode = BME280_SLEEP_MODE;
+    rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&n_environmental_sensor);
     bme280_init_IgnoreAndReturn (RD_SUCCESS);
     bme280_crc_selftest_IgnoreAndReturn (BME280_OK);
@@ -265,6 +268,7 @@ void test_ri_bme280_init_i2c_ok (void)
     rd_bus_t bus = RD_BUS_I2C;
     uint8_t handle = 1;
     uint8_t bme_mode = BME280_SLEEP_MODE;
+    rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&n_environmental_sensor);
     bme280_init_IgnoreAndReturn (RD_SUCCESS);
     bme280_crc_selftest_IgnoreAndReturn (BME280_OK);
