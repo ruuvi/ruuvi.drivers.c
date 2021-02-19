@@ -355,33 +355,39 @@ rd_status_t rt_adc_vdd_get (float * const battery)
     return err_code;
 }
 
-rd_status_t rt_adc_sample_channel (rd_sensor_configuration_t * const configuration,
-                                   const uint8_t handle, float * const sample)
+rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configuration,
+                                    const uint8_t handle, float * const sample)
 {
     rd_status_t err_code = RD_SUCCESS;
+    *sample = RD_FLOAT_INVALID;
+    err_code |= rt_adc_init();
+    err_code |= rt_adc_configure_se (configuration, handle, ABSOLUTE);
+    m_vdd_prepared = (RD_SUCCESS == err_code);
 
-    if (RD_SUCCESS == rt_adc_init())
+    if (RD_ERROR_INVALID_PARAM != err_code)
     {
-        while (!m_is_configured)
-        {
-            err_code |= rt_adc_configure_se (configuration, handle, ABSOLUTE);
-            m_vdd_prepared = (RD_SUCCESS == err_code);
-        }
-
-        while (m_vdd_prepared)
-        {
-            err_code |= rt_adc_vdd_sample();
-        }
-
-        while (m_vdd_sampled)
-        {
-            err_code |= rt_adc_vdd_get (sample);
-            err_code |= rt_adc_uninit();
-        }
+        err_code |= rt_adc_vdd_sample();
+        m_vdd_sampled = (RD_SUCCESS == err_code);
+        err_code |= rt_adc_vdd_get (sample);
     }
-    else
+
+    return err_code;
+}
+
+rd_status_t rt_adc_ratiometric_sample (rd_sensor_configuration_t * const configuration,
+                                       const uint8_t handle, float * const sample)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    *sample = RD_FLOAT_INVALID;
+    err_code |= rt_adc_init();
+    err_code |= rt_adc_configure_se (configuration, handle, RATIOMETRIC);
+    m_vdd_prepared = (RD_SUCCESS == err_code);
+
+    if (RD_ERROR_INVALID_PARAM != err_code)
     {
-        *sample = RD_FLOAT_INVALID;
+        err_code |= rt_adc_vdd_sample();
+        m_vdd_sampled = (RD_SUCCESS == err_code);
+        err_code |= rt_adc_vdd_get (sample);
     }
 
     return err_code;

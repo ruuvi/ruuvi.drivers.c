@@ -179,9 +179,9 @@ rd_status_t rt_adc_vdd_sample (void);
 rd_status_t rt_adc_vdd_get (float * const vdd);
 
 /**
- * @brief Get VDD Sample from selected ADC handle
+ * @brief Get absolute VDD Sample from selected ADC handle
  *
- * This function initializes ADC, reads VDD sample from selected handle.
+ * This function initializes ADC, reads absolute VDD sample from selected handle.
  * The value is set as RD_FLOAT_INVALID on ADC initialization error.
  *
  * @param[in] config Configuration of ADC.
@@ -189,8 +189,21 @@ rd_status_t rt_adc_vdd_get (float * const vdd);
  * @retval RD_SUCCESS on success
  * @retval error code from stack on error.
  */
-rd_status_t rt_adc_sample_channel (rd_sensor_configuration_t * const configuration,
-                                   const uint8_t handle, float * const sample);
+rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configuration,
+                                    const uint8_t handle, float * const sample);
 
+/**
+ * @brief Get ratiometric VDD Sample from selected ADC handle
+ *
+ * This function initializes ADC, reads ratiometric VDD sample from selected handle.
+ * The value is set as RD_FLOAT_INVALID on ADC initialization error.
+ *
+ * @param[in] config Configuration of ADC.
+ * @param[in] handle Handle to ADC, i.e. ADC pin.
+ * @retval RD_SUCCESS on success
+ * @retval error code from stack on error.
+ */
+rd_status_t rt_adc_ratiometric_sample (rd_sensor_configuration_t * const configuration,
+                                       const uint8_t handle, float * const sample);
 /** @} */
 #endif // TASK_ADC_H
