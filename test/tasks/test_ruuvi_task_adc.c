@@ -372,9 +372,13 @@ void test_rt_adc_sample_channel_busy (void)
     test_rt_adc_init_busy ();
 }
 
-void rt_adc_absolute_sample_success (void)
+void test_adc_absolute_sample_success (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    float data[2] = {0};
+    rd_sensor_data_t adc_data;
+    adc_data.data = data;
+    adc_data.fields.datas.voltage_v = 1;
     float sample;
     rd_sensor_configuration_t configuration =
     {
@@ -386,17 +390,25 @@ void rt_adc_absolute_sample_success (void)
         .scale = RD_SENSOR_CFG_DEFAULT
     };
     ri_atomic_flag_ExpectAnyArgsAndReturn (true);
-    ri_atomic_flag_ReturnThruPtr_flag (&m_true);
     ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
+    rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
     err_code = rt_adc_absolute_sample (&configuration, RI_ADC_AIN0, &sample);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void rt_adc_ratiometric_success (void)
+void test_rt_adc_ratiometric_success (void) 
 {
     rd_status_t err_code = RD_SUCCESS;
+    float data[2] = {0};
+    rd_sensor_data_t adc_data;
+    adc_data.data = data;
+    adc_data.fields.datas.voltage_v = 1;
     float sample;
     rd_sensor_configuration_t configuration =
     {
@@ -412,6 +424,11 @@ void rt_adc_ratiometric_success (void)
     ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_get_data_ratio_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
+    rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
     err_code = rt_adc_ratiometric_sample (&configuration, RI_ADC_AIN0, &sample);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
