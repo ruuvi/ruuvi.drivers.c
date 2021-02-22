@@ -94,7 +94,6 @@ rd_status_t environmental_mcu_sensor_sleep (void)
 
 // Flag to keep track if we should update the temperature register on data read.
 static bool autorefresh  = false;
-static bool sensor_is_init = false;
 static float temperature;
 static uint64_t tsample;
 static const char m_tmp_name[] = "nRF5TMP"; //!< Human-readable name
@@ -146,7 +145,7 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t * sensor,
     {
         err_code = RD_ERROR_NULL;
     }
-    else if (true == sensor_is_init)
+    else if (rd_sensor_is_init (sensor))
     {
         err_code = RD_ERROR_INVALID_STATE;
     }
@@ -175,7 +174,6 @@ rd_status_t ri_environmental_mcu_init (rd_sensor_t * sensor,
         sensor->configuration_get = rd_sensor_configuration_get;
         sensor->name              = m_tmp_name;
         sensor->provides.datas.temperature_c = 1;
-        sensor_is_init = true;
     }
 
     return err_code;
@@ -195,7 +193,6 @@ rd_status_t ri_environmental_mcu_uninit (rd_sensor_t * sensor,
     }
     else
     {
-        sensor_is_init = false;
         autorefresh = false;
         rd_sensor_uninitialize (sensor);
         tsample     = RD_UINT64_INVALID;

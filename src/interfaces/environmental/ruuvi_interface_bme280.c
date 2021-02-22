@@ -116,7 +116,7 @@ static rd_status_t BME_TO_RUUVI_ERROR (int8_t rslt)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (BME280_OK == err_code) { err_code = RD_SUCCESS; }
+    if (BME280_OK == rslt) { err_code = RD_SUCCESS; }
     else if (BME280_E_DEV_NOT_FOUND == rslt)  { err_code = RD_ERROR_NOT_FOUND; }
     else if (BME280_E_NULL_PTR == rslt)  { err_code = RD_ERROR_NULL; }
     else if (BME280_E_COMM_FAIL == rslt) { err_code = RD_ERROR_BUSY; }
@@ -206,24 +206,22 @@ static void bme280_ri_setup (rd_sensor_t * const environmental_sensor)
 }
 
 /** Initialize BME280 into low-power mode **/
-rd_status_t ri_bme280_init (rd_sensor_t *
-                            environmental_sensor, rd_bus_t bus, uint8_t handle)
+rd_status_t ri_bme280_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == environmental_sensor)
+    if (NULL == p_sensor)
     {
         err_code = RD_ERROR_NULL;
     }
-    else if (NULL != dev.write)
+    else if (rd_sensor_is_init (p_sensor))
     {
-        // dev is NULL at boot, if function pointers have been set sensor is initialized
         err_code = RD_ERROR_INVALID_STATE;
     }
     else
     {
-        rd_sensor_initialize (environmental_sensor);
-        environmental_sensor->name = m_sensor_name;
+        rd_sensor_initialize (p_sensor);
+        p_sensor->name = m_sensor_name;
 
         if (RD_BUS_SPI == bus)
         {
@@ -250,7 +248,7 @@ rd_status_t ri_bme280_init (rd_sensor_t *
 
         if (RD_SUCCESS == err_code)
         {
-            bme280_ri_setup (environmental_sensor);
+            bme280_ri_setup (p_sensor);
         }
     }
 
