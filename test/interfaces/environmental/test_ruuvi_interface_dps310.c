@@ -130,6 +130,7 @@ void test_ri_dps310_uninit_ok (void)
 {
     dps_ctx.p_ctx = &init_ctx;
     dps310_uninit_ExpectAndReturn (&init_ctx, DPS310_SUCCESS);
+    rd_sensor_uninitialize_Expect (&dps_ctx);
     rd_status_t err_code = ri_dps310_uninit (&dps_ctx, RD_BUS_SPI, 1U);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }

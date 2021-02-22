@@ -69,14 +69,15 @@ rd_status_t rt_sensor_store (rt_sensor_ctx_t * const sensor);
  */
 rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor);
 
-/** @brief Configure a sensor with given settings.
+/**
+ * @brief Configure a sensor with given settings.
  *
  * @param[in,out] sensor In: Sensor to configure.
-                         Out: Sensor->configuration will be set to actual configuration.
+ *                       Out: Sensor->configuration will be set to actual configuration.
  *
- * @return RD_SUCCESS on success.
- * @return RD_ERROR_NULL if sensor is NULL.
- * @return error code from sensor on other error.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if sensor is NULL.
+ * @retval error code from sensor on other error.
  */
 rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor);
 

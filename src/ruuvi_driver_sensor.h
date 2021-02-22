@@ -91,6 +91,8 @@
 #define RD_GPIO_TO_HANDLE(handle) ((((handle) >> 3U) & 0xE0U) + ((handle) & 0x1FU))
 /** @brief convert uint8_t into Ruuvi GPIO */
 #define RD_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0U) << 3U) + ((handle) & 0x1FU))
+/** @brief Mark sensor as unused with this handle */
+#define RD_HANDLE_UNUSED (0xFFU)
 
 /**
  * @brief All sensors must implement configuration functions which accept this struct.
