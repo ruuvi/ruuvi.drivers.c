@@ -372,7 +372,7 @@ void test_rt_adc_sample_channel_busy (void)
     test_rt_adc_init_busy ();
 }
 
-void test_rt_sample_success (void)
+void rt_adc_absolute_sample_success (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     float sample;
@@ -390,6 +390,28 @@ void test_rt_sample_success (void)
     ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
     ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
-    err_code = rt_adc_sample_channel (&configuration, RI_ADC_AIN0, &sample);
+    err_code = rt_adc_absolute_sample (&configuration, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void rt_adc_ratiometric_success (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float sample;
+    rd_sensor_configuration_t configuration =
+    {
+        .dsp_function = RD_SENSOR_CFG_DEFAULT,
+        .dsp_parameter = RD_SENSOR_CFG_DEFAULT,
+        .mode = RD_SENSOR_CFG_SINGLE,
+        .resolution = RD_SENSOR_CFG_DEFAULT,
+        .samplerate = RD_SENSOR_CFG_DEFAULT,
+        .scale = RD_SENSOR_CFG_DEFAULT
+    };
+    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
+    ri_atomic_flag_ReturnThruPtr_flag (&m_true);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    err_code = rt_adc_ratiometric_sample (&configuration, RI_ADC_AIN0, &sample);
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
