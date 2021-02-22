@@ -359,18 +359,22 @@ rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configurat
                                     const uint8_t handle, float * const sample)
 {
     rd_status_t err_code = RD_SUCCESS;
-    *sample = RD_FLOAT_INVALID;
+    rd_sensor_data_t m_sample;
+    memset (&m_sample, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
+    float battery_values;
+    m_sample.data = &battery_values;
+    m_sample.fields.datas.voltage_v = RD_ADC_DATA_COUNTER;
     err_code |= rt_adc_init();
     err_code |= rt_adc_configure_se (configuration, handle, ABSOLUTE);
     m_vdd_prepared = (RD_SUCCESS == err_code);
 
     if (RD_ERROR_INVALID_PARAM != err_code)
     {
-        err_code |= rt_adc_vdd_sample();
-        m_vdd_sampled = (RD_SUCCESS == err_code);
-        err_code |= rt_adc_vdd_get (sample);
+        err_code |= rt_adc_sample();
+        err_code |= rt_adc_voltage_get (&m_sample);
     }
 
+    *sample = rd_sensor_data_parse (&m_sample, m_sample.fields);
     return err_code;
 }
 
@@ -378,18 +382,22 @@ rd_status_t rt_adc_ratiometric_sample (rd_sensor_configuration_t * const configu
                                        const uint8_t handle, float * const sample)
 {
     rd_status_t err_code = RD_SUCCESS;
-    *sample = RD_FLOAT_INVALID;
+    rd_sensor_data_t m_sample;
+    memset (&m_sample, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
+    float rate_values;
+    m_sample.data = &rate_values;
+    m_sample.fields.datas.voltage_ratio = RD_ADC_DATA_COUNTER;
     err_code |= rt_adc_init();
     err_code |= rt_adc_configure_se (configuration, handle, RATIOMETRIC);
     m_vdd_prepared = (RD_SUCCESS == err_code);
 
     if (RD_ERROR_INVALID_PARAM != err_code)
     {
-        err_code |= rt_adc_vdd_sample();
-        m_vdd_sampled = (RD_SUCCESS == err_code);
-        err_code |= rt_adc_vdd_get (sample);
+        err_code |= rt_adc_sample();
+        err_code |= rt_adc_ratio_get (&m_sample);
     }
 
+    *sample = rd_sensor_data_parse (&m_sample, m_sample.fields);
     return err_code;
 }
 #endif
