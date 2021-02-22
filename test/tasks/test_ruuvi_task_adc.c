@@ -342,36 +342,6 @@ void test_rt_adc_ratio_get_fail (void)
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
-void test_rt_adc_sample_channel_success (void)
-{
-    test_rt_adc_init_ok ();
-    test_rt_adc_voltage_get_ok ();
-    test_rt_adc_vdd_get_ok ();
-    tearDown ();
-}
-
-void test_rt_adc_sample_channel_not_sampled (void)
-{
-    test_rt_adc_init_ok ();
-    test_rt_adc_voltage_get_ok ();
-    test_rt_adc_vdd_get_not_sampled ();
-    tearDown ();
-}
-
-void test_rt_adc_sample_channel_invalid_handle (void)
-{
-    test_rt_adc_init_ok ();
-    test_rt_adc_configure_se_invalid_handle ();
-    test_rt_adc_voltage_get_ok ();
-    test_rt_adc_vdd_get_ok ();
-    tearDown ();
-}
-
-void test_rt_adc_sample_channel_busy (void)
-{
-    test_rt_adc_init_busy ();
-}
-
 void test_adc_absolute_sample_success (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -402,7 +372,7 @@ void test_adc_absolute_sample_success (void)
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_rt_adc_ratiometric_success (void) 
+void test_rt_adc_ratiometric_success (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     float data[2] = {0};

@@ -179,13 +179,14 @@ rd_status_t rt_adc_vdd_sample (void);
 rd_status_t rt_adc_vdd_get (float * const vdd);
 
 /**
- * @brief Get absolute VDD Sample from selected ADC handle
+ * @brief Get absolute Voltage Sample from selected ADC handle
  *
- * This function initializes ADC, reads absolute VDD sample from selected handle.
- * The value is set as RD_FLOAT_INVALID on ADC initialization error.
+ * This function initializes ADC, reads absolute voltage sample from selected handle.
+ * The parameter sample is absolute voltage relative to the device ground.
  *
  * @param[in] config Configuration of ADC.
  * @param[in] handle Handle to ADC, i.e. ADC pin.
+ * @param[in] pointer to a Voltage Sample.
  * @retval RD_SUCCESS on success
  * @retval error code from stack on error.
  */
@@ -195,11 +196,14 @@ rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configurat
 /**
  * @brief Get ratiometric VDD Sample from selected ADC handle
  *
- * This function initializes ADC, reads ratiometric VDD sample from selected handle.
- * The value is set as RD_FLOAT_INVALID on ADC initialization error.
+ * This function initializes ADC, reads ratiometric voltage sample from selected handle.
+ * The parameter sample is a ration of voltage pin, relative to VDD, varying between
+ * 0.0 (GND) and 1.0 (VDD). Additionally the parameter sample could be outside limits as
+ * described in @ref rt_adc_ratio_get.
  *
  * @param[in] config Configuration of ADC.
  * @param[in] handle Handle to ADC, i.e. ADC pin.
+ * @param[in] pointer to a Voltage Sample.
  * @retval RD_SUCCESS on success
  * @retval error code from stack on error.
  */
