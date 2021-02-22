@@ -361,10 +361,7 @@ rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configurat
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == configuration || NULL == sample)
-    {
-        err_code = RD_ERROR_NULL;
-    }
+    if ( (NULL == configuration) || (NULL == sample)) { return  RD_ERROR_NULL; }
 
     rd_sensor_data_t d_adc;
     memset (&d_adc, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
@@ -390,10 +387,7 @@ rd_status_t rt_adc_ratiometric_sample (rd_sensor_configuration_t * const configu
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == configuration || NULL == sample)
-    {
-        err_code = RD_ERROR_NULL;
-    }
+    if ( (NULL == configuration) || (NULL == sample)) { return  RD_ERROR_NULL; }
 
     rd_sensor_data_t d_adc;
     memset (&d_adc, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
