@@ -372,6 +372,22 @@ void test_adc_absolute_sample_success (void)
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
+void test_adc_absolute_sample_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_configuration_t configuration = {0};
+    err_code = rt_adc_absolute_sample (&configuration, RI_ADC_AIN0, NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_adc_absolute_configuration_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float sample;
+    err_code = rt_adc_absolute_sample (NULL, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
 void test_rt_adc_ratiometric_success (void)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -401,4 +417,20 @@ void test_rt_adc_ratiometric_success (void)
     rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
     err_code = rt_adc_ratiometric_sample (&configuration, RI_ADC_AIN0, &sample);
     TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_adc_ratiometric_sample_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_configuration_t configuration = {0};
+    err_code = rt_adc_ratiometric_sample (&configuration, RI_ADC_AIN0, NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_adc_ratiometric_configuration_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float sample;
+    err_code = rt_adc_ratiometric_sample (NULL, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
