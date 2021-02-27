@@ -27,6 +27,7 @@
 
 #define RD_ADC_DATA_COUNTER     1
 #define RD_ADC_DATA_START       0
+#define RD_ADC_DATA_VOLTAGE     1
 
 #define RD_ADC_DEFAULT_BITFIELD 0
 #define RD_ADC_CLEAN_BYTE       0
@@ -328,7 +329,7 @@ rd_status_t rt_adc_vdd_sample (void)
         memset (&battery, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
         float battery_values;
         battery.data = &battery_values;
-        battery.fields.datas.voltage_v = RD_ADC_DATA_COUNTER;
+        battery.fields.datas.voltage_v = RD_ADC_DATA_VOLTAGE;
         err_code |= rt_adc_voltage_get (&battery);
         m_vdd = rd_sensor_data_parse (&battery, battery.fields);
         err_code |= rt_adc_uninit();
@@ -352,6 +353,58 @@ rd_status_t rt_adc_vdd_get (float * const battery)
         err_code |= RD_ERROR_INVALID_STATE;
     }
 
+    return err_code;
+}
+
+rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configuration,
+                                    const uint8_t handle, float * const sample)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if ( (NULL == configuration) || (NULL == sample)) { return  RD_ERROR_NULL; }
+
+    rd_sensor_data_t d_adc;
+    memset (&d_adc, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
+    float battery_values;
+    d_adc.data = &battery_values;
+    d_adc.fields.datas.voltage_v = RD_ADC_DATA_VOLTAGE;
+    err_code |= rt_adc_init();
+    err_code |= rt_adc_configure_se (configuration, handle, ABSOLUTE);
+    m_vdd_prepared = (RD_SUCCESS == err_code);
+
+    if (m_vdd_prepared)
+    {
+        err_code |= rt_adc_sample();
+        err_code |= rt_adc_voltage_get (&d_adc);
+    }
+
+    *sample = rd_sensor_data_parse (&d_adc, d_adc.fields);
+    return err_code;
+}
+
+rd_status_t rt_adc_ratiometric_sample (rd_sensor_configuration_t * const configuration,
+                                       const uint8_t handle, float * const sample)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if ( (NULL == configuration) || (NULL == sample)) { return  RD_ERROR_NULL; }
+
+    rd_sensor_data_t d_adc;
+    memset (&d_adc, RD_ADC_CLEAN_BYTE, sizeof (rd_sensor_data_t));
+    float rate_values;
+    d_adc.data = &rate_values;
+    d_adc.fields.datas.voltage_ratio = RD_ADC_DATA_VOLTAGE;
+    err_code |= rt_adc_init();
+    err_code |= rt_adc_configure_se (configuration, handle, RATIOMETRIC);
+    m_vdd_prepared = (RD_SUCCESS == err_code);
+
+    if (m_vdd_prepared)
+    {
+        err_code |= rt_adc_sample();
+        err_code |= rt_adc_ratio_get (&d_adc);
+    }
+
+    *sample = rd_sensor_data_parse (&d_adc, d_adc.fields);
     return err_code;
 }
 #endif

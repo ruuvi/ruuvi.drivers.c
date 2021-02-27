@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "3.5.0"
+#define RUUVI_DRIVERS_SEMVER "3.6.0"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -258,6 +258,10 @@ data payload length is the maximum length */
 
 #ifndef RI_ADC_PHOTO_ENABLED
 #   define RI_ADC_PHOTO_ENABLED      ENABLE_DEFAULT
+#endif
+
+#ifndef RUUVI_NRF5_SDK15_NRF52832_ENVIRONMENTAL_ENABLED
+#   define RUUVI_NRF5_SDK15_NRF52832_ENVIRONMENTAL_ENABLED ENABLE_DEFAULT
 #endif
 
 // TODO: Refactor configuration constants elsewhere

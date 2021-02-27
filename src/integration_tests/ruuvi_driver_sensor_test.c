@@ -17,7 +17,11 @@
 
 #if RUUVI_RUN_TESTS
 
-#define RETURN_ON_ERROR(status) if(status) {return status;}
+#define RETURN_ON_ERROR(status) if(status)          \
+{                                                   \
+RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL); \
+return status;                                      \
+}
 #define BITFIELD_MASK       (1U)
 #define MAX_LOG_BUFFER_SIZE (128U)
 #define MAX_SENSOR_NAME_LEN (20U)
@@ -194,7 +198,7 @@ static bool test_sensor_init_on_null (rd_sensor_t * DUT,
 static bool test_sensor_init (const rd_sensor_init_fp init,
                               const rd_bus_t bus, const uint8_t handle)
 {
-    rd_sensor_t DUT;
+    rd_sensor_t DUT = {0};
     bool failed = false;
     // - Sensor must return RD_SUCCESS on first init.
     failed |= initialize_sensor_once (&DUT, init, bus, handle);
@@ -297,7 +301,7 @@ static bool test_sensor_setup_set_get (const rd_sensor_t * DUT,
         // Return error on any other error code
         if (RD_SUCCESS != err_code)
         {
-            return failed;
+            return true;
         }
     }
 
@@ -859,8 +863,17 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
     printfp (p_sensor_ctx->sensor.name);
     printfp ("\": {\r\n");
     printfp ("\"init\":");
-    err_code = p_sensor_ctx->init (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
-                                   p_sensor_ctx->handle);
+
+    if (RD_HANDLE_UNUSED == p_sensor_ctx->handle)
+    {
+        err_code |= RD_ERROR_NOT_FOUND;
+    }
+    else
+    {
+        err_code |= p_sensor_ctx->init (&p_sensor_ctx->sensor,
+                                        p_sensor_ctx->bus,
+                                        p_sensor_ctx->handle);
+    }
 
     if (RD_ERROR_NOT_FOUND == err_code)
     {

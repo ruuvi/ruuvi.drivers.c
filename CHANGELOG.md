@@ -1,4 +1,7 @@
 # Changelog
+## 3.6.0
+ - Add NRF52 temperature sensor support
+
 ## 3.5.0
  - Add partial DPS310 support (SPI only, no FIFO, no interrupts)
 
