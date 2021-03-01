@@ -24,14 +24,14 @@
  *
  */
 
-/** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
-#define RETURN_SUCCESS_ON_VALID(param) do {\
-            if(RD_SENSOR_CFG_DEFAULT   == param ||\
-               RD_SENSOR_CFG_MIN       == param ||\
-               RD_SENSOR_CFG_MAX       == param ||\
-               RD_SENSOR_CFG_NO_CHANGE == param   \
-             ) return RD_SUCCESS;\
-           } while(0)
+
+static inline bool param_is_valid (const uint8_t param)
+{
+    return ( (RD_SENSOR_CFG_DEFAULT   == param)
+             || (RD_SENSOR_CFG_MIN       == param)
+             || (RD_SENSOR_CFG_MAX       == param)
+             || (RD_SENSOR_CFG_NO_CHANGE == param));
+}
 
 static uint8_t  m_address;
 static uint16_t ms_per_sample;
@@ -431,14 +431,26 @@ rd_status_t ri_tmp117_samplerate_get (uint8_t * samplerate)
 
 rd_status_t ri_tmp117_resolution_set (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (m_continuous) { return RD_ERROR_INVALID_STATE; }
+    if (NULL == resolution)
+    {
+        return RD_ERROR_NULL;
+    }
+    else if (m_continuous)
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
+    else if (! param_is_valid (*resolution))
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
+    else
+    {
+        *resolution = RD_SENSOR_CFG_DEFAULT;
+    }
 
-    uint8_t original = *resolution;
-    *resolution = RD_SENSOR_CFG_DEFAULT;
-    RETURN_SUCCESS_ON_VALID (original);
-    return RD_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
 rd_status_t ri_tmp117_resolution_get (uint8_t * resolution)
@@ -451,22 +463,42 @@ rd_status_t ri_tmp117_resolution_get (uint8_t * resolution)
 
 rd_status_t ri_tmp117_scale_set (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (m_continuous) { return RD_ERROR_INVALID_STATE; }
+    if (NULL == scale)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (m_continuous)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (!param_is_valid (*scale))
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
+    else
+    {
+        *scale = RD_SENSOR_CFG_DEFAULT;
+    }
 
-    uint8_t original = *scale;
-    *scale = RD_SENSOR_CFG_DEFAULT;
-    RETURN_SUCCESS_ON_VALID (original);
-    return RD_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
 rd_status_t ri_tmp117_scale_get (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *scale = RD_SENSOR_CFG_DEFAULT;
-    return RD_SUCCESS;
+    if (NULL == scale)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        *scale = RD_SENSOR_CFG_DEFAULT;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter)
