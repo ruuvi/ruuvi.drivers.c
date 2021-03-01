@@ -65,9 +65,9 @@ static rd_status_t tmp117_validate_id (void)
 static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
 {
     uint16_t reg_val;
-    rd_status_t err_code;
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
-                                   &reg_val);
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
+                                    &reg_val);
     reg_val &= ~TMP117_MASK_OS;
 
     switch (num_os)
@@ -75,7 +75,10 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
         case TMP117_VALUE_OS_1:
             reg_val |= TMP117_VALUE_OS_1;
 
-            if (16 > ms_per_cc) { return RD_ERROR_INVALID_STATE; }
+            if (16 > ms_per_cc)
+            {
+                err_code |= RD_ERROR_INVALID_STATE;
+            }
 
             ms_per_sample = 16;
             break;
@@ -83,7 +86,10 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
         case TMP117_VALUE_OS_8:
             reg_val |= TMP117_VALUE_OS_8;
 
-            if (125 > ms_per_cc) { return RD_ERROR_INVALID_STATE; }
+            if (125 > ms_per_cc)
+            {
+                err_code |= RD_ERROR_INVALID_STATE;
+            }
 
             ms_per_sample = 125;
             break;
@@ -91,7 +97,10 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
         case TMP117_VALUE_OS_32:
             reg_val |= TMP117_VALUE_OS_32;
 
-            if (500 > ms_per_cc) { return RD_ERROR_INVALID_STATE; }
+            if (500 > ms_per_cc)
+            {
+                err_code |= RD_ERROR_INVALID_STATE;
+            }
 
             ms_per_sample = 500;
             break;
@@ -99,13 +108,16 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
         case TMP117_VALUE_OS_64:
             reg_val |= TMP117_VALUE_OS_64;
 
-            if (1000 > ms_per_cc) { return RD_ERROR_INVALID_STATE; }
+            if (1000 > ms_per_cc)
+            {
+                err_code |= RD_ERROR_INVALID_STATE;
+            }
 
             ms_per_sample = 1000;
             break;
 
         default:
-            return RD_ERROR_INVALID_PARAM;
+            err_code | RD_ERROR_INVALID_PARAM;
     }
 
     err_code |= ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION,
