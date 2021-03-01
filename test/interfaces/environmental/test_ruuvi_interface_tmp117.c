@@ -32,6 +32,14 @@ static void validate_id_Expect (void)
     ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
 }
 
+static void validate_id_error_Expect (void)
+{
+    static uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_DEVICE_ID, NULL, RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+}
+
 /** @brief @ref rd_sensor_init_fp */
 void test_ri_tmp117_init_ok (void)
 {
@@ -59,4 +67,24 @@ void test_ri_tmp117_init_ok (void)
     TEST_ASSERT (&ri_tmp117_dsp_get == tmp_ctx.dsp_get);
     TEST_ASSERT (&ri_tmp117_data_get == tmp_ctx.data_get);
     TEST_ASSERT (expected.bitfield == tmp_ctx.provides.bitfield);
+}
+
+void test_ri_tmp117_init_invalid_id (void)
+{
+    const rd_sensor_data_fields_t expected =
+    {
+        .datas.temperature_c = 1
+    };
+    rd_sensor_is_init_ExpectAndReturn (&tmp_ctx, false);
+    rd_sensor_initialize_Expect (&tmp_ctx);
+    validate_id_error_Expect();
+    rd_status_t err_code = ri_tmp117_init (&tmp_ctx, RD_BUS_I2C, mock_addr);
+    TEST_ASSERT (RD_ERROR_NOT_FOUND == err_code);
+}
+
+void test_ri_tmp117_init_already_init (void)
+{
+    rd_sensor_is_init_ExpectAndReturn (&tmp_ctx, true);
+    rd_status_t err_code = ri_tmp117_init (&tmp_ctx, RD_BUS_I2C, mock_addr);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }

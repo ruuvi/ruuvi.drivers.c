@@ -50,10 +50,16 @@ static rd_status_t tmp117_soft_reset (void)
 static rd_status_t tmp117_validate_id (void)
 {
     uint16_t id;
-    rd_status_t err_code;
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_DEVICE_ID, &id);
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_DEVICE_ID, &id);
     id &= TMP117_MASK_ID;
-    return (TMP117_VALUE_ID == id) ? err_code : err_code | RD_ERROR_NOT_FOUND;
+
+    if (TMP117_VALUE_ID != id)
+    {
+        err_code |= RD_ERROR_NOT_FOUND;
+    }
+
+    return err_code;
 }
 
 static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
@@ -252,26 +258,18 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
     {
         rd_sensor_initialize (environmental_sensor);
         environmental_sensor->name = m_sensor_name;
-        rd_status_t err_code = RD_SUCCESS;
+        err_code = RD_SUCCESS;
         m_address = handle;
         size_t retries = 0;
 
-        switch (bus)
+        if (RD_BUS_I2C == bus)
         {
-            case RD_BUS_I2C:
-                do
-                {
-                    err_code |= tmp117_validate_id();
-                    retries++;
-                } while (RD_ERROR_TIMEOUT == err_code && retries < 5);
-
-                break;
-
-            default:
-                return  RD_ERROR_INVALID_PARAM;
+            err_code |= tmp117_validate_id();
         }
-
-        if (RD_SUCCESS != err_code) { err_code = RD_ERROR_NOT_FOUND; }
+        else
+        {
+            err_code |=  RD_ERROR_INVALID_PARAM;
+        }
 
         if (RD_SUCCESS == err_code)
         {
