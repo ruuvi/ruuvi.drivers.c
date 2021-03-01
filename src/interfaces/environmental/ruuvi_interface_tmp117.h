@@ -42,32 +42,32 @@ ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 0Fh     R    0117h Device_ID     Device ID register
 */
 
-#define TMP117_REG_TEMP_RESULT   0x00
-#define TMP117_REG_CONFIGURATION 0x01
-#define TMP117_REG_THIGH_LIMIT   0x02
-#define TMP117_REG_TLOW_LIMIT    0x03
-#define TMP117_REG_EEPROM_UL     0x04
-#define TMP117_REG_EEPROM1       0x05
-#define TMP117_REG_EEPROM2       0x06
-#define TMP117_REG_TEMP_OFFSET   0x07
-#define TMP117_REG_EEPROM3       0x08
-#define TMP117_REG_DEVICE_ID     0x0F
+#define TMP117_REG_TEMP_RESULT   (0x00U)
+#define TMP117_REG_CONFIGURATION (0x01U)
+#define TMP117_REG_THIGH_LIMIT   (0x02U)
+#define TMP117_REG_TLOW_LIMIT    (0x03U)
+#define TMP117_REG_EEPROM_UL     (0x04U)
+#define TMP117_REG_EEPROM1       (0x05U)
+#define TMP117_REG_EEPROM2       (0x06U)
+#define TMP117_REG_TEMP_OFFSET   (0x07U)
+#define TMP117_REG_EEPROM3       (0x08U)
+#define TMP117_REG_DEVICE_ID     (0x0FU)
 
-#define TMP117_MASK_RESET        0x0002
-#define TMP117_MASK_ID           0x01FF
-#define TMP117_MASK_OS           0x0030
-#define TMP117_MASK_MODE         0x0C00
-#define TMP117_MASK_CC           0x0380
+#define TMP117_MASK_RESET        (0x0002U)
+#define TMP117_MASK_ID           (0x01FFU)
+#define TMP117_MASK_OS           (0x0030U)
+#define TMP117_MASK_MODE         (0x0C00U)
+#define TMP117_MASK_CC           (0x0380U)
 
-#define TMP117_VALUE_ID          0x0117
+#define TMP117_VALUE_ID          (0x0117U)
 
-#define TMP117_POS_OS            5
+#define TMP117_POS_OS            (5U)
 #define TMP117_VALUE_OS_1        (0x00 << TMP117_POS_OS)
 #define TMP117_VALUE_OS_8        (0x01 << TMP117_POS_OS)
 #define TMP117_VALUE_OS_32       (0x02 << TMP117_POS_OS)
 #define TMP117_VALUE_OS_64       (0x03 << TMP117_POS_OS)
 
-#define TMP117_POS_CC            7
+#define TMP117_POS_CC            (7U)
 #define TMP117_VALUE_CC_16_MS    (0x00 << TMP117_POS_CC)
 #define TMP117_VALUE_CC_125_MS   (0x01 << TMP117_POS_CC)
 #define TMP117_VALUE_CC_250_MS   (0x02 << TMP117_POS_CC)
@@ -77,12 +77,12 @@ ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 #define TMP117_VALUE_CC_8000_MS  (0x06 << TMP117_POS_CC)
 #define TMP117_VALUE_CC_16000_MS (0x07 << TMP117_POS_CC)
 
-#define TMP117_POS_MODE          10
+#define TMP117_POS_MODE          (10U)
 #define TMP117_VALUE_MODE_SLEEP  (0x01 << TMP117_POS_MODE)
 #define TMP117_VALUE_MODE_SINGLE (0x03 << TMP117_POS_MODE)
 #define TMP117_VALUE_MODE_CONT   (0x00 << TMP117_POS_MODE)
 
-#define TMP117_VALUE_TEMP_NA     0x8000
+#define TMP117_VALUE_TEMP_NA     (0x8000U)
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_tmp117_init (rd_sensor_t *
