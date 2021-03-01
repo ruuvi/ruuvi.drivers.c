@@ -35,7 +35,7 @@ rd_status_t ri_i2c_tmp117_read (const uint8_t dev_id,
     command[0] = reg_addr;
     err_code |= ri_i2c_write_blocking (dev_id, command, 1, false);
     err_code |= ri_i2c_read_blocking (dev_id, & (command[1]), sizeof (command));
-    *reg_val = (command[1] << 8) + command[2];
+    *reg_val = (uint16_t)(command[1] << 8U) + command[2];
     return err_code;
 }
 #endif
