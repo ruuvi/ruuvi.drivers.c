@@ -239,7 +239,7 @@ rd_status_t ri_adv_channels_enable (const ri_radio_channels_t channel);
  * @return BLE Manufacturer ID, e.g. 0x0499 for Ruuvi Innovation
  */
 
-uint16_t ri_comm_ble_adv_parse_manuid (const uint8_t * const data,
+uint16_t ri_adv_parse_manuid (const uint8_t * const data,
                                        const size_t data_length);
 
 #endif

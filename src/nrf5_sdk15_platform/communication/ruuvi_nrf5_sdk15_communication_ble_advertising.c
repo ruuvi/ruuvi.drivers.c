@@ -772,7 +772,7 @@ rd_status_t ri_adv_stop()
     return RD_SUCCESS;
 }
 
-uint16_t ri_comm_ble_adv_parse_manuid (const uint8_t * const data,
+uint16_t ri_adv_parse_manuid (const uint8_t * const data,
                                        const size_t data_length)
 {
     uint8_t * manuf_id;
