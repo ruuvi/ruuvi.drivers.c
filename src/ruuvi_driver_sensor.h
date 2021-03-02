@@ -91,6 +91,8 @@
 #define RD_GPIO_TO_HANDLE(handle) ((((handle) >> 3U) & 0xE0U) + ((handle) & 0x1FU))
 /** @brief convert uint8_t into Ruuvi GPIO */
 #define RD_HANDLE_TO_GPIO(handle) ((((handle) & 0xE0U) << 3U) + ((handle) & 0x1FU))
+/** @brief Mark sensor as unused with this handle */
+#define RD_HANDLE_UNUSED (0xFFU)
 
 /**
  * @brief All sensors must implement configuration functions which accept this struct.
@@ -166,6 +168,12 @@ typedef struct
 #define RD_SENSOR_ACC_Y_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_y_g=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_ACC_Z_FIELD ((rd_sensor_data_fields_t){.datas.acceleration_z_g=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_GYR_X_FIELD ((rd_sensor_data_fields_t){.datas.gyro_x_dps=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_GYR_Y_FIELD ((rd_sensor_data_fields_t){.datas.gyro_y_dps=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_GYR_Z_FIELD ((rd_sensor_data_fields_t){.datas.gyro_z_dps=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_HUMI_FIELD ((rd_sensor_data_fields_t){.datas.humidity_rh=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
@@ -267,12 +275,14 @@ typedef rd_status_t (*rd_sensor_dsp_fp) (uint8_t * dsp_function,
  * in a row returns same data. Configure sensor in a single-shot mode to take a new sample
  * or leave sensor in a continuous mode to get updated data.
  *
+ * p_data may contain, some, none or all of fields sensor is able to provide.
+ * Fields which are already marked as valid will not be overwritten, filled fields
+ * will get marked as valid.
+ *
  * @param [out] p_data Pointer to sensor data @ref rd_sensor_data_t .
  * @return RD_SUCCESS on success
  * @return RD_ERROR_NULL if p_data is @c NULL.
  *
- * @warning if sensor data is not valid for any reason, data is populated with
- *          @c RD_FLOAT_INVALID.
  */
 typedef rd_status_t (*rd_sensor_data_fp) (rd_sensor_data_t * const p_data);
 
@@ -362,14 +372,16 @@ typedef uint64_t (*rd_sensor_timestamp_fp) (void);
  */
 typedef struct rd_sensor_t
 {
-    /** @brief sensor human-readable name. Should be at most 8 bytes long. */
+    /** @brief Sensor human-readable name. Should be at most 8 bytes long. */
     const char * name;
+    /** @brief handle for sensor internal context */
+    void * p_ctx;
     /** @brief Description of data fields the sensor is able to provide. */
     rd_sensor_data_fields_t provides;
     /** @brief @ref rd_sensor_init_fp */
-    rd_sensor_init_fp   init;
+    rd_sensor_init_fp  init;
     /** @brief @ref rd_sensor_init_fp */
-    rd_sensor_init_fp   uninit;
+    rd_sensor_init_fp  uninit;
     /** @brief @ref rd_sensor_setup_fp */
     rd_sensor_setup_fp samplerate_set;
     /** @brief @ref rd_sensor_setup_fp */

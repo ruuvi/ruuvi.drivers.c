@@ -262,17 +262,17 @@ bool ri_gatt_tx_test (const rd_test_print_fp printfp,
 
     if (timeout)
     {
-        printfp ("\"timeout\"\r\n");
+        printfp ("\"timeout\",\r\n");
     }
     else
     {
         if (status)
         {
-            printfp ("\"fail,\"\r\n");
+            printfp ("\"fail\",\r\n");
         }
         else
         {
-            printfp ("\"pass,\"\r\n");
+            printfp ("\"pass\",\r\n");
         }
     }
 

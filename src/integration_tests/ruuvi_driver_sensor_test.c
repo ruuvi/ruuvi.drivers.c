@@ -17,7 +17,11 @@
 
 #if RUUVI_RUN_TESTS
 
-#define RETURN_ON_ERROR(status) if(status) {return status;}
+#define RETURN_ON_ERROR(status) if(status)          \
+{                                                   \
+RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL); \
+return status;                                      \
+}
 #define BITFIELD_MASK       (1U)
 #define MAX_LOG_BUFFER_SIZE (128U)
 #define MAX_SENSOR_NAME_LEN (20U)
@@ -194,7 +198,7 @@ static bool test_sensor_init_on_null (rd_sensor_t * DUT,
 static bool test_sensor_init (const rd_sensor_init_fp init,
                               const rd_bus_t bus, const uint8_t handle)
 {
-    rd_sensor_t DUT;
+    rd_sensor_t DUT = {0};
     bool failed = false;
     // - Sensor must return RD_SUCCESS on first init.
     failed |= initialize_sensor_once (&DUT, init, bus, handle);
@@ -297,7 +301,7 @@ static bool test_sensor_setup_set_get (const rd_sensor_t * DUT,
         // Return error on any other error code
         if (RD_SUCCESS != err_code)
         {
-            return failed;
+            return true;
         }
     }
 
@@ -391,8 +395,7 @@ static bool sensor_sleeps_after_init (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const
-        DUT)
+static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const DUT)
 {
     rd_status_t err_code = RD_SUCCESS;
     float values_new[MAX_SENSOR_PROVIDED_FIELDS];
@@ -860,12 +863,21 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
     printfp (p_sensor_ctx->sensor.name);
     printfp ("\": {\r\n");
     printfp ("\"init\":");
-    err_code = p_sensor_ctx->init (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
-                                   p_sensor_ctx->handle);
+
+    if (RD_HANDLE_UNUSED == p_sensor_ctx->handle)
+    {
+        err_code |= RD_ERROR_NOT_FOUND;
+    }
+    else
+    {
+        err_code |= p_sensor_ctx->init (&p_sensor_ctx->sensor,
+                                        p_sensor_ctx->bus,
+                                        p_sensor_ctx->handle);
+    }
 
     if (RD_ERROR_NOT_FOUND == err_code)
     {
-        printfp ("\"skip\",\r\n");
+        printfp ("\"skip\"\r\n");
         p_sensor_ctx->sensor.uninit (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
                                      p_sensor_ctx->handle);
     }
@@ -937,7 +949,7 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
         }
         else
         {
-            printfp ("\"skipped\"\r\n");
+            printfp ("\"skipped\",\r\n");
         }
 
         status = test_sensor_data_print (p_sensor_ctx->init, p_sensor_ctx->bus,
@@ -952,6 +964,8 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                            const rd_test_print_fp printfp)
 {
     uint8_t data_counter = 0;
+    uint8_t data_available = 0;
+    uint32_t data_check = p_data->fields.bitfield;
     char sensors_name[MAX_SENSORS][MAX_SENSOR_NAME_LEN] =
     {
         "acceleration_x_g",
@@ -977,6 +991,15 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
         "voltage_v",
         "voltage_ratio",
     };
+
+    /* Count enabled sensors */
+    for (int i = 0; i < MAX_SENSORS; i++)
+    {
+        if (data_check & BITFIELD_MASK)
+        { data_available++; }
+
+        data_check = data_check >> 1;
+    }
 
     if (NULL != p_data)
     {
@@ -1007,14 +1030,14 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                     if (0 == isnan (* ( (float *) (&p_data->data[data_counter]))))
                     {
                         snprintf (msg, sizeof (msg),
-                                  "\"%s\": \"%.2f\",\r\n",
+                                  "\"%s\": \"%.2f\"",
                                   (char *) &sensors_name[i][0],
                                   * ( (float *) (&p_data->data[data_counter])));
                     }
                     else
                     {
                         snprintf (msg, sizeof (msg),
-                                  "\"%s\": \"NAN\",\r\n",
+                                  "\"%s\": \"NAN\"",
                                   (char *) &sensors_name[i][0]);
                     }
 
@@ -1023,8 +1046,19 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                 else
                 {
                     snprintf (msg, sizeof (msg),
-                              "\"%s\": \"NAN\",\r\n",
+                              "\"%s\": \"NAN\"",
                               (char *) &sensors_name[i][0]);
+                }
+
+                if (data_counter == data_available)
+                {
+                    char * str = "\r\n";
+                    strncat (msg, str, sizeof (str));
+                }
+                else
+                {
+                    char * str = ",\r\n";
+                    strncat (msg, str, sizeof (str));
                 }
 
                 printfp (msg);

@@ -45,6 +45,7 @@ typedef struct
     ri_gpio_id_t scl;   //!< pin number of SCL
     ri_i2c_frequency_t
     frequency; //!< Frequency of I2C Bus, see @ref ri_i2c_frequency_t
+    ri_gpio_id_t bus_pwr; //!< Power to pull-ups, UNUSED if fixed.
 } ri_i2c_init_config_t;
 
 /**
