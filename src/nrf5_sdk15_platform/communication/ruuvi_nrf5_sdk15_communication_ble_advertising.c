@@ -772,4 +772,21 @@ rd_status_t ri_adv_stop()
     return RD_SUCCESS;
 }
 
+uint16_t ri_adv_parse_manuid (const uint8_t * const data,
+                              const size_t data_length)
+{
+    uint8_t * manuf_id;
+    manuf_id = ble_advdata_parse ( (char *) data, data_length,
+                                   BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA);
+
+    if (manuf_id == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        return (manuf_id[1] << 8 | manuf_id[0]);
+    }
+}
+
 #endif
