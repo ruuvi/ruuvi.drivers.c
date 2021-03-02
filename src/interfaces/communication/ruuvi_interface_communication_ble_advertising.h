@@ -230,4 +230,16 @@ rd_status_t ri_adv_scan_stop (void);
  */
 rd_status_t ri_adv_channels_enable (const ri_radio_channels_t channel);
 
+/**
+ * @brief Parse Manufacturer ID from given Bluetooth scan data.
+ *
+ * @params[in] data pointer to data to parse
+ * @params[in] data_length length of data to parse
+ * @retval 0 if argument is NULL of manufacturer ID not found
+ * @return BLE Manufacturer ID, e.g. 0x0499 for Ruuvi Innovation
+ */
+
+uint16_t ri_comm_ble_adv_parse_manuid (const uint8_t * const data,
+                                       const size_t data_length);
+
 #endif

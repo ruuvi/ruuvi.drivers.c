@@ -772,4 +772,13 @@ rd_status_t ri_adv_stop()
     return RD_SUCCESS;
 }
 
+uint16_t ri_comm_ble_adv_parse_manuid (const uint8_t * const data,
+                                       const size_t data_length)
+{
+    uint16_t * manuf_id;
+    manuf_id = ble_advdata_parse (data, data_length,
+                                  BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA);
+    return  *manuf_id;
+}
+
 #endif
