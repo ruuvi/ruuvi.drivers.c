@@ -341,3 +341,96 @@ void test_rt_adc_ratio_get_fail (void)
     err_code = rt_adc_ratio_get (&adc_data);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
+
+void test_adc_absolute_sample_success (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float data[2] = {0};
+    rd_sensor_data_t adc_data;
+    adc_data.data = data;
+    adc_data.fields.datas.voltage_v = 1;
+    float sample;
+    rd_sensor_configuration_t configuration =
+    {
+        .dsp_function = RD_SENSOR_CFG_DEFAULT,
+        .dsp_parameter = RD_SENSOR_CFG_DEFAULT,
+        .mode = RD_SENSOR_CFG_SINGLE,
+        .resolution = RD_SENSOR_CFG_DEFAULT,
+        .samplerate = RD_SENSOR_CFG_DEFAULT,
+        .scale = RD_SENSOR_CFG_DEFAULT
+    };
+    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_get_data_absolute_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
+    rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
+    err_code = rt_adc_absolute_sample (&configuration, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_adc_absolute_sample_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_configuration_t configuration = {0};
+    err_code = rt_adc_absolute_sample (&configuration, RI_ADC_AIN0, NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_adc_absolute_configuration_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float sample;
+    err_code = rt_adc_absolute_sample (NULL, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_rt_adc_ratiometric_success (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float data[2] = {0};
+    rd_sensor_data_t adc_data;
+    adc_data.data = data;
+    adc_data.fields.datas.voltage_v = 1;
+    float sample;
+    rd_sensor_configuration_t configuration =
+    {
+        .dsp_function = RD_SENSOR_CFG_DEFAULT,
+        .dsp_parameter = RD_SENSOR_CFG_DEFAULT,
+        .mode = RD_SENSOR_CFG_SINGLE,
+        .resolution = RD_SENSOR_CFG_DEFAULT,
+        .samplerate = RD_SENSOR_CFG_DEFAULT,
+        .scale = RD_SENSOR_CFG_DEFAULT
+    };
+    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
+    ri_atomic_flag_ReturnThruPtr_flag (&m_true);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_mcu_is_valid_ch_ExpectAndReturn (0, true);
+    ri_adc_configure_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    ri_adc_get_data_ratio_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    rd_sensor_data_populate_ExpectAnyArgs ();
+    rd_sensor_data_populate_ReturnThruPtr_target (&m_adc_data);
+    rd_sensor_timestamp_get_IgnoreAndReturn (0);
+    rd_sensor_data_parse_ExpectAnyArgsAndReturn (m_valid_data[0]);
+    err_code = rt_adc_ratiometric_sample (&configuration, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_adc_ratiometric_sample_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_configuration_t configuration = {0};
+    err_code = rt_adc_ratiometric_sample (&configuration, RI_ADC_AIN0, NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_adc_ratiometric_configuration_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float sample;
+    err_code = rt_adc_ratiometric_sample (NULL, RI_ADC_AIN0, &sample);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}

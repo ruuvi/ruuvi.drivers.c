@@ -320,28 +320,28 @@ void test_rt_gatt_init_max_len_name (void)
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-void test_rt_gatt_enable_ok_no_nus()
+void test_rt_gatt_adv_enable_ok_no_nus()
 {
     rd_status_t err_code = RD_SUCCESS;
     rt_adv_connectability_set_ExpectAndReturn (true, m_name, RD_SUCCESS);
-    err_code |= rt_gatt_enable ();
+    err_code |= rt_gatt_adv_enable ();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_rt_gatt_enable_ok_with_nus()
+void test_rt_gatt_adv_enable_ok_with_nus()
 {
     rd_status_t err_code = RD_SUCCESS;
     test_rt_gatt_nus_init_ok();
     rt_adv_connectability_set_ExpectAndReturn (true, m_name, RD_SUCCESS);
-    err_code |= rt_gatt_enable ();
+    err_code |= rt_gatt_adv_enable ();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_rt_gatt_enable_gatt_not_init()
+void test_rt_gatt_adv_enable_gatt_not_init()
 {
     rd_status_t err_code = RD_SUCCESS;
     tearDown();
-    err_code |= rt_gatt_enable ();
+    err_code |= rt_gatt_adv_enable ();
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
@@ -355,19 +355,19 @@ void test_rt_gatt_enable_gatt_not_init()
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if GATT is not initialized.
  */
-void test_rt_gatt_disable_ok (void)
+void test_rt_gatt_adv_disable_ok (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     rt_adv_connectability_set_ExpectAndReturn (false, NULL, RD_SUCCESS);
-    err_code |= rt_gatt_disable();
+    err_code |= rt_gatt_adv_disable();
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
-void test_rt_gatt_disable_not_init (void)
+void test_rt_gatt_adv_disable_not_init (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     tearDown();
-    err_code |= rt_gatt_disable();
+    err_code |= rt_gatt_adv_disable();
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
@@ -514,7 +514,7 @@ void test_rt_gatt_uninit_ok (void)
 {
     ri_radio_modulation_t modulation = RI_RADIO_BLE_2MBPS;
     test_rt_gatt_dis_init_ok();
-    test_rt_gatt_enable_ok_with_nus();
+    test_rt_gatt_adv_enable_ok_with_nus();
     test_rt_gatt_dfu_init_ok();
     rt_adv_is_init_ExpectAndReturn (false);
     ri_radio_get_modulation_ExpectAnyArgsAndReturn (RD_SUCCESS);
@@ -527,7 +527,7 @@ void test_rt_gatt_uninit_ok (void)
     TEST_ASSERT (!rt_gatt_is_init());
     setUp();
     test_rt_gatt_dis_init_ok();
-    test_rt_gatt_enable_ok_with_nus();
+    test_rt_gatt_adv_enable_ok_with_nus();
     test_rt_gatt_dfu_init_ok();
 }
 

@@ -38,8 +38,9 @@ static inline void LOGHEX (const uint8_t * const msg, const size_t len)
  *
  * @param[in] sensor Sensor to initialize.
  *
- * @return RD_SUCCESS on success.
- * @return RD_ERROR_NULL if sensor is NULL.
+ * @retval RD_SUCCESS on success.
+ * @retval RD_ERROR_NULL if sensor is NULL
+ * @retval RD_ERROR_NOT_FOUND if sensor->handle is RD_HANDLE_UNUSED
  * @return error code from sensor on other error.
  */
 rd_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
@@ -50,9 +51,13 @@ rd_status_t rt_sensor_initialize (rt_sensor_ctx_t * const sensor)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else
+    else if (RD_HANDLE_UNUSED != sensor->handle)
     {
         err_code = sensor->init (& (sensor->sensor), sensor->bus, sensor->handle);
+    }
+    else
+    {
+        err_code |= RD_ERROR_NOT_FOUND;
     }
 
     return err_code;
@@ -127,30 +132,30 @@ rd_status_t rt_sensor_load (rt_sensor_ctx_t * const sensor)
  * @return RD_ERROR_NULL if sensor is NULL.
  * @return error code from sensor on other error.
  */
-rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const sensor)
+rd_status_t rt_sensor_configure (rt_sensor_ctx_t * const ctx)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == sensor)
+    if (NULL == ctx)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (NULL == sensor->sensor.configuration_set)
+    else if (!rd_sensor_is_init (& (ctx->sensor)))
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
     else
     {
         LOG ("\r\nAttempting to configure ");
-        LOG (sensor->sensor.name);
+        LOG (ctx->sensor.name);
         LOG (" with:\r\n");
         ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL,
-                                     & (sensor->configuration), "");
-        err_code |= sensor->sensor.configuration_set (& (sensor->sensor),
-                    & (sensor->configuration));
+                                     & (ctx->configuration), "");
+        err_code |= ctx->sensor.configuration_set (& (ctx->sensor),
+                    & (ctx->configuration));
         LOG ("Actual configuration:\r\n");
         ri_log_sensor_configuration (TASK_SENSOR_LOG_LEVEL,
-                                     & (sensor->configuration), "");
+                                     & (ctx->configuration), "");
     }
 
     return err_code;

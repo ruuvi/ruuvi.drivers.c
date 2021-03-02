@@ -56,44 +56,62 @@
 
 #include <string.h>
 
-// Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
-#define RETURN_SUCCESS_ON_VALID(param) do {\
-            if(RUUVI_DRIVER_SENSOR_CFG_DEFAULT   == param ||\
-               RUUVI_DRIVER_SENSOR_CFG_MIN       == param ||\
-               RUUVI_DRIVER_SENSOR_CFG_MAX       == param ||\
-               RUUVI_DRIVER_SENSOR_CFG_NO_CHANGE == param   \
-             ) return RUUVI_DRIVER_SUCCESS;\
-           } while(0)
+#define NRF52_TEMP_SENSOR_RESOLUTION (10U)
+#define NRF52_TEMP_FIXED_SCALE       (128U)
 
-// Macro for checking that sensor is in sleep mode before configuration
-#define VERIFY_SENSOR_SLEEPS() do { \
-          uint8_t MACRO_MODE = 0; \
-          ruuvi_interface_environmental_mcu_mode_get(&MACRO_MODE); \
-          if(RUUVI_DRIVER_SENSOR_CFG_SLEEP != MACRO_MODE) { return RUUVI_DRIVER_ERROR_INVALID_STATE; } \
-          } while(0)
+// Function for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT
+static inline __attribute__ ( (nonnull))
+rd_status_t success_on_valid (uint8_t param)
+{
+    rd_status_t err_code = RD_ERROR_INVALID_PARAM;
+
+    if ( (RD_SENSOR_CFG_DEFAULT   == param) ||
+            (RD_SENSOR_CFG_MIN       == param) ||
+            (RD_SENSOR_CFG_MAX       == param) ||
+            (RD_SENSOR_CFG_NO_CHANGE == param))
+    {
+        err_code = RD_SUCCESS;
+    }
+
+    return  err_code;
+}
+
+// Function for checking that sensor is in sleep mode before configuration
+static inline __attribute__ ( (nonnull))
+rd_status_t environmental_mcu_sensor_sleep (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = 0;
+    ri_environmental_mcu_mode_get (&mode);
+
+    if (RD_SENSOR_CFG_SLEEP != mode)
+    {
+        err_code = RD_ERROR_INVALID_STATE;
+    }
+
+    return  err_code;
+}
 
 // Flag to keep track if we should update the temperature register on data read.
 static bool autorefresh  = false;
-static bool sensor_is_init = false;
 static float temperature;
 static uint64_t tsample;
 static const char m_tmp_name[] = "nRF5TMP"; //!< Human-readable name
 
 static void nrf52832_temperature_sample (void)
 {
-    uint8_t sd_enabled;
-    int32_t raw_temp;
+    uint8_t sd_enabled = NRF_SDH_ENABLED;
+    int32_t raw_temp = 0;
     // Check if softdevice is enabled
     sd_softdevice_is_enabled (&sd_enabled);
 
     // If Nordic softdevice is enabled, we cannot use temperature peripheral directly
-    if (sd_enabled)
+    if (NRF_SDH_ENABLED == sd_enabled)
     {
         sd_temp_get (&raw_temp);
     }
-
     // If SD is not enabled, call the peripheral directly.
-    if (!sd_enabled)
+    else
     {
         NRF_TEMP->TASKS_START = 1; /** Start the temperature measurement. */
 
@@ -111,246 +129,341 @@ static void nrf52832_temperature_sample (void)
         NRF_TEMP->TASKS_STOP = 1; /** Stop the temperature measurement. */
     }
 
-    temperature = raw_temp / 4.0f;
-    tsample = ruuvi_driver_sensor_timestamp_get();
+    temperature = raw_temp / 4.0F;
+    tsample = rd_sensor_timestamp_get();
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_init (ruuvi_driver_sensor_t *
-        environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
+rd_status_t ri_environmental_mcu_init (rd_sensor_t * sensor,
+                                       rd_bus_t bus,
+                                       uint8_t handle)
 {
-    if (NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+    UNUSED_PARAMETER (bus);
+    UNUSED_PARAMETER (handle);
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (true == sensor_is_init) { return RUUVI_DRIVER_ERROR_INVALID_STATE; }
+    if (NULL == sensor)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else if (rd_sensor_is_init (sensor))
+    {
+        err_code = RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        rd_sensor_initialize (sensor);
+        // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
+        nrf_temp_init();
+        tsample     = RD_UINT64_INVALID;
+        temperature = RD_FLOAT_INVALID;
+        // Setup function pointers
+        sensor->init              = ri_environmental_mcu_init;
+        sensor->uninit            = ri_environmental_mcu_uninit;
+        sensor->samplerate_set    = ri_environmental_mcu_samplerate_set;
+        sensor->samplerate_get    = ri_environmental_mcu_samplerate_get;
+        sensor->resolution_set    = ri_environmental_mcu_resolution_set;
+        sensor->resolution_get    = ri_environmental_mcu_resolution_get;
+        sensor->scale_set         = ri_environmental_mcu_scale_set;
+        sensor->scale_get         = ri_environmental_mcu_scale_get;
+        sensor->dsp_set           = ri_environmental_mcu_dsp_set;
+        sensor->dsp_get           = ri_environmental_mcu_dsp_get;
+        sensor->mode_set          = ri_environmental_mcu_mode_set;
+        sensor->mode_get          = ri_environmental_mcu_mode_get;
+        sensor->data_get          = ri_environmental_mcu_data_get;
+        sensor->configuration_set = rd_sensor_configuration_set;
+        sensor->configuration_get = rd_sensor_configuration_get;
+        sensor->name              = m_tmp_name;
+        sensor->provides.datas.temperature_c = 1;
+    }
 
-    ruuvi_driver_sensor_initialize (environmental_sensor);
-    // Workaround for PAN_028 rev2.0A anomaly 31 - TEMP: Temperature offset value has to be manually loaded to the TEMP module
-    nrf_temp_init();
-    tsample     = RUUVI_DRIVER_UINT64_INVALID;
-    temperature = RUUVI_DRIVER_FLOAT_INVALID;
-    // Setup function pointers
-    environmental_sensor->init              = ruuvi_interface_environmental_mcu_init;
-    environmental_sensor->uninit            = ruuvi_interface_environmental_mcu_uninit;
-    environmental_sensor->samplerate_set    =
-        ruuvi_interface_environmental_mcu_samplerate_set;
-    environmental_sensor->samplerate_get    =
-        ruuvi_interface_environmental_mcu_samplerate_get;
-    environmental_sensor->resolution_set    =
-        ruuvi_interface_environmental_mcu_resolution_set;
-    environmental_sensor->resolution_get    =
-        ruuvi_interface_environmental_mcu_resolution_get;
-    environmental_sensor->scale_set         = ruuvi_interface_environmental_mcu_scale_set;
-    environmental_sensor->scale_get         = ruuvi_interface_environmental_mcu_scale_get;
-    environmental_sensor->dsp_set           = ruuvi_interface_environmental_mcu_dsp_set;
-    environmental_sensor->dsp_get           = ruuvi_interface_environmental_mcu_dsp_get;
-    environmental_sensor->mode_set          = ruuvi_interface_environmental_mcu_mode_set;
-    environmental_sensor->mode_get          = ruuvi_interface_environmental_mcu_mode_get;
-    environmental_sensor->data_get          = ruuvi_interface_environmental_mcu_data_get;
-    environmental_sensor->configuration_set = ruuvi_driver_sensor_configuration_set;
-    environmental_sensor->configuration_get = ruuvi_driver_sensor_configuration_get;
-    environmental_sensor->name              = m_tmp_name;
-    environmental_sensor->provides.datas.temperature_c = 1;
-    sensor_is_init = true;
-    return RUUVI_DRIVER_SUCCESS;
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_uninit (
-    ruuvi_driver_sensor_t * environmental_sensor, ruuvi_driver_bus_t bus, uint8_t handle)
+rd_status_t ri_environmental_mcu_uninit (rd_sensor_t * sensor,
+        rd_bus_t bus,
+        uint8_t handle)
 {
-    if (NULL == environmental_sensor) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+    UNUSED_PARAMETER (bus);
+    UNUSED_PARAMETER (handle);
 
-    sensor_is_init = false;
-    autorefresh = false;
-    ruuvi_driver_sensor_uninitialize (environmental_sensor);
-    tsample     = RUUVI_DRIVER_UINT64_INVALID;
-    return RUUVI_DRIVER_SUCCESS;
+    if (NULL == sensor)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        autorefresh = false;
+        rd_sensor_uninitialize (sensor);
+        tsample     = RD_UINT64_INVALID;
+    }
+
+    return err_code;
 }
 
 // Continuous sampling is not supported, mark pointed value as default even if parameter is one of no-changes
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_set (
+rd_status_t ri_environmental_mcu_samplerate_set (
     uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    VERIFY_SENSOR_SLEEPS();
-    uint8_t original = *samplerate;
-    *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    RETURN_SUCCESS_ON_VALID (original);
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+    if (NULL == samplerate)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
+    {
+        uint8_t original = *samplerate;
+        *samplerate = RD_SENSOR_CFG_DEFAULT;
+        err_code = success_on_valid (original);
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_samplerate_get (
+rd_status_t ri_environmental_mcu_samplerate_get (
     uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *samplerate = RUUVI_DRIVER_SENSOR_CFG_DEFAULT;
-    return RUUVI_DRIVER_SUCCESS;
+    if (NULL == samplerate)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        *samplerate = RD_SENSOR_CFG_DEFAULT;
+        err_code = RD_SUCCESS;
+    }
+
+    return  err_code;
 }
 
 // Temperature resolution is fixed to 10 bits, including sign. Return error to driver, but mark used value to pointer.
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_set (
+rd_status_t ri_environmental_mcu_resolution_set (
     uint8_t * resolution)
 {
-    if (NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
-
-    VERIFY_SENSOR_SLEEPS();
-
-    // If 10 bits was given, return success
-    if (10 == *resolution) {return RUUVI_DRIVER_SUCCESS; }
-
-    // Otherwise mark the actual resolution
+    rd_status_t err_code = RD_SUCCESS;
     uint8_t original = *resolution;
-    *resolution = 10;
-    RETURN_SUCCESS_ON_VALID (original);
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+
+    if (NULL == resolution)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
+    {
+        *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
+        err_code = success_on_valid (original);
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_resolution_get (
+rd_status_t ri_environmental_mcu_resolution_get (
     uint8_t * resolution)
 {
-    if (NULL == resolution) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *resolution = 10;
-    return RUUVI_DRIVER_SUCCESS;
+    if (NULL == resolution)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        *resolution = NRF52_TEMP_SENSOR_RESOLUTION;
+    }
+
+    return err_code;
 }
 
 // Scale cannot be set. Our scale is fixed at (2^9) / 4 = 128 (or -127).
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_set (uint8_t * scale)
+rd_status_t ri_environmental_mcu_scale_set (uint8_t * scale)
 {
-    if (NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t original = *scale;
 
-    VERIFY_SENSOR_SLEEPS();
-
-    // If 128 or less was given, return success
-    if (128 >= *scale)
+    if (NULL == scale)
     {
-        *scale = 128;
-        return RUUVI_DRIVER_SUCCESS;
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
+    {
+        *scale = NRF52_TEMP_FIXED_SCALE;
+        err_code = success_on_valid (original);
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
     }
 
-    // Otherwise mark the actual scale
-    uint8_t original = *scale;
-    *scale = 128;
-    RETURN_SUCCESS_ON_VALID (original);
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_scale_get (uint8_t * scale)
+rd_status_t ri_environmental_mcu_scale_get (uint8_t * scale)
 {
-    if (NULL == scale) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *scale = 128;
-    return RUUVI_DRIVER_SUCCESS;
+    if (NULL == scale)
+    {
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        *scale = NRF52_TEMP_FIXED_SCALE;
+    }
+
+    return err_code;
 }
 
 // Return success on DSP_LAST and acceptable defaults, not supported otherwise
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_dsp_set (uint8_t * dsp,
+rd_status_t ri_environmental_mcu_dsp_set (uint8_t * dsp,
         uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RUUVI_DRIVER_ERROR_NULL; }
-
-    VERIFY_SENSOR_SLEEPS();
-
-    if (RUUVI_DRIVER_SENSOR_DSP_LAST == * dsp) { return RUUVI_DRIVER_SUCCESS; }
-
+    rd_status_t err_code = RD_ERROR_NOT_SUPPORTED;
     uint8_t original = *dsp;
-    *dsp       = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
-    *parameter = RUUVI_DRIVER_SENSOR_ERR_NOT_SUPPORTED;
-    RETURN_SUCCESS_ON_VALID (original);
-    return RUUVI_DRIVER_ERROR_NOT_SUPPORTED;
+
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (RD_SUCCESS == environmental_mcu_sensor_sleep())
+    {
+        *dsp = RD_SENSOR_ERR_NOT_SUPPORTED;
+        *parameter = RD_SENSOR_ERR_NOT_SUPPORTED;
+        err_code = success_on_valid (original);
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_dsp_get (uint8_t * dsp,
+rd_status_t ri_environmental_mcu_dsp_get (uint8_t * dsp,
         uint8_t * parameter)
 {
-    *dsp = RUUVI_DRIVER_SENSOR_DSP_LAST;
+    *dsp = RD_SENSOR_DSP_LAST;
     *parameter = 1;
-    return RUUVI_DRIVER_SUCCESS;
+    return RD_SUCCESS;
 }
 
 // Start single on command, mark autorefresh with continuous
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_set (uint8_t * mode)
+rd_status_t ri_environmental_mcu_mode_set (uint8_t * mode)
 {
-    if (NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_ERROR_INVALID_PARAM;
 
+    if (NULL == mode)
+    {
+        err_code = RD_ERROR_NULL;
+    }
     // Enter sleep by default and by explicit sleep commmand
-    if (RUUVI_DRIVER_SENSOR_CFG_SLEEP == *mode || RUUVI_DRIVER_SENSOR_CFG_DEFAULT == *mode)
+    else if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
         autorefresh = false;
-        *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-        return RUUVI_DRIVER_SUCCESS;
+        *mode = RD_SENSOR_CFG_SLEEP;
+        err_code = RD_SUCCESS;
     }
-
-    if (RUUVI_DRIVER_SENSOR_CFG_SINGLE == *mode)
+    else if (RD_SENSOR_CFG_SINGLE == *mode)
     {
         // Do nothing if sensor is in continuous mode
         uint8_t current_mode;
-        ruuvi_interface_environmental_mcu_mode_get (&current_mode);
+        ri_environmental_mcu_mode_get (&current_mode);
 
-        if (RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == current_mode)
+        if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
         {
-            *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
-            return RUUVI_DRIVER_ERROR_INVALID_STATE;
+            *mode = RD_SENSOR_CFG_CONTINUOUS;
+            err_code = RD_ERROR_INVALID_STATE;
         }
-
-        // Enter sleep after measurement
-        autorefresh = false;
-        *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-        // Global float is updated by sample
-        nrf52832_temperature_sample();
-        return RUUVI_DRIVER_SUCCESS;
+        else
+        {
+            // Enter sleep after measurement
+            autorefresh = false;
+            *mode = RD_SENSOR_CFG_SLEEP;
+            // Global float is updated by sample
+            nrf52832_temperature_sample();
+            err_code = RD_SUCCESS;
+        }
     }
-
-    if (RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS == *mode)
+    else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         autorefresh = true;
-        return RUUVI_DRIVER_SUCCESS;
+        err_code = RD_SUCCESS;
+    }
+    else
+    {
+        err_code = RD_SENSOR_ERR_NOT_SUPPORTED;
     }
 
-    return RUUVI_DRIVER_ERROR_INVALID_PARAM;
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_mode_get (uint8_t * mode)
+rd_status_t ri_environmental_mcu_mode_get (uint8_t * mode)
 {
-    if (NULL == mode) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (autorefresh)
+    if (NULL == mode)
     {
-        *mode = RUUVI_DRIVER_SENSOR_CFG_CONTINUOUS;
+        err_code = RD_ERROR_NULL;
+    }
+    else if (autorefresh)
+    {
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
+    }
+    else if (!autorefresh)
+    {
+        *mode = RD_SENSOR_CFG_SLEEP;
+    }
+    else
+    {
+        *mode = RD_SENSOR_ERR_INVALID;
     }
 
-    if (!autorefresh)
-    {
-        *mode = RUUVI_DRIVER_SENSOR_CFG_SLEEP;
-    }
-
-    return RUUVI_DRIVER_SUCCESS;
+    return err_code;
 }
 
-ruuvi_driver_status_t ruuvi_interface_environmental_mcu_data_get (
-    ruuvi_driver_sensor_data_t * const p_data)
+rd_status_t ri_environmental_mcu_data_get (
+    rd_sensor_data_t * const p_data)
 {
-    if (NULL == p_data) { return RUUVI_DRIVER_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (autorefresh) { nrf52832_temperature_sample(); }
-
-    if (!isnan (temperature))
+    if (NULL == p_data)
     {
-        ruuvi_driver_sensor_data_t d_environmental;
-        ruuvi_driver_sensor_data_fields_t env_fields = {.bitfield = 0};
-        float env_values[1];
-        env_values[0] = temperature;
-        env_fields.datas.temperature_c = 1;
-        d_environmental.data = env_values;
-        d_environmental.valid  = env_fields;
-        d_environmental.fields = env_fields;
-        ruuvi_driver_sensor_data_populate (p_data,
-                                           &d_environmental,
-                                           p_data->fields);
-        p_data->timestamp_ms = tsample;
+        err_code = RD_ERROR_NULL;
+    }
+    else
+    {
+        if (autorefresh)
+        {
+            nrf52832_temperature_sample();
+        }
+
+        if (!isnan (temperature))
+        {
+            rd_sensor_data_t d_environmental;
+            rd_sensor_data_fields_t env_fields = {.bitfield = 0};
+            float env_values[1];
+            env_values[0] = temperature;
+            env_fields.datas.temperature_c = 1;
+            d_environmental.data = env_values;
+            d_environmental.valid  = env_fields;
+            d_environmental.fields = env_fields;
+            rd_sensor_data_populate (p_data,
+                                     &d_environmental,
+                                     p_data->fields);
+            p_data->timestamp_ms = tsample;
+        }
     }
 
-    return RUUVI_DRIVER_SUCCESS;
+    return err_code;
 }
 
 #endif
