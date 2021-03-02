@@ -88,3 +88,14 @@ void test_ri_tmp117_init_already_init (void)
     rd_status_t err_code = ri_tmp117_init (&tmp_ctx, RD_BUS_I2C, mock_addr);
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
+
+void test_ri_tmp117_dsp_set_last (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_CFG_LAST;
+    uint8_t parameter = 1;
+    ri_i2c_tmp117_read_ExpectAndReturn ();
+    ri_i2c_tmp117_write_ExpectAndReturn ();
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}

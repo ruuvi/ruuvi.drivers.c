@@ -117,7 +117,7 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
             break;
 
         default:
-            err_code | RD_ERROR_INVALID_PARAM;
+            err_code |= RD_ERROR_INVALID_PARAM;
     }
 
     err_code |= ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION,
@@ -513,48 +513,61 @@ rd_status_t ri_tmp117_scale_get (uint8_t * scale)
 
 rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
-
-    if (m_continuous) { return RD_ERROR_INVALID_STATE; }
-
-    if (RD_SENSOR_CFG_NO_CHANGE == * dsp)
-    {
-        return ri_tmp117_dsp_get (dsp, parameter);
-    }
-
     rd_status_t err_code = RD_SUCCESS;
 
-    if (RD_SENSOR_DSP_LAST == *dsp ||
-            RD_SENSOR_CFG_DEFAULT == *dsp)
+    if (NULL == dsp || NULL == parameter)
     {
-        err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_1);
-        *parameter = 1;
+        err_code |= RD_ERROR_NULL;
     }
-    else if (RD_SENSOR_DSP_OS == *dsp)
+    else if (m_continuous)
     {
-        if (1 >= *parameter)
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        if (RD_SENSOR_CFG_NO_CHANGE == * dsp)
         {
-            *parameter = 1;
+            err_code |= ri_tmp117_dsp_get (dsp, parameter);
+        }
+
+        else if ((RD_SENSOR_DSP_LAST == *dsp)
+                || (RD_SENSOR_CFG_DEFAULT == *dsp))
+        {
             err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_1);
+            *parameter = 1;
         }
-        else if (8 >= *parameter)
+        else if (RD_SENSOR_DSP_OS == *dsp)
         {
-            *parameter = 8;
-            err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_8);
+            if (1 >= *parameter)
+            {
+                *parameter = 1;
+                err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_1);
+            }
+            else if (8 >= *parameter)
+            {
+                *parameter = 8;
+                err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_8);
+            }
+            else if (32 >= *parameter)
+            {
+                *parameter = 32;
+                err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_32);
+            }
+            else if (64 >= *parameter)
+            {
+                *parameter = 64;
+                err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_64);
+            }
+            else
+            {
+                err_code |= RD_ERROR_NOT_SUPPORTED;
+            }
         }
-        else if (32 >= *parameter)
+        else
         {
-            *parameter = 32;
-            err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_32);
+            err_code |= RD_ERROR_NOT_SUPPORTED;
         }
-        else if (64 >= *parameter)
-        {
-            *parameter = 64;
-            err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_64);
-        }
-        else { err_code |= RD_ERROR_NOT_SUPPORTED; }
     }
-    else { err_code |= RD_ERROR_NOT_SUPPORTED; }
 
     return err_code;
 }
