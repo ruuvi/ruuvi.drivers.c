@@ -105,79 +105,95 @@ rd_status_t ri_gpio_interrupt_enable (const
                                       const ri_gpio_mode_t mode,
                                       const ri_gpio_interrupt_fp_t handler)
 {
-    if (!ri_gpio_interrupt_is_init()) { return RD_ERROR_INVALID_STATE; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    // nRF5 devices have 32 pins per port. Pack the port-pin representation into 8 bits for interrupt table.
-    uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
-
-    if (nrf_pin >= max_interrupts) { return RD_ERROR_INVALID_PARAM; }
-
-    ret_code_t err_code = NRF_SUCCESS;
-    nrf_gpiote_polarity_t polarity;
-    nrf_gpio_pin_pull_t pull;
-
-    switch (slope)
+    if (!ri_gpio_interrupt_is_init())
     {
-        case RI_GPIO_SLOPE_TOGGLE:
-            polarity = NRF_GPIOTE_POLARITY_TOGGLE;
-            break;
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (RI_GPIO_ID_UNUSED == pin)
+    {
+        // No action needed
+    }
+    else
+    {
+        // nRF5 devices have 32 pins per port. Pack the port-pin representation into 8 bits for interrupt table.
+        uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
 
-        case RI_GPIO_SLOPE_LOTOHI:
-            polarity = NRF_GPIOTE_POLARITY_LOTOHI;
-            break;
+        if (nrf_pin >= max_interrupts) { return RD_ERROR_INVALID_PARAM; }
 
-        case RI_GPIO_SLOPE_HITOLO:
-            polarity = NRF_GPIOTE_POLARITY_HITOLO;
-            break;
+        ret_code_t nrf_code = NRF_SUCCESS;
+        nrf_gpiote_polarity_t polarity;
+        nrf_gpio_pin_pull_t pull;
 
-        default:
-            return RD_ERROR_INVALID_PARAM;
+        switch (slope)
+        {
+            case RI_GPIO_SLOPE_TOGGLE:
+                polarity = NRF_GPIOTE_POLARITY_TOGGLE;
+                break;
+
+            case RI_GPIO_SLOPE_LOTOHI:
+                polarity = NRF_GPIOTE_POLARITY_LOTOHI;
+                break;
+
+            case RI_GPIO_SLOPE_HITOLO:
+                polarity = NRF_GPIOTE_POLARITY_HITOLO;
+                break;
+
+            default:
+                err_code |= RD_ERROR_INVALID_PARAM;
+        }
+
+        switch (mode)
+        {
+            case RI_GPIO_MODE_INPUT_NOPULL:
+                pull = NRF_GPIO_PIN_NOPULL;
+                break;
+
+            case RI_GPIO_MODE_INPUT_PULLUP:
+                pull = NRF_GPIO_PIN_PULLUP;
+                break;
+
+            case RI_GPIO_MODE_INPUT_PULLDOWN:
+                pull = NRF_GPIO_PIN_PULLDOWN;
+                break;
+
+            default:
+                err_code |= RD_ERROR_INVALID_PARAM;
+        }
+
+        //  high-accuracy mode consumes excess power
+        //  is_watcher is used if we track an output pin.
+        nrf_drv_gpiote_in_config_t in_config =
+        {
+            .is_watcher = false,
+            .hi_accuracy = false,
+            .pull = pull,
+            .sense = polarity
+        };
+        pin_event_handlers[nrf_pin] = handler;
+        nrf_code |= nrf_drv_gpiote_in_init (nrf_pin, &in_config, in_pin_handler);
+        nrf_drv_gpiote_in_event_enable (nrf_pin, true);
+        err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_code);
     }
 
-    switch (mode)
-    {
-        case RI_GPIO_MODE_INPUT_NOPULL:
-            pull = NRF_GPIO_PIN_NOPULL;
-            break;
-
-        case RI_GPIO_MODE_INPUT_PULLUP:
-            pull = NRF_GPIO_PIN_PULLUP;
-            break;
-
-        case RI_GPIO_MODE_INPUT_PULLDOWN:
-            pull = NRF_GPIO_PIN_PULLDOWN;
-            break;
-
-        default:
-            return RD_ERROR_INVALID_PARAM;
-    }
-
-    //  high-accuracy mode consumes excess power
-    //  is_watcher is used if we track an output pin.
-    nrf_drv_gpiote_in_config_t in_config =
-    {
-        .is_watcher = false,
-        .hi_accuracy = false,
-        .pull = pull,
-        .sense = polarity
-    };
-    pin_event_handlers[nrf_pin] = handler;
-    err_code |= nrf_drv_gpiote_in_init (nrf_pin, &in_config, in_pin_handler);
-    nrf_drv_gpiote_in_event_enable (nrf_pin, true);
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+    return err_code;
 }
 
-rd_status_t ri_gpio_interrupt_disable (const
-                                       ri_gpio_id_t pin)
+rd_status_t ri_gpio_interrupt_disable (const ri_gpio_id_t pin)
 {
     rd_status_t err_code = RD_SUCCESS;
-    uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
 
-    if (NULL != pin_event_handlers && NULL != pin_event_handlers[nrf_pin])
+    if (RI_GPIO_ID_UNUSED != pin)
     {
-        nrf_drv_gpiote_in_event_disable (nrf_pin);
-        nrf_drv_gpiote_in_uninit (nrf_pin);
-        pin_event_handlers[nrf_pin] = NULL;
+        uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
+
+        if (NULL != pin_event_handlers && NULL != pin_event_handlers[nrf_pin])
+        {
+            nrf_drv_gpiote_in_event_disable (nrf_pin);
+            nrf_drv_gpiote_in_uninit (nrf_pin);
+            pin_event_handlers[nrf_pin] = NULL;
+        }
     }
 
     return err_code;
