@@ -77,80 +77,114 @@ bool  ri_gpio_is_init (void)
 rd_status_t ri_gpio_configure (const ri_gpio_id_t pin,
                                const ri_gpio_mode_t mode)
 {
-    if (RI_GPIO_ID_UNUSED == pin) { return RD_SUCCESS; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
-
-    switch (mode)
+    if (RI_GPIO_ID_UNUSED != pin)
     {
-        case RI_GPIO_MODE_HIGH_Z:
-            nrf_gpio_cfg_default (nrf_pin);
-            break;
+        const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
 
-        case RI_GPIO_MODE_INPUT_NOPULL:
-            nrf_gpio_cfg_input (nrf_pin, NRF_GPIO_PIN_NOPULL);
-            break;
+        switch (mode)
+        {
+            case RI_GPIO_MODE_HIGH_Z:
+                nrf_gpio_cfg_default (nrf_pin);
+                break;
 
-        case RI_GPIO_MODE_INPUT_PULLUP:
-            nrf_gpio_cfg_input (nrf_pin, NRF_GPIO_PIN_PULLUP);
-            break;
+            case RI_GPIO_MODE_INPUT_NOPULL:
+                nrf_gpio_cfg_input (nrf_pin, NRF_GPIO_PIN_NOPULL);
+                break;
 
-        case RI_GPIO_MODE_INPUT_PULLDOWN:
-            nrf_gpio_cfg_input (nrf_pin, NRF_GPIO_PIN_PULLDOWN);
-            break;
+            case RI_GPIO_MODE_INPUT_PULLUP:
+                nrf_gpio_cfg_input (nrf_pin, NRF_GPIO_PIN_PULLUP);
+                break;
 
-        case RI_GPIO_MODE_OUTPUT_STANDARD:
-            nrf_gpio_cfg_output (nrf_pin);
-            break;
+            case RI_GPIO_MODE_INPUT_PULLDOWN:
+                nrf_gpio_cfg_input (nrf_pin, NRF_GPIO_PIN_PULLDOWN);
+                break;
 
-        case RI_GPIO_MODE_OUTPUT_HIGHDRIVE:
-            nrf_gpio_cfg (nrf_pin,
-                          NRF_GPIO_PIN_DIR_OUTPUT,
-                          NRF_GPIO_PIN_INPUT_DISCONNECT,
-                          NRF_GPIO_PIN_NOPULL,
-                          NRF_GPIO_PIN_H0H1,
-                          NRF_GPIO_PIN_NOSENSE);
-            break;
+            case RI_GPIO_MODE_OUTPUT_STANDARD:
+                nrf_gpio_cfg_output (nrf_pin);
+                break;
 
-        default:
-            return RD_ERROR_INVALID_PARAM;
+            case RI_GPIO_MODE_OUTPUT_HIGHDRIVE:
+                nrf_gpio_cfg (nrf_pin,
+                              NRF_GPIO_PIN_DIR_OUTPUT,
+                              NRF_GPIO_PIN_INPUT_DISCONNECT,
+                              NRF_GPIO_PIN_NOPULL,
+                              NRF_GPIO_PIN_H0H1,
+                              NRF_GPIO_PIN_NOSENSE);
+                break;
+
+            default:
+                err_code |= RD_ERROR_INVALID_PARAM;
+        }
     }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 rd_status_t ri_gpio_toggle (const ri_gpio_id_t pin)
 {
-    const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
-    nrf_gpio_pin_toggle (nrf_pin);
+    if (RI_GPIO_ID_UNUSED != pin)
+    {
+        const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
+        nrf_gpio_pin_toggle (nrf_pin);
+    }
+
     return RD_SUCCESS;
 }
 
 rd_status_t ri_gpio_write (const ri_gpio_id_t pin,
                            const ri_gpio_state_t state)
 {
-    const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (RI_GPIO_HIGH == state) { nrf_gpio_pin_set (nrf_pin);   }
+    if (RI_GPIO_ID_UNUSED != pin)
+    {
+        const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
 
-    if (RI_GPIO_LOW  == state) { nrf_gpio_pin_clear (nrf_pin); }
+        if (RI_GPIO_HIGH == state)
+        {
+            nrf_gpio_pin_set (nrf_pin);
+        }
+        else if (RI_GPIO_LOW  == state)
+        {
+            nrf_gpio_pin_clear (nrf_pin);
+        }
+        else
+        {
+            err_code |= RD_ERROR_INVALID_PARAM;
+        }
+    }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 
 rd_status_t ri_gpio_read (const ri_gpio_id_t pin,
                           ri_gpio_state_t * const state)
 {
-    if (NULL == state) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
-    bool high = nrf_gpio_pin_read (nrf_pin);
+    if (NULL == state)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (RI_GPIO_ID_UNUSED != pin)
+    {
+        const uint8_t nrf_pin = ruuvi_to_nrf_pin_map (pin);
+        bool high = nrf_gpio_pin_read (nrf_pin);
 
-    if (true == high)  { *state = RI_GPIO_HIGH; }
+        if (true == high)
+        {
+            *state = RI_GPIO_HIGH;
+        }
 
-    if (false == high) { *state = RI_GPIO_LOW;  }
+        if (false == high)
+        {
+            *state = RI_GPIO_LOW;
+        }
+    }
 
-    return RD_SUCCESS;
+    return err_code;
 }
 /** @} */
 #endif
