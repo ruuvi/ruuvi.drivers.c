@@ -123,8 +123,8 @@ rd_status_t ri_gpio_interrupt_enable (const
         if (nrf_pin >= max_interrupts) { return RD_ERROR_INVALID_PARAM; }
 
         ret_code_t nrf_code = NRF_SUCCESS;
-        nrf_gpiote_polarity_t polarity;
-        nrf_gpio_pin_pull_t pull;
+        nrf_gpiote_polarity_t polarity = NRF_GPIOTE_POLARITY_TOGGLE;
+        nrf_gpio_pin_pull_t pull = NRF_GPIO_PIN_NOPULL;
 
         switch (slope)
         {
