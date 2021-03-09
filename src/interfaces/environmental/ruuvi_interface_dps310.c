@@ -1,5 +1,8 @@
-#include "ruuvi_interface_dps310.h"
 #include "ruuvi_driver_enabled_modules.h"
+
+
+#if (RI_DPS310_ENABLED || DOXYGEN)
+#include "ruuvi_interface_dps310.h"
 #include "dps310.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -7,8 +10,6 @@
 #include "ruuvi_interface_yield.h"
 #include <stdint.h>
 #include <string.h>
-
-#if (RI_DPS310_ENABLED || DOXYGEN)
 
 static void dps_sleep (const uint32_t ms)
 {
