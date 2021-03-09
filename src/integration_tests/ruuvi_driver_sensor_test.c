@@ -845,7 +845,7 @@ static bool test_sensor_data_print (const rd_sensor_init_fp init,
     if (failed)
     {
         // Return to avoid calling NULL function pointers
-        printfp ("\"data\":\"fail\"\r\n");
+        printfp ("\"data\":\"fail\",\r\n");
         return failed;
     }
 
@@ -877,7 +877,7 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
 
     if (RD_ERROR_NOT_FOUND == err_code)
     {
-        printfp ("\"skip\"\r\n");
+        printfp ("\"skip\",\r\n");
         p_sensor_ctx->sensor.uninit (&p_sensor_ctx->sensor, p_sensor_ctx->bus,
                                      p_sensor_ctx->handle);
     }
@@ -940,11 +940,11 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
 
             if (status)
             {
-                printfp ("\"fail\"\r\n");
+                printfp ("\"fail\",\r\n");
             }
             else
             {
-                printfp ("\"pass\"\r\n");
+                printfp ("\"pass\",\r\n");
             }
         }
         else
