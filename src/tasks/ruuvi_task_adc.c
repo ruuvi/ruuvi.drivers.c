@@ -309,9 +309,18 @@ rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_config
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= rt_adc_init();
-    err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_AINVDD,
+    err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_GND,
                                      ABSOLUTE);
-    m_vdd_prepared = (RD_SUCCESS == err_code);
+
+    if (err_code == RD_ERROR_INVALID_PARAM)
+    {
+        err_code == rt_adc_uninit();
+    }
+    else
+    {
+        m_vdd_prepared = (RD_SUCCESS == err_code);
+    }
+
     return err_code;
 }
 
