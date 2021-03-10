@@ -237,6 +237,25 @@ void test_rt_adc_vdd_prepare_already_init (void)
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
+void test_rt_adc_vdd_prepare_configuration_fail (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_configuration_t config = {0};
+    tearDown();
+    ri_atomic_flag_ExpectAnyArgsAndReturn (true);
+    ri_atomic_flag_ReturnThruPtr_flag (&m_true);
+    ri_adc_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
+    err_code = rt_adc_init();
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    test_rt_adc_configure_se_invalid_handle ();
+    tearDown ();
+}
+
+void test_rt_adc_vdd_prepare_init_fail (void)
+{
+    test_rt_adc_init_busy ();
+}
+
 /**
  * @brief Sample VDD
  *

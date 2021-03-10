@@ -324,10 +324,6 @@ rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_config
             err_code |= rt_adc_uninit();
         }
     }
-    else
-    {
-        err_code = RD_ERROR_INVALID_STATE;
-    }
 
     return err_code;
 }
