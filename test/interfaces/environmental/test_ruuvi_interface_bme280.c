@@ -251,7 +251,6 @@ void test_ri_bme280_init_spi_ok (void)
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&n_environmental_sensor);
     bme280_init_IgnoreAndReturn (RD_SUCCESS);
-    bme280_crc_selftest_IgnoreAndReturn (BME280_OK);
     bme280_soft_reset_IgnoreAndReturn (BME280_OK);
     bme280_get_sensor_mode_ExpectAnyArgsAndReturn (BME280_OK);
     bme280_get_sensor_mode_ReturnThruPtr_sensor_mode (&bme_mode);
@@ -271,7 +270,6 @@ void test_ri_bme280_init_i2c_ok (void)
     rd_sensor_is_init_ExpectAnyArgsAndReturn (false);
     rd_sensor_initialize_Expect (&n_environmental_sensor);
     bme280_init_IgnoreAndReturn (RD_SUCCESS);
-    bme280_crc_selftest_IgnoreAndReturn (BME280_OK);
     bme280_soft_reset_IgnoreAndReturn (BME280_OK);
     bme280_get_sensor_mode_ExpectAnyArgsAndReturn (BME280_OK);
     bme280_get_sensor_mode_ReturnThruPtr_sensor_mode (&bme_mode);
