@@ -251,11 +251,6 @@ void test_rt_adc_vdd_prepare_configuration_fail (void)
     tearDown ();
 }
 
-void test_rt_adc_vdd_prepare_init_fail (void)
-{
-    test_rt_adc_init_busy ();
-}
-
 /**
  * @brief Sample VDD
  *
