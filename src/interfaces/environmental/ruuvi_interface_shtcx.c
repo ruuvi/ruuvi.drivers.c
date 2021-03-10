@@ -92,6 +92,7 @@ rd_status_t ri_shtcx_init (rd_sensor_t *
     if (m_is_init) { return RD_ERROR_INVALID_STATE; }
 
     rd_sensor_initialize (environmental_sensor);
+    environmental_sensor->name = m_sensor_name;
     rd_status_t err_code = RD_SUCCESS;
     size_t retries = 0;
 

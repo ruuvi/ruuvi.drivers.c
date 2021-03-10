@@ -192,7 +192,7 @@ bool ri_communication_nfc_run_integration_test (const rd_test_print_fp printfp)
     printfp ("\"nfc\":{\r\n");
     status |= ri_nfc_init_test (printfp);
     status |= ri_nfc_rx_test (printfp);
-    printfp ("},\r\n");
+    printfp ("}\r\n");
     return status;
 }
 #endif
