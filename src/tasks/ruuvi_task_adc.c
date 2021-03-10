@@ -309,16 +309,24 @@ rd_status_t rt_adc_vdd_prepare (rd_sensor_configuration_t * const vdd_adc_config
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= rt_adc_init();
-    err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_AINVDD,
-                                     ABSOLUTE);
 
     if (err_code == RD_SUCCESS)
     {
-        m_vdd_prepared = true;
+        err_code |= rt_adc_configure_se (vdd_adc_configuration, RI_ADC_AINVDD,
+                                         ABSOLUTE);
+
+        if (err_code == RD_SUCCESS)
+        {
+            m_vdd_prepared = true;
+        }
+        else
+        {
+            err_code |= rt_adc_uninit();
+        }
     }
     else
     {
-        (void) rt_adc_uninit();
+        err_code = RD_ERROR_INVALID_STATE;
     }
 
     return err_code;
