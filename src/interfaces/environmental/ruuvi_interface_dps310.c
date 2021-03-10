@@ -80,6 +80,7 @@ rd_status_t ri_dps310_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
     else
     {
         rd_sensor_initialize (p_sensor);
+        p_sensor->name = name;
 
         if (NULL == p_sensor->p_ctx)
         {

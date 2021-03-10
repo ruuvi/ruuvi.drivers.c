@@ -238,7 +238,6 @@ rd_status_t ri_bme280_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle
 
         if (RD_SUCCESS == err_code)
         {
-            err_code |= BME_TO_RUUVI_ERROR (bme280_crc_selftest (&dev));
             err_code |= BME_TO_RUUVI_ERROR (bme280_soft_reset (&dev));
             // Setup Oversampling 1 to enable sensor
             uint8_t dsp = RD_SENSOR_DSP_OS;
