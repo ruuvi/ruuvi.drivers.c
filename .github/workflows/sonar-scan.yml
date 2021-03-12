@@ -30,11 +30,10 @@ jobs:
         export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
         curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
         unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-        export PATH=$SONAR_SCANNER_HOME/bin:$PATH
-        export SONAR_SCANNER_OPTS="-server"
+        echo "$SONAR_SCANNER_HOME/bin" >> $GITHUB_PATH
         curl --create-dirs -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
         unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-        export PATH=$HOME/.sonar/build-wrapper-linux-x86:$PATH
+        echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
 
     - name: Download Nordic SDK
       run: |
@@ -50,6 +49,7 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: Run Sonar scanner
       run: |
+        export SONAR_SCANNER_OPTS="-server"
         sonar-scanner \
           -Dsonar.organization=ruuvi \
           -Dsonar.projectKey=ruuvi_ruuvi.drivers.c \
