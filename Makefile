@@ -225,6 +225,7 @@ INCLUDES=${COMMON_INCLUDES}
 INCLUDES+=nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
 INC_PARAMS=$(foreach d, $(INCLUDES), -I$d)
 SOURCES=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
+ANALYSIS=$(SOURCES:.c=.a)
 OBJECTS=$(SOURCES:.c=.o)
 IOBJECTS=$(SOURCES:.c=.o.PVS-Studio.i)
 POBJECTS=$(SOURCES:.c=.o.PVS-Studio.log)
@@ -237,9 +238,9 @@ TAG := $(shell git describe --tags --exact-match)
 COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(if $(TAG),$(TAG),$(COMMIT))
 
-.PHONY: clean sync doxygen pvs astyle all
+.PHONY: clean sync doxygen pvs astyle sonar all
 
-all: clean sync astyle doxygen pvs $(SOURCES) $(EXECUTABLE) 
+all: clean sync astyle doxygen pvs sonar $(SOURCES) $(EXECUTABLE) 
 
 .c.o:
 # Build
@@ -259,6 +260,9 @@ $(EXECUTABLE): $(OBJECTS)
 # Converting
 	plog-converter -a 'GA:1,2,3;OP:1,2,3;CS:1,2,3;MISRA:1,2,3' -t $(LOG_FORMAT) $(POBJECTS) -o $(PVS_LOG)
 	plog-converter -a 'GA:1;OP:1;CS:1;MISRA:1' -t errorfile $(POBJECTS) -o ./pvs.error
+
+sonar: $(SOURCES) $(SONAR) 
+$(SONAR): $(ANALYSIS)
 
 .c.a:
 # Build
