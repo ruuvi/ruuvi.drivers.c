@@ -225,10 +225,12 @@ INCLUDES=${COMMON_INCLUDES}
 INCLUDES+=nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
 INC_PARAMS=$(foreach d, $(INCLUDES), -I$d)
 SOURCES=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
+ANALYSIS=$(SOURCES:.c=.a)
 OBJECTS=$(SOURCES:.c=.o)
 IOBJECTS=$(SOURCES:.c=.o.PVS-Studio.i)
 POBJECTS=$(SOURCES:.c=.o.PVS-Studio.log)
 EXECUTABLE=ruuvifw
+SONAR=driver_analysis
 
 # Tag on this commit
 TAG := $(shell git describe --tags --exact-match)
@@ -236,13 +238,9 @@ TAG := $(shell git describe --tags --exact-match)
 COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(if $(TAG),$(TAG),$(COMMIT))
 
-.PHONY: astyle clean doxygen
+.PHONY: clean sync doxygen pvs astyle sonar all
 
-all: clean astyle doxygen $(SOURCES) $(EXECUTABLE) 
-
-$(EXECUTABLE): $(OBJECTS)
-# Converting
-	plog-converter -a 'GA:1,2,3;OP:1,2,3;CS:1,2,3;MISRA:1,2,3' -t $(LOG_FORMAT) $(POBJECTS) -o $(PVS_LOG)
+all: clean sync astyle doxygen pvs sonar $(SOURCES) $(EXECUTABLE) 
 
 .c.o:
 # Build
@@ -252,22 +250,36 @@ $(EXECUTABLE): $(OBJECTS)
 # Analysis
 	pvs-studio --cfg $(PVS_CFG) --source-file $< --i-file $@.PVS-Studio.i --output-file $@.PVS-Studio.log
 
-clean:
-	rm -f $(OBJECTS) $(IOBJECTS) $(POBJECTS) 
-	rm -rf $(PVS_LOG)/fullhtml
-	rm -rf $(DOXYGEN_DIR)/html
-	rm -rf $(DOXYGEN_DIR)/latex
-	rm -f *.gcov
-
 doxygen:
 	export PROJECT_VERSION=$(VERSION) 
 	doxygen
+
+pvs: $(SOURCES) $(EXECUTABLE) 
+
+$(EXECUTABLE): $(OBJECTS)
+# Converting
+	plog-converter -a 'GA:1,2,3;OP:1,2,3;CS:1,2,3;MISRA:1,2,3' -t $(LOG_FORMAT) $(POBJECTS) -o $(PVS_LOG)
+	plog-converter -a 'GA:1;OP:1;CS:1;MISRA:1' -t errorfile $(POBJECTS) -o ./pvs.error
+
+sonar: $(SOURCES) $(SONAR) 
+$(SONAR): $(ANALYSIS)
+
+.c.a:
+# Build
+	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(OFLAGS) -o $@
 
 astyle:
 	astyle --project=".astylerc" --recursive \
 			  "src/*.h" \
 			  "src/*.c" \
 			  "test/*.c"
+
+clean:
+	rm -f $(OBJECTS) $(IOBJECTS) $(POBJECTS) 
+	rm -rf $(PVS_LOG)/fullhtml
+	rm -rf $(DOXYGEN_DIR)/html
+	rm -rf $(DOXYGEN_DIR)/latex
+	rm -f *.gcov
 
 sync:
 	@echo Synchronizing GIT...

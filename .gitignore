@@ -69,3 +69,4 @@ build
 
 # PVS Studio files
 *.PVS-Studio*
+pvs.error

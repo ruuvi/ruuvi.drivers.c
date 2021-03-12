@@ -148,7 +148,8 @@ rd_status_t rt_adc_ratio_get (rd_sensor_data_t * const data);
  * @brief Prepare for sampling VDD
  *
  * This function should be called before entering energy intensive activity, such as using radio to transmit data.
- * After calling this function ADC is primed for measuring the voltage droop of battery.
+ * After calling this function ADC is primed for measuring the voltage droop of battery. On ADC configuration error,
+ * uninitialize ADC.
  *
  * @retval RD_SUCCESS on success
  * @retval RD_ERROR_INVALID_STATE if ADC is already initialized.
