@@ -58,15 +58,15 @@ static void uart_handler (struct nrf_serial_s const * p_serial, nrf_serial_event
                 break;
 
             case NRF_SERIAL_EVENT_DRV_ERR:   ///< Error reported by UART peripheral.
-                LOG ("UART Error\r\n");
+                LOGD ("UART Error\r\n");
                 break;
 
             case NRF_SERIAL_EVENT_FIFO_ERR:
-                LOG ("FIFO Error\r\n");
+                LOGD ("FIFO Error\r\n");
                 break;
 
             default:
-                LOG ("UART unknown event\r\n");
+                LOGD ("UART unknown event\r\n");
                 break;
         }
     }
