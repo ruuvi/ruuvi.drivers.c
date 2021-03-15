@@ -60,6 +60,62 @@ static rd_status_t tmp117_validate_id (void)
     return err_code;
 }
 
+static inline rd_status_t os_1_set (uint8_t * const reg_value)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    *reg_val |= TMP117_VALUE_OS_1;
+
+    if (16 > ms_per_cc)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    ms_per_sample = 16;
+    return err_code;
+}
+
+static inline rd_status_t os_8_set (uint8_t * const reg_value)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    reg_val |= TMP117_VALUE_OS_8;
+
+    if (125 > ms_per_cc)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    ms_per_sample = 125;
+    return err_code;
+}
+
+static inline rd_status_t os_32_set (uint8_t * const reg_value)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    reg_val |= TMP117_VALUE_OS_32;
+
+    if (500 > ms_per_cc)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    ms_per_sample = 500;
+    return err_code;
+}
+
+static inline rd_status_t os_64_set (uint8_t * const reg_value)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    reg_val |= TMP117_VALUE_OS_64;
+
+    if (1000 > ms_per_cc)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    ms_per_sample = 1000;
+    return err_code;
+}
+
 static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
 {
     uint16_t reg_val;
@@ -71,47 +127,19 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
     switch (num_os)
     {
         case TMP117_VALUE_OS_1:
-            reg_val |= TMP117_VALUE_OS_1;
-
-            if (16 > ms_per_cc)
-            {
-                err_code |= RD_ERROR_INVALID_STATE;
-            }
-
-            ms_per_sample = 16;
+            reg_val |= os_1_set (&reg_val);
             break;
 
         case TMP117_VALUE_OS_8:
-            reg_val |= TMP117_VALUE_OS_8;
-
-            if (125 > ms_per_cc)
-            {
-                err_code |= RD_ERROR_INVALID_STATE;
-            }
-
-            ms_per_sample = 125;
+            reg_val |= os_8_set (&reg_val);
             break;
 
         case TMP117_VALUE_OS_32:
-            reg_val |= TMP117_VALUE_OS_32;
-
-            if (500 > ms_per_cc)
-            {
-                err_code |= RD_ERROR_INVALID_STATE;
-            }
-
-            ms_per_sample = 500;
+            reg_val |= os_32_set (&reg_val);
             break;
 
         case TMP117_VALUE_OS_64:
-            reg_val |= TMP117_VALUE_OS_64;
-
-            if (1000 > ms_per_cc)
-            {
-                err_code |= RD_ERROR_INVALID_STATE;
-            }
-
-            ms_per_sample = 1000;
+            reg_val |= os_64_set (&reg_val);
             break;
 
         default:
