@@ -529,9 +529,8 @@ rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter)
         {
             err_code |= ri_tmp117_dsp_get (dsp, parameter);
         }
-
-        else if ((RD_SENSOR_DSP_LAST == *dsp)
-                || (RD_SENSOR_CFG_DEFAULT == *dsp))
+        else if ( (RD_SENSOR_DSP_LAST == *dsp)
+                  || (RD_SENSOR_CFG_DEFAULT == *dsp))
         {
             err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_1);
             *parameter = 1;
