@@ -187,6 +187,7 @@ bool rt_led_is_init (void);
 #ifdef CEEDLING
 int8_t is_led (const ri_gpio_id_t led);
 void rt_led_blink_isr (void * const p_context);
+void rt_led_blink_once_isr (void * const p_context);
 #endif
 
 /*@}*/
