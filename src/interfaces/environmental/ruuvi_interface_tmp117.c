@@ -23,8 +23,6 @@
  * TMP117 temperature sensor driver.
  *
  */
-
-
 static inline bool param_is_valid (const uint8_t param)
 {
     return ( (RD_SENSOR_CFG_DEFAULT   == param)
