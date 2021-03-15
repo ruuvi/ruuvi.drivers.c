@@ -60,7 +60,7 @@ static rd_status_t tmp117_validate_id (void)
     return err_code;
 }
 
-static inline rd_status_t os_1_set (uint8_t * const reg_value)
+static inline rd_status_t os_1_set (uint16_t * const reg_val)
 {
     rd_status_t err_code = RD_SUCCESS;
     *reg_val |= TMP117_VALUE_OS_1;
@@ -74,10 +74,10 @@ static inline rd_status_t os_1_set (uint8_t * const reg_value)
     return err_code;
 }
 
-static inline rd_status_t os_8_set (uint8_t * const reg_value)
+static inline rd_status_t os_8_set (uint16_t * const reg_val)
 {
     rd_status_t err_code = RD_SUCCESS;
-    reg_val |= TMP117_VALUE_OS_8;
+    *reg_val |= TMP117_VALUE_OS_8;
 
     if (125 > ms_per_cc)
     {
@@ -88,10 +88,10 @@ static inline rd_status_t os_8_set (uint8_t * const reg_value)
     return err_code;
 }
 
-static inline rd_status_t os_32_set (uint8_t * const reg_value)
+static inline rd_status_t os_32_set (uint16_t * const reg_val)
 {
     rd_status_t err_code = RD_SUCCESS;
-    reg_val |= TMP117_VALUE_OS_32;
+    *reg_val |= TMP117_VALUE_OS_32;
 
     if (500 > ms_per_cc)
     {
@@ -102,10 +102,10 @@ static inline rd_status_t os_32_set (uint8_t * const reg_value)
     return err_code;
 }
 
-static inline rd_status_t os_64_set (uint8_t * const reg_value)
+static inline rd_status_t os_64_set (uint16_t * const reg_val)
 {
     rd_status_t err_code = RD_SUCCESS;
-    reg_val |= TMP117_VALUE_OS_64;
+    *reg_val |= TMP117_VALUE_OS_64;
 
     if (1000 > ms_per_cc)
     {
