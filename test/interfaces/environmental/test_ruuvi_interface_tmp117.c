@@ -89,7 +89,7 @@ void test_ri_tmp117_init_already_init (void)
     TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
 }
 
-void test_ri_tmp117_dsp_set_1 (void)
+void test_ri_tmp117_dsp_set_default (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t dsp = RD_SENSOR_CFG_DEFAULT;
@@ -104,4 +104,127 @@ void test_ri_tmp117_dsp_set_1 (void)
     err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (1 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_8 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = 2;
+    uint16_t reg_val = TMP117_VALUE_OS_8;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (8 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_32 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = 10;
+    uint16_t reg_val = TMP117_VALUE_OS_32;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (32 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_64 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = 40;
+    uint16_t reg_val = TMP117_VALUE_OS_64;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (64 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_ns (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = 65;
+    uint16_t reg_val = TMP117_VALUE_OS_64;
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
+}
+
+void test_ri_tmp117_dsp_set_os_max (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = RD_SENSOR_CFG_MAX;
+    uint16_t reg_val = TMP117_VALUE_OS_64;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (64 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_min (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = RD_SENSOR_CFG_MIN;
+    uint16_t reg_val = TMP117_VALUE_OS_8;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (8 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_nc (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_CFG_NO_CHANGE;
+    uint8_t parameter = 8;
+    uint16_t reg_val = TMP117_VALUE_OS_1;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    err_code |= ri_tmp117_dsp_set (&dsp, &parameter);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (1 == parameter);
+}
+
+void test_ri_tmp117_dsp_set_os_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t dsp = RD_SENSOR_DSP_OS;
+    uint8_t parameter = RD_SENSOR_CFG_MAX;
+    err_code = ri_tmp117_dsp_set (&dsp, NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+    err_code = ri_tmp117_dsp_set (NULL, NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+    err_code = ri_tmp117_dsp_set (NULL, &parameter);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
 }

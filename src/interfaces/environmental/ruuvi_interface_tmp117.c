@@ -583,6 +583,16 @@ rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter)
                 *parameter = 64;
                 err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_64);
             }
+            else if (RD_SENSOR_CFG_MIN == *parameter)
+            {
+                *parameter = 8;
+                err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_8);
+            }
+            else if (RD_SENSOR_CFG_MAX == *parameter)
+            {
+                *parameter = 64;
+                err_code |= tmp117_oversampling_set (TMP117_VALUE_OS_64);
+            }
             else
             {
                 err_code |= RD_ERROR_NOT_SUPPORTED;
