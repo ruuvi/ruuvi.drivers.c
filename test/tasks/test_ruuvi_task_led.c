@@ -336,8 +336,8 @@ void test_rt_led_blink_once_ok (void)
     m_timer = (void *) 1;
     uint16_t timer_ms = 1000U;
     ri_timer_is_init_ExpectAndReturn (true);
-    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
     ri_timer_start_ExpectAndReturn (m_timer, timer_ms, NULL, RD_SUCCESS);
+    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
     err_code |= rt_led_blink_once (leds[0], timer_ms);
     TEST_ASSERT (err_code == RD_SUCCESS);
 }
@@ -352,8 +352,8 @@ void test_rt_led_blink_once_not_init (void)
                                      &rt_led_blink_once_isr,
                                      RD_SUCCESS);
     ri_timer_create_ReturnThruPtr_p_timer_id (&mock_tid);
-    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
     ri_timer_start_ExpectAndReturn (mock_tid, timer_ms, NULL, RD_SUCCESS);
+    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
     rd_status_t err_code = rt_led_blink_once (leds[0], timer_ms);
     TEST_ASSERT (err_code == RD_SUCCESS);
 }
@@ -367,7 +367,6 @@ void test_rt_led_blink_once_timer_fail (void)
     ri_timer_create_ExpectAndReturn (&m_timer, RI_TIMER_MODE_SINGLE_SHOT,
                                      &rt_led_blink_once_isr,
                                      RD_ERROR_RESOURCES);
-    ri_gpio_write_ExpectAndReturn (leds[0], leds_on[0], RD_SUCCESS);
     rd_status_t err_code = rt_led_blink_once (leds[0], timer_ms);
     TEST_ASSERT (err_code == RD_ERROR_RESOURCES);
 }

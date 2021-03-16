@@ -149,6 +149,8 @@ rd_status_t rt_led_blink_start (const ri_gpio_id_t led, const uint16_t interval_
 /**
  * @brief Function to blink led once.
  *
+ * The function call is ignored if previous timer is already running.
+ *
  * This function requires ri_timer to be initialized.
  * Only one led can blink at once. The function turns the led on in the beginning.
  * The interrupt calls @ref rt_led_blink_stop to turn the led off after set time interval.
