@@ -103,6 +103,7 @@ void test_ri_tmp117_uninit_ok (void)
     ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
                                         RD_SUCCESS);
     ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
     ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
                                          RD_SUCCESS);
     rd_sensor_uninitialize_Expect (&tmp_ctx);
