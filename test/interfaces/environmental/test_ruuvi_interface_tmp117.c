@@ -92,12 +92,14 @@ void test_ri_tmp117_init_already_init (void)
 
 void test_ri_tmp117_uninit_ok (void)
 {
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
-                                   &reg_val);
-    reg_val &= ~TMP117_MASK_MODE;
-    reg_val |= TMP117_VALUE_MODE_SLEEP;
-    err_code |= ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION,
-                                     reg_val);
+    rd_status_t err_code = RD_SUCCESS;
+    uint16_t reg_val = TMP117_VALUE_MODE_SLEEP;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
 void test_ri_tmp117_dsp_set_default (void)
