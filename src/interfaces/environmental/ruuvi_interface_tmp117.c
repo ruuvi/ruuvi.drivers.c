@@ -271,10 +271,23 @@ static float tmp117_read (void)
     uint16_t reg_val;
     rd_status_t err_code;
     err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_TEMP_RESULT, &reg_val);
-    int16_t dec_temperature = (reg_val > 32767) ? reg_val - 65535 : reg_val;
-    float temperature = (0.0078125 * dec_temperature);
+    int32_t dec_temperature;
 
-    if (TMP117_VALUE_TEMP_NA == reg_val || RD_SUCCESS != err_code) { temperature = NAN; }
+    if (reg_val > 0x7FFFU)
+    {
+        dec_temperature = (int32_t) reg_val - 0xFFFF;
+    }
+    else
+    {
+        dec_temperature = reg_val;
+    }
+
+    float temperature = (0.0078125F * dec_temperature);
+
+    if ( (TMP117_VALUE_TEMP_NA == reg_val) || (RD_SUCCESS != err_code))
+    {
+        temperature = NAN;
+    }
 
     return temperature;
 }
@@ -298,7 +311,6 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
         environmental_sensor->name = m_sensor_name;
         err_code = RD_SUCCESS;
         m_address = handle;
-        size_t retries = 0;
 
         if (RD_BUS_I2C == bus)
         {
@@ -339,18 +351,24 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
     return err_code;
 }
 
-rd_status_t ri_tmp117_uninit (rd_sensor_t * sensor,
-                              rd_bus_t bus, uint8_t handle)
+rd_status_t ri_tmp117_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
-    if (NULL == sensor) { return RD_ERROR_NULL; }
-
     rd_status_t err_code = RD_SUCCESS;
-    tmp117_sleep();
-    rd_sensor_uninitialize (sensor);
-    m_timestamp = RD_UINT64_INVALID;
-    m_temperature = NAN;
-    m_address = 0;
-    m_continuous = false;
+
+    if (NULL == sensor)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        tmp117_sleep();
+        rd_sensor_uninitialize (sensor);
+        m_timestamp = RD_UINT64_INVALID;
+        m_temperature = NAN;
+        m_address = 0;
+        m_continuous = false;
+    }
+
     return err_code;
 }
 
