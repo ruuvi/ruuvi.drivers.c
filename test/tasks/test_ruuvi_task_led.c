@@ -376,7 +376,7 @@ void test_rt_led_blink_once_led_blinking (void)
     test_rt_led_blink_once_ok();
     uint16_t timer_ms = 1000U;
     ri_timer_is_init_ExpectAndReturn (true);
-    rd_status_t err_code = rt_led_blink_start (leds[0], timer_ms);
+    rd_status_t err_code = rt_led_blink_once (leds[0], timer_ms);
     TEST_ASSERT (err_code == RD_ERROR_INVALID_STATE);
 }
 
@@ -385,7 +385,7 @@ void test_rt_led_blink_once_not_led (void)
     m_timer = (void *) 1;
     uint16_t timer_ms = 1000U;
     ri_timer_is_init_ExpectAndReturn (true);
-    rd_status_t err_code = rt_led_blink_start (RI_GPIO_ID_UNUSED, timer_ms);
+    rd_status_t err_code = rt_led_blink_once (RI_GPIO_ID_UNUSED, timer_ms);
     TEST_ASSERT (err_code == RD_ERROR_INVALID_PARAM);
 }
 
