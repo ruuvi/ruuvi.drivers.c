@@ -251,8 +251,6 @@ rd_status_t rt_led_blink_once (const ri_gpio_id_t led, const uint16_t interval_m
         err_code |= RD_ERROR_INVALID_PARAM;
     }
 
-    err_code |= rt_led_write (led, true);
-
     if (RD_SUCCESS == err_code)
     {
         err_code |= ri_timer_start (m_timer, interval_ms, NULL);
@@ -261,6 +259,7 @@ rd_status_t rt_led_blink_once (const ri_gpio_id_t led, const uint16_t interval_m
     if (RD_SUCCESS == err_code)
     {
         m_blink_led = led;
+        err_code |= rt_led_write (m_blink_led, true);
     }
 
     return err_code;
