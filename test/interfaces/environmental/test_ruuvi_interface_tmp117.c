@@ -10,13 +10,18 @@
 static rd_sensor_t tmp_ctx;
 static const uint8_t mock_addr = 0x48U;
 
+void test_ri_tmp117_init_ok (void);
+void test_ri_tmp117_uninit_ok (void);
+
 void setUp (void)
 {
     ri_log_Ignore();
+    test_ri_tmp117_init_ok();
 }
 
 void tearDown (void)
 {
+    test_ri_tmp117_uninit_ok ();
 }
 
 static void soft_reset_Expect (void)
@@ -71,6 +76,7 @@ void test_ri_tmp117_init_ok (void)
 
 void test_ri_tmp117_init_invalid_id (void)
 {
+    tearDown ();
     const rd_sensor_data_fields_t expected =
     {
         .datas.temperature_c = 1
@@ -99,7 +105,10 @@ void test_ri_tmp117_uninit_ok (void)
     ri_i2c_tmp117_read_IgnoreArg_reg_val();
     ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
                                          RD_SUCCESS);
+    rd_sensor_uninitialize_Expect (&tmp_ctx);
+    ri_tmp117_uninit (&tmp_ctx, RD_BUS_I2C, 1);
     TEST_ASSERT (RD_SUCCESS == err_code);
+    setUp ();
 }
 
 void test_ri_tmp117_dsp_set_default (void)
