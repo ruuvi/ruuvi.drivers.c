@@ -425,6 +425,5 @@ void test_rt_led_blink_once_isr (void)
     test_rt_led_blink_once_ok ();
     ri_timer_stop_ExpectAndReturn (m_timer, RD_SUCCESS);
     ri_gpio_write_ExpectAndReturn (leds[0], !leds_on[0], RD_SUCCESS);
-    rd_status_t err_code = rt_led_blink_stop (leds[0]);
-    TEST_ASSERT (err_code == RD_SUCCESS);
+    rt_led_blink_once_isr (NULL);
 }

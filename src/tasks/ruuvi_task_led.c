@@ -185,6 +185,9 @@ void rt_led_blink_isr (void * const p_context)
     active = !active;
 }
 
+#ifndef CEEDLING
+static
+#endif
 void rt_led_blink_once_isr (void * const p_context)
 {
     rt_led_blink_stop (m_blink_led);
