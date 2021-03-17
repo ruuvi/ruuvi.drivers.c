@@ -347,6 +347,8 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
 
 rd_status_t ri_tmp117_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
+    UNUSED_VARIABLE (bus);
+    UNUSED_VARIABLE (handle);
     rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == sensor)
