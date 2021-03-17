@@ -497,11 +497,11 @@ rd_status_t ri_tmp117_resolution_set (uint8_t * resolution)
 
     if (NULL == resolution)
     {
-        return RD_ERROR_NULL;
+        err_code |=  RD_ERROR_NULL;
     }
     else if (m_continuous)
     {
-        return RD_ERROR_INVALID_STATE;
+        err_code |=  RD_ERROR_INVALID_STATE;
     }
     else if (! param_is_valid (*resolution))
     {
@@ -567,7 +567,7 @@ rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
     rd_status_t err_code = RD_SUCCESS;
 
-    if (NULL == dsp || NULL == parameter)
+    if ( (NULL == dsp) || (NULL == parameter))
     {
         err_code |= RD_ERROR_NULL;
     }
