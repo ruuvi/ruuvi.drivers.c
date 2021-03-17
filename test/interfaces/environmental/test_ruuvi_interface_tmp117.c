@@ -749,3 +749,30 @@ void test_ri_tmp117_mode_set_single_null (void)
     err_code |= ri_tmp117_mode_set (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
+
+void test_ri_tmp117_mode_get_sleep (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = 0;
+    err_code |= ri_tmp117_mode_get (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
+}
+
+void test_ri_tmp117_mode_get_continous (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = 0;
+    test_ri_tmp117_mode_set_continuous();
+    err_code |= ri_tmp117_mode_get (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
+}
+
+void test_ri_tmp117_mode_get_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_tmp117_mode_get (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+

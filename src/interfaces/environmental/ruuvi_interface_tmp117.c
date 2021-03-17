@@ -743,10 +743,22 @@ rd_status_t ri_tmp117_mode_set (uint8_t * mode)
 
 rd_status_t ri_tmp117_mode_get (uint8_t * mode)
 {
-    if (NULL == mode) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *mode = m_continuous ? RD_SENSOR_CFG_CONTINUOUS : RD_SENSOR_CFG_SLEEP;
-    return RD_SUCCESS;
+    if (NULL == mode)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (m_continuous)
+    {
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
+    }
+    else
+    {
+        *mode = RD_SENSOR_CFG_SLEEP;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const

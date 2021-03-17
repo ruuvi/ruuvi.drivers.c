@@ -3,22 +3,22 @@
 /**
  * @addtogroup Environmental
  */
-/*@{*/
+/** @{ */
 /**
  * @defgroup TMP117 TMP117 Interface
  * @brief Implement @ref ruuvi_driver_sensor_t functions on TMP117
  *
  * The implementation supports taking single-samples and a continuous mode
  */
-/*@}*/
+/** @} */
 /**
  * @addtogroup TMP117
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_tmp117.h
  * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-11-13
+ * @date 2021-03-17
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * TMP117 temperature sensor driver.
@@ -107,11 +107,11 @@ rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_dsp_fp */
 rd_status_t ri_tmp117_dsp_get (uint8_t * dsp, uint8_t * parameter);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_mode_set (uint8_t *);
+rd_status_t ri_tmp117_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_tmp117_mode_get (uint8_t *);
+rd_status_t ri_tmp117_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
                                 data);
-/*@}*/
+/** @} */
 #endif
