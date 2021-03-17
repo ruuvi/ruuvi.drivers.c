@@ -517,10 +517,18 @@ rd_status_t ri_tmp117_resolution_set (uint8_t * resolution)
 
 rd_status_t ri_tmp117_resolution_get (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    *resolution = RD_SENSOR_CFG_DEFAULT;
-    return RD_SUCCESS;
+    if (NULL == resolution)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        *resolution = RD_SENSOR_CFG_DEFAULT;
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_tmp117_scale_set (uint8_t * scale)
