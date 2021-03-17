@@ -679,3 +679,73 @@ void test_ri_tmp117_resolution_get_null (void)
     err_code |= ri_tmp117_resolution_get (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
+
+void test_ri_tmp117_mode_set_sleep (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    uint16_t reg_val = TMP117_VALUE_MODE_SLEEP;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, reg_val,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_mode_set (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
+}
+
+void test_ri_tmp117_mode_set_continuous (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    uint16_t reg_val = TMP117_VALUE_MODE_SLEEP;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_MODE_CONT, RD_SUCCESS);
+    err_code |= ri_tmp117_mode_set (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
+}
+
+void test_ri_tmp117_mode_set_single (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_SINGLE;
+    uint16_t reg_val = TMP117_VALUE_MODE_SLEEP;
+    test_ri_tmp117_samplerate_set_1();
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_MODE_SINGLE, RD_SUCCESS);
+    rd_sensor_timestamp_get_ExpectAndReturn (1000U);
+    ri_delay_ms_ExpectAndReturn (16, RD_SUCCESS);
+    err_code |= ri_tmp117_mode_set (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
+}
+
+void test_ri_tmp117_mode_set_single_is (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_SINGLE;
+    uint16_t reg_val = TMP117_VALUE_MODE_SLEEP;
+    test_ri_tmp117_samplerate_set_1();
+    test_ri_tmp117_mode_set_continuous();
+    err_code |= ri_tmp117_mode_set (&mode);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
+}
+
+void test_ri_tmp117_mode_set_single_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_tmp117_mode_set (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}

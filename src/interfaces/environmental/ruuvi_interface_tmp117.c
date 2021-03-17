@@ -235,10 +235,10 @@ static rd_status_t tmp117_sleep (void)
 
 static rd_status_t tmp117_sample (void)
 {
-    uint16_t reg_val;
-    rd_status_t err_code;
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
-                                   &reg_val);
+    uint16_t reg_val = 0;
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
+                                    &reg_val);
     reg_val &= ~TMP117_MASK_MODE;
     reg_val |= TMP117_VALUE_MODE_SINGLE;
     err_code |= ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION,
@@ -686,39 +686,56 @@ rd_status_t ri_tmp117_dsp_get (uint8_t * dsp, uint8_t * parameter)
     return err_code;
 }
 
+static rd_status_t __attribute__ ( (nonnull))
+tmp117_take_single_sample (uint8_t * const mode)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (m_continuous)
+    {
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        err_code |= tmp117_sample();
+        ri_delay_ms (ms_per_sample);
+        *mode = RD_SENSOR_CFG_SLEEP;
+    }
+
+    return err_code;
+}
 
 rd_status_t ri_tmp117_mode_set (uint8_t * mode)
 {
-    if (NULL == mode) { return RD_ERROR_NULL; }
-
     rd_status_t err_code = RD_SUCCESS;
 
-    switch (*mode)
+    if (NULL == mode)
     {
-        case RD_SENSOR_CFG_CONTINUOUS:
-            err_code |= tmp117_continuous();
-            m_continuous = true;
-            break;
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        switch (*mode)
+        {
+            case RD_SENSOR_CFG_CONTINUOUS:
+                err_code |= tmp117_continuous();
+                m_continuous = true;
+                break;
 
-        case RD_SENSOR_CFG_SINGLE:
-            if (m_continuous)
-            {
-                *mode = RD_SENSOR_CFG_CONTINUOUS;
-                return RD_ERROR_INVALID_STATE;
-            }
+            case RD_SENSOR_CFG_SINGLE:
+                err_code |= tmp117_take_single_sample (mode);
+                break;
 
-            err_code |= tmp117_sample();
-            ri_delay_ms (ms_per_sample);
-            *mode = RD_SENSOR_CFG_SLEEP;
-            break;
+            case RD_SENSOR_CFG_SLEEP:
+                err_code |= tmp117_sleep();
+                m_continuous = false;
+                break;
 
-        case RD_SENSOR_CFG_SLEEP:
-            err_code |= tmp117_sleep();
-            m_continuous = false;
-            break;
-
-        default:
-            err_code |= RD_ERROR_INVALID_PARAM;
+            default:
+                err_code |= RD_ERROR_INVALID_PARAM;
+                break;
+        }
     }
 
     return err_code;
