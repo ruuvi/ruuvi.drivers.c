@@ -151,78 +151,72 @@ static rd_status_t tmp117_oversampling_set (const uint8_t num_os)
     return err_code;
 }
 
+static rd_status_t
+tmp117_cc_check (uint16_t * const reg, const uint16_t ts, const uint16_t reg_val)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (ts < ms_per_sample)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *reg |= reg_val;
+        ms_per_cc = ts;
+    }
+
+    return err_code;
+}
+
 static rd_status_t tmp117_samplerate_set (const uint16_t num_os)
 {
     uint16_t reg_val;
-    rd_status_t err_code;
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
-                                   &reg_val);
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
+                                    &reg_val);
     reg_val &= ~TMP117_MASK_CC;
 
     switch (num_os)
     {
         case TMP117_VALUE_CC_16_MS:
-            if (16 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_16_MS;
-            ms_per_cc = 16;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_16_MS);
             break;
 
         case TMP117_VALUE_CC_125_MS:
-            if (125 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_125_MS;
-            ms_per_cc = 125;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_125_MS);
             break;
 
         case TMP117_VALUE_CC_250_MS:
-            if (250 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_250_MS;
-            ms_per_cc = 250;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_250_MS);
             break;
 
         case TMP117_VALUE_CC_500_MS:
-            if (500 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_500_MS;
-            ms_per_cc = 500;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_500_MS);
             break;
 
         case TMP117_VALUE_CC_1000_MS:
-            if (1000 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_1000_MS;
-            ms_per_cc = 1000;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_1000_MS);
             break;
 
         case TMP117_VALUE_CC_4000_MS:
-            if (4000 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_4000_MS;
-            ms_per_cc = 4000;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_4000_MS);
             break;
 
         case TMP117_VALUE_CC_8000_MS:
-            if (8000 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_8000_MS;
-            ms_per_cc = 8000;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_8000_MS);
             break;
 
         case TMP117_VALUE_CC_16000_MS:
-            if (16000 < ms_per_sample) { return RD_ERROR_INVALID_STATE; }
-
-            reg_val |= TMP117_VALUE_CC_16000_MS;
-            ms_per_cc = 16000;
+            err_code |= tmp117_cc_check (&reg_val, ms_per_sample, TMP117_VALUE_CC_16000_MS);
             break;
 
         default:
-            return RD_ERROR_INVALID_PARAM;
+            err_code |= RD_ERROR_INVALID_PARAM;
+            break;
     }
 
-    err_code |= ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION,
-                                     reg_val);
+    err_code |= ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION, reg_val);
     return err_code;
 }
 
@@ -375,19 +369,22 @@ rd_status_t ri_tmp117_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle
 
 rd_status_t ri_tmp117_samplerate_set (uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RD_ERROR_NULL; }
-
-    if (m_continuous) { return RD_ERROR_INVALID_STATE; }
-
-    if (RD_SENSOR_CFG_NO_CHANGE == *samplerate)
-    {
-        return ri_tmp117_samplerate_get (samplerate);
-    }
-
     rd_status_t err_code = RD_SUCCESS;
 
-    if (RD_SENSOR_CFG_DEFAULT == *samplerate ||
-            1 >= *samplerate)
+    if (NULL == samplerate)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (m_continuous)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else if (RD_SENSOR_CFG_NO_CHANGE == *samplerate)
+    {
+        err_code |= ri_tmp117_samplerate_get (samplerate);
+    }
+    else if (RD_SENSOR_CFG_DEFAULT == *samplerate ||
+             1 >= *samplerate)
     {
         *samplerate = 1;
         err_code |= tmp117_samplerate_set (TMP117_VALUE_CC_1000_MS);
@@ -427,7 +424,10 @@ rd_status_t ri_tmp117_samplerate_set (uint8_t * samplerate)
         *samplerate = RD_SENSOR_CFG_CUSTOM_3;
         err_code |= tmp117_samplerate_set (TMP117_VALUE_CC_16000_MS);
     }
-    else { err_code |= RD_ERROR_NOT_SUPPORTED; }
+    else
+    {
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
 
     return  err_code;
 }

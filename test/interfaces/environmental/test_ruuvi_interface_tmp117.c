@@ -251,3 +251,217 @@ void test_ri_tmp117_dsp_set_os_null (void)
     err_code = ri_tmp117_dsp_set (NULL, &parameter);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
+
+void test_ri_tmp117_samplerate_set_1 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = 1;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_1000_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (1 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_2 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = 2;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_500_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (2 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_4 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = 3;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_250_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (4 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_8 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = 5;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_125_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (8 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_64 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = 9;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_16_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (64 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_custom_1 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_CUSTOM_1;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_4000_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CUSTOM_1 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_custom_2 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_CUSTOM_2;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_8000_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CUSTOM_2 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_custom_3 (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_CUSTOM_3;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_16000_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CUSTOM_3 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_nc (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_NO_CHANGE;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_ri_tmp117_samplerate_set_min (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_MIN;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_16000_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CUSTOM_3 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_default (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_DEFAULT;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_1000_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (1 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_max (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = RD_SENSOR_CFG_MAX;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, NULL,
+                                        RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION,
+                                         TMP117_VALUE_CC_16_MS,
+                                         RD_SUCCESS);
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (64 == rate);
+}
+
+void test_ri_tmp117_samplerate_set_ns (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t rate = 65;
+    err_code |= ri_tmp117_samplerate_set (&rate);
+    TEST_ASSERT (RD_ERROR_NOT_SUPPORTED == err_code);
+}
+
+void test_ri_tmp117_samplerate_set_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_tmp117_samplerate_set (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
