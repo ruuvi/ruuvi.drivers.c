@@ -385,8 +385,8 @@ rd_status_t ri_tmp117_samplerate_set (uint8_t * samplerate)
     {
         err_code |= ri_tmp117_samplerate_get (samplerate);
     }
-    else if (RD_SENSOR_CFG_DEFAULT == *samplerate ||
-             1 >= *samplerate)
+    else if ( (RD_SENSOR_CFG_DEFAULT == *samplerate)
+              || (1 >= *samplerate))
     {
         *samplerate = 1;
         err_code |= tmp117_samplerate_set (TMP117_VALUE_CC_1000_MS);
@@ -436,50 +436,56 @@ rd_status_t ri_tmp117_samplerate_set (uint8_t * samplerate)
 
 rd_status_t ri_tmp117_samplerate_get (uint8_t * samplerate)
 {
-    if (NULL == samplerate) { return RD_ERROR_NULL; }
-
     rd_status_t err_code = RD_SUCCESS;
-    uint16_t reg_val;
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
-                                   &reg_val);
-    reg_val &= TMP117_MASK_CC;
+    uint16_t reg_val = 0;
 
-    switch (reg_val)
+    if (NULL == samplerate)
     {
-        case TMP117_VALUE_CC_16_MS:
-            *samplerate = 64;
-            break;
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
+                                        &reg_val);
+        reg_val &= TMP117_MASK_CC;
 
-        case TMP117_VALUE_CC_125_MS:
-            *samplerate = 8;
-            break;
+        switch (reg_val)
+        {
+            case TMP117_VALUE_CC_16_MS:
+                *samplerate = 64;
+                break;
 
-        case TMP117_VALUE_CC_250_MS:
-            *samplerate = 4;
-            break;
+            case TMP117_VALUE_CC_125_MS:
+                *samplerate = 8;
+                break;
 
-        case TMP117_VALUE_CC_500_MS:
-            *samplerate = 2;
-            break;
+            case TMP117_VALUE_CC_250_MS:
+                *samplerate = 4;
+                break;
 
-        case TMP117_VALUE_CC_1000_MS:
-            *samplerate = 1;
-            break;
+            case TMP117_VALUE_CC_500_MS:
+                *samplerate = 2;
+                break;
 
-        case TMP117_VALUE_CC_4000_MS:
-            *samplerate = RD_SENSOR_CFG_CUSTOM_1;
-            break;
+            case TMP117_VALUE_CC_1000_MS:
+                *samplerate = 1;
+                break;
 
-        case TMP117_VALUE_CC_8000_MS:
-            *samplerate = RD_SENSOR_CFG_CUSTOM_2;
-            break;
+            case TMP117_VALUE_CC_4000_MS:
+                *samplerate = RD_SENSOR_CFG_CUSTOM_1;
+                break;
 
-        case TMP117_VALUE_CC_16000_MS:
-            *samplerate = RD_SENSOR_CFG_CUSTOM_3;
-            break;
+            case TMP117_VALUE_CC_8000_MS:
+                *samplerate = RD_SENSOR_CFG_CUSTOM_2;
+                break;
 
-        default:
-            return RD_ERROR_INTERNAL;
+            case TMP117_VALUE_CC_16000_MS:
+                *samplerate = RD_SENSOR_CFG_CUSTOM_3;
+                break;
+
+            default:
+                err_code |=  RD_ERROR_INTERNAL;
+        }
     }
 
     return err_code;
