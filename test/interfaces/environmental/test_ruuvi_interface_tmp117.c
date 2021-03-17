@@ -547,7 +547,7 @@ void test_ri_tmp117_resolution_set_default (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t rate = RD_SENSOR_CFG_DEFAULT;
-    err_code |= ri_tmp117_resolutionrate_set (&rate);
+    err_code |= ri_tmp117_resolution_set (&rate);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == rate);
 }
@@ -556,7 +556,7 @@ void test_ri_tmp117_resolution_set_min (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t rate = RD_SENSOR_CFG_MIN;
-    err_code |= ri_tmp117_resolutionrate_set (&rate);
+    err_code |= ri_tmp117_resolution_set (&rate);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == rate);
 }
@@ -565,7 +565,7 @@ void test_ri_tmp117_resolution_set_max (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t rate = RD_SENSOR_CFG_MAX;
-    err_code |= ri_tmp117_resolutionrate_set (&rate);
+    err_code |= ri_tmp117_resolution_set (&rate);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == rate);
 }
@@ -574,7 +574,7 @@ void test_ri_tmp117_resolution_set_no_change (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t rate = RD_SENSOR_CFG_NO_CHANGE;
-    err_code |= ri_tmp117_resolutionrate_set (&rate);
+    err_code |= ri_tmp117_resolution_set (&rate);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (RD_SENSOR_CFG_DEFAULT == rate);
 }
@@ -582,6 +582,6 @@ void test_ri_tmp117_resolution_set_no_change (void)
 void test_ri_tmp117_resolution_set_null (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    err_code |= ri_tmp117_resolutionrate_set (NULL);
+    err_code |= ri_tmp117_resolution_set (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
