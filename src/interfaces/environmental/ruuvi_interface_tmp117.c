@@ -643,35 +643,44 @@ rd_status_t ri_tmp117_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
 rd_status_t ri_tmp117_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    uint16_t reg_val;
-    rd_status_t err_code;
-    err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
-                                   &reg_val);
-    reg_val &= TMP117_MASK_OS;
-
-    switch (reg_val)
+    if ( (NULL == dsp) || (NULL == parameter))
     {
-        case TMP117_VALUE_OS_1:
-            *dsp = RD_SENSOR_DSP_LAST;
-            *parameter = 1;
-            break;
+        err_code |= RD_ERROR_NULL;
+    }
+    else
+    {
+        uint16_t reg_val = 0;
+        err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION,
+                                        &reg_val);
+        reg_val &= TMP117_MASK_OS;
 
-        case TMP117_VALUE_OS_8:
-            *dsp = RD_SENSOR_DSP_OS;
-            *parameter = 8;
-            break;
+        switch (reg_val)
+        {
+            case TMP117_VALUE_OS_1:
+                *dsp = RD_SENSOR_DSP_LAST;
+                *parameter = 1;
+                break;
 
-        case TMP117_VALUE_OS_32:
-            *dsp = RD_SENSOR_DSP_OS;
-            *parameter = 32;
-            break;
+            case TMP117_VALUE_OS_8:
+                *dsp = RD_SENSOR_DSP_OS;
+                *parameter = 8;
+                break;
 
-        case TMP117_VALUE_OS_64:
-            *dsp = RD_SENSOR_DSP_OS;
-            *parameter = 64;
-            break;
+            case TMP117_VALUE_OS_32:
+                *dsp = RD_SENSOR_DSP_OS;
+                *parameter = 32;
+                break;
+
+            case TMP117_VALUE_OS_64:
+                *dsp = RD_SENSOR_DSP_OS;
+                *parameter = 64;
+                break;
+
+            default:
+                err_code |= RD_ERROR_INTERNAL;
+        }
     }
 
     return err_code;

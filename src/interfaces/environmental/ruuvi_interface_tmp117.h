@@ -55,7 +55,7 @@ ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 
 #define TMP117_MASK_RESET        (0x0002U)
 #define TMP117_MASK_ID           (0x01FFU)
-#define TMP117_MASK_OS           (0x0030U)
+#define TMP117_MASK_OS           (0x0060U)
 #define TMP117_MASK_MODE         (0x0C00U)
 #define TMP117_MASK_CC           (0x0380U)
 
