@@ -700,6 +700,7 @@ tmp117_take_single_sample (uint8_t * const mode)
     {
         err_code |= tmp117_sample();
         ri_delay_ms (ms_per_sample);
+        m_temperature = tmp117_read();
         *mode = RD_SENSOR_CFG_SLEEP;
     }
 
