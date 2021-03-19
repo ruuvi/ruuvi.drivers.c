@@ -185,6 +185,14 @@ void rt_led_blink_isr (void * const p_context)
     active = !active;
 }
 
+#ifndef CEEDLING
+static
+#endif
+void rt_led_blink_once_isr (void * const p_context)
+{
+    rt_led_blink_stop (m_blink_led);
+}
+
 rd_status_t rt_led_blink_start (const ri_gpio_id_t led, const uint16_t interval_ms)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -217,6 +225,44 @@ rd_status_t rt_led_blink_start (const ri_gpio_id_t led, const uint16_t interval_
     if (RD_SUCCESS == err_code)
     {
         m_blink_led = led;
+    }
+
+    return err_code;
+}
+
+rd_status_t rt_led_blink_once (const ri_gpio_id_t led, const uint16_t interval_ms)
+{
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (!ri_timer_is_init())
+    {
+        err_code |= ri_timer_init();
+    }
+
+    if (!m_timer)
+    {
+        err_code |= ri_timer_create (&m_timer, RI_TIMER_MODE_SINGLE_SHOT, &rt_led_blink_once_isr);
+    }
+
+    if (RI_GPIO_ID_UNUSED != m_blink_led)
+    {
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+
+    if (0 > is_led (led))
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        err_code |= ri_timer_start (m_timer, interval_ms, NULL);
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        m_blink_led = led;
+        err_code |= rt_led_write (m_blink_led, true);
     }
 
     return err_code;
