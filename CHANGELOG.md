@@ -1,4 +1,7 @@
 # Changelog
+## 3.7.0 
+ - Add TMP117 temperature sensor support
+
 ## 3.6.0
  - Add NRF52 temperature sensor support
 

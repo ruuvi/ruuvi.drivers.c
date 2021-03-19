@@ -18,7 +18,7 @@
 #define RUUVI_DRIVER_ENABLED_MODULES_H
 
 /** @brief SemVer string, must match latest tag. */
-#define RUUVI_DRIVERS_SEMVER "3.6.0"
+#define RUUVI_DRIVERS_SEMVER "3.7.0"
 
 #ifdef CEEDLING
 #  define ENABLE_DEFAULT 1
@@ -246,6 +246,10 @@ data payload length is the maximum length */
 
 #ifndef RI_LIS2DH12_ENABLED
 #   define RI_LIS2DH12_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_TMP117_ENABLED
+#   define RI_TMP117_ENABLED ENABLE_DEFAULT
 #endif
 
 #ifndef RI_SHTCX_ENABLED

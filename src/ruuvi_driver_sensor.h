@@ -94,6 +94,10 @@
 /** @brief Mark sensor as unused with this handle */
 #define RD_HANDLE_UNUSED (0xFFU)
 
+#ifndef UNUSED_VARIABLE
+#   define UNUSED_VARIABLE(X)  ((void)(X))
+#endif
+
 /**
  * @brief All sensors must implement configuration functions which accept this struct.
  */
