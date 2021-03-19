@@ -776,3 +776,34 @@ void test_ri_tmp117_mode_get_null (void)
     TEST_ASSERT (RD_ERROR_NULL == err_code);
 }
 
+void test_ri_tmp117_data_get_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_tmp117_data_get (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_ri_tmp117_data_get_single (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    test_ri_tmp117_mode_set_single();
+    rd_sensor_data_t data;
+    rd_sensor_data_set_ExpectAnyArgs();
+    err_code |= ri_tmp117_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_ri_tmp117_data_get_continuous (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    test_ri_tmp117_mode_set_continuous();
+    rd_sensor_data_t data;
+    uint16_t reg_val = 0;
+    ri_i2c_tmp117_read_ExpectAndReturn (mock_addr, TMP117_REG_TEMP_RESULT, NULL, RD_SUCCESS);
+    ri_i2c_tmp117_read_IgnoreArg_reg_val();
+    ri_i2c_tmp117_read_ReturnThruPtr_reg_val (&reg_val);
+    rd_sensor_timestamp_get_ExpectAndReturn(1000);
+    rd_sensor_data_set_ExpectAnyArgs();
+    err_code |= ri_tmp117_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}

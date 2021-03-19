@@ -764,9 +764,12 @@ rd_status_t ri_tmp117_mode_get (uint8_t * mode)
 rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
                                 data)
 {
-    if (NULL == data) { return RD_ERROR_NULL; }
-
     rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == data)
+    {
+        err_code |= RD_ERROR_NULL;
+    }
 
     if (m_continuous)
     {
@@ -789,3 +792,4 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
 
 /** @} */
 #endif
+
