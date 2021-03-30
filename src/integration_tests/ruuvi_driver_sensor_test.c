@@ -675,6 +675,12 @@ static bool test_sensor_interrupts_setup (rd_sensor_t * DUT,
         const ri_gpio_id_t level_pin)
 {
     rd_status_t err_code = RD_SUCCESS;
+
+    if (ri_gpio_interrupt_is_init())
+    {
+        err_code |= ri_gpio_interrupt_uninit();
+    }
+
     err_code |= ri_gpio_interrupt_init (interrupt_table,
                                         RI_GPIO_INTERRUPT_TEST_TABLE_SIZE);
     err_code |= ri_gpio_interrupt_enable (fifo_pin, RI_GPIO_SLOPE_LOTOHI,
@@ -702,6 +708,14 @@ static void test_sensor_interrupts_teardown (rd_sensor_t * const DUT,
     ri_gpio_interrupt_disable (level_pin);
     DUT->uninit (DUT, bus, handle);
     ri_gpio_interrupt_uninit();
+}
+
+static rd_status_t test_sensor_level_enable (const rd_sensor_t * DUT)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    float threshold_g = APP_MOTION_THRESHOLD;
+    err_code |= DUT->level_interrupt_set (true, &threshold_g);
+    return  err_code;
 }
 
 /** @brief  - FIFO read must return samples with different values (noise) */
@@ -802,6 +816,7 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
     if (RD_SUCCESS == status)
     {
         status |= test_sensor_fifo_enable (&DUT);
+        status |= test_sensor_level_enable (&DUT);
     }
 
     test_sensor_interrupts_teardown (&DUT, init, bus, handle, fifo_pin,
