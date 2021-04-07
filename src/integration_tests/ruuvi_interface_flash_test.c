@@ -23,6 +23,7 @@
 #define F_TEST_RECORD 0x0001U
 static const char f_data1[] = "Flash test data 1";
 static const char f_data2[] = "Flash test data 2";
+static uint32_t boot_count = 0;
 
 /**
  * @brief Test flash initialization.
@@ -38,7 +39,6 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
     rd_status_t err_code = RD_SUCCESS;
     bool status = false;
     printfp ("\"init\":");
-    ri_flash_purge();
     err_code = ri_flash_init();
 
     if (RD_SUCCESS != err_code)
@@ -55,6 +55,9 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
             status = true;
         }
     }
+
+    err_code |= ri_flash_record_get (APP_FLASH_LOG_FILE, APP_FLASH_LOG_BOOT_COUNTER_RECORD,
+                                     sizeof (uint32_t), &boot_count);
 
     if (status)
     {
@@ -326,6 +329,8 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
         printfp ("\"pass\"\r\n");
     }
 
+    err_code |= ri_flash_record_set (APP_FLASH_LOG_FILE, APP_FLASH_LOG_BOOT_COUNTER_RECORD,
+                                     sizeof (uint32_t), &boot_count);
     err_code = ri_flash_uninit();
     return status;
 }
