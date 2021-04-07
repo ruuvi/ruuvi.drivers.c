@@ -4,6 +4,7 @@
 #include "ruuvi_driver_test.h"
 #include "ruuvi_interface_flash_test.h"
 #include "ruuvi_interface_flash.h"
+#include "ruuvi_interface_power.h"
 #include <stdbool.h>
 #include <string.h>
 /**
@@ -44,7 +45,8 @@ static bool ri_flash_init_test (const rd_test_print_fp printfp)
     if (RD_SUCCESS != err_code)
     {
         status = true;
-        ri_flash_purge();
+        ri_flash_purge();        
+        ri_power_reset();
     }
     else
     {
