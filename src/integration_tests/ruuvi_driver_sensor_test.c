@@ -726,20 +726,34 @@ static rd_status_t test_sensor_level_enable (const rd_sensor_t * DUT)
     float threshold_g = APP_MOTION_THRESHOLD;
     DUT->level_interrupt_set (true, &threshold_g);
     rd_sensor_configuration_t config = {0};
+<<<<<<< HEAD
     config.samplerate = RD_SENSOR_CFG_MAX;
+=======
+    config.samplerate = 10;
+>>>>>>> origin/master
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
     level_int = false;
     // Wait for LEVEL interrupt
     uint32_t timeout = 0;
+<<<<<<< HEAD
 
     while ( (!level_int) && (timeout < 5000000U))
+=======
+    uint32_t max_time = 5U * 1000U * 1000U;
+
+    while ( (!level_int) && (timeout < max_time))
+>>>>>>> origin/master
     {
         timeout += 10;
         ri_delay_us (10);
     }
 
+<<<<<<< HEAD
     if (timeout >= 5000000U)
+=======
+    if (timeout >= max_time)
+>>>>>>> origin/master
     {
         return RD_ERROR_TIMEOUT;
     }
@@ -752,7 +766,7 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
 {
     DUT->fifo_enable (true);
     rd_sensor_configuration_t config = {0};
-    config.samplerate = RD_SENSOR_CFG_MAX;
+    config.samplerate = 10;
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
     fifo_int = false;
@@ -764,6 +778,7 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     size_t num_samples = MAX_FIFO_DEPTH;
     rd_sensor_data_t data[MAX_FIFO_DEPTH] = { 0 };
     float values[num_samples][MAX_SENSOR_PROVIDED_FIELDS];
+    uint32_t max_time = 4U * 1000U * 1000U;
 
     for (size_t ii = 0; ii < num_samples; ii++)
     {
@@ -775,13 +790,13 @@ static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
     // Wait for FIFO interrupt
     uint32_t timeout = 0;
 
-    while ( (!fifo_int) && (timeout < 1000000U))
+    while ( (!fifo_int) && (timeout < max_time))
     {
         timeout += 10;
         ri_delay_us (10);
     }
 
-    if (timeout >= 1000000U)
+    if (timeout >= max_time)
     {
         return RD_ERROR_TIMEOUT;
     }
@@ -836,7 +851,6 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
                                     const ri_gpio_id_t level_pin,
                                     const rd_test_print_fp printfp)
 {
-    
     ri_gpio_interrupt_fp_t
     interrupt_table[RI_GPIO_INTERRUPT_TEST_TABLE_SIZE];
     rd_sensor_t DUT;
@@ -1141,6 +1155,7 @@ rd_status_t test_sensor_status (size_t * total, size_t * passed)
 {
     return RD_SUCCESS;
 }
+
 void test_sensor_run (void)
 {}
 #endif
