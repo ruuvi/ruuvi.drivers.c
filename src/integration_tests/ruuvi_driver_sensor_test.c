@@ -726,34 +726,21 @@ static rd_status_t test_sensor_level_enable (const rd_sensor_t * DUT)
     float threshold_g = APP_MOTION_THRESHOLD;
     DUT->level_interrupt_set (true, &threshold_g);
     rd_sensor_configuration_t config = {0};
-<<<<<<< HEAD
-    config.samplerate = RD_SENSOR_CFG_MAX;
-=======
     config.samplerate = 10;
->>>>>>> origin/master
     config.mode = RD_SENSOR_CFG_CONTINUOUS;
     DUT->configuration_set (DUT, &config);
     level_int = false;
     // Wait for LEVEL interrupt
     uint32_t timeout = 0;
-<<<<<<< HEAD
-
-    while ( (!level_int) && (timeout < 5000000U))
-=======
     uint32_t max_time = 5U * 1000U * 1000U;
 
     while ( (!level_int) && (timeout < max_time))
->>>>>>> origin/master
     {
         timeout += 10;
         ri_delay_us (10);
     }
 
-<<<<<<< HEAD
-    if (timeout >= 5000000U)
-=======
     if (timeout >= max_time)
->>>>>>> origin/master
     {
         return RD_ERROR_TIMEOUT;
     }
