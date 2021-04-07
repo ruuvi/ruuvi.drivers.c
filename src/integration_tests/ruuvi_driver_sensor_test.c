@@ -833,9 +833,10 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
                                     const rd_bus_t bus, const uint8_t handle,
                                     const bool interactive,
                                     const ri_gpio_id_t fifo_pin,
-                                    const ri_gpio_id_t level_pin)
+                                    const ri_gpio_id_t level_pin,
+                                    const rd_test_print_fp printfp)
 {
-    const rd_test_print_fp printfp;
+    
     ri_gpio_interrupt_fp_t
     interrupt_table[RI_GPIO_INTERRUPT_TEST_TABLE_SIZE];
     rd_sensor_t DUT;
@@ -845,35 +846,35 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
 
     if (RD_SUCCESS == status)
     {
-        LOG ("{\r\n\"level\":");
+        printfp ("{\r\n\"level\":");
         status |= test_sensor_level_enable (&DUT);
 
         if (status)
         {
-            LOG ("\"fail\",\r\n");
+            printfp ("\"fail\",\r\n");
         }
         else
         {
-            LOG ("\"pass\",\r\n");
+            printfp ("\"pass\",\r\n");
         }
 
         test_sensor_interrupts_teardown (&DUT, init, bus, handle, fifo_pin,
                                          level_pin);
         status = test_sensor_interrupts_setup (&DUT, init, bus, handle, interrupt_table, fifo_pin,
                                                level_pin);
-        LOG ("\"fifo\":");
+        printfp ("\"fifo\":");
         status |= test_sensor_fifo_enable (&DUT);
 
         if (status)
         {
-            LOG ("\"fail\"\r\n");
+            printfp ("\"fail\"\r\n");
         }
         else
         {
-            LOG ("\"pass\"\r\n");
+            printfp ("\"pass\"\r\n");
         }
 
-        LOG ("},");
+        printfp ("},");
     }
 
     test_sensor_interrupts_teardown (&DUT, init, bus, handle, fifo_pin,
@@ -1009,7 +1010,8 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
             status = test_sensor_interrupts (p_sensor_ctx->init, p_sensor_ctx->bus,
                                              p_sensor_ctx->handle, false,
                                              p_sensor_ctx->fifo_pin,
-                                             p_sensor_ctx->level_pin);
+                                             p_sensor_ctx->level_pin,
+                                             printfp);
         }
         else
         {
