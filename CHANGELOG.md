@@ -1,4 +1,7 @@
 # Changelog
+## 3.8.0 (in progress)
+ - Store boot counter in flash
+
 ## 3.7.0 
  - Add TMP117 temperature sensor support
 
