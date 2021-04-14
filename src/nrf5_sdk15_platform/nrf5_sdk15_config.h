@@ -139,7 +139,7 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_I2C_ENABLED
-#   if (NRF52832_XXAA || NRF52840_XXAA)
+#   if defined (NRF52832_XXAA) || defined (NRF52840_XXAA)
 #        define TWI_ENABLED 1
 #        define TWI1_ENABLED 1
 #        define TWI1_USE_EASYDMA 0
@@ -174,7 +174,7 @@
 #endif
 
 #if RUUVI_NRF5_SDK15_RTC_ENABLED
-#   if (NRF52832_XXAA || NRF52840_XXAA)
+#   if defined (NRF52832_XXAA) || defined (NRF52840_XXAA)
 #       define RTC_ENABLED        1
 #       define RTC2_ENABLED       1
 #       define NRF5_SDK15_RTC_INSTANCE 2
