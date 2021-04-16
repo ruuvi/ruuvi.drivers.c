@@ -38,9 +38,9 @@ typedef void (*rd_test_print_fp) (const char * const msg);
  * ruuvi_library_expect_close(expect, precision, check); // true
  * @endcode
  *
- * @param expect[in] Expected value.
- * @param precision[in] Number of decimals which must match. Negative values are allowed.
- * @param check[in] Value to check.
+ * @param[in] expect Expected value.
+ * @param[in] precision Number of decimals which must match. Negative values are allowed.
+ * @param[in] check Value to check.
  *
  */
 bool rd_expect_close (const float expect, const int8_t precision,

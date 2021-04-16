@@ -26,7 +26,7 @@
  *
  * Interface for
  *
- * Testing the interface with @ref test_sensor.h
+ * Testing the interface with @ref ruuvi_driver_sensor_test.h
  *
  * @code{.c}
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);

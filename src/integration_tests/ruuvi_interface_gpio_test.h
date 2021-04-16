@@ -44,8 +44,8 @@ rd_status_t ri_gpio_test_init (void);
  * - When Input is in INPUT_PULLUP mode, and output is in OUTPUT_LOW mode, input must read as LOW
  * - When Input is in INPUT_PULLDOWN mode, and output is in OUTPUT_HIGH mode, input must read as HIGH
  *
- * @param input[in]  Pin used to check the state of output pin
- * @param output[in] Pin being configured into various modes.
+ * @param[in] input  Pin used to check the state of output pin
+ * @param[in] output Pin being configured into various modes.
  *
  * @return @c RD_SUCCESS if all tests pass, error code on failure
  */
@@ -56,8 +56,8 @@ rd_status_t ri_gpio_test_configure (const ri_gpio_id_t input, const ri_gpio_id_t
  *
  * Input is in High-Z mode. Value read by it must toggle after output pin is toggled.
  *
- * @param input[in]  Pin used to check the state of output pin.
- * @param output[in] Pin being toggled.
+ * @param[in] input  Pin used to check the state of output pin.
+ * @param[in] output Pin being toggled.
  *
  * @return @c RD_SUCCESS if all tests pass, error code on failure
  */
@@ -66,9 +66,9 @@ rd_status_t ri_gpio_test_toggle (const ri_gpio_id_t input, const ri_gpio_id_t ou
 /**
  * @brief Run all GPIO integration tests
  *
- * @param printfp[in] Function pointer to which test result strings are sent.
- * @param input[in]  Pin used to check the state of output pin.
- * @param output[in] Pin being toggled.
+ * @param[in] printfp Function pointer to which test result strings are sent.
+ * @param[in] input  Pin used to check the state of output pin.
+ * @param[in] output Pin being toggled.
  *
  * @return false if there are no errors, true otherwise.
  */

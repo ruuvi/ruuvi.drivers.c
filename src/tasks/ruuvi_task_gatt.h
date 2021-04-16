@@ -3,7 +3,7 @@
  */
 /*@{*/
 /**
- * @file task_gatt.h
+ * @file ruuvi_task_gatt.h
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2020-01-27
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.

@@ -3,7 +3,7 @@
  */
 /*@{*/
 /**
- * @file task_button.c
+ * @file ruuvi_task_button.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2020-01-25
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.

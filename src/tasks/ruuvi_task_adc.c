@@ -2,9 +2,9 @@
 /**
  * @addtogroup adc_tasks
  */
-/*@{*/
+/** @{*/
 /**
- * @file rt_adc.c
+ * @file ruuvi_task_adc.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2019-11-28
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
@@ -421,4 +421,4 @@ rd_status_t rt_adc_ratiometric_sample (rd_sensor_configuration_t * const configu
     return err_code;
 }
 #endif
-/*@}*/
+/** @}*/

@@ -16,7 +16,7 @@
  */
 /*@{*/
 /**
- * @file task_gpio.h
+ * @file ruuvi_task_gpio.h
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2019-10-11
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.

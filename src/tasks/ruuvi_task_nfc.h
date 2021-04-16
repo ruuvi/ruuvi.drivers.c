@@ -15,7 +15,7 @@
  */
 /*@{*/
 /**
- * @file task_nfc.h
+ * @file ruuvi_task_nfc.h
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2020-02-21
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.

@@ -88,8 +88,8 @@ bool ri_gpio_is_init (void);
  * @brief Configure a pin of a port into a mode.
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * @param pin[in] Pin number.
- * @param mode[in] Mode to set the pin to. See @ref ri_gpio_mode_t for possible values.
+ * @param[in] pin Pin number.
+ * @param[in] mode Mode to set the pin to. See @ref ri_gpio_mode_t for possible values.
  *
  * @return @ref RD_SUCCESS on success, error code on failure.
  * @return @ref RD_ERROR_NOT_SUPPORTED if underlying platform does not support given mode.
@@ -101,7 +101,7 @@ rd_status_t ri_gpio_configure (const ri_gpio_id_t pin,
  * @brief Toggle the state of a pin of a port.
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * @param pin[in] Pin number.
+ * @param[in] pin Pin number.
  *
  * @return RD_SUCCESS on success, error code on failure.
  * @return RD_ERROR_INVALID_STATE if pin was not set as an output (optional).
@@ -112,8 +112,8 @@ rd_status_t ri_gpio_toggle (const ri_gpio_id_t pin);
  * @brief Write a pin of a port into given state
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * @param pin[in]   Pin number.
- * @param state[in] State to which the pin should be set to. See @ref ri_gpio_state_t for possible values
+ * @param[in] pin   Pin number.
+ * @param[in] state State to which the pin should be set to. See @ref ri_gpio_state_t for possible values
  *
  * @return RD_SUCCESS on success, error code on failure.
  * @return RD_ERROR_INVALID_STATE if pin was not set as an output (optional).
@@ -125,8 +125,8 @@ rd_status_t ri_gpio_write (const ri_gpio_id_t pin,
  * @brief Read state of a pin of a port into bool high
  * If there are several ports the platform driver must implement a conversion function from port + pin to uint8_t.
  *
- * @param pin[in]   Pin number.
- * @param p_state[out] Pointer to a ri_gpio_state_t which will be set to the state of the pin.
+ * @param[in] pin   Pin number.
+ * @param[out] p_state Pointer to a ri_gpio_state_t which will be set to the state of the pin.
  *
  * @return RD_SUCCESS on success, error code on failure.
  * @return RD_ERROR_NULL if *state is a null pointer.
