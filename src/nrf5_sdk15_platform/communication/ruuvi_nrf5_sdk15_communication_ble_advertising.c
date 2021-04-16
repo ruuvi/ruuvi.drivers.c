@@ -705,7 +705,7 @@ rd_status_t ri_adv_tx_power_set (int8_t * dbm)
         else if (*dbm <= 0)   { m_tx_power = 0; }
         else if (*dbm <= 4)   { m_tx_power = 4; }
 
-#ifdef NRF52840
+#ifdef NRF52840_XXAA
         else if (*dbm <= 8)   { m_tx_power = 8; }
 
 #endif
