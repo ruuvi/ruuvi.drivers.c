@@ -233,6 +233,17 @@
 #       define NRFX_PRS_ENABLED 1
 #       define NRFX_PRS_BOX_4_ENABLED 1
 #   endif
+#   if defined (NRF52840_XXAA)
+#       // Serial module requires UART + UARTE
+#       define NRFX_UARTE_ENABLED 1
+#       define NRFX_UARTE0_ENABLED 1
+#       define NRFX_UART_ENABLED 1
+#       define NRFX_UART0_ENABLED 1
+#       define UART0_CONFIG_USE_EASY_DMA 1
+#       // PRS module allows UART + UARTE co-existence.
+#       define NRFX_PRS_ENABLED 1
+#       define NRFX_PRS_BOX_4_ENABLED 1
+#   endif
 #   define UART_EASY_DMA_SUPPORT 1
 #   define UART_LEGACY_SUPPORT 1
 #   define UART0_ENABLED 1
