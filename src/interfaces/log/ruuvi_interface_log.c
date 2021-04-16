@@ -311,7 +311,7 @@ void ri_log_hex (const ri_log_severity_t severity,
 #include "ruuvi_interface_log.h"
 /**
  * @brief Runs initialization code for the logging backend and sets the severity level.
- *  
+ *
  * @return RD_SUCCESS if log was init, error code otherwise.
  */
 rd_status_t ri_log_init (const ri_log_severity_t
