@@ -345,6 +345,16 @@ void ri_log (const ri_log_severity_t severity,
     return;
 }
 
+/**
+ * @brief Queues bytes to be logged out as a hex string
+ *
+ * May block or may return as soon as data is in buffer being transferred out
+ *
+ * @param severity severity of the log message
+ * @param bytes raw bytes to log
+ * @param byte_length length of bytes to log.
+ *
+ */
 void ri_log_hex (const ri_log_severity_t severity,
                  const uint8_t * const bytes,
                  size_t byte_length)

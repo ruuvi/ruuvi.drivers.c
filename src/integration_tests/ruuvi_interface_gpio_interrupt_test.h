@@ -21,7 +21,7 @@
 #define RI_GPIO_INTERRUPT_TEST_TABLE_SIZE 64
 
 /**
- * @brief Test GPIO PWM initialization.
+ * @brief Test GPIO interrupt initialization.
  *
  * - Initialization must return @c RD_ERROR_INVALID_STATE if GPIO is uninitialized
  * - Initialization must return @c RD_SUCCESS on first call.
