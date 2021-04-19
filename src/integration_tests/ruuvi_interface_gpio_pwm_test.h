@@ -38,7 +38,7 @@
  *
  * @param[in] cfg configuration of GPIO pins to test.
  *
- * @return @ref RD_SUCCESS on success, error code on failure.
+ * @return RD_SUCCESS on success, error code on failure.
  */
 rd_status_t ri_gpio_interrupt_test_init (
     const rd_test_gpio_cfg_t cfg);
@@ -51,9 +51,9 @@ rd_status_t ri_gpio_interrupt_test_init (
  *
  *
  *
- * @param cfg[in] pins to use for testing interrupts
+ * @param[in] cfg pins to use for testing interrupts
  *
- * @return @ref RD_SUCCESS on success, error code on failure.
+ * @return RD_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
  */
 rd_status_t ri_gpio_pwm_test (const rd_test_gpio_cfg_t cfg);
@@ -61,9 +61,9 @@ rd_status_t ri_gpio_pwm_test (const rd_test_gpio_cfg_t cfg);
 /**
  * @brief Run all GPIO interrupt integration tests
  *
- * @param printfp[in] Function pointer to which test result strings are sent.
- * @param input[in]  Pin used to check the state of output pin.
- * @param output[in] Pin being toggled.
+ * @param[in] printfp Function pointer to which test result strings are sent.
+ * @param[in] input  Pin used to check the state of output pin.
+ * @param[in] output Pin being toggled.
  *
  * @return false if there are no errors, true otherwise.
  */

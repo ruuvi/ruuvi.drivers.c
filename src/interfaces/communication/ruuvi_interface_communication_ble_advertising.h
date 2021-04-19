@@ -146,9 +146,9 @@ rd_status_t ri_adv_tx_power_get (int8_t * dbm);
  *                 Max 27 characters if not advertising NUS, 10 characters if NUS is
  *                 advertised. NULL won't be included in advertisement.
  * @param[in] advertise_nus True to include Nordic UART Service UUID in scan response.
- * @retval @ref RD_SUCCESS on success
- * @retval @ref RD_ERROR_NULL if name is NULL
- * @retval @ref RD_ERROR_DATA_SIZE if name will be cut. However the abbreviated name will
+ * @retval RD_SUCCESS on success
+ * @retval RD_ERROR_NULL if name is NULL
+ * @retval RD_ERROR_DATA_SIZE if name will be cut. However the abbreviated name will
  *              be set.
  */
 rd_status_t ri_adv_scan_response_setup (const char * const name,
@@ -233,8 +233,8 @@ rd_status_t ri_adv_channels_enable (const ri_radio_channels_t channel);
 /**
  * @brief Parse Manufacturer ID from given Bluetooth scan data.
  *
- * @params[in] data pointer to data to parse
- * @params[in] data_length length of data to parse
+ * @param[in] data pointer to data to parse
+ * @param[in] data_length length of data to parse
  * @retval 0 if argument is NULL of manufacturer ID not found
  * @return BLE Manufacturer ID, e.g. 0x0499 for Ruuvi Innovation
  */

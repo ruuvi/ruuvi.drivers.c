@@ -3,7 +3,7 @@
   */
 /*@{*/
 /**
- * @file task_led.c
+ * @file ruuvi_task_led.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @date 2019-11-19
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.

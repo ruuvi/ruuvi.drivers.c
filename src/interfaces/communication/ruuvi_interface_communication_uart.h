@@ -57,7 +57,7 @@ rd_status_t ri_uart_init (ri_comm_channel_t * const channel);
 /**
  * @brief Configure UART.
  *
- * @param[out] channel Interface used for communicating through uart.
+ * @param[out] config Interface used for communicating through uart.
  * @retval RD_SUCCESS on success.
  * @retval RD_ERROR_NULL Channel is NULL.
  */

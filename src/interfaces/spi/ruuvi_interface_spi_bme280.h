@@ -58,6 +58,6 @@ int8_t ri_spi_bme280_write (uint8_t dev_id, uint8_t reg_addr,
  * @param[in] len length of data to be received.
  **/
 int8_t ri_spi_bme280_read (uint8_t dev_id, uint8_t reg_addr,
-                           uint8_t * reg_data, uint16_t len);
+                           uint8_t * p_reg_data, uint16_t len);
 /** @} */
 #endif

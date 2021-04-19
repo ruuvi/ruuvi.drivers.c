@@ -26,10 +26,9 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for DPS310 basic usage. The underlying platform must provide
- * functions for SPI and/or I2C access, @ref ruuvi_interface_spi_dps310.h and
- * @ref ruuvi_interface_i2c_dps310.h.
+ * functions for SPI access, @ref ruuvi_interface_spi_dps310.h.
  *
- * Testing the interface with @ref test_sensor.h
+ * Testing the interface with @ref ruuvi_driver_sensor_test.h
  *
  * @code{.c}
  *  rd_status_t err_code = RD_SUCCESS;

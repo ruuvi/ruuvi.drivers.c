@@ -19,8 +19,8 @@
 /**
  * @brief Run all Power integration tests
  *
- * @param printfp[in] Function pointer to which test result strings are sent.
- * @param regulators[in] Regulators to test. Will be uninitialized afterwards.
+ * @param[in] printfp Function pointer to which test result strings are sent.
+ * @param[in] regulators Regulators to test. Will be uninitialized afterwards.
  *
  * @return false if there are no errors, true otherwise.
  */

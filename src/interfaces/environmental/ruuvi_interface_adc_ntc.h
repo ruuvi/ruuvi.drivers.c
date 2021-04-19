@@ -7,7 +7,7 @@
 /*@{*/
 /**
  * @defgroup ADC_NTC ADC_NTC Interface
- * @brief Implement @ref ruuvi_driver_sensor_t functions on ADC_NTC
+ * @brief Implement @ref rd_sensor_t functions on ADC_NTC
  *
  * The implementation supports taking single-samples and a continuous mode
  */
