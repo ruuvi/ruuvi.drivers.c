@@ -49,8 +49,8 @@ typedef enum
  * @brief Runs initialization code for the logging backend and sets the severity level.
  *
  * @param min_severity least severe log level that will be printed.
- * @retval @ref RD_SUCCESS if log was init.
- * @retval @ref RD_ERROR_INVALID_STATE if log had already been initialized.
+ * @retval RD_SUCCESS if log was init.
+ * @retval RD_ERROR_INVALID_STATE if log had already been initialized.
  */
 rd_status_t ri_log_init (const ri_log_severity_t min_severity);
 
@@ -80,7 +80,7 @@ void ri_log (const ri_log_severity_t severity,
  *
  * @param severity severity of the log message
  * @param bytes raw bytes to log
- * @param byte:length length of bytes to log.
+ * @param byte_length length of bytes to log.
  *
  */
 void ri_log_hex (const ri_log_severity_t severity,

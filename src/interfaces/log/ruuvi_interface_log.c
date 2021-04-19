@@ -312,8 +312,7 @@ void ri_log_hex (const ri_log_severity_t severity,
 /**
  * @brief Runs initialization code for the logging backend and sets the severity level.
  *
- * @param min_severity least severe log level that will be printed.
- * @return @ref RD_SUCCESS if log was init, error code otherwise
+ * @return RD_SUCCESS if log was init, error code otherwise.
  */
 rd_status_t ri_log_init (const ri_log_severity_t
                          min_severity)
@@ -324,7 +323,7 @@ rd_status_t ri_log_init (const ri_log_severity_t
 /**
  * @brief Blocks until remaining log messages are sent out
  *
- * @return @ref RD_SUCCESS if buffered messages were sent, error otherwise.
+ * @return RD_SUCCESS if buffered messages were sent, error otherwise.
  */
 rd_status_t ri_log_flush (void)
 {
@@ -353,7 +352,7 @@ void ri_log (const ri_log_severity_t severity,
  *
  * @param severity severity of the log message
  * @param bytes raw bytes to log
- * @param byte:length length of bytes to log.
+ * @param byte_length length of bytes to log.
  *
  */
 void ri_log_hex (const ri_log_severity_t severity,

@@ -48,7 +48,7 @@ rd_status_t ri_gatt_nus_init (ri_comm_channel_t * const channel);
 /**
  * @brief Uninitialize Nordic UART Service as a communication channel.
  *
- * @param[in] channel: Pointer to communication interface which will be depopulated.
+ * @param[in] _channel: Pointer to communication interface which will be depopulated.
  * @return RD_SUCCESS on success
  * @return error code from stack in case there is other error.
  */

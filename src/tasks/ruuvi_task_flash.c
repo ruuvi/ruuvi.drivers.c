@@ -3,7 +3,7 @@
  */
 /*@{*/
 /**
- * @file task_flash.c
+ * @file ruuvi_task_flash.c
  * @author Otso Jousimaa <otso@ojousima.net>
  * @copyright 2019 Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @date 2019-11-18 provide compile time choice incase no flash is available

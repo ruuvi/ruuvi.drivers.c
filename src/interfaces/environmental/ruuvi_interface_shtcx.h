@@ -26,9 +26,9 @@
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
  * Interface for SHTCX basic usage. The underlying platform must provide
- * functions for I2C access, @ref ruuvi_interface_i2c_shtxc.h.
+ * functions for I2C access.
  *
- * Testing the interface with @ref test_sensor.h
+ * Testing the interface with @ref ruuvi_driver_sensor_test.h
  *
  * @code{.c}
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);

@@ -185,9 +185,9 @@ rd_status_t rt_adc_vdd_get (float * const vdd);
  * This function initializes ADC, reads absolute voltage sample from selected handle.
  * The parameter sample is absolute voltage relative to the device ground.
  *
- * @param[in] config Configuration of ADC.
+ * @param[in] configuration Configuration of ADC.
  * @param[in] handle Handle to ADC, i.e. ADC pin.
- * @param[in] pointer to a Voltage Sample.
+ * @param[in] sample Pointer to a Voltage Sample.
  * @retval RD_SUCCESS on success
  * @retval error code from stack on error.
  */
@@ -202,9 +202,9 @@ rd_status_t rt_adc_absolute_sample (rd_sensor_configuration_t * const configurat
  * 0.0 (GND) and 1.0 (VDD). Additionally the parameter sample could be outside limits as
  * described in @ref rt_adc_ratio_get.
  *
- * @param[in] config Configuration of ADC.
+ * @param[in] configuration Configuration of ADC.
  * @param[in] handle Handle to ADC, i.e. ADC pin.
- * @param[in] pointer to a Voltage Sample.
+ * @param[in] sample Pointer to a Voltage Sample.
  * @retval RD_SUCCESS on success
  * @retval error code from stack on error.
  */

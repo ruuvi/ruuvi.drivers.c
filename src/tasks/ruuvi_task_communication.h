@@ -2,7 +2,7 @@
 #define  RUUVI_TASK_COMMUNICATION_H
 
 /**
- * @file task_communication.h
+ * @file ruuvi_task_communication.h
  * @author Otso Jousimaa
  * @date 2020-04-29
  * @brief Helper functions for communication.

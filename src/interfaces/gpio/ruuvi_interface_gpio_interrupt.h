@@ -55,8 +55,8 @@ typedef void (*ri_gpio_interrupt_fp_t) (const ri_gpio_evt_t);
  * - Initialization must return @c RD_SUCCESS after uninitializtion.
  * - Initialization must return @c RD_ERROR_NULL if interrupt handler table is @c NULL.
  *
- * @param interrupt_table[in] Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
- * @param max_interrupts[in] Size of interrupt table.
+ * @param[in] interrupt_table Array of function pointers, initialized to all nulls. Size should be the number of GPIO+1, i.e. RUUVI_BOARD_GPIO_NUMBER + 1.
+ * @param[in] max_interrupts Size of interrupt table.
  *
  * @return @ref RD_SUCCESS on success, error code on failure.
  */
@@ -94,10 +94,10 @@ bool ri_gpio_interrupt_is_init (void);
  * - Interrupt pin shall be at logic HIGH when interrupt is enabled with a pull-up and the pin is not loaded externally
  * - Interrupt pin shall be at logic LOW when interrupt is enabled with a pull-down and the pin is not loaded externally
  *
- * @param pin[in] pin to use as interrupt source
- * @param slope[in] slope to interrupt on
- * @param mode[in] GPIO input mode. Must be (RI_GPIO_)INPUT_PULLUP, INPUT_PULLDOWN or INPUT_NOPULL
- * @param handler[ib] function pointer which will be called with ri_gpio_evt_t as a parameter on interrupt.
+ * @param[in] pin pin to use as interrupt source
+ * @param[in] slope slope to interrupt on
+ * @param[in] mode GPIO input mode. Must be (RI_GPIO_)INPUT_PULLUP, INPUT_PULLDOWN or INPUT_NOPULL
+ * @param[in] handler function pointer which will be called with ri_gpio_evt_t as a parameter on interrupt.
  *
  * @return @ref RD_SUCCESS on success, error code on failure.
  * @warning Simultaneous interrupts may be lost. Check the underlying implementation.
@@ -112,9 +112,9 @@ rd_status_t ri_gpio_interrupt_enable (const ri_gpio_id_t pin,
  *
  * Pin will be left as @ref RI_GPIO_MODE_HIGH_Z.
  *
- * @param pin[in] pin to disable as interrupt source.
+ * @param[in] pin pin to disable as interrupt source.
  *
- * @retval @ref RD_SUCCESS on success.
+ * @retval RD_SUCCESS on success.
 
  */
 rd_status_t ri_gpio_interrupt_disable (const ri_gpio_id_t pin);

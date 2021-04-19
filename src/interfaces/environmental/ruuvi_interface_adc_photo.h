@@ -6,7 +6,7 @@
 /*@{*/
 /**
  * @defgroup ADC_PHOTO ADC_PHOTO Interface
- * @brief Implement @ref ruuvi_driver_sensor_t functions on ADC_PHOTO
+ * @brief Implement @ref rd_sensor_t functions on ADC_PHOTO
  *
  * The implementation supports taking single-samples and a continuous mode
  */

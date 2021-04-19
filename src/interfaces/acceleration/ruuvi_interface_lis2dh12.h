@@ -36,7 +36,7 @@
  * Interface for LIS2DH12 basic usage. The underlying platform must provide
  * functions for SPI and/or I2C access, @ref ruuvi_interface_spi_lis2dh12.h.
  *
- * Testing the interface with @ref test_sensor.h
+ * Testing the interface with @ref ruuvi_driver_sensor_test.h
  *
  * @code{.c}
  *  rd_status_t err_code = RD_SUCCESS;
@@ -108,10 +108,10 @@ rd_status_t ri_lis2dh12_fifo_use (const bool enable);
 *
 * @param[in, out] num_elements Input: number of elements in data. Output: Number of elements placed in data
 * @param[out] data array with num_elements slots.
-* @param RD_SUCCESS on success
-* @param RD_ERROR_NULL if either parameter is NULL
-* @param RD_ERROR_INVALID_STATE if FIFO is not in use
-* @param error code from stack on error.
+* @return RD_SUCCESS on success
+* @return RD_ERROR_NULL if either parameter is NULL
+* @return RD_ERROR_INVALID_STATE if FIFO is not in use
+* @return error code from stack on error.
 */
 rd_status_t ri_lis2dh12_fifo_read (size_t * num_elements, rd_sensor_data_t * data);
 

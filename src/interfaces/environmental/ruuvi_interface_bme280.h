@@ -29,7 +29,7 @@
  * functions for SPI and/or I2C access, @ref ruuvi_interface_spi_bme280.h and
  * @ref ruuvi_interface_i2c_bme280.h.
  *
- * Testing the interface with @ref test_sensor.h
+ * Testing the interface with @ref ruuvi_driver_sensor_test.h
  *
  * @code{.c}
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
