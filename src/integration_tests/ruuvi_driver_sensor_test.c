@@ -1,3 +1,12 @@
+/**
+ * @file ruuvi_driver_sensor_test.c
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @brief all sensors should act the same so test them the same way
+ * @date 2020-06-18
+ *.      2021-05-28 show timestamp_ms in uint32_t ARMGCC does not like %lld (Segger ES does)
+ */
+
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -22,10 +31,10 @@
 RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL); \
 return status;                                      \
 }
-#define BITFIELD_MASK       (1U)
+#define BITFIELD_MASK        (1U)
 #define MAX_LOG_BUFFER_SIZE (128U)
-#define MAX_SENSOR_NAME_LEN (20U)
-#define MAX_BITS_PER_BYTE (8U) //!< Number of bits in a byte.
+#define MAX_SENSOR_NAME_LEN  (20U)
+#define MAX_BITS_PER_BYTE     (8U) //!< Number of bits in a byte.
 #define MAX_SENSORS (sizeof(rd_sensor_data_fields_t)* MAX_BITS_PER_BYTE)
 #define MAX_RETRIES    (50U) //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
 #define MAX_FIFO_DEPTH (32U) //!< How many samples to fetch from FIFO at max
@@ -34,16 +43,16 @@ return status;                                      \
 #define LOG_PRINT_DELAY_MS (10U)
 
 
-static inline void LOG (const char * const msg)
+static inline void LOG (const char* const msg)                                                          /* NOPAD */
 {
     ri_log (RI_LOG_LEVEL_INFO, msg);
-    ri_delay_ms (LOG_PRINT_DELAY_MS); // Avoid overflowing log buffer.
+    ri_delay_ms (LOG_PRINT_DELAY_MS); // Avoid overflowing log buffer. ToDo : remove delay because ri_log knows best
 }
 
 static volatile bool fifo_int  = false;
 static volatile bool level_int = false;
 
-static bool initialize_sensor_once (rd_sensor_t * DUT,
+static bool initialize_sensor_once (rd_sensor_t *DUT,                                                      /* NOPAD */
                                     const rd_sensor_init_fp init,
                                     const rd_bus_t bus, const uint8_t handle)
 {
@@ -93,7 +102,7 @@ static bool initialize_sensor_twice (rd_sensor_t * DUT,
 static bool validate_sensor_setup (rd_sensor_t * DUT)
 {
     // - None of the sensor function pointers may be NULL after init
-    if (DUT->init                  == NULL ||
+    if     (DUT->init                  == NULL ||
             DUT->uninit                == NULL ||
             DUT->configuration_get     == NULL ||
             DUT->configuration_set     == NULL ||
@@ -121,7 +130,7 @@ static bool validate_sensor_setup (rd_sensor_t * DUT)
     return false;
 }
 
-static bool validate_sensor_teardown (rd_sensor_t * DUT)
+static bool validate_sensor_teardown (rd_sensor_t *DUT)                                                      /* NOPAD */
 {
     bool failed = false;
     failed |= (RD_ERROR_NOT_INITIALIZED != DUT->init (NULL, 0, 0))   ? true : false;
@@ -152,7 +161,7 @@ static bool validate_sensor_teardown (rd_sensor_t * DUT)
     return failed;
 }
 
-static bool validate_sensor_mode_after_init (rd_sensor_t * DUT)
+static bool validate_sensor_mode_after_init (rd_sensor_t *DUT)                                                      /* NOPAD */
 {
     uint8_t mode;
     rd_status_t err_code = DUT->mode_get (&mode);
@@ -166,7 +175,7 @@ static bool validate_sensor_mode_after_init (rd_sensor_t * DUT)
     return false;
 }
 
-static bool test_sensor_init_on_null (rd_sensor_t * DUT,
+static bool test_sensor_init_on_null (rd_sensor_t *DUT,                                                      /* NOPAD */
                                       const rd_sensor_init_fp init,
                                       const rd_bus_t bus, const uint8_t handle)
 {
@@ -182,7 +191,7 @@ static bool test_sensor_init_on_null (rd_sensor_t * DUT,
 }
 
 /**
- * @brief Test that sensor init and uninit works as expected.
+ * @brief Test that sensor init and uninit work as expected.
  *
  * - Sensor must return RD_SUCCESS on first init.
  * - None of the sensor function pointers may be NULL after init
@@ -234,7 +243,7 @@ static bool test_sensor_init (const rd_sensor_init_fp init,
     return failed;
 }
 
-static bool test_sensor_setup_set_get (const rd_sensor_t * DUT,
+static bool test_sensor_setup_set_get (const rd_sensor_t *DUT,                                                      /* NOPAD */
                                        const rd_sensor_setup_fp set, const rd_sensor_setup_fp get)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -376,8 +385,8 @@ static bool test_sensor_setup (const rd_sensor_init_fp init,
 }
 
 /** @brief Copy new value into old value and return true if new is different from original old value. */
-static inline bool value_has_changed (rd_sensor_data_t * old,
-                                      const rd_sensor_data_t * const new_d)
+static inline bool value_has_changed (rd_sensor_data_t *old,                                                                   /* NOPAD */
+                                      const rd_sensor_data_t *const new_d)                                                      /* NOPAD */
 {
     bool change = false;
 
@@ -391,7 +400,7 @@ static inline bool value_has_changed (rd_sensor_data_t * old,
     return change;
 }
 
-static bool sensor_sleeps_after_init (const rd_sensor_t * const DUT)
+static bool sensor_sleeps_after_init (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode;
@@ -405,7 +414,7 @@ static bool sensor_sleeps_after_init (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const DUT)
+static bool sensor_returns_invalid_before_sampling (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     float values_new[MAX_SENSOR_PROVIDED_FIELDS];
@@ -425,7 +434,7 @@ static bool sensor_returns_invalid_before_sampling (const rd_sensor_t * const DU
     return false;
 }
 
-static bool sensor_returns_to_sleep (const rd_sensor_t * const DUT)
+static bool sensor_returns_to_sleep (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode;
@@ -441,7 +450,7 @@ static bool sensor_returns_to_sleep (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_returns_valid_data (const rd_sensor_t * const DUT)
+static bool sensor_returns_valid_data (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode;
@@ -464,7 +473,7 @@ static bool sensor_returns_valid_data (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool single_sample_stays_valid (const rd_sensor_t * const DUT)
+static bool single_sample_stays_valid (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
@@ -492,7 +501,7 @@ static bool single_sample_stays_valid (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_remains_continuous (const rd_sensor_t * const DUT)
+static bool sensor_remains_continuous (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
@@ -509,7 +518,7 @@ static bool sensor_remains_continuous (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_rejects_single_on_continuous (const rd_sensor_t * const DUT)
+static bool sensor_rejects_single_on_continuous (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
@@ -524,7 +533,7 @@ static bool sensor_rejects_single_on_continuous (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_mode_cannot_be_null (const rd_sensor_t * const DUT)
+static bool sensor_mode_cannot_be_null (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code = DUT->mode_set (NULL);
@@ -544,7 +553,7 @@ static bool sensor_mode_cannot_be_null (const rd_sensor_t * const DUT)
     return false;
 }
 
-static bool sensor_returns_continuous_data (const rd_sensor_t * const DUT)
+static bool sensor_returns_continuous_data (const rd_sensor_t *const DUT)                                                      /* NOPAD */
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SLEEP;
@@ -707,7 +716,7 @@ static bool test_sensor_interrupts_setup (rd_sensor_t * DUT,
 /** @brief Uninitialize GPIOs and sensor after tests
   *  @param[out] DUT Sensor to configure
   */
-static void test_sensor_interrupts_teardown (rd_sensor_t * const DUT,
+static void test_sensor_interrupts_teardown (rd_sensor_t *const DUT,                                                      /* NOPAD */
         rd_sensor_init_fp const init,
         const rd_bus_t bus, const uint8_t handle,
         const ri_gpio_id_t fifo_pin,
@@ -721,7 +730,7 @@ static void test_sensor_interrupts_teardown (rd_sensor_t * const DUT,
 }
 
 /** @brief  - LEVEL return status of interrupt occurance */
-static rd_status_t test_sensor_level_enable (const rd_sensor_t * DUT)
+static rd_status_t test_sensor_level_enable (const rd_sensor_t *DUT)                                                      /* NOPAD */
 {
     float threshold_g = APP_MOTION_THRESHOLD;
     DUT->level_interrupt_set (true, &threshold_g);
@@ -749,7 +758,7 @@ static rd_status_t test_sensor_level_enable (const rd_sensor_t * DUT)
 }
 
 /** @brief  - FIFO read must return samples with different values (noise) */
-static rd_status_t test_sensor_fifo_enable (const rd_sensor_t * DUT)
+static rd_status_t test_sensor_fifo_enable (const rd_sensor_t *DUT)                                                      /* NOPAD */
 {
     DUT->fifo_enable (true);
     rd_sensor_configuration_t config = {0};
@@ -883,7 +892,7 @@ static bool test_sensor_interrupts (const rd_sensor_init_fp init,
     return status;
 }
 
-static bool sensor_returns_valid_data_print (const rd_sensor_t * const DUT,
+static bool sensor_returns_valid_data_print (const rd_sensor_t *const DUT,                                                      /* NOPAD */
         const rd_test_print_fp printfp)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -929,7 +938,7 @@ static bool test_sensor_data_print (const rd_sensor_init_fp init,
 }
 
 bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
-                                     rt_sensor_ctx_t * p_sensor_ctx)
+                                     rt_sensor_ctx_t *p_sensor_ctx)                                                      /* NOPAD */
 {
     bool status = false;
     rd_status_t err_code = RD_SUCCESS;
@@ -1075,11 +1084,11 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
 
         if (RD_UINT64_INVALID == p_data->timestamp_ms)
         {
-            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"RD_UINT64_INVALID\",\r\n");
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"RD_UINT64_INVALID\",\n");
         }
         else
         {
-            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%lld\",\r\n", p_data->timestamp_ms);
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%ld\",\n", (uint32_t)p_data->timestamp_ms); // it's early so 32 is OK 
         }
 
         printfp (msg);
@@ -1138,7 +1147,7 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
 
 #else
 // Dummy implementation
-rd_status_t test_sensor_status (size_t * total, size_t * passed)
+rd_status_t test_sensor_status (size_t *total, size_t *passed)                                                      /* NOPAD */
 {
     return RD_SUCCESS;
 }
