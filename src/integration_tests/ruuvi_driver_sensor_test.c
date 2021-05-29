@@ -31,7 +31,7 @@
 RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL); \
 return status;                                      \
 }
-#define BITFIELD_MASK        (1U)
+#define BITFIELD_MASK         (1U)
 #define MAX_LOG_BUFFER_SIZE (128U)
 #define MAX_SENSOR_NAME_LEN  (20U)
 #define MAX_BITS_PER_BYTE     (8U) //!< Number of bits in a byte.
