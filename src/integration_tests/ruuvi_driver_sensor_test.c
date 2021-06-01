@@ -161,7 +161,7 @@ static bool validate_sensor_teardown (rd_sensor_t * DUT)
     return failed;
 }
 
-static bool validate_sensor_mode_after_init (rd_sensor_t *DUT)
+static bool validate_sensor_mode_after_init (rd_sensor_t * DUT)
 {
     uint8_t mode;
     rd_status_t err_code = DUT->mode_get (&mode);
@@ -175,7 +175,7 @@ static bool validate_sensor_mode_after_init (rd_sensor_t *DUT)
     return false;
 }
 
-static bool test_sensor_init_on_null (rd_sensor_t *DUT,
+static bool test_sensor_init_on_null (rd_sensor_t * DUT,
                                       const rd_sensor_init_fp init,
                                       const rd_bus_t bus, const uint8_t handle)
 {
@@ -243,7 +243,7 @@ static bool test_sensor_init (const rd_sensor_init_fp init,
     return failed;
 }
 
-static bool test_sensor_setup_set_get (const rd_sensor_t *DUT,
+static bool test_sensor_setup_set_get (const rd_sensor_t * DUT,
                                        const rd_sensor_setup_fp set, const rd_sensor_setup_fp get)
 {
     rd_status_t err_code = RD_SUCCESS;
