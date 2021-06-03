@@ -1,3 +1,12 @@
+/**
+ * @file ruuvi_interface_shtcx.c
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @date 2019-08-10
+ *
+ * SHTC temperature and humidity sensor driver.
+ */
+
 #include "ruuvi_driver_enabled_modules.h"
 #if RI_SHTCX_ENABLED || DOXYGEN
 // Ruuvi headers
@@ -21,15 +30,6 @@
  */
 /** @{ */
 
-/**
- * @file ruuvi_interface_shtcx.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2019-08-10
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * SHTC temperature and humidity sensor driver.
- *
- */
 
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
@@ -46,8 +46,6 @@
           ri_shtcx_mode_get(&MACRO_MODE); \
           if(RD_SENSOR_CFG_SLEEP != MACRO_MODE) { return RD_ERROR_INVALID_STATE; } \
           } while(0)
-
-
 
 static uint64_t m_tsample;           //!< Timestamp of sample.
 static bool m_autorefresh;           //!< Flag to refresh data on data_get.
@@ -360,16 +358,18 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
  */
 void sensirion_sleep_usec (uint32_t useconds)
 {
-    if (useconds < 1000)
+#define MIN_SLEEP                  1000
+#define US_TO_MS_ROUNDUP(us) (us / 1000) + 2 
+    if (useconds < MIN_SLEEP)
     {
         ri_delay_us (useconds);
     }
     else
     {
-        ri_delay_ms ( (useconds / 1000) + 2);
+        ri_delay_ms ( US_TO_MS_ROUNDUP(useconds) );
     }
 }
 
 /** @} */
 
-#endif
+#endif // RI_SHTCX_ENABLED || DOXYGEN
