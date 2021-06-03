@@ -1,3 +1,11 @@
+/**
+ * @file ruuvi_driver_sensor_test.h
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @brief Run sensor integration tests.
+ * @date 2020-03-03
+ */
+
 #ifndef  SENSOR_TEST_H
 #define  SENSOR_TEST_H
 
@@ -5,14 +13,6 @@
  * @addtogroup sensor
  */
 /** @{ */
-/**
- * @file ruuvi_interface_communication_nfc_test.h
- * @author Otso Jousimaa <otso@ojousima.net>
- * @date 2020-03-03
- * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
- *
- * Test implementation of NFC interface.
- */
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_driver_test.h"
@@ -23,8 +23,8 @@
 #include <stdbool.h>
 
 /*
- * @brief Run sensor integration tests.
- *
+ * @brief rd_sensor_run_integration_test
+ *        called by run_integration_tests.c/integration_test_sensors
  *
  * @param[in] printfp Function pointer to which test JSON is sent.
  * @param[in] p_sensor_ctx Context of sensor to test.
@@ -37,8 +37,8 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
 /**
  * @brief Print Ruuvi Sensor data in human readable JSON.
  *
- * This function takes Ruuvi sensor data as input, checks the provided fields and
- * prints out valid data if available and "NAN" if no valid data is available. Pseudocode example:
+ * Takes Ruuvi sensor data as input, checks the provided fields and
+ * LOGs valid data if available and "NAN" if no valid data is available. Pseudocode example:
  * @code
  * float values[3];
  * rd_sensor_t data = {0};

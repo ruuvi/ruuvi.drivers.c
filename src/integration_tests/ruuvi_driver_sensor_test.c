@@ -1,3 +1,12 @@
+/**
+ * @file ruuvi_driver_sensor_test.c
+ * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
+ * @author Otso Jousimaa <otso@ojousima.net>
+ * @brief all sensors should act the same so test them the same way
+ * @date 2020-06-18
+ *.      2021-05-28 show timestamp_ms in uint32_t ARMGCC does not like %lld (Segger ES does)
+ */
+
 #include "ruuvi_driver_enabled_modules.h"
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -22,10 +31,10 @@
 RD_ERROR_CHECK(RD_ERROR_SELFTEST, ~RD_ERROR_FATAL); \
 return status;                                      \
 }
-#define BITFIELD_MASK       (1U)
+#define BITFIELD_MASK         (1U)
 #define MAX_LOG_BUFFER_SIZE (128U)
-#define MAX_SENSOR_NAME_LEN (20U)
-#define MAX_BITS_PER_BYTE (8U) //!< Number of bits in a byte.
+#define MAX_SENSOR_NAME_LEN  (20U)
+#define MAX_BITS_PER_BYTE     (8U) //!< Number of bits in a byte.
 #define MAX_SENSORS (sizeof(rd_sensor_data_fields_t)* MAX_BITS_PER_BYTE)
 #define MAX_RETRIES    (50U) //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
 #define MAX_FIFO_DEPTH (32U) //!< How many samples to fetch from FIFO at max
@@ -93,7 +102,7 @@ static bool initialize_sensor_twice (rd_sensor_t * DUT,
 static bool validate_sensor_setup (rd_sensor_t * DUT)
 {
     // - None of the sensor function pointers may be NULL after init
-    if (DUT->init                  == NULL ||
+    if (DUT->init                      == NULL ||
             DUT->uninit                == NULL ||
             DUT->configuration_get     == NULL ||
             DUT->configuration_set     == NULL ||
@@ -182,7 +191,7 @@ static bool test_sensor_init_on_null (rd_sensor_t * DUT,
 }
 
 /**
- * @brief Test that sensor init and uninit works as expected.
+ * @brief Test that sensor init and uninit work as expected.
  *
  * - Sensor must return RD_SUCCESS on first init.
  * - None of the sensor function pointers may be NULL after init
@@ -1075,11 +1084,13 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
 
         if (RD_UINT64_INVALID == p_data->timestamp_ms)
         {
-            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"RD_UINT64_INVALID\",\r\n");
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"RD_UINT64_INVALID\",\n");
         }
         else
         {
-            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%lld\",\r\n", p_data->timestamp_ms);
+            // Cast to 32 bits, tests are run at boot so there is no danger of overflow.
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%ld\",\n",
+                      (uint32_t) p_data->timestamp_ms);
         }
 
         printfp (msg);
@@ -1136,13 +1147,15 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
     }
 }
 
-#else
+#else    //RUUVI_RUN_TESTS
+
 // Dummy implementation
 rd_status_t test_sensor_status (size_t * total, size_t * passed)
 {
     return RD_SUCCESS;
 }
 
+// Dummy implementation
 void test_sensor_run (void)
 {}
 #endif
