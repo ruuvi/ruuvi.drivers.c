@@ -46,7 +46,7 @@ return status;                                      \
 static inline void LOG (const char * const msg)
 {
     ri_log (RI_LOG_LEVEL_INFO, msg);
-    ri_delay_ms (LOG_PRINT_DELAY_MS); // Avoid overflowing log buffer. ToDo : remove delay because ri_log knows best
+    ri_delay_ms (LOG_PRINT_DELAY_MS); // Avoid overflowing log buffer.
 }
 
 static volatile bool fifo_int  = false;
@@ -385,7 +385,7 @@ static bool test_sensor_setup (const rd_sensor_init_fp init,
 }
 
 /** @brief Copy new value into old value and return true if new is different from original old value. */
-static inline bool value_has_changed (      rd_sensor_data_t * old,
+static inline bool value_has_changed (rd_sensor_data_t * old,
                                       const rd_sensor_data_t * const new_d)
 {
     bool change = false;
@@ -1088,8 +1088,9 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
         }
         else
         {
-            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%ld\",\n", 
-                                            (uint32_t)p_data->timestamp_ms); // it's early so 32 is OK 
+            // Cast to 32 bits, tests are run at boot so there is no danger of overflow.
+            snprintf (msg, sizeof (msg), "\"timestamp_ms\": \"%ld\",\n",
+                      (uint32_t) p_data->timestamp_ms);
         }
 
         printfp (msg);
@@ -1149,11 +1150,12 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
 #else    //RUUVI_RUN_TESTS
 
 // Dummy implementation
-rd_status_t test_sensor_status (size_t *total, size_t * passed)  //dummy
+rd_status_t test_sensor_status (size_t * total, size_t * passed)
 {
     return RD_SUCCESS;
 }
 
-void test_sensor_run (void)  // dummy
+// Dummy implementation
+void test_sensor_run (void)
 {}
 #endif

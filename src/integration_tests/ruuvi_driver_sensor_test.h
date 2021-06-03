@@ -23,7 +23,7 @@
 #include <stdbool.h>
 
 /*
- * @brief rd_sensor_run_integration_test 
+ * @brief rd_sensor_run_integration_test
  *        called by run_integration_tests.c/integration_test_sensors
  *
  * @param[in] printfp Function pointer to which test JSON is sent.
@@ -32,7 +32,7 @@
  * @retval false if no errors occured.
  */
 bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
-                                     rt_sensor_ctx_t *p_sensor_ctx);                                            /* NOPAD */
+                                     rt_sensor_ctx_t * p_sensor_ctx);
 
 /**
  * @brief Print Ruuvi Sensor data in human readable JSON.
@@ -62,7 +62,7 @@ bool rd_sensor_run_integration_test (const rd_test_print_fp printfp,
  * @param[in] p_data Pointer to data to print.
  * @param[in] printfp Function to print data with, returns void and takes const char* const as param.
  */
-void rd_sensor_data_print (const rd_sensor_data_t *const p_data,                                                    /* NOPAD */
+void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                            const rd_test_print_fp printfp);
 
 /** @} */

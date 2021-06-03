@@ -19,7 +19,7 @@
 /**
  * @addtogroup SHTCX
  */
-/*@{*/
+/** @{ */
 
 /**
  * @file ruuvi_interface_shtcx.h
@@ -318,12 +318,7 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
 
     if (m_autorefresh)
     {
-        /* Sensor sleep clears measured values, blocking read required.
-        // read sensor values
-        err_code |= SHTCX_TO_RUUVI_ERROR(shtc1_read(&m_temperature, &m_humidity));
-        // Start next measurement
-        err_code |= SHTCX_TO_RUUVI_ERROR(shtc1_measure());
-        */
+        // Sensor sleep clears measured values, blocking read required.
         err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature,
                                           &m_humidity));
         m_tsample = rd_sensor_timestamp_get();
@@ -371,10 +366,10 @@ void sensirion_sleep_usec (uint32_t useconds)
     }
     else
     {
-        ri_delay_ms ( (useconds / 1000) + 1);
+        ri_delay_ms ( (useconds / 1000) + 2);
     }
 }
 
-/*@}*/
+/** @} */
 
 #endif
