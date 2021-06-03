@@ -363,7 +363,7 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
  */
 void sensirion_sleep_usec (uint32_t useconds)
 {
-    if (useconds < MIN_SLEEP)
+    if (useconds < LOW_POWER_SLEEP_MS_MIN)
     {
         ri_delay_us (useconds);
     }
