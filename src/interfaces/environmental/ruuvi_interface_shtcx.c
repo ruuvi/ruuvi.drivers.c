@@ -24,6 +24,11 @@
 
 // Sensirion driver.
 #include "shtc1.h"
+#define LOW_POWER_SLEEP_MS_MIN (1000U)
+static inline uint32_t US_TO_MS_ROUNDUP (uint32_t us)
+{
+    return (us / 1000) + 2;
+}
 
 /**
  * @addtogroup SHTCX
@@ -358,9 +363,6 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
  */
 void sensirion_sleep_usec (uint32_t useconds)
 {
-#define MIN_SLEEP                  1000
-#define US_TO_MS_ROUNDUP(us) (us / 1000) + 2
-
     if (useconds < MIN_SLEEP)
     {
         ri_delay_us (useconds);
