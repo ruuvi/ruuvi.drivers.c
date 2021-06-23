@@ -142,12 +142,12 @@ rd_status_t ri_radio_address_get (uint64_t * const address)
         ble_gap_addr_t addr;
         addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
         status |= sd_ble_gap_addr_get (&addr);
-        mac |= (uint64_t) (addr.addr[5]) << 40;
-        mac |= (uint64_t) (addr.addr[4]) << 32;
-        mac |= (uint64_t) (addr.addr[3]) << 24;
-        mac |= (uint64_t) (addr.addr[2]) << 16;
-        mac |= (uint64_t) (addr.addr[1]) << 8;
         mac |= (uint64_t) (addr.addr[0]) << 0;
+        mac |= (uint64_t) (addr.addr[1]) << 8;
+        mac |= (uint64_t) (addr.addr[2]) << 16;
+        mac |= (uint64_t) (addr.addr[3]) << 24;
+        mac |= (uint64_t) (addr.addr[4]) << 32;
+        mac |= (uint64_t) (addr.addr[5]) << 40;
     }
 
     *address = mac;
