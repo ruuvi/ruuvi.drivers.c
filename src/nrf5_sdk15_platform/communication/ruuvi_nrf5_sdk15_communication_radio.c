@@ -111,6 +111,16 @@ rd_status_t ri_radio_uninit (void)
     return RD_SUCCESS;
 }
 
+/**
+ * https://devzone.nordicsemi.com/f/nordic-q-a/19614/changing-mac-address-in-nrf52
+ * m_central_addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
+ * m_central_addr.addr[0]   = (uint8_t)NRF_FICR->DEVICEADDR[0];
+ * m_central_addr.addr[1]   = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 8);
+ * m_central_addr.addr[2]   = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 16);
+ * m_central_addr.addr[3]   = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 24);
+ * m_central_addr.addr[4]   = (uint8_t)NRF_FICR->DEVICEADDR[1];
+ * m_central_addr.addr[5]   = (uint8_t)((NRF_FICR->DEVICEADDR[1] >> 8) | 0xC0); // 2MSB
+ */
 rd_status_t ri_radio_address_get (uint64_t * const address)
 {
     uint32_t status = NRF_SUCCESS;
@@ -120,12 +130,12 @@ rd_status_t ri_radio_address_get (uint64_t * const address)
     if (!ri_radio_is_init())
     {
         // Random static BLE address has 2 top bits set
-        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[1] >> 8 | 0xC0) & 0xFF) << 40;
-        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[1] >> 0)  & 0xFF) << 32;
-        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 24) & 0xFF) << 24;
-        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 16) & 0xFF) << 16;
-        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 8)  & 0xFF) << 8;
         mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 0)  & 0xFF) << 0;
+        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 8)  & 0xFF) << 8;
+        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 16) & 0xFF) << 16;
+        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[0] >> 24) & 0xFF) << 24;
+        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[1] >> 0)  & 0xFF) << 32;
+        mac |= (uint64_t) ( (NRF_FICR->DEVICEADDR[1] >> 8 | 0xC0) & 0xFF) << 40;
     }
     else
     {
