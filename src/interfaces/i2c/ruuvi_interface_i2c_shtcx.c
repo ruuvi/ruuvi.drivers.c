@@ -115,16 +115,9 @@ int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data,
                             uint16_t count)
 {
     rd_status_t err_code = RD_SUCCESS;
-
-    // data is const, NRF function is not. Make local copy
-    if (count > SENSIRION_COMMAND_SIZE || count < SENSIRION_COMMAND_SIZE)
-    {
-        RD_ERROR_CHECK (RD_ERROR_INVALID_LENGTH, RD_SUCCESS);
-    }
-
     uint8_t deepcpy[SENSIRION_COMMAND_SIZE];
     memcpy (deepcpy, data, SENSIRION_COMMAND_SIZE);
-    err_code |= ri_i2c_write_blocking (address, deepcpy, count, true);
+    err_code |= ri_i2c_write_blocking (address, deepcpy, 2, true);
     return (RD_SUCCESS == err_code) ? 0 : STATUS_ERR_BAD_DATA;
 }
 
