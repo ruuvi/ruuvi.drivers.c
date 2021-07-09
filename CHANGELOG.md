@@ -1,6 +1,7 @@
 # Changelog
 ## 3.8.0 (in progress)
  - Store boot counter in flash
+ - Update SHTC driver to  5.3.0
 
 ## 3.7.0 
  - Add TMP117 temperature sensor support
