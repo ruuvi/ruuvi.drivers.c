@@ -22,8 +22,8 @@
 #define F_BIG_RECORD_SIZE 0x900U
 #define F_TEST_PAGE   0x0002U
 #define F_TEST_RECORD 0x0001U
-static const char f_data1[] = "Flash test data 1";
-static const char f_data2[] = "Flash test data 2";
+static const char  __attribute__((aligned (4)))f_data1[] = "Flash test data 1";
+static const char  __attribute__((aligned (4)))f_data2[] = "Flash test data 2";
 static uint32_t boot_count = 0;
 
 /**
