@@ -44,6 +44,9 @@
  *  RD_ERROR_CHECK(err_code, RD_ERROR_SELFTEST);
  * @endcode
  */
+
+#define RI_SHTCX_WAKEUP_US (240U) //!< Time from wakeup cmd to rdy.
+
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_shtcx_init (rd_sensor_t *
                            environmental_sensor, rd_bus_t bus, uint8_t handle);

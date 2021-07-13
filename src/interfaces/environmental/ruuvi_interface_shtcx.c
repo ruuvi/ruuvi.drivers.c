@@ -139,6 +139,7 @@ rd_status_t ri_shtcx_init (rd_sensor_t *
         environmental_sensor->name              = m_sensor_name;
         environmental_sensor->provides.datas.temperature_c = 1;
         environmental_sensor->provides.datas.humidity_rh = 1;
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
         m_tsample = RD_UINT64_INVALID;
         m_is_init = true;
     }
@@ -153,6 +154,7 @@ rd_status_t ri_shtcx_uninit (rd_sensor_t * sensor,
 
     rd_status_t err_code = RD_SUCCESS;
     shtc1_enable_low_power_mode (1);
+    err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
     rd_sensor_uninitialize (sensor);
     m_tsample = RD_UINT64_INVALID;
     m_temperature = RD_INT32_INVALID;
@@ -255,7 +257,12 @@ rd_status_t ri_shtcx_dsp_get (uint8_t * dsp, uint8_t * parameter)
 // Start single on command, mark autorefresh with continuous
 rd_status_t ri_shtcx_mode_set (uint8_t * mode)
 {
-    if (NULL == mode) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
+
+    if (NULL == mode)
+    {
+        return RD_ERROR_NULL;
+    }
 
     // Enter sleep by default and by explicit sleep commmand
     if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
@@ -274,8 +281,6 @@ rd_status_t ri_shtcx_mode_set (uint8_t * mode)
         if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
         {
             *mode = RD_SENSOR_CFG_CONTINUOUS;
-            // Start first measurement
-            shtc1_measure();
             return RD_ERROR_INVALID_STATE;
         }
 
@@ -283,7 +288,12 @@ rd_status_t ri_shtcx_mode_set (uint8_t * mode)
         m_autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
         m_tsample = rd_sensor_timestamp_get();
-        return SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature, &m_humidity));
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_wake_up());
+        sensirion_sleep_usec (RI_SHTCX_WAKEUP_US);
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature,
+                                          &m_humidity));
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
+        return err_code;
     }
 
     if (RD_SENSOR_CFG_CONTINUOUS == *mode)
@@ -322,8 +332,11 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
     if (m_autorefresh)
     {
         // Sensor sleep clears measured values, blocking read required.
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_wake_up());
+        sensirion_sleep_usec (RI_SHTCX_WAKEUP_US);
         err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature,
                                           &m_humidity));
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
         m_tsample = rd_sensor_timestamp_get();
     }
 
