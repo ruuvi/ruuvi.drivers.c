@@ -25,13 +25,8 @@
  *
  */
 
-static inline bool param_is_valid (const uint8_t param)
-{
-    return ( (RD_SENSOR_CFG_DEFAULT   == param)
-             || (RD_SENSOR_CFG_MIN       == param)
-             || (RD_SENSOR_CFG_MAX       == param)
-             || (RD_SENSOR_CFG_NO_CHANGE == param));
-}
+#define TMP117_CC_RETRIES_MAX    (5U)
+#define TMP117_CC_RETRY_DELAY_MS (10U)
 
 static uint8_t  m_address;
 static uint16_t ms_per_sample;
@@ -40,6 +35,14 @@ static float    m_temperature;
 static uint64_t m_timestamp;
 static const char m_sensor_name[] = "TMP117";
 static bool m_continuous = false;
+
+static inline bool param_is_valid (const uint8_t param)
+{
+    return ( (RD_SENSOR_CFG_DEFAULT   == param)
+             || (RD_SENSOR_CFG_MIN       == param)
+             || (RD_SENSOR_CFG_MAX       == param)
+             || (RD_SENSOR_CFG_NO_CHANGE == param));
+}
 
 static rd_status_t tmp117_soft_reset (void)
 {
@@ -709,18 +712,18 @@ static rd_status_t tmp117_wait_for_sample (const uint16_t initial_delay_ms)
     uint8_t retries = 0;
     ri_delay_ms (initial_delay_ms);
 
-    while ( (RD_SUCCESS == err_code) && (!drdy) && (retries <= 5))
+    while ( (RD_SUCCESS == err_code) && (!drdy) && (retries <= TMP117_CC_RETRIES_MAX))
     {
         err_code |= tmp117_poll_drdy (&drdy);
 
         if (!drdy)
         {
-            ri_delay_ms (10);
+            ri_delay_ms (TMP117_CC_RETRY_DELAY_MS);
             retries++;
         }
     }
 
-    if (retries > 5)
+    if (retries > TMP117_CC_RETRIES_MAX)
     {
         err_code |= RD_ERROR_TIMEOUT;
     }
@@ -828,7 +831,8 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
         m_timestamp = rd_sensor_timestamp_get();
     }
 
-    if (RD_SUCCESS == err_code && RD_UINT64_INVALID != m_timestamp && !isnan (m_temperature))
+    if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_timestamp)
+            && !isnan (m_temperature))
     {
         rd_sensor_data_fields_t env_fields = {.bitfield = 0};
         env_fields.datas.temperature_c = 1;
