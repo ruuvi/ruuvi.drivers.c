@@ -35,6 +35,7 @@
   :source:
     - BME280_driver/*
     - BME280_driver/selftest/*
+    - embedded-sht/**
     - ruuvi.dps310.c/*
     - src/*
     - src/tasks/**
@@ -49,6 +50,7 @@
   #  2) add entries to the :common: section (e.g. :test: has TEST defined)
   :common: &common_defines
     - BME280_FLOAT_ENABLE
+    - TEST
   :test:
     - *common_defines
     - CEEDLING

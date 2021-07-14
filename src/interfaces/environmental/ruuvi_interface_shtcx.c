@@ -22,18 +22,22 @@
 
 #include <string.h>
 
+/**
+ * @addtogroup SHTCX
+ */
+/** @{ */
+
 // Sensirion driver.
 #include "shtc1.h"
 #define LOW_POWER_SLEEP_MS_MIN (1000U)
+#define SHTCX_PROBE_RETRIES_MAX (5U)
+
 static inline uint32_t US_TO_MS_ROUNDUP (uint32_t us)
 {
     return (us / 1000) + 2;
 }
 
-/**
- * @addtogroup SHTCX
- */
-/** @{ */
+
 
 
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
@@ -87,61 +91,71 @@ static rd_status_t SHTCX_TO_RUUVI_ERROR (const int16_t rslt)
     return err_code;
 }
 
-rd_status_t ri_shtcx_init (rd_sensor_t *
-                           environmental_sensor, rd_bus_t bus, uint8_t handle)
+rd_status_t ri_shtcx_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
-    if (NULL == environmental_sensor) { return RD_ERROR_NULL; }
-
-    if (m_is_init) { return RD_ERROR_INVALID_STATE; }
-
-    rd_sensor_initialize (environmental_sensor);
-    environmental_sensor->name = m_sensor_name;
     rd_status_t err_code = RD_SUCCESS;
-    size_t retries = 0;
 
-    switch (bus)
+    if (NULL == sensor)
     {
-        case RD_BUS_I2C:
-            do
-            {
-                err_code = SHTCX_TO_RUUVI_ERROR (shtc1_probe());
-                retries++;
-            } while (RD_ERROR_INVALID_DATA == err_code && retries < 5);
-
-            break;
-
-        default:
-            return  RD_ERROR_INVALID_PARAM;
+        err_code |= RD_ERROR_NULL;
     }
-
-    if (RD_SUCCESS != err_code) { err_code = RD_ERROR_NOT_FOUND; }
-
-    if (RD_SUCCESS == err_code)
+    else if (rd_sensor_is_init (sensor))
     {
-        // Sensirion driver delays high-power mode time in any case.
-        // Explicitly entering low-power mode has no effect.
-        shtc1_enable_low_power_mode (0);
-        environmental_sensor->init              = ri_shtcx_init;
-        environmental_sensor->uninit            = ri_shtcx_uninit;
-        environmental_sensor->samplerate_set    = ri_shtcx_samplerate_set;
-        environmental_sensor->samplerate_get    = ri_shtcx_samplerate_get;
-        environmental_sensor->resolution_set    = ri_shtcx_resolution_set;
-        environmental_sensor->resolution_get    = ri_shtcx_resolution_get;
-        environmental_sensor->scale_set         = ri_shtcx_scale_set;
-        environmental_sensor->scale_get         = ri_shtcx_scale_get;
-        environmental_sensor->dsp_set           = ri_shtcx_dsp_set;
-        environmental_sensor->dsp_get           = ri_shtcx_dsp_get;
-        environmental_sensor->mode_set          = ri_shtcx_mode_set;
-        environmental_sensor->mode_get          = ri_shtcx_mode_get;
-        environmental_sensor->data_get          = ri_shtcx_data_get;
-        environmental_sensor->configuration_set = rd_sensor_configuration_set;
-        environmental_sensor->configuration_get = rd_sensor_configuration_get;
-        environmental_sensor->name              = m_sensor_name;
-        environmental_sensor->provides.datas.temperature_c = 1;
-        environmental_sensor->provides.datas.humidity_rh = 1;
-        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
-        m_tsample = RD_UINT64_INVALID;
-        m_is_init = true;
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        rd_sensor_initialize (sensor);
+        sensor->name = m_sensor_name;
+        uint8_t retries = 0;
+
+        switch (bus)
+        {
+            case RD_BUS_I2C:
+                do
+                {
+                    err_code = SHTCX_TO_RUUVI_ERROR (shtc1_probe());
+                    retries++;
+                } while ( (RD_ERROR_INVALID_DATA == err_code)
+
+                          && (retries < SHTCX_PROBE_RETRIES_MAX));
+
+                break;
+
+            default:
+                err_code |=  RD_ERROR_INVALID_PARAM;
+        }
+
+        if (RD_SUCCESS != err_code)
+        {
+            err_code = RD_ERROR_NOT_FOUND;
+        }
+        else
+        {
+            // Sensirion driver delays high-power mode time in any case.
+            // Explicitly entering low-power mode has no effect.
+            shtc1_enable_low_power_mode (0);
+            sensor->init              = ri_shtcx_init;
+            sensor->uninit            = ri_shtcx_uninit;
+            sensor->samplerate_set    = ri_shtcx_samplerate_set;
+            sensor->samplerate_get    = ri_shtcx_samplerate_get;
+            sensor->resolution_set    = ri_shtcx_resolution_set;
+            sensor->resolution_get    = ri_shtcx_resolution_get;
+            sensor->scale_set         = ri_shtcx_scale_set;
+            sensor->scale_get         = ri_shtcx_scale_get;
+            sensor->dsp_set           = ri_shtcx_dsp_set;
+            sensor->dsp_get           = ri_shtcx_dsp_get;
+            sensor->mode_set          = ri_shtcx_mode_set;
+            sensor->mode_get          = ri_shtcx_mode_get;
+            sensor->data_get          = ri_shtcx_data_get;
+            sensor->configuration_set = rd_sensor_configuration_set;
+            sensor->configuration_get = rd_sensor_configuration_get;
+            sensor->provides.datas.temperature_c = 1;
+            sensor->provides.datas.humidity_rh = 1;
+            err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
+            m_tsample = RD_UINT64_INVALID;
+            m_is_init = true;
+        }
     }
 
     return err_code;
@@ -361,6 +375,8 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
     return err_code;
 }
 
+// Ceedling mocks sensirion functions
+#ifndef CEEDLING
 /**
  * @brief Implement sleep function for SHTC driver.
  *
@@ -385,6 +401,7 @@ void sensirion_sleep_usec (uint32_t useconds)
         ri_delay_ms (US_TO_MS_ROUNDUP (useconds));
     }
 }
+#endif
 
 /** @} */
 
