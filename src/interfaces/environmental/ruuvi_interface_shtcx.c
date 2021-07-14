@@ -275,13 +275,13 @@ rd_status_t ri_shtcx_mode_set (uint8_t * mode)
         err_code |= RD_ERROR_NULL;
     }
     // Enter sleep by default and by explicit sleep commmand
-    else if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
+    else if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
         m_autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
         err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
     }
-   else if (RD_SENSOR_CFG_SINGLE == *mode)
+    else if (RD_SENSOR_CFG_SINGLE == *mode)
     {
         // Do nothing if sensor is in continuous mode
         uint8_t current_mode;
@@ -334,25 +334,25 @@ rd_status_t ri_shtcx_mode_get (uint8_t * mode)
     return RD_SUCCESS;
 }
 
-rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
-                               p_data)
+rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const p_data)
 {
-    if (NULL == p_data) { return RD_ERROR_NULL; }
-
     rd_status_t err_code = RD_SUCCESS;
 
-    if (m_autorefresh)
+    if (NULL == p_data)
     {
-        // Sensor sleep clears measured values, blocking read required.
-        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_wake_up());
-        sensirion_sleep_usec (RI_SHTCX_WAKEUP_US);
-        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_measure_blocking_read (&m_temperature,
-                                          &m_humidity));
-        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
-        m_tsample = rd_sensor_timestamp_get();
+        err_code |= RD_ERROR_NULL;
+    }
+    else if (m_autorefresh)
+    {
+        // Set autorefresh to false to take a single sample
+        m_autorefresh = false;
+        uint8_t mode = RD_SENSOR_CFG_SINGLE;
+        err_code |= ri_shtcx_mode_set (&mode);
+        // Restore autorefresh
+        m_autorefresh = true;
     }
 
-    if (RD_SUCCESS == err_code && RD_UINT64_INVALID != m_tsample)
+    if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_tsample))
     {
         rd_sensor_data_t d_environmental;
         rd_sensor_data_fields_t env_fields = {.bitfield = 0};
@@ -375,6 +375,7 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const
 
 // Ceedling mocks sensirion functions
 #ifndef CEEDLING
+
 /**
  * @brief Implement sleep function for SHTC driver.
  *

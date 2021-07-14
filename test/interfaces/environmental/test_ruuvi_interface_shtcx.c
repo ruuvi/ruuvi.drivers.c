@@ -73,7 +73,7 @@ void test_ri_shtcx_mode_set_sleep (void)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t mode = RD_SENSOR_CFG_SLEEP;
-    shtc1_sleep_ExpectAndReturn(0);
+    shtc1_sleep_ExpectAndReturn (0);
     err_code |= ri_shtcx_mode_set (&mode);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
@@ -119,6 +119,46 @@ void test_ri_shtcx_mode_set_null (void)
     rd_status_t err_code = RD_SUCCESS;
     err_code |= ri_shtcx_mode_set (NULL);
     TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_ri_shtcx_data_get_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_shtcx_data_get (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
+void test_ri_shtcx_data_get_no_sample (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_data_t data;
+    err_code |= ri_shtcx_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_ri_shtcx_data_get_single_sample (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_data_t data;
+    test_ri_shtcx_mode_set_single();
+    rd_sensor_data_populate_ExpectAnyArgs();
+    err_code |= ri_shtcx_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+}
+
+void test_ri_shtcx_data_get_continuous (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_data_t data;
+    test_ri_shtcx_mode_set_continuous();
+    rd_sensor_timestamp_get_ExpectAndReturn (1000);
+    shtc1_wake_up_ExpectAndReturn (0);
+    sensirion_sleep_usec_Expect (RI_SHTCX_WAKEUP_US);
+    shtc1_measure_blocking_read_ExpectAnyArgsAndReturn (0);
+    shtc1_sleep_ExpectAndReturn (0);
+    rd_sensor_data_populate_ExpectAnyArgs();
+    err_code |= ri_shtcx_data_get (&data);
+    TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
 #endif //TEST
