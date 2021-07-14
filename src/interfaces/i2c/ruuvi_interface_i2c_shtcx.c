@@ -111,8 +111,7 @@ int8_t sensirion_i2c_read (uint8_t address, uint8_t * data, uint16_t count)
  * @param count   number of bytes to read from the buffer and send over I2C
  * @returns 0 on success, error code otherwise
  */
-int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data,
-                            uint16_t count)
+int8_t sensirion_i2c_write (uint8_t address, const uint8_t * data, uint16_t count)
 {
     rd_status_t err_code = RD_SUCCESS;
     // Drop const qualification to match Nordic lib signature.
