@@ -12,6 +12,7 @@
 /**
  * @addtogroup TMP117
  */
+
 /** @{ */
 
 /**
@@ -23,13 +24,9 @@
  * TMP117 temperature sensor driver.
  *
  */
-static inline bool param_is_valid (const uint8_t param)
-{
-    return ( (RD_SENSOR_CFG_DEFAULT   == param)
-             || (RD_SENSOR_CFG_MIN       == param)
-             || (RD_SENSOR_CFG_MAX       == param)
-             || (RD_SENSOR_CFG_NO_CHANGE == param));
-}
+
+#define TMP117_CC_RETRIES_MAX    (5U)
+#define TMP117_CC_RETRY_DELAY_MS (10U)
 
 static uint8_t  m_address;
 static uint16_t ms_per_sample;
@@ -38,6 +35,14 @@ static float    m_temperature;
 static uint64_t m_timestamp;
 static const char m_sensor_name[] = "TMP117";
 static bool m_continuous = false;
+
+static inline bool param_is_valid (const uint8_t param)
+{
+    return ( (RD_SENSOR_CFG_DEFAULT   == param)
+             || (RD_SENSOR_CFG_MIN       == param)
+             || (RD_SENSOR_CFG_MAX       == param)
+             || (RD_SENSOR_CFG_NO_CHANGE == param));
+}
 
 static rd_status_t tmp117_soft_reset (void)
 {
@@ -65,12 +70,12 @@ static inline rd_status_t os_1_set (uint16_t * const reg_val)
     rd_status_t err_code = RD_SUCCESS;
     *reg_val |= TMP117_VALUE_OS_1;
 
-    if (16 > ms_per_cc)
+    if (TMP117_OS_1_TSAMPLE_MS > ms_per_cc)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
 
-    ms_per_sample = 16;
+    ms_per_sample = TMP117_OS_1_TSAMPLE_MS;
     return err_code;
 }
 
@@ -79,12 +84,12 @@ static inline rd_status_t os_8_set (uint16_t * const reg_val)
     rd_status_t err_code = RD_SUCCESS;
     *reg_val |= TMP117_VALUE_OS_8;
 
-    if (125 > ms_per_cc)
+    if (TMP117_OS_8_TSAMPLE_MS > ms_per_cc)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
 
-    ms_per_sample = 125;
+    ms_per_sample = TMP117_OS_8_TSAMPLE_MS;
     return err_code;
 }
 
@@ -93,12 +98,12 @@ static inline rd_status_t os_32_set (uint16_t * const reg_val)
     rd_status_t err_code = RD_SUCCESS;
     *reg_val |= TMP117_VALUE_OS_32;
 
-    if (500 > ms_per_cc)
+    if (TMP117_OS_32_TSAMPLE_MS > ms_per_cc)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
 
-    ms_per_sample = 500;
+    ms_per_sample = TMP117_OS_32_TSAMPLE_MS;
     return err_code;
 }
 
@@ -107,12 +112,12 @@ static inline rd_status_t os_64_set (uint16_t * const reg_val)
     rd_status_t err_code = RD_SUCCESS;
     *reg_val |= TMP117_VALUE_OS_64;
 
-    if (1000 > ms_per_cc)
+    if (TMP117_OS_64_TSAMPLE_MS > ms_per_cc)
     {
         err_code |= RD_ERROR_INVALID_STATE;
     }
 
-    ms_per_sample = 1000;
+    ms_per_sample = TMP117_OS_64_TSAMPLE_MS;
     return err_code;
 }
 
@@ -260,7 +265,7 @@ static rd_status_t tmp117_continuous (void)
     return  err_code;
 }
 
-static float tmp117_read (void)
+static rd_status_t tmp117_read (float * const temperature)
 {
     uint16_t reg_val;
     rd_status_t err_code;
@@ -276,14 +281,14 @@ static float tmp117_read (void)
         dec_temperature = reg_val;
     }
 
-    float temperature = (0.0078125F * dec_temperature);
+    *temperature = (0.0078125F * dec_temperature);
 
     if ( (TMP117_VALUE_TEMP_NA == reg_val) || (RD_SUCCESS != err_code))
     {
-        temperature = NAN;
+        *temperature = NAN;
     }
 
-    return temperature;
+    return err_code;
 }
 
 rd_status_t
@@ -337,7 +342,7 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
             m_timestamp = RD_UINT64_INVALID;
             m_temperature = NAN;
             ms_per_cc = 1000;
-            ms_per_sample = 16;
+            ms_per_sample = TMP117_OS_8_TSAMPLE_MS; //!< default OS setting
             m_continuous = false;
         }
     }
@@ -661,26 +666,66 @@ rd_status_t ri_tmp117_dsp_get (uint8_t * dsp, uint8_t * parameter)
             case TMP117_VALUE_OS_1:
                 *dsp = RD_SENSOR_DSP_LAST;
                 *parameter = 1;
+                ms_per_sample = TMP117_OS_1_TSAMPLE_MS;
                 break;
 
             case TMP117_VALUE_OS_8:
                 *dsp = RD_SENSOR_DSP_OS;
                 *parameter = 8;
+                ms_per_sample = TMP117_OS_8_TSAMPLE_MS;
                 break;
 
             case TMP117_VALUE_OS_32:
                 *dsp = RD_SENSOR_DSP_OS;
                 *parameter = 32;
+                ms_per_sample = TMP117_OS_32_TSAMPLE_MS;
                 break;
 
             case TMP117_VALUE_OS_64:
                 *dsp = RD_SENSOR_DSP_OS;
                 *parameter = 64;
+                ms_per_sample = TMP117_OS_64_TSAMPLE_MS;
                 break;
 
             default:
                 err_code |= RD_ERROR_INTERNAL;
         }
+    }
+
+    return err_code;
+}
+
+static rd_status_t tmp117_poll_drdy (bool * const drdy)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint16_t cfg = 0;
+    err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_CONFIGURATION, &cfg);
+    cfg &= TMP117_MASK_DRDY;
+    *drdy = (cfg != 0);
+    return err_code;
+}
+
+static rd_status_t tmp117_wait_for_sample (const uint16_t initial_delay_ms)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    bool drdy = false;
+    uint8_t retries = 0;
+    ri_delay_ms (initial_delay_ms);
+
+    while ( (RD_SUCCESS == err_code) && (!drdy) && (retries <= TMP117_CC_RETRIES_MAX))
+    {
+        err_code |= tmp117_poll_drdy (&drdy);
+
+        if (!drdy)
+        {
+            ri_delay_ms (TMP117_CC_RETRY_DELAY_MS);
+            retries++;
+        }
+    }
+
+    if (retries > TMP117_CC_RETRIES_MAX)
+    {
+        err_code |= RD_ERROR_TIMEOUT;
     }
 
     return err_code;
@@ -693,14 +738,23 @@ tmp117_take_single_sample (uint8_t * const mode)
 
     if (m_continuous)
     {
-        *mode = RD_SENSOR_CFG_CONTINUOUS;
         err_code |= RD_ERROR_INVALID_STATE;
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
     }
     else
     {
-        err_code |= tmp117_sample();
-        ri_delay_ms (ms_per_sample);
-        m_temperature = tmp117_read();
+        err_code |= tmp117_sample ();
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= tmp117_wait_for_sample (ms_per_sample);
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            err_code |= tmp117_read (&m_temperature);
+        }
+
         *mode = RD_SENSOR_CFG_SLEEP;
     }
 
@@ -762,8 +816,7 @@ rd_status_t ri_tmp117_mode_get (uint8_t * mode)
     return err_code;
 }
 
-rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
-                                data)
+rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
 {
     rd_status_t err_code = RD_SUCCESS;
 
@@ -774,11 +827,12 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
 
     if (m_continuous)
     {
-        m_temperature = tmp117_read();
+        err_code |= tmp117_read (&m_temperature);
         m_timestamp = rd_sensor_timestamp_get();
     }
 
-    if (RD_SUCCESS == err_code && RD_UINT64_INVALID != m_timestamp)
+    if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_timestamp)
+            && !isnan (m_temperature))
     {
         rd_sensor_data_fields_t env_fields = {.bitfield = 0};
         env_fields.datas.temperature_c = 1;
@@ -793,4 +847,3 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
 
 /** @} */
 #endif
-

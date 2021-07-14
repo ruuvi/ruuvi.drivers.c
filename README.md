@@ -61,11 +61,10 @@ desired implementation is enabled by definining `PLATFORM_MODULE_ENABLED 1`,
 for example `RUUVI_NRF5_SDK15_LOG_ENABLED 1`.
 
 Leaving unused modules unenabled will conserve some flash and RAM as they're not 
-linked into given application. 
+linked into given application.
 
 ## Error codes
-There are common error code definitions for the drivers, please see `ruuvi_driver_error.h`
- for details.
+There are common error code definitions for the drivers, please see `ruuvi_driver_error.h` for details.
 
 ## Sensor interface
 Sensors have a common interface which has setter and getter functions for common 
@@ -76,7 +75,7 @@ On SPI the handle is GPIO pin of Chip Select, on I2C the handle is I2C address o
 sensor.
 
 ### Initializing sensor
-All sensors have `ruuvi_interface_sensor_init(ruuvi_driver_sensor_t*, ruuvi_driver_bus_t, uint8_t)`  function which must be called before usage. Check the interface definition of detailed explanation of any initialization parameters.
+All sensors have `ri_sensor_init(rd_sensor_t*, rd_bus_t, uint8_t)`  function which must be called before usage. Check the interface definition of detailed explanation of any initialization parameters.
  * rd_sensor_t* is a pointer to sensor struct which will get initialized with proper function pointers
  * bus is the bus being used for sensor, such as I2C, SPI or NONE for MCU internal peripherals
  * uint8_t is a handle for the sensor. For I2C it's the device address, for SPI it's GPIO which controls the peripheral sensor and for NONE it could be e.g. ADC channel.
