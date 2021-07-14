@@ -1,4 +1,8 @@
 # Changelog
+## 3.8.1 (in progress)
+ - Put SHTCX to sleep after reads
+ - Poll data ready before reading TMP117 in single-shot mode
+
 ## 3.8.0
  - Store boot counter in flash
  - Update SHTC driver to  5.3.0
