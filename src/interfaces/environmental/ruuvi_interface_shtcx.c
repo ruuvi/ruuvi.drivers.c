@@ -37,9 +37,6 @@ static inline uint32_t US_TO_MS_ROUNDUP (uint32_t us)
     return (us / 1000) + 2;
 }
 
-
-
-
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
             if(RD_SENSOR_CFG_DEFAULT   == param ||\
@@ -275,18 +272,16 @@ rd_status_t ri_shtcx_mode_set (uint8_t * mode)
 
     if (NULL == mode)
     {
-        return RD_ERROR_NULL;
+        err_code |= RD_ERROR_NULL;
     }
-
     // Enter sleep by default and by explicit sleep commmand
-    if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
+    else if (RD_SENSOR_CFG_SLEEP == *mode || RD_SENSOR_CFG_DEFAULT == *mode)
     {
         m_autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
-        return RD_SUCCESS;
+        err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
     }
-
-    if (RD_SENSOR_CFG_SINGLE == *mode)
+   else if (RD_SENSOR_CFG_SINGLE == *mode)
     {
         // Do nothing if sensor is in continuous mode
         uint8_t current_mode;
@@ -309,14 +304,17 @@ rd_status_t ri_shtcx_mode_set (uint8_t * mode)
         err_code |= SHTCX_TO_RUUVI_ERROR (shtc1_sleep());
         return err_code;
     }
-
-    if (RD_SENSOR_CFG_CONTINUOUS == *mode)
+    else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         m_autorefresh = true;
-        return RD_SUCCESS;
+        err_code |= RD_SUCCESS;
+    }
+    else
+    {
+        err_code |= RD_ERROR_INVALID_PARAM;
     }
 
-    return RD_ERROR_INVALID_PARAM;
+    return err_code;
 }
 
 rd_status_t ri_shtcx_mode_get (uint8_t * mode)

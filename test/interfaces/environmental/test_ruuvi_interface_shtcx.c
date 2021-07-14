@@ -69,4 +69,56 @@ void test_ri_shtcx_uninit_ok (void)
     TEST_ASSERT (RD_SUCCESS == err_code);
 }
 
+void test_ri_shtcx_mode_set_sleep (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_SLEEP;
+    shtc1_sleep_ExpectAndReturn(0);
+    err_code |= ri_shtcx_mode_set (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
+}
+
+// SHTC does not support continuous mode, this just modifies SW state of driver.
+void test_ri_shtcx_mode_set_continuous (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    err_code |= ri_shtcx_mode_set (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
+}
+
+
+void test_ri_shtcx_mode_set_single (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_SINGLE;
+    rd_sensor_timestamp_get_ExpectAndReturn (1000);
+    shtc1_wake_up_ExpectAndReturn (0);
+    sensirion_sleep_usec_Expect (RI_SHTCX_WAKEUP_US);
+    shtc1_measure_blocking_read_ExpectAnyArgsAndReturn (0);
+    shtc1_sleep_ExpectAndReturn (0);
+    err_code |= ri_shtcx_mode_set (&mode);
+    TEST_ASSERT (RD_SUCCESS == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_SLEEP == mode);
+}
+
+void test_ri_shtcx_mode_set_single_is (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    uint8_t mode = RD_SENSOR_CFG_SINGLE;
+    test_ri_shtcx_mode_set_continuous();
+    err_code |= ri_shtcx_mode_set (&mode);
+    TEST_ASSERT (RD_ERROR_INVALID_STATE == err_code);
+    TEST_ASSERT (RD_SENSOR_CFG_CONTINUOUS == mode);
+}
+
+void test_ri_shtcx_mode_set_null (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_shtcx_mode_set (NULL);
+    TEST_ASSERT (RD_ERROR_NULL == err_code);
+}
+
 #endif //TEST
