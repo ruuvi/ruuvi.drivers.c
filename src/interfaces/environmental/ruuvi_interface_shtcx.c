@@ -342,32 +342,35 @@ rd_status_t ri_shtcx_data_get (rd_sensor_data_t * const p_data)
     {
         err_code |= RD_ERROR_NULL;
     }
-    else if (m_autorefresh)
+    else
     {
-        // Set autorefresh to false to take a single sample
-        m_autorefresh = false;
-        uint8_t mode = RD_SENSOR_CFG_SINGLE;
-        err_code |= ri_shtcx_mode_set (&mode);
-        // Restore autorefresh
-        m_autorefresh = true;
-    }
+        if (m_autorefresh)
+        {
+            // Set autorefresh to false to take a single sample
+            m_autorefresh = false;
+            uint8_t mode = RD_SENSOR_CFG_SINGLE;
+            err_code |= ri_shtcx_mode_set (&mode);
+            // Restore autorefresh
+            m_autorefresh = true;
+        }
 
-    if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_tsample))
-    {
-        rd_sensor_data_t d_environmental;
-        rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-        float env_values[2];
-        env_values[0] = m_humidity / 1000.0f;
-        env_values[1] = m_temperature / 1000.0f;
-        env_fields.datas.humidity_rh = 1;
-        env_fields.datas.temperature_c = 1;
-        d_environmental.data = env_values;
-        d_environmental.valid  = env_fields;
-        d_environmental.fields = env_fields;
-        d_environmental.timestamp_ms = m_tsample;
-        rd_sensor_data_populate (p_data,
-                                 &d_environmental,
-                                 p_data->fields);
+        if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_tsample))
+        {
+            rd_sensor_data_t d_environmental;
+            rd_sensor_data_fields_t env_fields = {.bitfield = 0};
+            float env_values[2];
+            env_values[0] = m_humidity / 1000.0f;
+            env_values[1] = m_temperature / 1000.0f;
+            env_fields.datas.humidity_rh = 1;
+            env_fields.datas.temperature_c = 1;
+            d_environmental.data = env_values;
+            d_environmental.valid  = env_fields;
+            d_environmental.fields = env_fields;
+            d_environmental.timestamp_ms = m_tsample;
+            rd_sensor_data_populate (p_data,
+                                     &d_environmental,
+                                     p_data->fields);
+        }
     }
 
     return err_code;
