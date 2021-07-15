@@ -35,12 +35,16 @@
  */
 typedef enum
 {
-    RI_GPIO_MODE_HIGH_Z,          //!< High-impedance mode, electrically disconnected.
-    RI_GPIO_MODE_INPUT_NOPULL,    //!< Input, can be read. No pull resistors
-    RI_GPIO_MODE_INPUT_PULLUP,    //!< Input, can be read. Pulled up by internal resistor, value depends on IC.
-    RI_GPIO_MODE_INPUT_PULLDOWN,  //!< Input, can be read. Pulled dpwn by internal resistor, value depends on IC.
-    RI_GPIO_MODE_OUTPUT_STANDARD, //!< Push-pull output, can be written.
-    RI_GPIO_MODE_OUTPUT_HIGHDRIVE //!< Push-pull output, can be written. Higher current drive than standard.
+    RI_GPIO_MODE_HIGH_Z,           //!< High-impedance mode, electrically disconnected.
+    RI_GPIO_MODE_INPUT_NOPULL,     //!< Input, can be read. No pull resistors
+    RI_GPIO_MODE_INPUT_PULLUP,     //!< Input, can be read. Pulled up by internal resistor, value depends on IC.
+    RI_GPIO_MODE_INPUT_PULLDOWN,   //!< Input, can be read. Pulled dpwn by internal resistor, value depends on IC.
+    RI_GPIO_MODE_OUTPUT_STANDARD,  //!< Push-pull output, can be written.
+    RI_GPIO_MODE_OUTPUT_HIGHDRIVE, //!< Push-pull output, can be written. Higher current drive than standard.
+    RI_GPIO_MODE_SINK_PULLUP_STANDARD,  //!< Sink only, pull-up, standard drive. I2C without external resistors.
+    RI_GPIO_MODE_SINK_NOPULL_STANDARD,  //!< Sink only, nopull, standard drive. I2C with weak external resistors.
+    RI_GPIO_MODE_SINK_PULLUP_HIGHDRIVE, //!< Sink only, pull-up, high-drive. I2C with optional external resistors.
+    RI_GPIO_MODE_SINK_NOPULL_HIGHDRIVE  //!< Sink only, nopull,, high-drive. I2C with strong external resistors.
 } ri_gpio_mode_t;
 
 /**

@@ -114,6 +114,42 @@ rd_status_t ri_gpio_configure (const ri_gpio_id_t pin,
                               NRF_GPIO_PIN_NOSENSE);
                 break;
 
+            case RI_GPIO_MODE_SINK_PULLUP_STANDARD:
+                nrf_gpio_cfg (nrf_pin,
+                              NRF_GPIO_PIN_DIR_OUTPUT,
+                              NRF_GPIO_PIN_INPUT_CONNECT,
+                              NRF_GPIO_PIN_PULLUP,
+                              NRF_GPIO_PIN_S0D1,
+                              NRF_GPIO_PIN_NOSENSE);
+                break;
+
+            case RI_GPIO_MODE_SINK_NOPULL_STANDARD:
+                nrf_gpio_cfg (nrf_pin,
+                              NRF_GPIO_PIN_DIR_OUTPUT,
+                              NRF_GPIO_PIN_INPUT_CONNECT,
+                              NRF_GPIO_PIN_NOPULL,
+                              NRF_GPIO_PIN_S0D1,
+                              NRF_GPIO_PIN_NOSENSE);
+                break;
+
+            case RI_GPIO_MODE_SINK_PULLUP_HIGHDRIVE:
+                nrf_gpio_cfg (nrf_pin,
+                              NRF_GPIO_PIN_DIR_OUTPUT,
+                              NRF_GPIO_PIN_INPUT_CONNECT,
+                              NRF_GPIO_PIN_PULLUP,
+                              NRF_GPIO_PIN_H0D1,
+                              NRF_GPIO_PIN_NOSENSE);
+                break;
+
+            case RI_GPIO_MODE_SINK_NOPULL_HIGHDRIVE:
+                nrf_gpio_cfg (nrf_pin,
+                              NRF_GPIO_PIN_DIR_OUTPUT,
+                              NRF_GPIO_PIN_INPUT_CONNECT,
+                              NRF_GPIO_PIN_NOPULL,
+                              NRF_GPIO_PIN_S0D1,
+                              NRF_GPIO_PIN_NOSENSE);
+                break;
+
             default:
                 err_code |= RD_ERROR_INVALID_PARAM;
         }

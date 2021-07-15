@@ -1,7 +1,8 @@
 # Changelog
-## 3.8.1 (in progress)
+## 3.9.0 (in progress)
  - Put SHTCX to sleep after reads
  - Poll data ready before reading TMP117 in single-shot mode
+ - Add sink-only GPIO CFG options for I2C. 
 
 ## 3.8.0
  - Store boot counter in flash
