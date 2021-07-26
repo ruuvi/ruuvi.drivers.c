@@ -2,6 +2,7 @@
 ## 3.9.0 (in progress)
  - Put SHTCX to sleep after reads
  - Poll data ready before reading TMP117 in single-shot mode
+ - Fix TMP117 
  - Add sink-only GPIO CFG options for I2C. 
 
 ## 3.8.0
