@@ -27,6 +27,7 @@ void tearDown (void)
 static void soft_reset_Expect (void)
 {
     ri_i2c_tmp117_write_ExpectAndReturn (mock_addr, TMP117_REG_CONFIGURATION, 2, RD_SUCCESS);
+    ri_delay_ms_ExpectAndReturn (TMP117_CC_RESET_DELAY_MS, RD_SUCCESS);
 }
 
 static void validate_id_Expect (void)
