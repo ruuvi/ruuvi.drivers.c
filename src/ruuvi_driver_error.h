@@ -48,6 +48,7 @@
 #define RD_ERROR_NOT_INITIALIZED  (1U<<19U)  ///< Driver is not initialized.
 #define RD_ERROR_NOT_ACKNOWLEDGED (1U<<20U)  ///< Ack was expected but not received
 #define RD_ERROR_NOT_ENABLED      (1U<<21U)  ///< Driver is not enabled
+#define RD_WARNING_DEPRECATED     (1U<<22U)  ///< Deprecated function, warn user.
 #define RD_ERROR_FATAL            (1U<<31U)  ///< Program should always reset after this
 
 typedef uint32_t rd_status_t; ///< bitfield for representing errors

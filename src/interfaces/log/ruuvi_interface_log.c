@@ -160,6 +160,11 @@ size_t ri_error_to_string (rd_status_t error,
                                      "NOT ENABLED");
                 break;
 
+            case RD_WARNING_DEPRECATED:
+                written += snprintf (error_string + written, space_remaining - written, "%s",
+                                     "DEPRECATED");
+                break;
+
             case RD_ERROR_FATAL:
                 written += snprintf (error_string + written, space_remaining - written, "%s", "FATAL");
                 break;
