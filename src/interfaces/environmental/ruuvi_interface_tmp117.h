@@ -91,6 +91,9 @@ ADDRESS TYPE RESET ACRONYM       REGISTER NAME
 #define TMP117_OS_32_TSAMPLE_MS  (500U)
 #define TMP117_OS_64_TSAMPLE_MS  (1000U)
 
+// POR reset 1.5 ms, soft reset 2 ms, margin.
+#define TMP117_CC_RESET_DELAY_MS (4U)
+
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_tmp117_init (rd_sensor_t *
                             environmental_sensor, rd_bus_t bus, uint8_t handle);

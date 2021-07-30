@@ -47,7 +47,11 @@ static inline bool param_is_valid (const uint8_t param)
 static rd_status_t tmp117_soft_reset (void)
 {
     uint16_t reset = TMP117_MASK_RESET & 0xFFFF;
-    return ri_i2c_tmp117_write (m_address, TMP117_REG_CONFIGURATION, reset);
+    rd_status_t err_code = ri_i2c_tmp117_write (m_address,
+                                                TMP117_REG_CONFIGURATION,
+                                                reset);
+    ri_delay_ms(TMP117_CC_RESET_DELAY_MS);
+    return err_code;
 }
 
 static rd_status_t tmp117_validate_id (void)
