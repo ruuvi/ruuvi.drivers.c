@@ -6,7 +6,7 @@
  * @brief Functions for atomic operations.
  *
  */
-/*@{*/
+/** @{ */
 /**
  * @file ruuvi_interface_atomic.h
  * @author Otso Jousimaa <otso@ojousima.net>
@@ -56,6 +56,6 @@ typedef volatile uint32_t ri_atomic_t; //!< define atomic type - not portable to
  */
 bool ri_atomic_flag (ri_atomic_t * const flag, const bool set);
 
-/*@}*/
+/** @} */
 
 #endif
