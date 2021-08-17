@@ -97,7 +97,7 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
-#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_DEBUG
+#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_INFO
 #endif
 #define LOG(msg) ri_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
 #define LOGD(msg) ri_log(RI_LOG_LEVEL_DEBUG, msg)
@@ -295,6 +295,9 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             err_code = nrf_ble_qwr_conn_handle_assign (&m_qwr, m_conn_handle);
             LOG ("BLE Connected \r\n");
+            char msg[128];
+            sprintf (msg, "PHY: %s.\r\n", phy_str (m_phys));
+            err_code = ri_gatt_params_request (RI_GATT_TURBO);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
 #           if 0
@@ -318,6 +321,9 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             evt.type = BLE_NUS_EVT_COMM_STOPPED;
             nus_data_handler (&evt);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
+            err_code = ri_gatt_params_request (RI_GATT_STANDARD);
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                            RD_SUCCESS);
             break;
 
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
@@ -851,6 +857,45 @@ rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const p_dis)
     dis_init.dis_char_rd_sec = SEC_OPEN;
     err_code = ble_dis_init (&dis_init);
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+}
+
+/**
+ * @brief Request connection parameter update for current connection.
+ *
+ * @param[in] params One of preset defaults: RI_GATT_TURBO, RI_GATT_STANDARD, RI_GATT_LOW_POWER.
+ * @retval RD_SUCCESS Parameter update was requested
+ * @retval RD_ERROR_INVALID_PARAM params was not one of supported defaults
+ * @retval RD_ERROR_INVALID_STATE if there is no ongoing GATT connection
+ * @retval Error code from BLE Stack if applicable
+ */
+rd_status_t ri_gatt_params_request (const ri_gatt_params_t params)
+{
+    ret_code_t err_code = NRF_SUCCESS;
+    ble_gap_conn_params_t gap_conn_params;
+    memset (&gap_conn_params, 0, sizeof (gap_conn_params));
+    gap_conn_params.slave_latency = SLAVE_LATENCY;
+    gap_conn_params.conn_sup_timeout = CONN_SUP_TIMEOUT;
+
+    switch (params)
+    {
+        case RI_GATT_TURBO:
+            gap_conn_params.min_conn_interval = 0x0006;
+            gap_conn_params.max_conn_interval = 0x0006;
+            break;
+
+        case RI_GATT_STANDARD:
+            gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
+            gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
+            break;
+
+        case RI_GATT_LOW_POWER:
+            gap_conn_params.min_conn_interval = 0x0C80;
+            gap_conn_params.max_conn_interval = 0x0C80;
+            break;
+    }
+
+    err_code = ble_conn_params_change_conn_params (m_conn_handle, &gap_conn_params);
+    return err_code;
 }
 
 #endif

@@ -71,4 +71,15 @@ rd_status_t ri_gatt_dfu_init (void);
  */
 rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const dis);
 
+/**
+ * @brief Request connection parameter update for current connection.
+ *
+ * @param[in] params One of preset defaults: RI_GATT_TURBO, RI_GATT_STANDARD, RI_GATT_LOW_POWER.
+ * @retval RD_SUCCESS Parameter update was requested
+ * @retval RD_ERROR_INVALID_PARAM params was not one of supported defaults
+ * @retval RD_ERROR_INVALID_STATE if there is no ongoing GATT connection
+ * @retval Error code from BLE Stack if applicable
+ */
+rd_status_t ri_gatt_params_request (const ri_gatt_params_t params);
+
 #endif

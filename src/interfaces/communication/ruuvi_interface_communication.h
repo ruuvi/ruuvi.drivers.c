@@ -57,6 +57,13 @@ typedef struct
     char deviceaddr[RI_COMM_DIS_STRLEN];   //!< Human readable device address, e.g. MAC.
 } ri_comm_dis_init_t;                      //!< Basic device information structure.
 
+typedef enum
+{
+    RI_GATT_TURBO,
+    RI_GATT_STANDARD,
+    RI_GATT_LOW_POWER
+} ri_gatt_params_t;
+
 typedef struct ri_comm_channel_t ri_comm_channel_t;
 
 /* @brief Callback handler for communication events */
