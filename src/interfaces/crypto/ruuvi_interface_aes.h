@@ -45,4 +45,5 @@ rd_status_t ri_aes_ecb_128_encrypt (const uint8_t * const cleartext,
                                     const uint8_t * const key,
                                     const size_t data_length);
 
+/** @} */
 #endif // RUUVI_INTERFACE_AES_H
