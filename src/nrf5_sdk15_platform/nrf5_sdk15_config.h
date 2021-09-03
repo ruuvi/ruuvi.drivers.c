@@ -2,6 +2,7 @@
 #define NRF5_SDK5_CONFIG_H
 
 #include "ruuvi_driver_enabled_modules.h"
+#include "ruuvi_interface_aes.h"
 #include "ruuvi_interface_communication_ble_advertising.h"
 #include "ruuvi_interface_communication_ble_gatt.h"
 #include "ruuvi_interface_communication_nfc.h" //!< Check if NRF_NFC is required
@@ -23,6 +24,10 @@
 
 #if (!NRF5_SDK15_CONFIGURED)
 #        warning "NRF5 SDK15 is not configured, using defaults."
+#endif
+
+#if RUUVI_NRF5_SDK15_AES_ENABLED
+#   define NRF_CRYPTO_AES_ENABLED 1
 #endif
 
 #ifndef RUUVI_NRF5_SDK15_BLE4_STACK_CONN_TAG
