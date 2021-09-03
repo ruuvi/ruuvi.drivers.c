@@ -75,6 +75,11 @@ data payload length is the maximum length */
 #  define RI_COMM_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_AES_ENABLED
+/** @brief Enable communication helper compilation. */
+#  define RI_AES_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RI_RADIO_ENABLED
 /** brief enable radio usage */
 #  define RI_RADIO_ENABLED ENABLE_DEFAULT
