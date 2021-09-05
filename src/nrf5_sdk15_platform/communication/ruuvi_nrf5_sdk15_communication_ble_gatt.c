@@ -97,7 +97,7 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
-#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_INFO
+#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_DEBUG
 #endif
 #define LOG(msg) ri_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
 #define LOGD(msg) ri_log(RI_LOG_LEVEL_DEBUG, msg)
@@ -125,10 +125,27 @@ static ble_gap_phys_t m_phys =
 #define MIN_CONN_INTERVAL MSEC_TO_UNITS(485U, UNIT_1_25_MS)
 // Apple guideline: max interval >= min interval + 15 ms
 #define MAX_CONN_INTERVAL MSEC_TO_UNITS(500U, UNIT_1_25_MS)
-// Apple guideline: MAX_CONN_INTERVAL * SLAVE_LATENCY <= 2 s.
+// Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) <= 2 s.
 #define SLAVE_LATENCY     (0U)
 // Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) * 3 < CONN_SUP_TIMEOUT
 #define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(8000U, UNIT_10_MS)
+
+// Apple guideline: 2 s. ≤ CONN_SUP_TIMEOUT ≤ 6 s.
+#define STANDARD_CON_SUP_TIMEOUT MSEC_TO_UNITS (600U, UNIT_10_MS)
+
+// Apple guideline: Slave Latency ≤ 30
+#define STANDARD_SLAVE_LATENCY (10U)
+#define LOW_POWER_SLAVE_LATENCY (30U)
+
+#define TURBO_MIN_INTERVAL MSEC_TO_UNITS(12U, UNIT_1_25_MS)   // 15 ms.
+#define TURBO_MAX_INTERVAL MSEC_TO_UNITS(24U, UNIT_1_25_MS)   // 30 ms.
+
+#define STANDARD_MIN_INTERVAL MSEC_TO_UNITS(24U, UNIT_1_25_MS) // 30 ms. 
+#define STANDARD_MAX_INTERVAL MSEC_TO_UNITS(40U, UNIT_1_25_MS) // 50 ms.
+
+#define LOW_POWER_MIN_INTERVAL MSEC_TO_UNITS(36U, UNIT_1_25_MS) // 45 ms.
+#define LOW_POWER_MAX_INTERVAL MSEC_TO_UNITS(51U, UNIT_1_25_MS) // 63.75 ms.
+
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
@@ -297,7 +314,6 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             LOG ("BLE Connected \r\n");
             char msg[128];
             sprintf (msg, "PHY: %s.\r\n", phy_str (m_phys));
-            err_code = ri_gatt_params_request (RI_GATT_TURBO);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
 #           if 0
@@ -321,7 +337,6 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             evt.type = BLE_NUS_EVT_COMM_STOPPED;
             nus_data_handler (&evt);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-            err_code = ri_gatt_params_request (RI_GATT_STANDARD);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
             break;
@@ -873,29 +888,33 @@ rd_status_t ri_gatt_params_request (const ri_gatt_params_t params)
     ret_code_t err_code = NRF_SUCCESS;
     ble_gap_conn_params_t gap_conn_params;
     memset (&gap_conn_params, 0, sizeof (gap_conn_params));
-    gap_conn_params.slave_latency = SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout = CONN_SUP_TIMEOUT;
+    gap_conn_params.conn_sup_timeout = STANDARD_CON_SUP_TIMEOUT;
 
     switch (params)
     {
         case RI_GATT_TURBO:
-            gap_conn_params.min_conn_interval = 0x0006;
-            gap_conn_params.max_conn_interval = 0x0006;
+            LOG ("RI_GATT_TURBO\r\n");
+            gap_conn_params.slave_latency = SLAVE_LATENCY;
+            gap_conn_params.min_conn_interval = TURBO_MIN_INTERVAL;
+            gap_conn_params.max_conn_interval = TURBO_MAX_INTERVAL;
             break;
 
         case RI_GATT_STANDARD:
-            gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
-            gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
+            LOG ("RI_GATT_STANDARD\r\n");
+            gap_conn_params.slave_latency = STANDARD_SLAVE_LATENCY;
+            gap_conn_params.min_conn_interval = STANDARD_MIN_INTERVAL;
+            gap_conn_params.max_conn_interval = STANDARD_MAX_INTERVAL;
             break;
 
         case RI_GATT_LOW_POWER:
-            gap_conn_params.min_conn_interval = 0x0C80;
-            gap_conn_params.max_conn_interval = 0x0C80;
+            LOG ("RI_GATT_LOW_POWER\r\n");
+            gap_conn_params.slave_latency = LOW_POWER_SLAVE_LATENCY;
+            gap_conn_params.min_conn_interval = LOW_POWER_MIN_INTERVAL;
+            gap_conn_params.max_conn_interval = LOW_POWER_MAX_INTERVAL;
             break;
     }
 
     err_code = ble_conn_params_change_conn_params (m_conn_handle, &gap_conn_params);
     return err_code;
 }
-
 #endif
