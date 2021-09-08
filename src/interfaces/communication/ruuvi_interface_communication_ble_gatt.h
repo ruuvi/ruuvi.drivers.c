@@ -15,6 +15,23 @@
 #   define RUUVI_NRF5_SDK15_GATT_ENABLED RUUVI_NRF5_SDK15_ENABLED
 #endif
 
+// Apple guideline: 2 s. ≤ CONN_SUP_TIMEOUT ≤ 6 s.
+#define RI_GATT_CONN_SUP_TIMEOUT_MS (6000U)
+
+// Apple guideline: Slave Latency ≤ 30
+// Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) <= 2 s.
+#define RI_GATT_SLAVE_LATENCY_TURBO     (0U)
+#define RI_GATT_SLAVE_LATENCY_STANDARD  (1U)
+#define RI_GATT_SLAVE_LATENCY_LOW_POWER (0U)
+
+// Apple guideline: min interval >= 15 ms, max interval >= min interval + 15 ms
+#define RI_GATT_MIN_INTERVAL_TURBO_MS     (15U)
+#define RI_GATT_MAX_INTERVAL_TURBO_MS     (30U)
+#define RI_GATT_MIN_INTERVAL_STANDARD_MS  (480U)
+#define RI_GATT_MAX_INTERVAL_STANDARD_MS  (510U)
+#define RI_GATT_MIN_INTERVAL_LOW_POWER_MS (1950U)
+#define RI_GATT_MAX_INTERVAL_LOW_POWER_MS (1980U)
+
 /**
  * @brief Initializes GATT stack.
  * Uses default values from sdk_config.h, these can be overridden in nrf5_sdk15_application_config.h
