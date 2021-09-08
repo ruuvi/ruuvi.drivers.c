@@ -78,23 +78,23 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CENTRAL_LINK_COUNT               0                                          /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
-#define PERIPHERAL_LINK_COUNT            1                                          /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
+#define CENTRAL_LINK_COUNT               0                     /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
+#define PERIPHERAL_LINK_COUNT            1                     /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
 
-#define APP_BLE_OBSERVER_PRIO            3                                          /**< Application's BLE observer priority. You shouldn't need to modify this value. */
+#define APP_BLE_OBSERVER_PRIO            3                     /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
-#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)                       /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
-#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000)                      /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
-#define MAX_CONN_PARAMS_UPDATE_COUNT     3                                          /**< Number of attempts before giving up the connection parameter negotiation. */
+#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)  /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
+#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000) /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
+#define MAX_CONN_PARAMS_UPDATE_COUNT     3                     /**< Number of attempts before giving up the connection parameter negotiation. */
 
-#define SEC_PARAM_BOND                   1                                          /**< Perform bonding. */
-#define SEC_PARAM_MITM                   0                                          /**< Man In The Middle protection not required. */
-#define SEC_PARAM_LESC                   0                                          /**< LE Secure Connections not enabled. */
-#define SEC_PARAM_KEYPRESS               0                                          /**< Keypress notifications not enabled. */
-#define SEC_PARAM_IO_CAPABILITIES        BLE_GAP_IO_CAPS_NONE                       /**< No I/O capabilities. */
-#define SEC_PARAM_OOB                    0                                          /**< Out Of Band data not available. */
-#define SEC_PARAM_MIN_KEY_SIZE           7                                          /**< Minimum encryption key size. */
-#define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
+#define SEC_PARAM_BOND                   0                     /**< Perform bonding. */
+#define SEC_PARAM_MITM                   0                     /**< Man In The Middle protection not required. */
+#define SEC_PARAM_LESC                   0                     /**< LE Secure Connections not enabled. */
+#define SEC_PARAM_KEYPRESS               0                     /**< Keypress notifications not enabled. */
+#define SEC_PARAM_IO_CAPABILITIES        BLE_GAP_IO_CAPS_NONE  /**< No I/O capabilities. */
+#define SEC_PARAM_OOB                    0                     /**< Out Of Band data not available. */
+#define SEC_PARAM_MIN_KEY_SIZE           7                     /**< Minimum encryption key size. */
+#define SEC_PARAM_MAX_KEY_SIZE           16                    /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
 #define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_DEBUG
@@ -104,10 +104,9 @@
 #define LOGW(msg) ri_log(RI_LOG_LEVEL_WARNING, msg)
 #define LOGHEX(msg, len) ri_log_hex(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg, len)
 
-NRF_BLE_GATT_DEF (m_gatt);                               /**< GATT module instance. */
-NRF_BLE_QWR_DEF (
-    m_qwr);                                  /**< Context for the Queued Write module.*/
-BLE_NUS_DEF (m_nus, NRF_SDH_BLE_TOTAL_LINK_COUNT);       /**< BLE NUS service instance. */
+NRF_BLE_GATT_DEF (m_gatt); /**< GATT module instance. */
+NRF_BLE_QWR_DEF (m_qwr);   /**< Context for the Queued Write module.*/
+BLE_NUS_DEF (m_nus, NRF_SDH_BLE_TOTAL_LINK_COUNT); /**< BLE NUS service instance. */
 static uint16_t m_conn_handle =
     BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 static bool     m_gatt_is_init = false;
@@ -120,15 +119,6 @@ static ble_gap_phys_t m_phys =
     .rx_phys = BLE_GAP_PHY_1MBPS, //BLE_GAP_PHY_2MBPS, BLE_GAP_PHY_CODED
     .tx_phys = BLE_GAP_PHY_1MBPS
 };
-
-// Values selected for optimizing throughput/energy.
-#define MIN_CONN_INTERVAL MSEC_TO_UNITS(485U, UNIT_1_25_MS)
-// Apple guideline: max interval >= min interval + 15 ms
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(500U, UNIT_1_25_MS)
-// Apple guideline: MAX_CONN_INTERVAL * SLAVE_LATENCY <= 2 s.
-#define SLAVE_LATENCY     (0U)
-// Apple guideline: MAX_CONN_INTERVAL * (SLAVE_LATENCY + 1) * 3 < CONN_SUP_TIMEOUT
-#define CONN_SUP_TIMEOUT  MSEC_TO_UNITS(8000U, UNIT_10_MS)
 
 /** @brief print PHY enum as string */
 static char const * phy_str (ble_gap_phys_t phys)
@@ -172,10 +162,13 @@ static ret_code_t gap_params_init (void)
     ble_gap_conn_sec_mode_t sec_mode;
     BLE_GAP_CONN_SEC_MODE_SET_OPEN (&sec_mode);
     memset (&gap_conn_params, 0, sizeof (gap_conn_params));
-    gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
-    gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency     = SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
+    gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_STANDARD_MS,
+                                        UNIT_1_25_MS);
+    gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_STANDARD_MS,
+                                        UNIT_1_25_MS);
+    gap_conn_params.slave_latency     = RI_GATT_SLAVE_LATENCY_STANDARD;
+    gap_conn_params.conn_sup_timeout  = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS,
+                                        UNIT_10_MS);
     err_code = sd_ble_gap_ppcp_set (&gap_conn_params);
     return err_code;
 }
@@ -295,6 +288,8 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             err_code = nrf_ble_qwr_conn_handle_assign (&m_qwr, m_conn_handle);
             LOG ("BLE Connected \r\n");
+            char msg[128];
+            sprintf (msg, "PHY: %s.\r\n", phy_str (m_phys));
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
 #           if 0
@@ -318,6 +313,8 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             evt.type = BLE_NUS_EVT_COMM_STOPPED;
             nus_data_handler (&evt);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
+            RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
+                            RD_SUCCESS);
             break;
 
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
@@ -853,4 +850,53 @@ rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const p_dis)
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
+/**
+ * @brief Request connection parameter update for current connection.
+ *
+ * @param[in] params One of preset defaults: RI_GATT_TURBO, RI_GATT_STANDARD, RI_GATT_LOW_POWER.
+ * @retval RD_SUCCESS Parameter update was requested
+ * @retval RD_ERROR_INVALID_PARAM params was not one of supported defaults
+ * @retval RD_ERROR_INVALID_STATE if there is no ongoing GATT connection
+ * @retval Error code from BLE Stack if applicable
+ */
+rd_status_t ri_gatt_params_request (const ri_gatt_params_t params)
+{
+    ret_code_t err_code = NRF_SUCCESS;
+    ble_gap_conn_params_t gap_conn_params = {0};
+    gap_conn_params.conn_sup_timeout = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS,
+                                       UNIT_10_MS);
+
+    switch (params)
+    {
+        case RI_GATT_TURBO:
+            LOG ("RI_GATT_TURBO\r\n");
+            gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_TURBO;
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_TURBO_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_TURBO_MS,
+                                                UNIT_1_25_MS);
+            break;
+
+        case RI_GATT_STANDARD:
+            LOG ("RI_GATT_STANDARD\r\n");
+            gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_STANDARD;
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_STANDARD_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_STANDARD_MS,
+                                                UNIT_1_25_MS);
+            break;
+
+        case RI_GATT_LOW_POWER:
+            LOG ("RI_GATT_LOW_POWER\r\n");
+            gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_LOW_POWER;
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_LOW_POWER_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_LOW_POWER_MS,
+                                                UNIT_1_25_MS);
+            break;
+    }
+
+    err_code = ble_conn_params_change_conn_params (m_conn_handle, &gap_conn_params);
+    return err_code;
+}
 #endif
