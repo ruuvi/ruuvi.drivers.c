@@ -280,7 +280,7 @@ static void nus_data_handler (ble_nus_evt_t * p_evt)
  */
 static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
 {
-    uint32_t err_code;
+    uint32_t err_code = NRF_SUCCESS;
 
     switch (p_ble_evt->header.evt_id)
     {
