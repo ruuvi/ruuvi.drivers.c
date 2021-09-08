@@ -107,7 +107,8 @@
 NRF_BLE_GATT_DEF (m_gatt); /**< GATT module instance. */
 NRF_BLE_QWR_DEF (m_qwr);   /**< Context for the Queued Write module.*/
 BLE_NUS_DEF (m_nus, NRF_SDH_BLE_TOTAL_LINK_COUNT); /**< BLE NUS service instance. */
-static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
+static uint16_t m_conn_handle =
+    BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 static bool     m_gatt_is_init = false;
 /**< Pointer to application communication interface, given at initialization */
 static ri_comm_channel_t * channel = NULL;
@@ -161,10 +162,13 @@ static ret_code_t gap_params_init (void)
     ble_gap_conn_sec_mode_t sec_mode;
     BLE_GAP_CONN_SEC_MODE_SET_OPEN (&sec_mode);
     memset (&gap_conn_params, 0, sizeof (gap_conn_params));
-    gap_conn_params.min_conn_interval = MSEC_TO_UNITS(RI_GATT_MIN_INTERVAL_STANDARD_MS, UNIT_1_25_MS);
-    gap_conn_params.max_conn_interval = MSEC_TO_UNITS(RI_GATT_MAX_INTERVAL_STANDARD_MS, UNIT_1_25_MS);
+    gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_STANDARD_MS,
+                                        UNIT_1_25_MS);
+    gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_STANDARD_MS,
+                                        UNIT_1_25_MS);
     gap_conn_params.slave_latency     = RI_GATT_SLAVE_LATENCY_STANDARD;
-    gap_conn_params.conn_sup_timeout  = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS, UNIT_10_MS);
+    gap_conn_params.conn_sup_timeout  = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS,
+                                        UNIT_10_MS);
     err_code = sd_ble_gap_ppcp_set (&gap_conn_params);
     return err_code;
 }
@@ -859,29 +863,36 @@ rd_status_t ri_gatt_params_request (const ri_gatt_params_t params)
 {
     ret_code_t err_code = NRF_SUCCESS;
     ble_gap_conn_params_t gap_conn_params = {0};
-    gap_conn_params.conn_sup_timeout = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS, UNIT_10_MS);
+    gap_conn_params.conn_sup_timeout = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS,
+                                       UNIT_10_MS);
 
     switch (params)
     {
         case RI_GATT_TURBO:
             LOG ("RI_GATT_TURBO\r\n");
             gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_TURBO;
-            gap_conn_params.min_conn_interval = MSEC_TO_UNITS(RI_GATT_MIN_INTERVAL_TURBO_MS, UNIT_1_25_MS);
-            gap_conn_params.max_conn_interval = MSEC_TO_UNITS(RI_GATT_MAX_INTERVAL_TURBO_MS, UNIT_1_25_MS);
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_TURBO_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_TURBO_MS,
+                                                UNIT_1_25_MS);
             break;
 
         case RI_GATT_STANDARD:
             LOG ("RI_GATT_STANDARD\r\n");
             gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_STANDARD;
-            gap_conn_params.min_conn_interval = MSEC_TO_UNITS(RI_GATT_MIN_INTERVAL_STANDARD_MS, UNIT_1_25_MS);
-            gap_conn_params.max_conn_interval = MSEC_TO_UNITS(RI_GATT_MAX_INTERVAL_STANDARD_MS, UNIT_1_25_MS);
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_STANDARD_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_STANDARD_MS,
+                                                UNIT_1_25_MS);
             break;
 
         case RI_GATT_LOW_POWER:
             LOG ("RI_GATT_LOW_POWER\r\n");
             gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_LOW_POWER;
-            gap_conn_params.min_conn_interval = MSEC_TO_UNITS(RI_GATT_MIN_INTERVAL_LOW_POWER_MS, UNIT_1_25_MS);
-            gap_conn_params.max_conn_interval = MSEC_TO_UNITS(RI_GATT_MAX_INTERVAL_LOW_POWER_MS, UNIT_1_25_MS);
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_LOW_POWER_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_LOW_POWER_MS,
+                                                UNIT_1_25_MS);
             break;
     }
 
