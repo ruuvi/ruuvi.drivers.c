@@ -3,8 +3,10 @@
  - Put SHTCX to sleep after reads
  - Poll data ready before reading TMP117 in single-shot mode
  - Add delay to TMP117 after soft reset
- - Add sink-only GPIO CFG options for I2C.
+ - Add sink-only GPIO CFG options for I2C
  - Add RD_WARNING_DEPRECATED error code
+ - Add AES-ECB-128 encryption function
+ - Add GATT parameter renegotiation
 
 ## 3.8.0
  - Store boot counter in flash
