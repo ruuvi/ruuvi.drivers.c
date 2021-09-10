@@ -113,6 +113,11 @@ static bool     m_gatt_is_init = false;
 /**< Pointer to application communication interface, given at initialization */
 static ri_comm_channel_t * channel = NULL;
 
+static ble_gap_conn_params_t m_gatt_params; //!< Holder for GATT params.
+static ri_timer_id_t
+m_conn_param_retry_timer; //<! Timer for retrying comm param renegotiation.
+static uint8_t m_gatt_retries;
+
 /** @brief Supported PHYs, start at 1MBPS */
 static ble_gap_phys_t m_phys =
 {
@@ -580,10 +585,10 @@ static ret_code_t peer_manager_init()
     sec_param.oob            = SEC_PARAM_OOB;
     sec_param.min_key_size   = SEC_PARAM_MIN_KEY_SIZE;
     sec_param.max_key_size   = SEC_PARAM_MAX_KEY_SIZE;
-    sec_param.kdist_own.enc  = 1;
-    sec_param.kdist_own.id   = 1;
-    sec_param.kdist_peer.enc = 1;
-    sec_param.kdist_peer.id  = 1;
+    sec_param.kdist_own.enc  = 0;
+    sec_param.kdist_own.id   = 0;
+    sec_param.kdist_peer.enc = 0;
+    sec_param.kdist_peer.id  = 0;
     err_code = pm_sec_params_set (&sec_param);
     err_code |= pm_register (pm_evt_handler);
     return err_code;
@@ -633,9 +638,41 @@ static rd_status_t setup_phys (void)
     return err_code;
 }
 
+static void gatt_params_request (void * const params)
+{
+    ret_code_t nrf_status = NRF_SUCCESS;
+    rd_status_t rd_status = RD_SUCCESS;
+
+    if (BLE_CONN_HANDLE_INVALID == m_conn_handle)
+    {
+        m_gatt_retries = 0;
+    }
+    else
+    {
+        nrf_status = ble_conn_params_change_conn_params (m_conn_handle, params);
+    }
+
+    if (NRF_SUCCESS != nrf_status)
+    {
+        rd_status = ri_timer_start (&m_conn_param_retry_timer, NEXT_CONN_PARAMS_UPDATE_DELAY,
+                                    params);
+        RD_ERROR_CHECK (rd_status, RD_SUCCESS);
+        m_gatt_retries++;
+    }
+
+    if (m_gatt_retries > MAX_CONN_PARAMS_UPDATE_COUNT)
+    {
+        // Something is preventing update, disconnect.
+        nrf_status = sd_ble_gap_disconnect (m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+        RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_status),
+                        RD_SUCCESS);
+    }
+}
+
 rd_status_t ri_gatt_init (void)
 {
     ret_code_t err_code = NRF_SUCCESS;
+    rd_status_t rd_status = RD_SUCCESS;
     static bool qwr_is_init = false;
 
     if (m_gatt_is_init)
@@ -653,6 +690,15 @@ rd_status_t ri_gatt_init (void)
     {
         LOGW ("NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
         return RD_ERROR_INVALID_STATE;
+    }
+    else if (0 == m_conn_param_retry_timer)
+    {
+        rd_status |= ri_timer_create (&m_conn_param_retry_timer, RI_TIMER_MODE_SINGLE_SHOT,
+                                      &gatt_params_request);
+    }
+    else
+    {
+        // No action needed
     }
 
     // Register a handler for BLE events.
@@ -679,7 +725,7 @@ rd_status_t ri_gatt_init (void)
     }
 
     err_code |= setup_phys();
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code) | rd_status;
 }
 
 rd_status_t ri_gatt_uninit (void)
@@ -850,18 +896,11 @@ rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const p_dis)
     return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
-/**
- * @brief Request connection parameter update for current connection.
- *
- * @param[in] params One of preset defaults: RI_GATT_TURBO, RI_GATT_STANDARD, RI_GATT_LOW_POWER.
- * @retval RD_SUCCESS Parameter update was requested
- * @retval RD_ERROR_INVALID_PARAM params was not one of supported defaults
- * @retval RD_ERROR_INVALID_STATE if there is no ongoing GATT connection
- * @retval Error code from BLE Stack if applicable
- */
-rd_status_t ri_gatt_params_request (const ri_gatt_params_t params)
+rd_status_t ri_gatt_params_request (const ri_gatt_params_t params,
+                                    const uint16_t delay_ms)
 {
-    ret_code_t err_code = NRF_SUCCESS;
+    rd_status_t err_code = RD_SUCCESS;
+    ret_code_t nrf_status = NRF_SUCCESS;
     ble_gap_conn_params_t gap_conn_params = {0};
     gap_conn_params.conn_sup_timeout = MSEC_TO_UNITS (RI_GATT_CONN_SUP_TIMEOUT_MS,
                                        UNIT_10_MS);
@@ -896,7 +935,26 @@ rd_status_t ri_gatt_params_request (const ri_gatt_params_t params)
             break;
     }
 
-    err_code = ble_conn_params_change_conn_params (m_conn_handle, &gap_conn_params);
+    err_code |= ri_timer_stop (m_conn_param_retry_timer);
+    memcpy (&m_gatt_params, &gap_conn_params, sizeof (gap_conn_params));
+
+    if (0 == delay_ms)
+    {
+        nrf_status = ble_conn_params_change_conn_params (m_conn_handle, &gap_conn_params);
+
+        if (NRF_SUCCESS != nrf_status)
+        {
+            err_code |= ri_timer_start (m_conn_param_retry_timer, NEXT_CONN_PARAMS_UPDATE_DELAY,
+                                        &m_gatt_params);
+            m_gatt_retries = 1;
+        }
+    }
+    else
+    {
+        err_code |= ri_timer_start (m_conn_param_retry_timer, delay_ms, &m_gatt_params);
+        m_gatt_retries = 0;
+    }
+
     return err_code;
 }
 #endif
