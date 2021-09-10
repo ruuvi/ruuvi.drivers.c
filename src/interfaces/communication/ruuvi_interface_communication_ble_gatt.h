@@ -88,15 +88,21 @@ rd_status_t ri_gatt_dfu_init (void);
  */
 rd_status_t ri_gatt_dis_init (const ri_comm_dis_init_t * const dis);
 
+
 /**
  * @brief Request connection parameter update for current connection.
  *
+ * This function will automatically retry connection parameter update up to 2 times and disconnects connection on failure.
+ * Takes no effect if there is no current connection.
+ *
  * @param[in] params One of preset defaults: RI_GATT_TURBO, RI_GATT_STANDARD, RI_GATT_LOW_POWER.
+ * @param[in] delay_ms Delay before trying to update for first time. 0 For immediate update, at least 100 ms otherwise.
  * @retval RD_SUCCESS Parameter update was requested
  * @retval RD_ERROR_INVALID_PARAM params was not one of supported defaults
  * @retval RD_ERROR_INVALID_STATE if there is no ongoing GATT connection
  * @retval Error code from BLE Stack if applicable
  */
-rd_status_t ri_gatt_params_request (const ri_gatt_params_t params);
+rd_status_t ri_gatt_params_request (const ri_gatt_params_t params,
+                                    const uint16_t delay_ms);
 
 #endif
