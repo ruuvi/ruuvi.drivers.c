@@ -1,5 +1,8 @@
 # Changelog
-## 3.9.0 (in progress)
+## 3.9.1
+ - Add configurable delay and retries to gatt param changes
+
+## 3.9.0
  - Put SHTCX to sleep after reads
  - Poll data ready before reading TMP117 in single-shot mode
  - Add delay to TMP117 after soft reset
