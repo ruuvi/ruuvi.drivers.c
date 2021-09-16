@@ -83,8 +83,10 @@
 
 #define APP_BLE_OBSERVER_PRIO            3                     /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
-#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000)  /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
-#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(30000) /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
+#define NEXT_CONN_PARAMS_UPDATE_DELAY_MS      (30000) /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
+#define FIRST_CONN_PARAMS_UPDATE_DELAY_TICKS  APP_TIMER_TICKS(5000)  /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
+#define NEXT_CONN_PARAMS_UPDATE_DELAY_TICKS   APP_TIMER_TICKS(NEXT_CONN_PARAMS_UPDATE_DELAY_MS) /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
+
 #define MAX_CONN_PARAMS_UPDATE_COUNT     3                     /**< Number of attempts before giving up the connection parameter negotiation. */
 
 #define SEC_PARAM_BOND                   0                     /**< Perform bonding. */
@@ -97,12 +99,15 @@
 #define SEC_PARAM_MAX_KEY_SIZE           16                    /**< Maximum encryption key size. */
 
 #ifndef RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL
-#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_DEBUG
+#define RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL RI_LOG_LEVEL_INFO
 #endif
 #define LOG(msg) ri_log(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg)
 #define LOGD(msg) ri_log(RI_LOG_LEVEL_DEBUG, msg)
 #define LOGW(msg) ri_log(RI_LOG_LEVEL_WARNING, msg)
 #define LOGHEX(msg, len) ri_log_hex(RUUVI_NRF5_SDK15_COMMUNICATION_BLE4_GATT_LOG_LEVEL, msg, len)
+
+APP_TIMER_DEF (
+    m_conn_param_retry_timer); //<! Timer for retrying comm param renegotiation.
 
 NRF_BLE_GATT_DEF (m_gatt); /**< GATT module instance. */
 NRF_BLE_QWR_DEF (m_qwr);   /**< Context for the Queued Write module.*/
@@ -114,8 +119,7 @@ static bool     m_gatt_is_init = false;
 static ri_comm_channel_t * channel = NULL;
 
 static ble_gap_conn_params_t m_gatt_params; //!< Holder for GATT params.
-static ri_timer_id_t
-m_conn_param_retry_timer; //<! Timer for retrying comm param renegotiation.
+
 static uint8_t m_gatt_retries;
 
 /** @brief Supported PHYs, start at 1MBPS */
@@ -220,8 +224,8 @@ static ret_code_t conn_params_init (void)
     ble_conn_params_init_t cp_init;
     memset (&cp_init, 0, sizeof (cp_init));
     cp_init.p_conn_params                  = NULL;
-    cp_init.first_conn_params_update_delay = FIRST_CONN_PARAMS_UPDATE_DELAY;
-    cp_init.next_conn_params_update_delay  = NEXT_CONN_PARAMS_UPDATE_DELAY;
+    cp_init.first_conn_params_update_delay = FIRST_CONN_PARAMS_UPDATE_DELAY_TICKS;
+    cp_init.next_conn_params_update_delay  = NEXT_CONN_PARAMS_UPDATE_DELAY_TICKS;
     cp_init.max_conn_params_update_count   = MAX_CONN_PARAMS_UPDATE_COUNT;
     cp_init.start_on_notify_cccd_handle    = BLE_GATT_HANDLE_INVALID;
     cp_init.disconnect_on_fail             = false;
@@ -318,6 +322,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             evt.type = BLE_NUS_EVT_COMM_STOPPED;
             nus_data_handler (&evt);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
+            err_code |= app_timer_stop (m_conn_param_retry_timer);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
             break;
@@ -641,23 +646,27 @@ static rd_status_t setup_phys (void)
 static void gatt_params_request (void * const params)
 {
     ret_code_t nrf_status = NRF_SUCCESS;
-    rd_status_t rd_status = RD_SUCCESS;
 
     if (BLE_CONN_HANDLE_INVALID == m_conn_handle)
     {
         m_gatt_retries = 0;
+        LOG ("No connection, ignore param change\r\n");
     }
     else
     {
         nrf_status = ble_conn_params_change_conn_params (m_conn_handle, params);
+        LOG ("Requesting param change\r\n");
     }
 
     if (NRF_SUCCESS != nrf_status)
     {
-        rd_status = ri_timer_start (&m_conn_param_retry_timer, NEXT_CONN_PARAMS_UPDATE_DELAY,
-                                    params);
-        RD_ERROR_CHECK (rd_status, RD_SUCCESS);
+        nrf_status = app_timer_start (m_conn_param_retry_timer,
+                                      NEXT_CONN_PARAMS_UPDATE_DELAY_TICKS,
+                                      params);
+        RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_status),
+                        RD_SUCCESS);
         m_gatt_retries++;
+        LOG ("Param change failed, retry queued\r\n");
     }
 
     if (m_gatt_retries > MAX_CONN_PARAMS_UPDATE_COUNT)
@@ -666,6 +675,7 @@ static void gatt_params_request (void * const params)
         nrf_status = sd_ble_gap_disconnect (m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
         RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (nrf_status),
                         RD_SUCCESS);
+        LOG ("Param change errored too many times, cut connection\r\n");
     }
 }
 
@@ -691,14 +701,14 @@ rd_status_t ri_gatt_init (void)
         LOGW ("NRF5 SDK15 BLE4 GATT module requires initialized timers\r\n");
         return RD_ERROR_INVALID_STATE;
     }
-    else if (0 == m_conn_param_retry_timer)
-    {
-        rd_status |= ri_timer_create (&m_conn_param_retry_timer, RI_TIMER_MODE_SINGLE_SHOT,
-                                      &gatt_params_request);
-    }
     else
     {
-        // No action needed
+        // Running timer cannot be recreated.
+        // Stopped timer can be created again, so stop, ignore error, (re)create
+        (void) app_timer_stop (m_conn_param_retry_timer);
+        err_code |= app_timer_create (&m_conn_param_retry_timer, APP_TIMER_MODE_SINGLE_SHOT,
+                                      &gatt_params_request);
+        RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code), ~RD_ERROR_FATAL);
     }
 
     // Register a handler for BLE events.
@@ -706,6 +716,7 @@ rd_status_t ri_gatt_init (void)
     err_code |= gap_params_init();
     err_code |= nrf_ble_gatt_init (&m_gatt, gatt_evt_handler);
     err_code |= nrf_ble_gatt_att_mtu_periph_set (&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
+    RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code), ~RD_ERROR_FATAL);
     // Queued Write Module, peer manager cannot be uninitialized, initialize only once.
 
     if (!qwr_is_init)
@@ -714,18 +725,22 @@ rd_status_t ri_gatt_init (void)
         qwr_init.error_handler = nrf_qwr_error_handler;
         err_code |= nrf_ble_qwr_init (&m_qwr, &qwr_init);
         err_code |= peer_manager_init();
+        RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code), ~RD_ERROR_FATAL);
         qwr_is_init = true;
     }
 
     err_code |= conn_params_init();
+    RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code), ~RD_ERROR_FATAL);
+    err_code |= setup_phys();
+    RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code), ~RD_ERROR_FATAL);
 
-    if (NRF_SUCCESS == err_code)
+    if ( (NRF_SUCCESS == err_code))
     {
         m_gatt_is_init = true;
     }
 
-    err_code |= setup_phys();
-    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code) | rd_status;
+    RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code), ~RD_ERROR_FATAL);
+    return ruuvi_nrf5_sdk15_to_ruuvi_error (err_code);
 }
 
 rd_status_t ri_gatt_uninit (void)
@@ -916,15 +931,6 @@ rd_status_t ri_gatt_params_request (const ri_gatt_params_t params,
                                                 UNIT_1_25_MS);
             break;
 
-        case RI_GATT_STANDARD:
-            LOG ("RI_GATT_STANDARD\r\n");
-            gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_STANDARD;
-            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_STANDARD_MS,
-                                                UNIT_1_25_MS);
-            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_STANDARD_MS,
-                                                UNIT_1_25_MS);
-            break;
-
         case RI_GATT_LOW_POWER:
             LOG ("RI_GATT_LOW_POWER\r\n");
             gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_LOW_POWER;
@@ -933,9 +939,19 @@ rd_status_t ri_gatt_params_request (const ri_gatt_params_t params,
             gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_LOW_POWER_MS,
                                                 UNIT_1_25_MS);
             break;
+
+        case RI_GATT_STANDARD:
+        default:
+            LOG ("RI_GATT_STANDARD\r\n");
+            gap_conn_params.slave_latency = RI_GATT_SLAVE_LATENCY_STANDARD;
+            gap_conn_params.min_conn_interval = MSEC_TO_UNITS (RI_GATT_MIN_INTERVAL_STANDARD_MS,
+                                                UNIT_1_25_MS);
+            gap_conn_params.max_conn_interval = MSEC_TO_UNITS (RI_GATT_MAX_INTERVAL_STANDARD_MS,
+                                                UNIT_1_25_MS);
+            break;
     }
 
-    err_code |= ri_timer_stop (m_conn_param_retry_timer);
+    err_code |= ruuvi_nrf5_sdk15_to_ruuvi_error (app_timer_stop (m_conn_param_retry_timer));
     memcpy (&m_gatt_params, &gap_conn_params, sizeof (gap_conn_params));
 
     if (0 == delay_ms)
@@ -944,17 +960,27 @@ rd_status_t ri_gatt_params_request (const ri_gatt_params_t params,
 
         if (NRF_SUCCESS != nrf_status)
         {
-            err_code |= ri_timer_start (m_conn_param_retry_timer, NEXT_CONN_PARAMS_UPDATE_DELAY,
-                                        &m_gatt_params);
+            err_code |=  ruuvi_nrf5_sdk15_to_ruuvi_error (app_timer_start (m_conn_param_retry_timer,
+                         NEXT_CONN_PARAMS_UPDATE_DELAY_TICKS, &m_gatt_params));
             m_gatt_retries = 1;
+            RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+            LOG ("Retrying new params soon\r\n");
+        }
+        else
+        {
+            LOG ("Switched to new params\r\n");
         }
     }
     else
     {
-        err_code |= ri_timer_start (m_conn_param_retry_timer, delay_ms, &m_gatt_params);
+        err_code |=  ruuvi_nrf5_sdk15_to_ruuvi_error (app_timer_start (m_conn_param_retry_timer,
+                     APP_TIMER_TICKS (delay_ms), &m_gatt_params));
         m_gatt_retries = 0;
+        RD_ERROR_CHECK (err_code, ~RD_ERROR_FATAL);
+        LOG ("New params set after delay\r\n");
     }
 
     return err_code;
 }
+
 #endif

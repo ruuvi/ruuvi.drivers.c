@@ -1,4 +1,8 @@
 # Changelog
+
+## 3.9.2
+ - Fix GATT timer-related errors
+
 ## 3.9.1
  - Add configurable delay and retries to gatt param changes
 
