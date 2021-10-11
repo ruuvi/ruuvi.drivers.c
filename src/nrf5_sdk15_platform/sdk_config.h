@@ -1649,7 +1649,7 @@
 // <4=> SDK Memory Manager (nrf_malloc)
 
 #ifndef NRF_CRYPTO_ALLOCATOR
-#define NRF_CRYPTO_ALLOCATOR 0
+#define NRF_CRYPTO_ALLOCATOR 3
 #endif
 
 // <e> NRF_CRYPTO_BACKEND_CC310_BL_ENABLED - Enable the ARM Cryptocell CC310 reduced backend.
