@@ -444,13 +444,24 @@ rd_status_t ri_flash_record_get (const uint32_t page_id,
             fds_flash_record_t record = {0};
             /* Open the record and read its contents. */
             rc = fds_record_open (&desc, &record);
-            err_code |= fds_to_ruuvi_error (rc);
 
-            // Check length
-            if (record.p_header->length_words * 4 > data_size) { return RD_ERROR_DATA_SIZE; }
+            // Translate FDS error to Ruuvi error if any
+            if (FDS_SUCCESS != rc)
+            {
+                err_code |= fds_to_ruuvi_error (rc);
+            }
+            // Check length if record was read
+            else if (record.p_header->length_words * 4 > data_size)
+            {
+                err_code |= RD_ERROR_DATA_SIZE;
+                ri_log (RI_LOG_LEVEL_ERROR, "Flash record does not fit in buffer\n");
+            }
+            else
+            {
+                /* Copy the data from flash into RAM. */
+                memcpy (data, record.p_data, record.p_header->length_words * 4);
+            }
 
-            /* Copy the data from flash into RAM. */
-            memcpy (data, record.p_data, record.p_header->length_words * 4);
             /* Close the record when done reading. */
             rc = fds_record_close (&desc);
         }
