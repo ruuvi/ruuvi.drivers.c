@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.9.3 (In progress)
+ - Fix flash resource leak on unexpected size.
+
 ## 3.9.2
  - Fix GATT timer-related errors
 
