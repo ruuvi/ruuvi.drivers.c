@@ -89,9 +89,9 @@
 
 #define MAX_CONN_PARAMS_UPDATE_COUNT     3                     /**< Number of attempts before giving up the connection parameter negotiation. */
 
-#define SEC_PARAM_BOND                   0                     /**< Perform bonding. */
+#define SEC_PARAM_BOND                   1                     /**< Perform bonding. */
 #define SEC_PARAM_MITM                   0                     /**< Man In The Middle protection not required. */
-#define SEC_PARAM_LESC                   0                     /**< LE Secure Connections not enabled. */
+#define SEC_PARAM_LESC                   1                     /**< LE Secure Connections not enabled. */
 #define SEC_PARAM_KEYPRESS               0                     /**< Keypress notifications not enabled. */
 #define SEC_PARAM_IO_CAPABILITIES        BLE_GAP_IO_CAPS_NONE  /**< No I/O capabilities. */
 #define SEC_PARAM_OOB                    0                     /**< Out Of Band data not available. */
@@ -360,7 +360,7 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
             // Pairing not supported
             LOG ("BLE security parameters requested - denying \r\n");
             err_code = sd_ble_gap_sec_params_reply (m_conn_handle,
-                                                    BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
+                                                    BLE_GAP_SEC_STATUS_SUCCESS,
                                                     NULL, NULL);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
                             RD_SUCCESS);
@@ -590,10 +590,10 @@ static ret_code_t peer_manager_init()
     sec_param.oob            = SEC_PARAM_OOB;
     sec_param.min_key_size   = SEC_PARAM_MIN_KEY_SIZE;
     sec_param.max_key_size   = SEC_PARAM_MAX_KEY_SIZE;
-    sec_param.kdist_own.enc  = 0;
-    sec_param.kdist_own.id   = 0;
-    sec_param.kdist_peer.enc = 0;
-    sec_param.kdist_peer.id  = 0;
+    sec_param.kdist_own.enc  = 1;
+    sec_param.kdist_own.id   = 1;
+    sec_param.kdist_peer.enc = 1;
+    sec_param.kdist_peer.id  = 1;
     err_code = pm_sec_params_set (&sec_param);
     err_code |= pm_register (pm_evt_handler);
     return err_code;
