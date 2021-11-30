@@ -19,9 +19,9 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          
+      with:
+        ubmodules: recursive
+
     # Install Doxygen
     - name: Install Doxygen
       run: sudo apt-get install -qq doxygen 
