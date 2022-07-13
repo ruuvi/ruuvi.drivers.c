@@ -78,8 +78,12 @@
 /** @brief Relevant only to centrals, but required. Allowed skipped intervals. */
 #   define NRF_BLE_SCAN_SLAVE_LATENCY 29
 
+#ifndef RUUVI_NRF5_SDK15_ADV_QUEUE_LENGTH
 #   define RUUVI_NRF5_SDK15_ADV_QUEUE_LENGTH  3   //!< Number of advertisements that can be queued.
+#endif
+#ifndef RUUVI_NRF5_SDK15_SCAN_QUEUE_LENGTH
 #   define RUUVI_NRF5_SDK15_SCAN_QUEUE_LENGTH 3   //!< Number of scans that can be queued.
+#endif
 #   if RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED
 #       define RUUVI_NRF5_SDK15_ADV_LENGTH    238 //!< Extended connectable data length
 #       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Cannot have extended data + scanrsp
