@@ -412,13 +412,13 @@ typedef struct rd_sensor_t
     rd_configuration_fp configuration_get;
     /** @brief @ref rd_sensor_data_fp */
     rd_sensor_data_fp   data_get;
-    /** @brief @®ef rd_sensor_fifo_enable_fp */
+    /** @brief @ref rd_sensor_fifo_enable_fp */
     rd_sensor_fifo_enable_fp fifo_enable;
-    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    /** @brief @ref rd_sensor_level_interrupt_use_fp */
     rd_sensor_fifo_enable_fp fifo_interrupt_enable;
-    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    /** @brief @ref rd_sensor_level_interrupt_use_fp */
     rd_sensor_fifo_read_fp   fifo_read;
-    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    /** @brief @ref rd_sensor_level_interrupt_use_fp */
     rd_sensor_level_interrupt_use_fp level_interrupt_set;
 } rd_sensor_t;
 
