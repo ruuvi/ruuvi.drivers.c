@@ -348,7 +348,6 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
             ms_per_cc = 1000;
             ms_per_sample = TMP117_OS_8_TSAMPLE_MS; //!< default OS setting
             m_continuous = false;
-            tmp117_sleep();
         }
     }
 
