@@ -16,6 +16,7 @@
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
 #include "ruuvi_interface_gpio.h"
+#include "ruuvi_interface_i2c.h"
 
 typedef struct
 {
@@ -30,6 +31,7 @@ typedef struct
     ri_gpio_state_t pwr_on;                   //!< Power-on state of ctrl pin.
     ri_gpio_id_t fifo_pin;                    //!< FIFO full interrupt.
     ri_gpio_id_t level_pin;                   //!< Level interrupt.
+    ri_i2c_frequency_t i2c_max_speed; //!< Maximum I2C speed supported
 } rt_sensor_ctx_t;
 
 /** @brief Initialize sensor CTX

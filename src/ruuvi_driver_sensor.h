@@ -261,8 +261,8 @@ typedef rd_status_t (*rd_sensor_setup_fp) (uint8_t * parameter);
  * Modifies input parameters to actual values written on the sensor.
  * DSP functions are run on the sensor HW, not in the platform FW.
  *
- * @param[in,out] dsp_function. DSP function to run on sensor. Can be a combination of several functions.
- * @param[in,out] dsp_parameter. Parameter to DSP function(s)
+ * @param[in,out] dsp_function DSP function to run on sensor. Can be a combination of several functions.
+ * @param[in,out] dsp_parameter Parameter to DSP function(s)
  * @return RD_SUCCESS on success
  * @return RD_ERROR_NULL if either parameter is NULL
  * @return RD_ERROR_NOT_SUPPORTED if sensor doesn't support given DSP
@@ -311,7 +311,7 @@ typedef rd_status_t (*rd_configuration_fp) (
 *
 * @param[in, out] num_elements Input: number of elements in data.
                                Output: Number of elements placed in data.
-* @param[out] Data array of  with num_elements slots.
+* @param[out] data array of  with num_elements slots.
 * @retval RD_SUCCESS on success.
 * @retval RD_ERROR_NULL if either parameter is NULL.
 * @retval RD_ERROR_INVALID_STATE if FIFO is not in use.
@@ -412,13 +412,13 @@ typedef struct rd_sensor_t
     rd_configuration_fp configuration_get;
     /** @brief @ref rd_sensor_data_fp */
     rd_sensor_data_fp   data_get;
-    /** @brief @®ef rd_sensor_fifo_enable_fp */
+    /** @brief @ref rd_sensor_fifo_enable_fp */
     rd_sensor_fifo_enable_fp fifo_enable;
-    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    /** @brief @ref rd_sensor_level_interrupt_use_fp */
     rd_sensor_fifo_enable_fp fifo_interrupt_enable;
-    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    /** @brief @ref rd_sensor_level_interrupt_use_fp */
     rd_sensor_fifo_read_fp   fifo_read;
-    /** @brief @®ef rd_sensor_level_interrupt_use_fp */
+    /** @brief @ref rd_sensor_level_interrupt_use_fp */
     rd_sensor_level_interrupt_use_fp level_interrupt_set;
 } rd_sensor_t;
 
