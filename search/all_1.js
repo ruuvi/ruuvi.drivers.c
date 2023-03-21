@@ -118,7 +118,7 @@ var searchData=
   ['bsp_5fbtn_5fble_5fobserver_5fprio_347',['BSP_BTN_BLE_OBSERVER_PRIO',['../sdk__config_8h.html#ac356c05e2d5bb852616eeea0354082c9',1,'sdk_config.h']]],
   ['bus_348',['bus',['../structrt__sensor__ctx__t.html#afd341a62db057da48f52f49b1238e570',1,'rt_sensor_ctx_t']]],
   ['bus_5fpwr_349',['bus_pwr',['../structri__i2c__init__config__t.html#a53635152de0d6fab09ce397fb8572570',1,'ri_i2c_init_config_t']]],
-  ['button_5fenabled_350',['BUTTON_ENABLED',['../sdk__config_8h.html#a89be1f4590014edaefa2dcd14a51ad3a',1,'sdk_config.h']]],
-  ['button_5fhigh_5faccuracy_5fenabled_351',['BUTTON_HIGH_ACCURACY_ENABLED',['../sdk__config_8h.html#a409be74f0c231a8d643a25ba53f907b9',1,'sdk_config.h']]],
-  ['button_20tasks_352',['Button tasks',['../group__button__tasks.html',1,'']]]
+  ['button_20tasks_350',['Button tasks',['../group__button__tasks.html',1,'']]],
+  ['button_5fenabled_351',['BUTTON_ENABLED',['../sdk__config_8h.html#a89be1f4590014edaefa2dcd14a51ad3a',1,'sdk_config.h']]],
+  ['button_5fhigh_5faccuracy_5fenabled_352',['BUTTON_HIGH_ACCURACY_ENABLED',['../sdk__config_8h.html#a409be74f0c231a8d643a25ba53f907b9',1,'sdk_config.h']]]
 ];

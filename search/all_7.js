@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['handle_592',['handle',['../structri__lis2dh12__dev.html#a1699094a55a0394ff884346e034df54c',1,'ri_lis2dh12_dev::handle()'],['../structrt__sensor__ctx__t.html#a1699094a55a0394ff884346e034df54c',1,'rt_sensor_ctx_t::handle()']]],
+  ['handle_592',['handle',['../structrt__sensor__ctx__t.html#a1699094a55a0394ff884346e034df54c',1,'rt_sensor_ctx_t::handle()'],['../structri__lis2dh12__dev.html#a1699094a55a0394ff884346e034df54c',1,'ri_lis2dh12_dev::handle()']]],
   ['hardfault_5fhandler_5fenabled_593',['HARDFAULT_HANDLER_ENABLED',['../sdk__config_8h.html#adf9dbe897193f68a06681c98d249300d',1,'sdk_config.h']]],
   ['hci_5fmax_5fpacket_5fsize_5fin_5fbits_594',['HCI_MAX_PACKET_SIZE_IN_BITS',['../sdk__config_8h.html#ac69c958db4dfc5e9d5bf2daeda211736',1,'sdk_config.h']]],
   ['hci_5fmem_5fpool_5fenabled_595',['HCI_MEM_POOL_ENABLED',['../sdk__config_8h.html#a47f4a87f231c2e139709f5bb4218f614',1,'sdk_config.h']]],

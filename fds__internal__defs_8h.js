@@ -31,10 +31,6 @@ var fds__internal__defs_8h =
     [ "FDS_PHY_PAGES_RESERVED", "fds__internal__defs_8h.html#a7dc6d3dda066dae339113d5ea990417a", null ],
     [ "NRF_FSTORAGE_NVMC", "fds__internal__defs_8h.html#ad3d626369af9f468ab2652b76ee9821e", null ],
     [ "NRF_FSTORAGE_SD", "fds__internal__defs_8h.html#aaa0e83d05d85b2ff42e3593ac1989ad2", null ],
-    [ "PAGE_ERASED", "fds__internal__defs_8h.html#a726ca809ffd3d67ab4b8476646f26635ac106fd97dd2b4696758e908fed29a67c", null ],
-    [ "PAGE_DATA", "fds__internal__defs_8h.html#a726ca809ffd3d67ab4b8476646f26635a613872667f6824363e52b8ce144e7b26", null ],
-    [ "PAGE_SWAP_CLEAN", "fds__internal__defs_8h.html#a726ca809ffd3d67ab4b8476646f26635a3c18760195cb9f6f077420eac6720019", null ],
-    [ "PAGE_SWAP_DIRTY", "fds__internal__defs_8h.html#a726ca809ffd3d67ab4b8476646f26635aa7215c74fa95810afb60a5b3b8e6dc8c", null ],
     [ "fds_delete_step_t", "fds__internal__defs_8h.html#a93c04379da85aeadc71987c73f27fbee", [
       [ "FDS_OP_DEL_RECORD_FLAG_DIRTY", "fds__internal__defs_8h.html#a93c04379da85aeadc71987c73f27fbeea51a52bf61c3950cd5bccb6e2f0fae160", null ],
       [ "FDS_OP_DEL_FILE_FLAG_DIRTY", "fds__internal__defs_8h.html#a93c04379da85aeadc71987c73f27fbeeafecaf8f614f2ff05a3f4e9fa100223da", null ],
