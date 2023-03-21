@@ -2,6 +2,7 @@
 
 ## 3.9.3 (In progress)
  - Fix flash resource leak on unexpected size.
+ - Fix fatal error on attempted BLE bonding.
 
 ## 3.9.2
  - Fix GATT timer-related errors

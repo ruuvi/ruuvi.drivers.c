@@ -363,7 +363,15 @@ static void ble_evt_handler (ble_evt_t const * p_ble_evt, void * p_context)
                                                     BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
                                                     NULL, NULL);
             RD_ERROR_CHECK (ruuvi_nrf5_sdk15_to_ruuvi_error (err_code),
-                            RD_SUCCESS);
+                            ~RD_SUCCESS);
+
+            if (NRF_ERROR_INVALID_STATE == err_code)
+            {
+                err_code = sd_ble_gap_disconnect (p_ble_evt->evt.gattc_evt.conn_handle,
+                                                  BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+                LOG ("BLE GATT Disconnected\r\n");
+            }
+
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
