@@ -85,7 +85,7 @@ typedef rd_status_t (*ri_comm_xfer_fp_t) (ri_comm_message_t * const
 
 /**
  *  @brief (Un-)Initialization function.
- *  @param[in, out] A control API. Event handler must be set by application.
+ *  @param[in, out] channel A control API. Event handler must be set by application.
  *  @return RD_SUCCESS if operation was successful.
  *  @return RD_ERROR_NULL if API is NULL.
  *  @return error driver from stack on other error
@@ -94,7 +94,7 @@ typedef rd_status_t (*ri_comm_init_fp_t) (ri_comm_channel_t * const channel);
 
 /** @brief Application event handler for communication events.
  *  @param[in] evt Type of event, @ref ri_comm_evt_t.
- *  @param[in] data Data associated with the event. May be NULL.
+ *  @param[in] p_data Data associated with the event. May be NULL.
  *  @param[in] data_len Length of event data. Must be 0 if data is NULL.
  *                      Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH.
  *  @return RD_SUCCESS if operation was successful.

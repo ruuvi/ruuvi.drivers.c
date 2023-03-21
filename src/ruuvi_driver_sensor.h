@@ -261,8 +261,8 @@ typedef rd_status_t (*rd_sensor_setup_fp) (uint8_t * parameter);
  * Modifies input parameters to actual values written on the sensor.
  * DSP functions are run on the sensor HW, not in the platform FW.
  *
- * @param[in,out] dsp_function. DSP function to run on sensor. Can be a combination of several functions.
- * @param[in,out] dsp_parameter. Parameter to DSP function(s)
+ * @param[in,out] dsp_function DSP function to run on sensor. Can be a combination of several functions.
+ * @param[in,out] dsp_parameter Parameter to DSP function(s)
  * @return RD_SUCCESS on success
  * @return RD_ERROR_NULL if either parameter is NULL
  * @return RD_ERROR_NOT_SUPPORTED if sensor doesn't support given DSP
@@ -311,7 +311,7 @@ typedef rd_status_t (*rd_configuration_fp) (
 *
 * @param[in, out] num_elements Input: number of elements in data.
                                Output: Number of elements placed in data.
-* @param[out] Data array of  with num_elements slots.
+* @param[out] data array of  with num_elements slots.
 * @retval RD_SUCCESS on success.
 * @retval RD_ERROR_NULL if either parameter is NULL.
 * @retval RD_ERROR_INVALID_STATE if FIFO is not in use.
