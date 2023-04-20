@@ -177,12 +177,12 @@ bool ri_flash_is_busy();
 
 /**
  * Protects a page in flash against overwriting. After protection has been enabled, only reset will clear the protection.
- * 
+ *
  * @param size_t page Flash page to protect
  * @return RD_SUCCESS on success
- * @return RD_ERROR_INVALID_PARAM if target chip does not have given page. 
- */ 
-rd_status_t ri_flash_protect(const size_t page);
+ * @return RD_ERROR_INVALID_PARAM if target chip does not have given page.
+ */
+rd_status_t ri_flash_protect (const size_t page);
 
 /** @} */
 

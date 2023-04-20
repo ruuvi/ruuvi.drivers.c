@@ -566,33 +566,39 @@ bool ri_flash_is_busy()
     return m_fds_processing;
 }
 
-rd_status_t ri_flash_protect(const size_t page)
+rd_status_t ri_flash_protect (const size_t page)
 {
     /* nRF52832_xxaa only supported */
     const uint8_t register_num = page / 32U;
     const uint8_t page_num = page % 32U;
     rd_status_t err_code = RD_SUCCESS;
-    if((register_num > 3) || (page_num > 31U))
+
+    if ( (register_num > 3) || (page_num > 31U))
     {
         err_code |= RD_ERROR_INVALID_PARAM;
     }
-    else switch(register_num)
-    {
-        case 0:
-            NRF_BPROT->CONFIG0 = 1 << page_num;
-            break;
-        case 1:
-            NRF_BPROT->CONFIG1 = 1 << page_num;
-            break;
-        case 2:
-            NRF_BPROT->CONFIG2 = 1 << page_num;
-            break;
-        case 3:
-            NRF_BPROT->CONFIG3 = 1 << page_num;
-            break;
-        default: 
-            break;
-    }
+    else switch (register_num)
+        {
+            case 0:
+                NRF_BPROT->CONFIG0 = 1 << page_num;
+                break;
+
+            case 1:
+                NRF_BPROT->CONFIG1 = 1 << page_num;
+                break;
+
+            case 2:
+                NRF_BPROT->CONFIG2 = 1 << page_num;
+                break;
+
+            case 3:
+                NRF_BPROT->CONFIG3 = 1 << page_num;
+                break;
+
+            default:
+                break;
+        }
+
     return err_code;
 }
 
