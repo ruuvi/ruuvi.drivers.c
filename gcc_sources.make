@@ -239,6 +239,7 @@ COMMON_INCLUDES= \
   $(PROJ_DIR)/embedded-sht/embedded-common \
   $(PROJ_DIR)/embedded-sht/sht-common \
   $(PROJ_DIR)/embedded-sht/shtc1 \
+  $(PROJ_DIR)/embedded-i2c-sen5x \
   $(PROJ_DIR)/src/interfaces/acceleration \
   $(PROJ_DIR)/src/interfaces/adc \
   $(PROJ_DIR)/src/interfaces/atomic \
