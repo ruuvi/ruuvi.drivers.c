@@ -489,6 +489,7 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor);
  * Example: Board can have these sensors in this order of priority:
  *  - TMP117 (temperature)
  *  - SHTC3 (temperature, humidity)
+ *  - SEN55 (humidity, PM1, PM2.5, PM4, PM10, temperature, VOX)
  *  - DPS310 (temperature, pressure)
  *  - LIS2DH12 (acceleration, temperature)
  *
@@ -497,6 +498,7 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor);
  *
  * -> Temperature, timestamp from TMP117
  * -> Humidity from SHTC3
+ * -> humidity, PM1, PM2.5, PM4, PM10, temperature, VOX from SEN55
  * -> Pressure from DPS310
  * -> Acceleration from LIS2DH12
  *
