@@ -152,10 +152,11 @@ typedef struct
     unsigned int pressure_pa : 1;      //!< Pressure, pascals
     unsigned int spl_dbz : 1;          //!< Unweighted sound pressure level.
     unsigned int temperature_c : 1;    //!< Temperature, celcius
-    unsigned int voc_ppm : 1;          //!< Volatile organic compounds, parts per million.
+    unsigned int voc_index : 1;        //!< Volatile organic compounds
+    unsigned int nox_index : 1;        //!< NOx
     unsigned int voltage_v : 1;        //!< Voltage, volts.
     unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
-    unsigned int reserved: 10;         //!< Reserved bits, force remainder of bitfield to 0.
+    unsigned int reserved: 9;          //!< Reserved bits, force remainder of bitfield to 0.
 } rd_sensor_data_bitfield_t;
 
 /**
@@ -184,6 +185,14 @@ typedef struct
 #define RD_SENSOR_PRES_FIELD ((rd_sensor_data_fields_t){.datas.pressure_pa=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_TEMP_FIELD ((rd_sensor_data_fields_t){.datas.temperature_c=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_PM1_FIELD ((rd_sensor_data_fields_t){.datas.pm_1_ugm3=1})
+#define RD_SENSOR_PM2_FIELD ((rd_sensor_data_fields_t){.datas.pm_2_ugm3=1})
+#define RD_SENSOR_PM4_FIELD ((rd_sensor_data_fields_t){.datas.pm_4_ugm3=1})
+#define RD_SENSOR_PM10_FIELD ((rd_sensor_data_fields_t){.datas.pm_10_ugm3=1})
+#define RD_SENSOR_CO2_FIELD ((rd_sensor_data_fields_t){.datas.co2_ppm=1})
+#define RD_SENSOR_VOC_FIELD ((rd_sensor_data_fields_t){.datas.voc_index=1})
+#define RD_SENSOR_NOX_FIELD ((rd_sensor_data_fields_t){.datas.nox_index=1})
 
 
 

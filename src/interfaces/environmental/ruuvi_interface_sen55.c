@@ -205,7 +205,8 @@ rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
             sensor->provides.datas.pm_4_ugm3 = 1;
             sensor->provides.datas.pm_10_ugm3 = 1;
             sensor->provides.datas.temperature_c = 1;
-            sensor->provides.datas.voc_ppm = 1;
+            sensor->provides.datas.voc_index = 1;
+            sensor->provides.datas.nox_index = 1;
 
             err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_start_measurement());
 
@@ -494,7 +495,7 @@ rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
         {
             rd_sensor_data_t d_environmental;
             rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-            float env_values[7];
+            float env_values[8];
 
             env_values[0] = (float)m_ambient_humidity / 100.0f;
             env_values[1] = (float)m_mass_concentration_pm1p0 / 10.0f;
@@ -503,6 +504,7 @@ rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
             env_values[4] = (float)m_mass_concentration_pm10p0 / 10.0f;
             env_values[5] = (float)m_ambient_temperature / 200.0f;
             env_values[6] = (float)m_voc_index / 10.0f;
+            env_values[7] = (float)m_nox_index / 10.0f;
 
             env_fields.datas.humidity_rh = 1;
             env_fields.datas.pm_1_ugm3 = 1;
@@ -510,7 +512,8 @@ rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
             env_fields.datas.pm_4_ugm3 = 1;
             env_fields.datas.pm_10_ugm3 = 1;
             env_fields.datas.temperature_c = 1;
-            env_fields.datas.voc_ppm = 1;
+            env_fields.datas.voc_index = 1;
+            env_fields.datas.nox_index = 1;
 
             d_environmental.data = env_values;
             d_environmental.valid  = env_fields;
