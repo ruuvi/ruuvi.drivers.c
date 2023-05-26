@@ -8,7 +8,7 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if APP_SENSOR_ENVIRONMENTAL_SEN55_ENABLED || DOXYGEN || 1
+#if APP_SENSOR_ENVIRONMENTAL_SEN55_ENABLED || DOXYGEN
 // Ruuvi headers
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -33,11 +33,6 @@
 
 #define LOW_POWER_SLEEP_MS_MIN (1000U)
 #define SEN55_PROBE_RETRIES_MAX (5U)
-
-static inline uint32_t US_TO_MS_ROUNDUP (uint32_t us)
-{
-    return (us / 1000) + 2;
-}
 
 /** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 #define RETURN_SUCCESS_ON_VALID(param) do {\
@@ -428,13 +423,15 @@ rd_status_t ri_sen55_mode_set (uint8_t * mode)
         *mode = RD_SENSOR_CFG_SLEEP;
         m_tsample = rd_sensor_timestamp_get();
         err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_start_measurement());
-        ri_delay_ms (1000);
 
         if (RD_SUCCESS == err_code)
         {
-            ri_delay_ms (1000);
             bool data_ready = false;
-            err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
+
+            while ( (RD_SUCCESS == err_code) && (!data_ready))
+            {
+                err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
+            }
         }
 
         if (RD_SUCCESS == err_code)
@@ -559,35 +556,6 @@ rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
 
     return err_code;
 }
-
-// Ceedling mocks sensirion functions
-#ifndef CEEDLING
-
-/**
- * @brief Implement sleep function for SHTC driver.
- *
- * Sleep for a given number of microseconds. The function should delay the
- * execution for at least the given time, but may also sleep longer.
- *
- * If delay is at least millisecond,
- * The function sleeps given number of milliseconds, rounded up,
- * to benefit from low-power sleep in millisecond delay.
- *
- * @param[in] useconds the sleep time in microseconds
- * @note      sensirion interface signature isn't const, can't be const here.
- */
-void sensirion_sleep_usec (uint32_t useconds)
-{
-    if (useconds < LOW_POWER_SLEEP_MS_MIN)
-    {
-        ri_delay_us (useconds);
-    }
-    else
-    {
-        ri_delay_ms (US_TO_MS_ROUNDUP (useconds));
-    }
-}
-#endif
 
 /** @} */
 
