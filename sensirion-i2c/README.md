@@ -1,38 +1,8 @@
-# Sensirion Embedded I2C SEN5x Driver
-
-This is a generic embedded driver for the Sensirion SEN5x sensor modules. It enables developers to communicate with the
-SEN54/SEN55 sensor module on different hardware platforms by only adapting the I2C communication related source files.
-
-<center><img src="images/SEN5x.png" width="500px"></center>
-
-## Supported sensors
-
-- SEN50 (only particulate matter signals available)
-- SEN54 (no NOx signal available)
-- SEN55 (full feature set)
-
-# Getting started
-
-## Connecting the Sensor
-
-Your sensor has the five different connectors: VCC, GND, SDA, SCL, SEL (the sixth connector will not be used for now).
-
-<center><img src="images/SEN5X_pinout.png" width="300px"></center>
-
-| *Pin* | *Name* | *Description*                   | *Comments*                            |
-|-------|--------|---------------------------------|---------------------------------------|
-| 1     | VCC    | Supply Voltage                  | 5V ±10%
-| 2     | GND    | Ground                          |
-| 3     | SDA    | I2C: Serial data input / output | TTL 5V and LVTTL 3.3V compatible
-| 4     | SCL    | I2C: Serial clock input         | TTL 5V and LVTTL 3.3V compatible
-| 5     | SEL    | Interface select                | Pull to GND to enable I2C interface
-| 6     | NC     | Do not connect                  |
+# Sensirion Embedded I2C library from SEN5x and SCD41 Drivers
 
 ## Implement the I2C Interface
 
 So we need to adjust two files according to your platform.
-
-Note: All common files for various Sensirion I2C drivers (SEN55 and SCD41) have been moved to "../sensirion-i2c".
 
 ### Edit `sensirion_i2c_hal.c`
 

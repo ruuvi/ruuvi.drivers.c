@@ -33,6 +33,7 @@
 #include "sensirion_common.h"
 #include "sensirion_config.h"
 #include "sensirion_i2c_hal.h"
+#include "ruuvi_interface_yield.h"
 
 uint8_t sensirion_i2c_generate_crc(const uint8_t* data, uint16_t count) {
     uint16_t current_byte;
@@ -291,4 +292,29 @@ int16_t sensirion_i2c_read_data_inplace(uint8_t address, uint8_t* buffer,
     }
 
     return NO_ERROR;
+}
+
+/**
+ * @brief Implement sleep function.
+ *
+ * Sleep for a given number of microseconds. The function should delay the
+ * execution for at least the given time, but may also sleep longer.
+ *
+ * If delay is at least millisecond,
+ * The function sleeps given number of milliseconds, rounded up,
+ * to benefit from low-power sleep in millisecond delay.
+ *
+ * @param[in] useconds the sleep time in microseconds
+ * @note      sensirion interface signature isn't const, can't be const here.
+ */
+void sensirion_sleep_usec (uint32_t useconds)
+{
+    if (useconds < 1000U)
+    {
+        ri_delay_us (useconds);
+    }
+    else
+    {
+        ri_delay_ms ((useconds + 999U) / 1000U);
+    }
 }
