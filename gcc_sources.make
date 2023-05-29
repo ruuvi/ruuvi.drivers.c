@@ -108,7 +108,8 @@ RUUVI_LIB_SOURCES_SENSIRION_SHT= \
 
 RUUVI_LIB_SOURCES_SENSIRION_SEN5X_SCD4X= \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_sen55.c \
-  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_scd41.c
+  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_scd41.c \
+  $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_sen5x_scd4x.c
 
 RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/interfaces/acceleration/ruuvi_interface_lis2dh12.c \

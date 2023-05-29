@@ -29,53 +29,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ruuvi_driver_enabled_modules.h"
+#if RI_SEN5X_ENABLED || RI_SCD4X_ENABLED || DOXYGEN
 
-#include "nrfx_twi.h"
-#include "nrf_delay.h"
-#include "nrf_gpio.h"
+#include <string.h>
 
-#include "sensirion_i2c_hal.h"
-#include "sensirion_common.h"
+#include "ruuvi_driver_error.h"
+#include "ruuvi_interface_i2c.h"
+#include "ruuvi_interface_yield.h"
 #include "sensirion_config.h"
-
-#define TWI_INSTANCE_ID     1
-
-
-/* TWIM instance. */
-static const nrfx_twi_t m_twi = NRFX_TWI_INSTANCE(TWI_INSTANCE_ID);
-
-
-void twim_handler(nrfx_twi_evt_t const * p_event, void * p_context)
-{
-    // Handler for TWI events.
-    switch (p_event->type)
-    {
-      case NRFX_TWI_EVT_DONE:
-        break;
-      case NRFX_TWI_EVT_ADDRESS_NACK:
-        break;
-      case NRFX_TWI_EVT_DATA_NACK:
-        break;
-    }
-}
-
-void twi_init (void)
-{
-    ret_code_t err_code;
-
-    const nrfx_twi_config_t twi_config = {
-       .scl                = RB_I2C_SCL_PIN,
-       .sda                = RB_I2C_SDA_PIN,
-       .frequency          = NRF_TWI_FREQ_100K,
-       .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
-       .hold_bus_uninit     = false
-    };
-
-    err_code = nrfx_twi_init(&m_twi, &twi_config, NULL /*&twim_handler*/, NULL);
-    APP_ERROR_CHECK(err_code);
-
-    nrfx_twi_enable(&m_twi);
-}
+#include "sensirion_common.h"
+#include "sensirion_i2c.h"
+#include "sensirion_i2c_hal.h"
 
 /*
  * INSTRUCTIONS
@@ -96,6 +61,7 @@ void twi_init (void)
  * @returns         0 on success, an error code otherwise
  */
 int16_t sensirion_i2c_hal_select_bus(uint8_t bus_idx) {
+    RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
     return 0;
 }
 
@@ -104,11 +70,8 @@ int16_t sensirion_i2c_hal_select_bus(uint8_t bus_idx) {
  * communication.
  */
 void sensirion_i2c_hal_init(void) {
-#if 0
-  twi_init();
-  nrf_gpio_cfg_sense_input(RB_I2C_SCL_PIN, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_NOSENSE);
-  nrf_gpio_cfg_sense_input(RB_I2C_SDA_PIN, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_NOSENSE);
-#endif
+    /* TODO:IMPLEMENT or leave empty if no resources need to be freed */
+    RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
 }
 
 /**
@@ -116,6 +79,7 @@ void sensirion_i2c_hal_init(void) {
  */
 void sensirion_i2c_hal_free(void) {
     /* TODO:IMPLEMENT or leave empty if no resources need to be freed */
+    RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
 }
 
 /**
@@ -129,27 +93,9 @@ void sensirion_i2c_hal_free(void) {
  * @returns 0 on success, error code otherwise
  */
 int8_t sensirion_i2c_hal_read(uint8_t address, uint8_t* data, uint16_t count) {
-#if 1
-    nrfx_twi_xfer_desc_t xfer_desc;
-    xfer_desc.address = address;
-    xfer_desc.type = NRFX_TWI_XFER_RX;
-    xfer_desc.primary_length = count;
-    xfer_desc.p_primary_buf = data;
-
-    ret_code_t err_code = nrfx_twi_xfer(&m_twi, &xfer_desc, 0);
-    if (NRF_SUCCESS != err_code) {
-      return err_code;
-    }
-    while (nrfx_twi_is_busy(&m_twi)) {
-    }
-#else
-    nrfx_err_t err_code = nrfx_twi_rx(&m_twi, address, data, count);
-    if (NRF_SUCCESS != err_code) {
-        return err_code;
-    }
-#endif
-
-    return NO_ERROR;
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= ri_i2c_read_blocking (address, data, count);
+    return (RD_SUCCESS == err_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
 }
 
 /**
@@ -165,27 +111,11 @@ int8_t sensirion_i2c_hal_read(uint8_t address, uint8_t* data, uint16_t count) {
  */
 int8_t sensirion_i2c_hal_write(uint8_t address, const uint8_t* data,
                                uint16_t count) {
-#if 1
-    nrfx_twi_xfer_desc_t xfer_desc;
-    xfer_desc.address = address;
-    xfer_desc.type = NRFX_TWI_XFER_TX;
-    xfer_desc.primary_length = count;
-    xfer_desc.p_primary_buf = data;
-
-    ret_code_t err_code = nrfx_twi_xfer(&m_twi, &xfer_desc, 0);
-    if (NRF_SUCCESS != err_code) {
-      return err_code;
-    }
-    while (nrfx_twi_is_busy(&m_twi)) {
-    }
-#else
-    nrfx_err_t err_code = nrfx_twi_tx(&m_twi, address, data, count, false);
-    if (NRF_SUCCESS != err_code) {
-        return err_code;
-    }
-#endif
-
-    return NO_ERROR;
+    rd_status_t err_code = RD_SUCCESS;
+    // Drop const qualification to match Nordic lib signature.
+    // write_blocking does not alter contents of data.
+    err_code |= ri_i2c_write_blocking (address, (uint8_t *) data, count, true);
+    return (RD_SUCCESS == err_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
 }
 
 /**
@@ -197,5 +127,7 @@ int8_t sensirion_i2c_hal_write(uint8_t address, const uint8_t* data,
  * @param useconds the sleep time in microseconds
  */
 void sensirion_i2c_hal_sleep_usec(uint32_t useconds) {
-    nrf_delay_us(useconds);
+    ri_delay_us(useconds);
 }
+
+#endif
