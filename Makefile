@@ -1,6 +1,3 @@
-# Source, copyright: https://github.com/viva64/pvs-studio-makefile-examples
-# commit 82a0f0a, /example-1
-# Modified for C on mac, added Doxygen
 	#                               Apache License
 	#                         Version 2.0, January 2004
 	#                      http://www.apache.org/licenses/
@@ -205,14 +202,11 @@
 
 CXX=gcc
 
-PVS_CFG=./PVS-Studio.cfg
-# csv, errorfile, fullhtml, html, tasklist, xml
-LOG_FORMAT=fullhtml
-PVS_LOG=./doxygen/html
 DOXYGEN_DIR=./doxygen
 
 SDK_ROOT := nRF5_SDK_15.3.0_59ac345
 PROJ_DIR := .
+
 include ${PROJ_DIR}/gcc_sources.make
 
 CFLAGS  = -c -Wall -pedantic -Wno-variadic-macros -Wno-long-long -Wno-shadow -std=c11
@@ -221,15 +215,29 @@ CFLAGS += -DBME280_FLOAT_ENABLE
 OFLAGS=-g3
 LDFLAGS=
 DFLAGS=
+
 INCLUDES=${COMMON_INCLUDES}
 INCLUDES+=nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
+
 INC_PARAMS=$(foreach d, $(INCLUDES), -I$d)
-SOURCES=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
-ANALYSIS=$(SOURCES:.c=.a)
-OBJECTS=$(SOURCES:.c=.o)
-IOBJECTS=$(SOURCES:.c=.o.PVS-Studio.i)
-POBJECTS=$(SOURCES:.c=.o.PVS-Studio.log)
-EXECUTABLE=ruuvifw
+
+SOURCES_COMMON=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
+SOURCES_SENSIRION_SHT=${RUUVI_LIB_SOURCES_SENSIRION_SHT}
+SOURCES_SENSIRION_SEN5X_SCD4X=${RUUVI_LIB_SOURCES_SENSIRION_SEN5X_SCD4X}
+SOURCES_ALL=${SOURCES_COMMON}
+SOURCES_ALL+=${SOURCES_SENSIRION_SHT}
+SOURCES_ALL+=${SOURCES_SENSIRION_SEN5X_SCD4X}
+
+INC_PARAMS_SENSIRION_SHT = $(addprefix -I,$(INCLUDES_SENSIRION_SHT))
+INC_PARAMS_SENSIRION_SEN5X_SCD4X = $(addprefix -I,$(INCLUDES_SENSIRION_SEN5X_SCD4X))
+
+ANALYSIS_COMMON=$(SOURCES_COMMON:.c=.a)
+ANALYSIS_SENSIRION_SHT=$(RUUVI_LIB_SOURCES_SENSIRION_SHT:.c=.a)
+ANALYSIS_SENSIRION_SEN5X_SCD4X=$(RUUVI_LIB_SOURCES_SENSIRION_SEN5X_SCD4X:.c=.a)
+ANALYSIS_ALL=${ANALYSIS_COMMON}
+ANALYSIS_ALL+=${ANALYSIS_SENSIRION_SHT}
+ANALYSIS_ALL+=${ANALYSIS_SENSIRION_SEN5X_SCD4X}
+
 SONAR=driver_analysis
 
 # Tag on this commit
@@ -238,34 +246,25 @@ TAG := $(shell git describe --tags --exact-match)
 COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(if $(TAG),$(TAG),$(COMMIT))
 
-.PHONY: clean sync doxygen pvs astyle sonar all
+.PHONY: clean sync doxygen astyle sonar all
 
-all: clean sync astyle doxygen pvs sonar $(SOURCES) $(EXECUTABLE) 
-
-.c.o:
-# Build
-	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(OFLAGS) -o $@
-# Preprocessing
-	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) -E -o $@.PVS-Studio.i
-# Analysis
-	pvs-studio --cfg $(PVS_CFG) --source-file $< --i-file $@.PVS-Studio.i --output-file $@.PVS-Studio.log
+all: clean sync astyle doxygen sonar $(SOURCES)
 
 doxygen:
 	export PROJECT_VERSION=$(VERSION) 
 	doxygen
 
-pvs: $(SOURCES) $(EXECUTABLE) 
+sonar: $(SOURCES_ALL) $(SONAR)
+$(SONAR): $(ANALYSIS_ALL)
 
-$(EXECUTABLE): $(OBJECTS)
-# Converting
-	plog-converter -a 'GA:1,2,3;OP:1,2,3;CS:1,2,3;MISRA:1,2,3' -t $(LOG_FORMAT) $(POBJECTS) -o $(PVS_LOG)
-	plog-converter -a 'GA:1;OP:1;CS:1;MISRA:1' -t errorfile $(POBJECTS) -o ./pvs.error
+$(ANALYSIS_SENSIRION_SHT): %.a: %.c
+	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(INC_PARAMS_SENSIRION_SHT) $(OFLAGS) -o $@
 
-sonar: $(SOURCES) $(SONAR) 
-$(SONAR): $(ANALYSIS)
+$(ANALYSIS_SENSIRION_SEN5X_SCD4X): %.a: %.c
+	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(INC_PARAMS_SENSIRION_SEN5X_SCD4X) $(OFLAGS) -o $@
 
-.c.a:
-# Build
+
+$(ANALYSIS_COMMON): %.a: %.c
 	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(OFLAGS) -o $@
 
 astyle:
@@ -275,8 +274,7 @@ astyle:
 			  "test/*.c"
 
 clean:
-	rm -f $(OBJECTS) $(IOBJECTS) $(POBJECTS) 
-	rm -rf $(PVS_LOG)/fullhtml
+	rm -f $(ANALYSIS_ALL)
 	rm -rf $(DOXYGEN_DIR)/html
 	rm -rf $(DOXYGEN_DIR)/latex
 	rm -f *.gcov

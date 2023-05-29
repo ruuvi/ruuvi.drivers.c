@@ -8,7 +8,9 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if APP_SENSOR_ENVIRONMENTAL_SEN55_ENABLED || DOXYGEN
+#if RI_SEN5X_ENABLED || DOXYGEN
+#include <stdio.h>
+#include <string.h>
 // Ruuvi headers
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -18,8 +20,7 @@
 #include "ruuvi_interface_i2c.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
-
-#include <string.h>
+#include "ruuvi_interface_log.h"
 
 /**
  * @addtogroup SEN55
@@ -28,7 +29,6 @@
 
 // Sensirion driver.
 #include "sen5x_i2c.h"
-#include "SEGGER_RTT.h"
 #include "sensirion_i2c_hal.h"
 
 #define LOW_POWER_SLEEP_MS_MIN (1000U)
@@ -104,8 +104,12 @@ static rd_status_t ri_sen55_reset (void)
 
         if (RD_SUCCESS == err_code)
         {
-            SEGGER_RTT_printf (0, "sen5x_device_reset: OK\n");
+            ri_log (RI_LOG_LEVEL_INFO, "sen5x: device_reset: OK\n");
             break;
+        }
+        else
+        {
+            ri_log (RI_LOG_LEVEL_ERROR, "sen5x: device_reset: error\n");
         }
     }
 
@@ -118,11 +122,13 @@ static rd_status_t ri_sen55_reset (void)
 
         if (RD_SUCCESS == err_code)
         {
-            SEGGER_RTT_printf (0, "sen5x: device name: %s\n", product_name);
+            ri_log (RI_LOG_LEVEL_INFO, "sen5x: device name: ");
+            ri_log (RI_LOG_LEVEL_INFO, (const char *) product_name);
+            ri_log (RI_LOG_LEVEL_INFO, "\n");
         }
         else
         {
-            SEGGER_RTT_printf (0, "sen5x: sen5x_get_product_name: error\n");
+            ri_log (RI_LOG_LEVEL_ERROR, "sen5x: sen5x_get_product_name: error\n");
         }
     }
 
@@ -135,11 +141,13 @@ static rd_status_t ri_sen55_reset (void)
 
         if (RD_SUCCESS == err_code)
         {
-            SEGGER_RTT_printf (0, "sen5x: serial number: %s\n", serial_number);
+            ri_log (RI_LOG_LEVEL_INFO, "sen5x: serial number: ");
+            ri_log (RI_LOG_LEVEL_INFO, (const char *) serial_number);
+            ri_log (RI_LOG_LEVEL_INFO, "\n");
         }
         else
         {
-            SEGGER_RTT_printf (0, "sen5x: sen5x_get_serial_number: error\n");
+            ri_log (RI_LOG_LEVEL_ERROR, "sen5x: sen5x_get_serial_number: error\n");
         }
     }
 
@@ -159,14 +167,17 @@ static rd_status_t ri_sen55_reset (void)
 
         if (RD_SUCCESS == err_code)
         {
-            SEGGER_RTT_printf (0, "sen5x: fw: %d.%d, hw: %d.%d, protocol: %d.%d:\n",
-                               firmware_major, firmware_minor,
-                               hardware_major, hardware_minor,
-                               protocol_major, protocol_minor);
+            char log_buf[100];
+            snprintf (log_buf, sizeof (log_buf),
+                      "sen5x: fw: %d.%d, hw: %d.%d, protocol: %d.%d\n",
+                      firmware_major, firmware_minor,
+                      hardware_major, hardware_minor,
+                      protocol_major, protocol_minor);
+            ri_log (RI_LOG_LEVEL_INFO, log_buf);
         }
         else
         {
-            SEGGER_RTT_printf (0, "sen5x: sen5x_get_version: error\n");
+            ri_log (RI_LOG_LEVEL_ERROR, "sen5x: sen5x_get_version: error\n");
         }
     }
 
@@ -375,16 +386,18 @@ static rd_status_t ri_sen55_read_measurements (void)
         m_ambient_temperature = ambient_temperature;
         m_voc_index = voc_index;
         m_nox_index = nox_index;
-        SEGGER_RTT_printf (0,
-                           "sen5x: PM1.0=%d, PM2.5=%d, PM4.0=%d, PM10.0=%d, H=%d, T=%d, VOC=%d, NOx=%d:\n",
-                           mass_concentration_pm1p0,
-                           mass_concentration_pm2p5,
-                           mass_concentration_pm4p0,
-                           mass_concentration_pm10p0,
-                           ambient_humidity,
-                           ambient_temperature,
-                           voc_index,
-                           nox_index);
+        char log_buf[120];
+        snprintf (log_buf, sizeof (log_buf),
+                  "sen5x: PM1.0=%d, PM2.5=%d, PM4.0=%d, PM10.0=%d, H=%d, T=%d, VOC=%d, NOx=%d:\n",
+                  mass_concentration_pm1p0,
+                  mass_concentration_pm2p5,
+                  mass_concentration_pm4p0,
+                  mass_concentration_pm10p0,
+                  ambient_humidity,
+                  ambient_temperature,
+                  voc_index,
+                  nox_index);
+        ri_log (RI_LOG_LEVEL_INFO, log_buf);
     }
 
     return err_code;
@@ -559,4 +572,4 @@ rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
 
 /** @} */
 
-#endif // APP_SENSOR_ENVIRONMENTAL_SEN55_ENABLED || DOXYGEN
+#endif // RI_SEN5X_ENABLED || DOXYGEN

@@ -102,13 +102,19 @@ NRF_LIB_SOURCES= \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c
 
+RUUVI_LIB_SOURCES_SENSIRION_SHT= \
+  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_shtcx.c \
+  $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_shtcx.c
+
+RUUVI_LIB_SOURCES_SENSIRION_SEN5X_SCD4X= \
+  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_sen55.c \
+  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_scd41.c
+
 RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/interfaces/acceleration/ruuvi_interface_lis2dh12.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_bme280.c \
-  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_shtcx.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_tmp117.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_bme280.c \
-  $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_shtcx.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_tmp117.c \
   $(PROJ_DIR)/src/interfaces/log/ruuvi_interface_log.c \
   $(PROJ_DIR)/src/interfaces/spi/ruuvi_interface_spi_bme280.c \
@@ -144,8 +150,6 @@ RUUVI_PRJ_SOURCES= \
   $(PROJ_DIR)/src/tasks/ruuvi_task_flash.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_gatt.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_sensor.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_adc.c \
-  $(PROJ_DIR)/src/tasks/ruuvi_task_flash.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_gpio.c \
   $(PROJ_DIR)/src/tasks/ruuvi_task_nfc.c
 
@@ -235,11 +239,6 @@ COMMON_INCLUDES= \
   $(PROJ_DIR)/src \
   $(PROJ_DIR)/BME280_driver \
   $(PROJ_DIR)/BME280_driver/selftest \
-  $(PROJ_DIR)/embedded-sht/ \
-  $(PROJ_DIR)/embedded-sht/embedded-common \
-  $(PROJ_DIR)/embedded-sht/sht-common \
-  $(PROJ_DIR)/embedded-sht/shtc1 \
-  $(PROJ_DIR)/embedded-i2c-sen5x \
   $(PROJ_DIR)/src/interfaces/acceleration \
   $(PROJ_DIR)/src/interfaces/adc \
   $(PROJ_DIR)/src/interfaces/atomic \
@@ -261,3 +260,14 @@ COMMON_INCLUDES= \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/timer/ \
   $(PROJ_DIR)/src/tasks/ \
   $(PROJ_DIR)/STMems_Standard_C_drivers/lis2dh12_STdC/driver
+
+INCLUDES_SENSIRION_SHT=\
+  $(PROJ_DIR)/embedded-sht \
+  $(PROJ_DIR)/embedded-sht/embedded-common \
+  $(PROJ_DIR)/embedded-sht/sht-common \
+  $(PROJ_DIR)/embedded-sht/shtc1
+
+INCLUDES_SENSIRION_SEN5X_SCD4X=\
+  $(PROJ_DIR)/embedded-i2c-sen5x \
+  $(PROJ_DIR)/embedded-i2c-scd4x \
+  $(PROJ_DIR)/sensirion-i2c

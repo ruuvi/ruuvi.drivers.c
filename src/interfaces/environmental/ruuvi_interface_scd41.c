@@ -8,7 +8,9 @@
  */
 
 #include "ruuvi_driver_enabled_modules.h"
-#if APP_SENSOR_ENVIRONMENTAL_SCD41_ENABLED || DOXYGEN
+#if RI_SCD4X_ENABLED || DOXYGEN
+#include <stdio.h>
+#include <string.h>
 // Ruuvi headers
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -18,8 +20,7 @@
 #include "ruuvi_interface_i2c.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
-
-#include <string.h>
+#include "ruuvi_interface_log.h"
 
 /**
  * @addtogroup SCD41
@@ -28,7 +29,6 @@
 
 // Sensirion driver.
 #include "scd4x_i2c.h"
-#include "SEGGER_RTT.h"
 #include "sensirion_i2c_hal.h"
 
 #define LOW_POWER_SLEEP_MS_MIN (1000U)
@@ -96,26 +96,25 @@ static rd_status_t ri_scd41_check_sensor (void)
 
     if (RD_SUCCESS != err_code)
     {
-        SEGGER_RTT_printf (0, "scd4x: scd4x_wake_up: failed\n");
+        ri_log (RI_LOG_LEVEL_ERROR, "sen5x: scd4x_wake_up: error\n");
         return err_code;
     }
 
-    SEGGER_RTT_printf (0, "scd41: scd4x_stop_periodic_measurement\n");
     err_code = SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
 
     if (RD_SUCCESS != err_code)
     {
-        SEGGER_RTT_printf (0, "scd4x: scd4x_stop_periodic_measurement: failed\n");
+        ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_stop_periodic_measurement: error\n");
         return err_code;
     }
 
     ri_delay_ms (500U);
-    SEGGER_RTT_printf (0, "scd41: scd4x_reinit\n");
+    ri_log (RI_LOG_LEVEL_DEBUG, "scd4x: scd4x_reinit\n");
     err_code = SCD4X_TO_RUUVI_ERROR (scd4x_reinit());
 
     if (RD_SUCCESS != err_code)
     {
-        SEGGER_RTT_printf (0, "scd4x: scd4x_reinit: failed\n");
+        ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_reinit: error\n");
         return err_code;
     }
 
@@ -127,11 +126,14 @@ static rd_status_t ri_scd41_check_sensor (void)
 
     if (RD_SUCCESS != err_code)
     {
-        SEGGER_RTT_printf (0, "scd4x: scd4x_get_serial_number: failed\n");
+        ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_get_serial_number: error\n");
         return err_code;
     }
 
-    SEGGER_RTT_printf (0, "scd4x: Serial: 0x%04x%04x%04x\n", serial_0, serial_1, serial_2);
+    char log_buf[80];
+    snprintf (log_buf, sizeof (log_buf),
+              "scd4x: Serial: 0x%04x%04x%04x\n", serial_0, serial_1, serial_2);
+    ri_log (RI_LOG_LEVEL_INFO, log_buf);
     return RD_SUCCESS;
 }
 
@@ -200,7 +202,6 @@ rd_status_t ri_scd41_uninit (rd_sensor_t * sensor,
     if (NULL == sensor) { return RD_ERROR_NULL; }
 
     rd_status_t err_code = RD_SUCCESS;
-    SEGGER_RTT_printf (0, "scd41: scd4x_stop_periodic_measurement\n");
     err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
     ri_delay_ms (500U);
     rd_sensor_uninitialize (sensor);
@@ -316,11 +317,13 @@ static rd_status_t ri_scd41_read_measurements (void)
         m_co2 = co2;
         m_ambient_temperature = temperature;
         m_ambient_humidity = humidity;
-        SEGGER_RTT_printf (0,
-                           "scd4x: CO2=%d, H=%d, T=%d\n",
-                           co2,
-                           humidity,
-                           temperature);
+        char log_buf[100];
+        snprintf (log_buf, sizeof (log_buf),
+                  "scd4x: CO2=%d, H=%d, T=%d\n",
+                  co2,
+                  humidity,
+                  temperature);
+        ri_log (RI_LOG_LEVEL_INFO, log_buf);
     }
 
     return err_code;
@@ -340,7 +343,6 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
     {
         m_autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
-        SEGGER_RTT_printf (0, "scd41: scd4x_stop_periodic_measurement\n");
         err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
         ri_delay_ms (500U);
     }
@@ -360,7 +362,6 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
         m_autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
         m_tsample = rd_sensor_timestamp_get();
-        SEGGER_RTT_printf (0, "scd41: scd4x_measure_single_shot\n");
         err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot());
 
         if (RD_SUCCESS == err_code)
@@ -384,7 +385,6 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
     else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         m_autorefresh = true;
-        SEGGER_RTT_printf (0, "scd41: scd4x_start_periodic_measurement\n");
         err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_start_periodic_measurement());
     }
     else
@@ -488,4 +488,4 @@ rd_status_t ri_scd41_data_get (rd_sensor_data_t * const p_data)
 
 /** @} */
 
-#endif // APP_SENSOR_ENVIRONMENTAL_SCD41_ENABLED || DOXYGEN
+#endif // RI_SCD4X_ENABLED || DOXYGEN
