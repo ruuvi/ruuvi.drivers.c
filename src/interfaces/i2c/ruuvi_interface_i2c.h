@@ -94,6 +94,6 @@ rd_status_t ri_i2c_read_blocking (const uint8_t address,
  * @param[in] stop @c true to transmit stop condition after read, @c false to hold bus active.
  **/
 rd_status_t ri_i2c_write_blocking (const uint8_t address,
-                                   uint8_t * const p_tx, const size_t tx_len, const bool stop);
+                                   const uint8_t * const p_tx, const size_t tx_len, const bool stop);
 /* @} */
 #endif
