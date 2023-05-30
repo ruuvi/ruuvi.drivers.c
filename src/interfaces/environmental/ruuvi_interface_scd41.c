@@ -395,8 +395,10 @@ static rd_status_t ri_scd41_read_measurements (void)
     uint16_t co2 = 0;
     int32_t temperature = 0;
     int32_t humidity = 0;
-    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_read_measurement (&co2, &temperature,
-                           &humidity));
+    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_read_measurement (
+                               &co2,
+                               &temperature,
+                               &humidity));
 
     if (RD_SUCCESS == err_code)
     {
