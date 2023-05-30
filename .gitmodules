@@ -16,3 +16,9 @@
 [submodule "ruuvi.dps310.c"]
 	path = ruuvi.dps310.c
 	url = https://github.com/ruuvi/ruuvi.dps310.c
+[submodule "embedded-i2c-sen5x"]
+	path = embedded-i2c-sen5x
+	url = https://github.com/Sensirion/embedded-i2c-sen5x.git
+[submodule "embedded-i2c-scd4x"]
+	path = embedded-i2c-scd4x
+	url = https://github.com/Sensirion/embedded-i2c-scd4x.git
