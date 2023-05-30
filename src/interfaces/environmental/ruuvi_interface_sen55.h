@@ -49,11 +49,15 @@
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_sen55_init (rd_sensor_t *
-                           environmental_sensor, rd_bus_t bus, uint8_t handle);
+                           environmental_sensor,
+                           rd_bus_t bus,
+                           uint8_t handle);
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_sen55_uninit (rd_sensor_t *
-                             environmental_sensor, rd_bus_t bus, uint8_t handle);
+                             environmental_sensor,
+                             rd_bus_t bus,
+                             uint8_t handle);
 
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_sen55_samplerate_set (uint8_t * samplerate);
@@ -79,14 +83,13 @@ rd_status_t ri_sen55_dsp_set (uint8_t * dsp, uint8_t * parameter);
 rd_status_t ri_sen55_dsp_get (uint8_t * dsp, uint8_t * parameter);
 
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_sen55_mode_set (uint8_t *);
+rd_status_t ri_sen55_mode_set (uint8_t * mode);
 
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_sen55_mode_get (uint8_t *);
+rd_status_t ri_sen55_mode_get (uint8_t * mode);
 
 /** @brief @ref rd_sensor_data_fp */
-rd_status_t ri_sen55_data_get (rd_sensor_data_t * const
-                               p_data);
+rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data);
 
 /*@}*/
 #endif

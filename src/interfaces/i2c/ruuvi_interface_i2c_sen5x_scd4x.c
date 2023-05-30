@@ -62,6 +62,7 @@
  */
 int16_t sensirion_i2c_hal_select_bus (uint8_t bus_idx)
 {
+    (void) bus_idx;
     RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
     return 0;
 }
@@ -99,7 +100,13 @@ int8_t sensirion_i2c_hal_read (uint8_t address, uint8_t * data, uint16_t count)
 {
     rd_status_t err_code = RD_SUCCESS;
     err_code |= ri_i2c_read_blocking (address, data, count);
-    return (RD_SUCCESS == err_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+
+    if (RD_SUCCESS != err_code)
+    {
+        return RD_ERROR_INTERNAL;
+    }
+
+    return RD_SUCCESS;
 }
 
 /**
@@ -119,8 +126,14 @@ int8_t sensirion_i2c_hal_write (uint8_t address, const uint8_t * data,
     rd_status_t err_code = RD_SUCCESS;
     // Drop const qualification to match Nordic lib signature.
     // write_blocking does not alter contents of data.
-    err_code |= ri_i2c_write_blocking (address, (uint8_t *) data, count, true);
-    return (RD_SUCCESS == err_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
+    err_code |= ri_i2c_write_blocking (address, data, count, true);
+
+    if (RD_SUCCESS != err_code)
+    {
+        return RD_ERROR_INTERNAL;
+    }
+
+    return RD_SUCCESS;
 }
 
 /**

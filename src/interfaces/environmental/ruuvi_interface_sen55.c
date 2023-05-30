@@ -241,7 +241,9 @@ static rd_status_t ri_sen55_reset (void)
     return err_code;
 }
 
-rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
+rd_status_t ri_sen55_init (rd_sensor_t * sensor,
+                           rd_bus_t bus,
+                           uint8_t handle)
 {
     (void) handle;
     rd_status_t err_code = RD_SUCCESS;
@@ -308,7 +310,8 @@ rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 }
 
 rd_status_t ri_sen55_uninit (rd_sensor_t * sensor,
-                             rd_bus_t bus, uint8_t handle)
+                             rd_bus_t bus,
+                             uint8_t handle)
 {
     (void) bus;
     (void) handle;
@@ -362,22 +365,33 @@ rd_status_t ri_sen55_samplerate_get (uint8_t * samplerate)
 
 rd_status_t ri_sen55_resolution_set (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    rd_status_t err_code = RD_SUCCESS;
 
-    if (!check_is_sensor_in_sleep_mode())
+    do
     {
-        return RD_ERROR_INVALID_STATE;
-    }
+        if (NULL == resolution)
+        {
+            err_code = RD_ERROR_NULL;
+            break;
+        }
 
-    uint8_t original = *resolution;
-    *resolution = RD_SENSOR_CFG_DEFAULT;
+        if (!check_is_sensor_in_sleep_mode())
+        {
+            err_code = RD_ERROR_INVALID_STATE;
+            break;
+        }
 
-    if (check_is_param_valid (original))
-    {
-        return RD_SUCCESS;
-    }
+        uint8_t original = *resolution;
+        *resolution = RD_SENSOR_CFG_DEFAULT;
 
-    return RD_ERROR_NOT_SUPPORTED;
+        if (!check_is_param_valid (original))
+        {
+            err_code = RD_ERROR_NOT_SUPPORTED;
+            break;
+        }
+    } while (0);
+
+    return err_code;
 }
 
 rd_status_t ri_sen55_resolution_get (uint8_t * resolution)
