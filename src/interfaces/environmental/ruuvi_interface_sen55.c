@@ -58,6 +58,8 @@
 #define SEN5X_SCALE_FACTOR_VOC_INDEX      (10.0f)
 #define SEN5X_SCALE_FACTOR_NOX_INDEX      (10.0f)
 
+typedef float sen5x_float_t;
+
 /** @brief Check for "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 static inline bool check_is_param_valid (const uint8_t param)
 {
@@ -244,67 +246,58 @@ static rd_status_t ri_sen55_reset (void)
 rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
     (void) handle;
-    rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == sensor)
     {
-        err_code |= RD_ERROR_NULL;
+        return RD_ERROR_NULL;
     }
-    else if (rd_sensor_is_init (sensor))
+
+    if (rd_sensor_is_init (sensor))
     {
-        err_code |= RD_ERROR_INVALID_STATE;
+        return RD_ERROR_INVALID_STATE;
     }
-    else
+
+    rd_sensor_initialize (sensor);
+    sensor->name = m_sensor_name;
+
+    if (RD_BUS_I2C != bus)
     {
-        rd_sensor_initialize (sensor);
-        sensor->name = m_sensor_name;
-
-        switch (bus)
-        {
-            case RD_BUS_I2C:
-                err_code |= ri_sen55_reset();
-                break;
-
-            default:
-                err_code |=  RD_ERROR_INVALID_PARAM;
-        }
-
-        if (RD_SUCCESS != err_code)
-        {
-            err_code = RD_ERROR_NOT_FOUND;
-        }
-        else
-        {
-            sensor->init              = ri_sen55_init;
-            sensor->uninit            = ri_sen55_uninit;
-            sensor->samplerate_set    = ri_sen55_samplerate_set;
-            sensor->samplerate_get    = ri_sen55_samplerate_get;
-            sensor->resolution_set    = ri_sen55_resolution_set;
-            sensor->resolution_get    = ri_sen55_resolution_get;
-            sensor->scale_set         = ri_sen55_scale_set;
-            sensor->scale_get         = ri_sen55_scale_get;
-            sensor->dsp_set           = ri_sen55_dsp_set;
-            sensor->dsp_get           = ri_sen55_dsp_get;
-            sensor->mode_set          = ri_sen55_mode_set;
-            sensor->mode_get          = ri_sen55_mode_get;
-            sensor->data_get          = ri_sen55_data_get;
-            sensor->configuration_set = rd_sensor_configuration_set;
-            sensor->configuration_get = rd_sensor_configuration_get;
-            sensor->provides.datas.humidity_rh = 1;
-            sensor->provides.datas.pm_1_ugm3 = 1;
-            sensor->provides.datas.pm_2_ugm3 = 1;
-            sensor->provides.datas.pm_4_ugm3 = 1;
-            sensor->provides.datas.pm_10_ugm3 = 1;
-            sensor->provides.datas.temperature_c = 1;
-            sensor->provides.datas.voc_index = 1;
-            sensor->provides.datas.nox_index = 1;
-            err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_start_measurement());
-            m_tsample = RD_UINT64_INVALID;
-            m_is_init = true;
-        }
+        return RD_ERROR_INVALID_PARAM;
     }
 
-    return err_code;
+    rd_status_t err_code = ri_sen55_reset();
+
+    if (RD_SUCCESS != err_code)
+    {
+        return RD_ERROR_NOT_FOUND;
+    }
+
+    sensor->init              = ri_sen55_init;
+    sensor->uninit            = ri_sen55_uninit;
+    sensor->samplerate_set    = ri_sen55_samplerate_set;
+    sensor->samplerate_get    = ri_sen55_samplerate_get;
+    sensor->resolution_set    = ri_sen55_resolution_set;
+    sensor->resolution_get    = ri_sen55_resolution_get;
+    sensor->scale_set         = ri_sen55_scale_set;
+    sensor->scale_get         = ri_sen55_scale_get;
+    sensor->dsp_set           = ri_sen55_dsp_set;
+    sensor->dsp_get           = ri_sen55_dsp_get;
+    sensor->mode_set          = ri_sen55_mode_set;
+    sensor->mode_get          = ri_sen55_mode_get;
+    sensor->data_get          = ri_sen55_data_get;
+    sensor->configuration_set = rd_sensor_configuration_set;
+    sensor->configuration_get = rd_sensor_configuration_get;
+    sensor->provides.datas.humidity_rh   = 1;
+    sensor->provides.datas.pm_1_ugm3     = 1;
+    sensor->provides.datas.pm_2_ugm3     = 1;
+    sensor->provides.datas.pm_4_ugm3     = 1;
+    sensor->provides.datas.pm_10_ugm3    = 1;
+    sensor->provides.datas.temperature_c = 1;
+    sensor->provides.datas.voc_index     = 1;
+    sensor->provides.datas.nox_index     = 1;
+    m_tsample = RD_UINT64_INVALID;
+    m_is_init = true;
+    return RD_SUCCESS;
 }
 
 rd_status_t ri_sen55_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
@@ -657,16 +650,16 @@ static void ri_sen55_data_update (rd_sensor_data_t * const p_data)
 {
     rd_sensor_data_t d_environmental = {0};
     rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-    float env_values[SEN5X_NUM_MEASUREMENTS] =
+    sen5x_float_t env_values[SEN5X_NUM_MEASUREMENTS] =
     {
-        [SEN5X_MEASUREMENT_IDX_HUMIDITY] = (float) m_ambient_humidity / SEN5X_SCALE_FACTOR_HUMIDITY,
-        [SEN5X_MEASUREMENT_IDX_PM1_0] = (float) m_mass_concentration_pm1p0 / SEN5X_SCALE_FACTOR_PM,
-        [SEN5X_MEASUREMENT_IDX_PM2_5] = (float) m_mass_concentration_pm2p5 / SEN5X_SCALE_FACTOR_PM,
-        [SEN5X_MEASUREMENT_IDX_PM4_0] = (float) m_mass_concentration_pm4p0 / SEN5X_SCALE_FACTOR_PM,
-        [SEN5X_MEASUREMENT_IDX_PM10_0] = (float) m_mass_concentration_pm10p0 / SEN5X_SCALE_FACTOR_PM,
-        [SEN5X_MEASUREMENT_IDX_TEMPERATURE] = (float) m_ambient_temperature / SEN5X_SCALE_FACTOR_TEMPERATURE,
-        [SEN5X_MEASUREMENT_IDX_VOC_INDEX] = (float) m_voc_index / SEN5X_SCALE_FACTOR_VOC_INDEX,
-        [SEN5X_MEASUREMENT_IDX_NOX_INDEX] = (float) m_nox_index / SEN5X_SCALE_FACTOR_NOX_INDEX,
+        [SEN5X_MEASUREMENT_IDX_HUMIDITY] = (sen5x_float_t) m_ambient_humidity / SEN5X_SCALE_FACTOR_HUMIDITY,
+        [SEN5X_MEASUREMENT_IDX_PM1_0] = (sen5x_float_t) m_mass_concentration_pm1p0 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_PM2_5] = (sen5x_float_t) m_mass_concentration_pm2p5 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_PM4_0] = (sen5x_float_t) m_mass_concentration_pm4p0 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_PM10_0] = (sen5x_float_t) m_mass_concentration_pm10p0 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_TEMPERATURE] = (sen5x_float_t) m_ambient_temperature / SEN5X_SCALE_FACTOR_TEMPERATURE,
+        [SEN5X_MEASUREMENT_IDX_VOC_INDEX] = (sen5x_float_t) m_voc_index / SEN5X_SCALE_FACTOR_VOC_INDEX,
+        [SEN5X_MEASUREMENT_IDX_NOX_INDEX] = (sen5x_float_t) m_nox_index / SEN5X_SCALE_FACTOR_NOX_INDEX,
     };
     env_fields.datas.humidity_rh = 1;
     env_fields.datas.pm_1_ugm3 = 1;

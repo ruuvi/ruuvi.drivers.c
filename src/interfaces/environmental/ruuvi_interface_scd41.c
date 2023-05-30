@@ -48,6 +48,8 @@
 #define SCD41_SCALE_FACTOR_TEMPERATURE  (1000.0f)
 #define SCD41_SCALE_FACTOR_HUMIDITY     (1000.0f)
 
+typedef float scd4x_float_t;
+
 /** @brief Check for "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 static inline bool check_is_param_valid (const uint8_t param)
 {
@@ -185,61 +187,53 @@ static rd_status_t ri_scd41_check_sensor (void)
 rd_status_t ri_scd41_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
     (void) handle;
-    rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == sensor)
     {
-        err_code |= RD_ERROR_NULL;
+        return RD_ERROR_NULL;
     }
-    else if (rd_sensor_is_init (sensor))
+
+    if (rd_sensor_is_init (sensor))
     {
-        err_code |= RD_ERROR_INVALID_STATE;
+        return RD_ERROR_INVALID_STATE;
     }
-    else
+
+    rd_sensor_initialize (sensor);
+    sensor->name = m_sensor_name;
+
+    if (RD_BUS_I2C != bus)
     {
-        rd_sensor_initialize (sensor);
-        sensor->name = m_sensor_name;
-
-        switch (bus)
-        {
-            case RD_BUS_I2C:
-                err_code |= ri_scd41_check_sensor();
-                break;
-
-            default:
-                err_code |=  RD_ERROR_INVALID_PARAM;
-        }
-
-        if (RD_SUCCESS != err_code)
-        {
-            err_code = RD_ERROR_NOT_FOUND;
-        }
-        else
-        {
-            sensor->init              = ri_scd41_init;
-            sensor->uninit            = ri_scd41_uninit;
-            sensor->samplerate_set    = ri_scd41_samplerate_set;
-            sensor->samplerate_get    = ri_scd41_samplerate_get;
-            sensor->resolution_set    = ri_scd41_resolution_set;
-            sensor->resolution_get    = ri_scd41_resolution_get;
-            sensor->scale_set         = ri_scd41_scale_set;
-            sensor->scale_get         = ri_scd41_scale_get;
-            sensor->dsp_set           = ri_scd41_dsp_set;
-            sensor->dsp_get           = ri_scd41_dsp_get;
-            sensor->mode_set          = ri_scd41_mode_set;
-            sensor->mode_get          = ri_scd41_mode_get;
-            sensor->data_get          = ri_scd41_data_get;
-            sensor->configuration_set = rd_sensor_configuration_set;
-            sensor->configuration_get = rd_sensor_configuration_get;
-            sensor->provides.datas.co2_ppm = 1;
-            sensor->provides.datas.humidity_rh = 1;
-            sensor->provides.datas.temperature_c = 1;
-            m_tsample = RD_UINT64_INVALID;
-            m_is_init = true;
-        }
+        return RD_ERROR_INVALID_PARAM;
     }
 
-    return err_code;
+    const rd_status_t err_code = ri_scd41_check_sensor();
+
+    if (RD_SUCCESS != err_code)
+    {
+        return RD_ERROR_NOT_FOUND;
+    }
+
+    sensor->init              = ri_scd41_init;
+    sensor->uninit            = ri_scd41_uninit;
+    sensor->samplerate_set    = ri_scd41_samplerate_set;
+    sensor->samplerate_get    = ri_scd41_samplerate_get;
+    sensor->resolution_set    = ri_scd41_resolution_set;
+    sensor->resolution_get    = ri_scd41_resolution_get;
+    sensor->scale_set         = ri_scd41_scale_set;
+    sensor->scale_get         = ri_scd41_scale_get;
+    sensor->dsp_set           = ri_scd41_dsp_set;
+    sensor->dsp_get           = ri_scd41_dsp_get;
+    sensor->mode_set          = ri_scd41_mode_set;
+    sensor->mode_get          = ri_scd41_mode_get;
+    sensor->data_get          = ri_scd41_data_get;
+    sensor->configuration_set = rd_sensor_configuration_set;
+    sensor->configuration_get = rd_sensor_configuration_get;
+    sensor->provides.datas.co2_ppm       = 1;
+    sensor->provides.datas.humidity_rh   = 1;
+    sensor->provides.datas.temperature_c = 1;
+    m_tsample = RD_UINT64_INVALID;
+    m_is_init = true;
+    return RD_SUCCESS;
 }
 
 rd_status_t ri_scd41_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
@@ -578,11 +572,11 @@ static void ri_scd41_data_update (rd_sensor_data_t * const p_data)
 {
     rd_sensor_data_t d_environmental = {0};
     rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-    float env_values[SCD4X_NUM_MEASUREMENTS] =
+    scd4x_float_t env_values[SCD4X_NUM_MEASUREMENTS] =
     {
-        [SCD4X_MEASUREMENT_IDX_CO2] = (float) m_co2,
-        [SCD4X_MEASUREMENT_IDX_TEMPERATURE] = (float) m_ambient_temperature / SCD41_SCALE_FACTOR_TEMPERATURE,
-        [SCD4X_MEASUREMENT_IDX_HUMIDITY] = (float) m_ambient_humidity / SCD41_SCALE_FACTOR_HUMIDITY,
+        [SCD4X_MEASUREMENT_IDX_CO2] = (scd4x_float_t) m_co2,
+        [SCD4X_MEASUREMENT_IDX_TEMPERATURE] = (scd4x_float_t) m_ambient_temperature / SCD41_SCALE_FACTOR_TEMPERATURE,
+        [SCD4X_MEASUREMENT_IDX_HUMIDITY] = (scd4x_float_t) m_ambient_humidity / SCD41_SCALE_FACTOR_HUMIDITY,
     };
     env_fields.datas.co2_ppm = 1;
     env_fields.datas.temperature_c = 1;

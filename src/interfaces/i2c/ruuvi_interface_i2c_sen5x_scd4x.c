@@ -73,7 +73,6 @@ int16_t sensirion_i2c_hal_select_bus (uint8_t bus_idx)
  */
 void sensirion_i2c_hal_init (void)
 {
-    /* TODO:IMPLEMENT or leave empty if no resources need to be freed */
     RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
 }
 
@@ -82,7 +81,6 @@ void sensirion_i2c_hal_init (void)
  */
 void sensirion_i2c_hal_free (void)
 {
-    /* TODO:IMPLEMENT or leave empty if no resources need to be freed */
     RD_ERROR_CHECK (RD_ERROR_NOT_SUPPORTED, ~RD_ERROR_FATAL);
 }
 

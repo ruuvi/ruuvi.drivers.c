@@ -77,10 +77,10 @@ rd_status_t ri_scd41_dsp_set (uint8_t * dsp, uint8_t * parameter);
 rd_status_t ri_scd41_dsp_get (uint8_t * dsp, uint8_t * parameter);
 
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_scd41_mode_set (uint8_t *);
+rd_status_t ri_scd41_mode_set (uint8_t * mode);
 
 /** @brief @ref rd_sensor_setup_fp */
-rd_status_t ri_scd41_mode_get (uint8_t *);
+rd_status_t ri_scd41_mode_get (uint8_t * mode);
 
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_scd41_data_get (rd_sensor_data_t * const p_data);
