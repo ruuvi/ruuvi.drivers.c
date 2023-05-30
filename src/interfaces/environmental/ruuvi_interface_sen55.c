@@ -365,38 +365,33 @@ rd_status_t ri_sen55_samplerate_get (uint8_t * samplerate)
 
 rd_status_t ri_sen55_resolution_set (uint8_t * resolution)
 {
-    rd_status_t err_code = RD_SUCCESS;
-
-    do
+    if (NULL == resolution)
     {
-        if (NULL == resolution)
-        {
-            err_code = RD_ERROR_NULL;
-            break;
-        }
+        return RD_ERROR_NULL;
+    }
 
-        if (!check_is_sensor_in_sleep_mode())
-        {
-            err_code = RD_ERROR_INVALID_STATE;
-            break;
-        }
+    if (!check_is_sensor_in_sleep_mode())
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
 
-        uint8_t original = *resolution;
-        *resolution = RD_SENSOR_CFG_DEFAULT;
+    uint8_t original = *resolution;
+    *resolution = RD_SENSOR_CFG_DEFAULT;
 
-        if (!check_is_param_valid (original))
-        {
-            err_code = RD_ERROR_NOT_SUPPORTED;
-            break;
-        }
-    } while (0);
+    if (!check_is_param_valid (original))
+    {
+        return RD_ERROR_NOT_SUPPORTED;
+    }
 
-    return err_code;
+    return RD_SUCCESS;
 }
 
 rd_status_t ri_sen55_resolution_get (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    if (NULL == resolution)
+    {
+        return RD_ERROR_NULL;
+    }
 
     *resolution = RD_SENSOR_CFG_DEFAULT;
     return RD_SUCCESS;
@@ -404,7 +399,10 @@ rd_status_t ri_sen55_resolution_get (uint8_t * resolution)
 
 rd_status_t ri_sen55_scale_set (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    if (NULL == scale)
+    {
+        return RD_ERROR_NULL;
+    }
 
     if (!check_is_sensor_in_sleep_mode())
     {
@@ -424,7 +422,10 @@ rd_status_t ri_sen55_scale_set (uint8_t * scale)
 
 rd_status_t ri_sen55_scale_get (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    if (NULL == scale)
+    {
+        return RD_ERROR_NULL;
+    }
 
     *scale = RD_SENSOR_CFG_DEFAULT;
     return RD_SUCCESS;
@@ -432,7 +433,10 @@ rd_status_t ri_sen55_scale_get (uint8_t * scale)
 
 rd_status_t ri_sen55_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        return RD_ERROR_NULL;
+    }
 
     if (!check_is_sensor_in_sleep_mode())
     {
@@ -440,9 +444,9 @@ rd_status_t ri_sen55_dsp_set (uint8_t * dsp, uint8_t * parameter)
     }
 
     // Validate configuration
-    if ( (RD_SENSOR_CFG_DEFAULT  != *parameter
-            && RD_SENSOR_CFG_MIN   != *parameter
-            && RD_SENSOR_CFG_MAX   != *parameter) ||
+    if ( ( (RD_SENSOR_CFG_DEFAULT  != *parameter)
+            && (RD_SENSOR_CFG_MIN   != *parameter)
+            && (RD_SENSOR_CFG_MAX   != *parameter)) ||
             (RD_SENSOR_DSP_LAST  != *dsp))
     {
         return RD_ERROR_NOT_SUPPORTED;
@@ -453,7 +457,10 @@ rd_status_t ri_sen55_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
 rd_status_t ri_sen55_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        return RD_ERROR_NULL;
+    }
 
     // Only default is available
     *dsp       = RD_SENSOR_CFG_DEFAULT;

@@ -293,7 +293,10 @@ rd_status_t ri_scd41_samplerate_get (uint8_t * samplerate)
 
 rd_status_t ri_scd41_resolution_set (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    if (NULL == resolution)
+    {
+        return RD_ERROR_NULL;
+    }
 
     if (!check_is_sensor_in_sleep_mode())
     {
@@ -303,17 +306,20 @@ rd_status_t ri_scd41_resolution_set (uint8_t * resolution)
     uint8_t original = *resolution;
     *resolution = RD_SENSOR_CFG_DEFAULT;
 
-    if (check_is_param_valid (original))
+    if (!check_is_param_valid (original))
     {
-        return RD_SUCCESS;
+        return RD_ERROR_NOT_SUPPORTED;
     }
 
-    return RD_ERROR_NOT_SUPPORTED;
+    return RD_SUCCESS;
 }
 
 rd_status_t ri_scd41_resolution_get (uint8_t * resolution)
 {
-    if (NULL == resolution) { return RD_ERROR_NULL; }
+    if (NULL == resolution)
+    {
+        return RD_ERROR_NULL;
+    }
 
     *resolution = RD_SENSOR_CFG_DEFAULT;
     return RD_SUCCESS;
@@ -321,7 +327,10 @@ rd_status_t ri_scd41_resolution_get (uint8_t * resolution)
 
 rd_status_t ri_scd41_scale_set (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    if (NULL == scale)
+    {
+        return RD_ERROR_NULL;
+    }
 
     if (!check_is_sensor_in_sleep_mode())
     {
@@ -341,7 +350,10 @@ rd_status_t ri_scd41_scale_set (uint8_t * scale)
 
 rd_status_t ri_scd41_scale_get (uint8_t * scale)
 {
-    if (NULL == scale) { return RD_ERROR_NULL; }
+    if (NULL == scale)
+    {
+        return RD_ERROR_NULL;
+    }
 
     *scale = RD_SENSOR_CFG_DEFAULT;
     return RD_SUCCESS;
@@ -349,7 +361,10 @@ rd_status_t ri_scd41_scale_get (uint8_t * scale)
 
 rd_status_t ri_scd41_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        return RD_ERROR_NULL;
+    }
 
     if (!check_is_sensor_in_sleep_mode())
     {
@@ -357,9 +372,9 @@ rd_status_t ri_scd41_dsp_set (uint8_t * dsp, uint8_t * parameter)
     }
 
     // Validate configuration
-    if ( (RD_SENSOR_CFG_DEFAULT  != *parameter
-            && RD_SENSOR_CFG_MIN   != *parameter
-            && RD_SENSOR_CFG_MAX   != *parameter) ||
+    if ( ( (RD_SENSOR_CFG_DEFAULT  != *parameter)
+            && (RD_SENSOR_CFG_MIN   != *parameter)
+            && (RD_SENSOR_CFG_MAX   != *parameter)) ||
             (RD_SENSOR_DSP_LAST  != *dsp))
     {
         return RD_ERROR_NOT_SUPPORTED;
@@ -370,7 +385,10 @@ rd_status_t ri_scd41_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
 rd_status_t ri_scd41_dsp_get (uint8_t * dsp, uint8_t * parameter)
 {
-    if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
+    if ( (NULL == dsp) || (NULL == parameter))
+    {
+        return RD_ERROR_NULL;
+    }
 
     // Only default is available
     *dsp       = RD_SENSOR_CFG_DEFAULT;
@@ -403,6 +421,54 @@ static rd_status_t ri_scd41_read_measurements (void)
     return err_code;
 }
 
+static rd_status_t ri_scd41_mode_set_sleep (uint8_t * const mode)
+{
+    m_autorefresh = false;
+    *mode = RD_SENSOR_CFG_SLEEP;
+    const rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
+    ri_delay_ms (SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS);
+    return err_code;
+}
+
+static rd_status_t ri_scd41_mode_set_single (uint8_t * const mode)
+{
+    // Do nothing if sensor is in continuous mode
+    uint8_t current_mode = 0;
+    ri_scd41_mode_get (&current_mode);
+
+    if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
+    {
+        *mode = RD_SENSOR_CFG_CONTINUOUS;
+        return RD_ERROR_INVALID_STATE;
+    }
+
+    // Enter sleep after measurement
+    m_autorefresh = false;
+    *mode = RD_SENSOR_CFG_SLEEP;
+    m_tsample = rd_sensor_timestamp_get();
+    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    bool data_ready = false;
+
+    while ( (RD_SUCCESS == err_code) && (!data_ready))
+    {
+        ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
+        err_code = SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
+    }
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    return ri_scd41_read_measurements();
+}
+
 // Start single on command, mark auto refresh with continuous
 rd_status_t ri_scd41_mode_set (uint8_t * mode)
 {
@@ -410,63 +476,27 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
 
     if (NULL == mode)
     {
-        err_code |= RD_ERROR_NULL;
+        return RD_ERROR_NULL;
     }
+
     // Enter sleep by default and by explicit sleep command
-    else if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
+    if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
-        m_autorefresh = false;
-        *mode = RD_SENSOR_CFG_SLEEP;
-        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
-        ri_delay_ms (SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS);
+        return ri_scd41_mode_set_sleep (mode);
     }
-    else if (RD_SENSOR_CFG_SINGLE == *mode)
+
+    if (RD_SENSOR_CFG_SINGLE == *mode)
     {
-        // Do nothing if sensor is in continuous mode
-        uint8_t current_mode;
-        ri_scd41_mode_get (&current_mode);
-
-        if (RD_SENSOR_CFG_CONTINUOUS == current_mode)
-        {
-            *mode = RD_SENSOR_CFG_CONTINUOUS;
-            return RD_ERROR_INVALID_STATE;
-        }
-
-        // Enter sleep after measurement
-        m_autorefresh = false;
-        *mode = RD_SENSOR_CFG_SLEEP;
-        m_tsample = rd_sensor_timestamp_get();
-        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot());
-
-        if (RD_SUCCESS == err_code)
-        {
-            bool data_ready = false;
-
-            while ( (RD_SUCCESS == err_code) && (!data_ready))
-            {
-                ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
-                err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
-            }
-        }
-
-        if (RD_SUCCESS == err_code)
-        {
-            err_code |= ri_scd41_read_measurements();
-        }
-
-        return err_code;
+        return ri_scd41_mode_set_single (mode);
     }
-    else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
+
+    if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         m_autorefresh = true;
-        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_start_periodic_measurement());
-    }
-    else
-    {
-        err_code |= RD_ERROR_INVALID_PARAM;
+        return SCD4X_TO_RUUVI_ERROR (scd4x_start_periodic_measurement());
     }
 
-    return err_code;
+    return RD_ERROR_INVALID_PARAM;
 }
 
 rd_status_t ri_scd41_mode_get (uint8_t * mode)
