@@ -48,16 +48,10 @@
 // #define RI_SEN55_WAKEUP_US (240U) //!< Time from wakeup cmd to rdy.
 
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_sen55_init (rd_sensor_t *
-                           environmental_sensor,
-                           rd_bus_t bus,
-                           uint8_t handle);
+rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle);
 
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_sen55_uninit (rd_sensor_t *
-                             environmental_sensor,
-                             rd_bus_t bus,
-                             uint8_t handle);
+rd_status_t ri_sen55_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle);
 
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_sen55_samplerate_set (uint8_t * samplerate);

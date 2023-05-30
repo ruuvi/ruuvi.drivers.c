@@ -241,9 +241,7 @@ static rd_status_t ri_sen55_reset (void)
     return err_code;
 }
 
-rd_status_t ri_sen55_init (rd_sensor_t * sensor,
-                           rd_bus_t bus,
-                           uint8_t handle)
+rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
     (void) handle;
     rd_status_t err_code = RD_SUCCESS;
@@ -309,9 +307,7 @@ rd_status_t ri_sen55_init (rd_sensor_t * sensor,
     return err_code;
 }
 
-rd_status_t ri_sen55_uninit (rd_sensor_t * sensor,
-                             rd_bus_t bus,
-                             uint8_t handle)
+rd_status_t ri_sen55_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
     (void) bus;
     (void) handle;
@@ -592,51 +588,69 @@ rd_status_t ri_sen55_mode_get (uint8_t * mode)
     return RD_SUCCESS;
 }
 
-static rd_status_t ri_sen55_read_measurements_in_autorefresh_mode (void)
+static rd_status_t read_mea_in_autorefresh_mode (void)
 {
-    rd_status_t err_code = RD_SUCCESS;
     bool data_ready = false;
-    err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
+    rd_status_t err_code = SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
 
-    if (RD_SUCCESS == err_code)
+    if (RD_SUCCESS != err_code)
     {
-        if (data_ready)
-        {
-            err_code |= ri_sen55_read_measurements();
+        return err_code;
+    }
 
-            if (RD_SUCCESS == err_code)
-            {
-                m_tsample = rd_sensor_timestamp_get();
-            }
+    if (!data_ready)
+    {
+        return RD_SUCCESS;
+    }
+
+    err_code = ri_sen55_read_measurements();
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    m_tsample = rd_sensor_timestamp_get();
+    return RD_SUCCESS;
+}
+
+static rd_status_t read_mea_in_single_shot_mode (void)
+{
+    rd_status_t err_code = SEN5X_TO_RUUVI_ERROR (sen5x_start_measurement());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    bool data_ready = false;
+
+    while (!data_ready)
+    {
+        err_code = SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
+
+        if (RD_SUCCESS != err_code)
+        {
+            return err_code;
         }
     }
 
-    return err_code;
-}
+    err_code = ri_sen55_read_measurements();
 
-static rd_status_t ri_sen55_read_measurements_in_single_shot_mode (void)
-{
-    rd_status_t err_code = RD_SUCCESS;
-    err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_start_measurement());
-    bool data_ready = false;
-
-    while ( (RD_SUCCESS == err_code) && (!data_ready))
+    if (RD_SUCCESS != err_code)
     {
-        err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
+        return err_code;
     }
 
-    if (RD_SUCCESS == err_code)
+    m_tsample = rd_sensor_timestamp_get();
+    err_code = SEN5X_TO_RUUVI_ERROR (sen5x_stop_measurement());
+
+    if (RD_SUCCESS != err_code)
     {
-        err_code |= ri_sen55_read_measurements();
+        return err_code;
     }
 
-    if (RD_SUCCESS == err_code)
-    {
-        m_tsample = rd_sensor_timestamp_get();
-    }
-
-    err_code |= SEN5X_TO_RUUVI_ERROR (sen5x_stop_measurement());
-    return err_code;
+    return RD_SUCCESS;
 }
 
 static void ri_sen55_data_update (rd_sensor_data_t * const p_data)
@@ -673,30 +687,36 @@ static void ri_sen55_data_update (rd_sensor_data_t * const p_data)
 
 rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
 {
-    rd_status_t err_code = RD_SUCCESS;
-
     if (NULL == p_data)
     {
-        err_code |= RD_ERROR_NULL;
+        return RD_ERROR_NULL;
+    }
+
+    if (m_autorefresh)
+    {
+        const rd_status_t err_code = read_mea_in_autorefresh_mode();
+
+        if (RD_SUCCESS != err_code)
+        {
+            return err_code;
+        }
     }
     else
     {
-        if (m_autorefresh)
-        {
-            err_code |= ri_sen55_read_measurements_in_autorefresh_mode();
-        }
-        else
-        {
-            err_code |= ri_sen55_read_measurements_in_single_shot_mode();
-        }
+        const rd_status_t err_code = read_mea_in_single_shot_mode();
 
-        if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_tsample))
+        if (RD_SUCCESS != err_code)
         {
-            ri_sen55_data_update (p_data);
+            return err_code;
         }
     }
 
-    return err_code;
+    if (RD_UINT64_INVALID != m_tsample)
+    {
+        ri_sen55_data_update (p_data);
+    }
+
+    return RD_SUCCESS;
 }
 
 /** @} */

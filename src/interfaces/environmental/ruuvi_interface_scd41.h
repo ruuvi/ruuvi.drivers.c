@@ -48,12 +48,10 @@
 // #define RI_SCD41_WAKEUP_US (240U) //!< Time from wakeup cmd to rdy.
 
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_scd41_init (rd_sensor_t *
-                           environmental_sensor, rd_bus_t bus, uint8_t handle);
+rd_status_t ri_scd41_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle);
 
 /** @brief @ref rd_sensor_init_fp */
-rd_status_t ri_scd41_uninit (rd_sensor_t *
-                             environmental_sensor, rd_bus_t bus, uint8_t handle);
+rd_status_t ri_scd41_uninit (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle);
 
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_scd41_samplerate_set (uint8_t * samplerate);
@@ -85,8 +83,7 @@ rd_status_t ri_scd41_mode_set (uint8_t *);
 rd_status_t ri_scd41_mode_get (uint8_t *);
 
 /** @brief @ref rd_sensor_data_fp */
-rd_status_t ri_scd41_data_get (rd_sensor_data_t * const
-                               p_data);
+rd_status_t ri_scd41_data_get (rd_sensor_data_t * const p_data);
 
 /*@}*/
 #endif
