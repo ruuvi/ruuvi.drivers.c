@@ -11,6 +11,7 @@
 #if RI_SCD4X_ENABLED || DOXYGEN
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 // Ruuvi headers
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
@@ -31,24 +32,34 @@
 #include "scd4x_i2c.h"
 #include "sensirion_i2c_hal.h"
 
-#define LOW_POWER_SLEEP_MS_MIN (1000U)
-#define SCD41_PROBE_RETRIES_MAX (5U)
+/** @brief Check for "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
+static inline bool check_is_param_valid (const uint8_t param)
+{
+    if ( (RD_SENSOR_CFG_DEFAULT   == param) ||
+            (RD_SENSOR_CFG_MIN       == param) ||
+            (RD_SENSOR_CFG_MAX       == param) ||
+            (RD_SENSOR_CFG_NO_CHANGE == param)
+       )
+    {
+        return true;
+    }
 
-/** @brief Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
-#define RETURN_SUCCESS_ON_VALID(param) do {\
-            if(RD_SENSOR_CFG_DEFAULT   == param ||\
-               RD_SENSOR_CFG_MIN       == param ||\
-               RD_SENSOR_CFG_MAX       == param ||\
-               RD_SENSOR_CFG_NO_CHANGE == param   \
-             ) return RD_SUCCESS;\
-           } while(0)
+    return false;
+}
 
-/** @brief Macro for checking that sensor is in sleep mode before configuration */
-#define VERIFY_SENSOR_SLEEPS() do { \
-          uint8_t MACRO_MODE = 0; \
-          ri_scd41_mode_get(&MACRO_MODE); \
-          if(RD_SENSOR_CFG_SLEEP != MACRO_MODE) { return RD_ERROR_INVALID_STATE; } \
-          } while(0)
+/** @brief Check that sensor is in sleep mode before configuration */
+static bool check_is_sensor_in_sleep_mode (void)
+{
+    uint8_t mode = 0;
+    ri_scd41_mode_get (&mode);
+
+    if (RD_SENSOR_CFG_SLEEP == mode)
+    {
+        return true;
+    }
+
+    return false;
+}
 
 static uint64_t m_tsample; //!< Timestamp of sample.
 static bool m_autorefresh; //!< Flag to refresh data on data_get.
@@ -218,7 +229,11 @@ rd_status_t ri_scd41_samplerate_set (uint8_t * samplerate)
 {
     if (NULL == samplerate) { return RD_ERROR_NULL; }
 
-    VERIFY_SENSOR_SLEEPS();
+    if (!check_is_sensor_in_sleep_mode())
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
+
     rd_status_t err_code = RD_SUCCESS;
 
     if (RD_SENSOR_CFG_DEFAULT == *samplerate)  { *samplerate = RD_SENSOR_CFG_DEFAULT; }
@@ -242,10 +257,19 @@ rd_status_t ri_scd41_resolution_set (uint8_t * resolution)
 {
     if (NULL == resolution) { return RD_ERROR_NULL; }
 
-    VERIFY_SENSOR_SLEEPS();
+    if (!check_is_sensor_in_sleep_mode())
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
+
     uint8_t original = *resolution;
     *resolution = RD_SENSOR_CFG_DEFAULT;
-    RETURN_SUCCESS_ON_VALID (original);
+
+    if (check_is_param_valid (original))
+    {
+        return RD_SUCCESS;
+    }
+
     return RD_ERROR_NOT_SUPPORTED;
 }
 
@@ -261,10 +285,19 @@ rd_status_t ri_scd41_scale_set (uint8_t * scale)
 {
     if (NULL == scale) { return RD_ERROR_NULL; }
 
-    VERIFY_SENSOR_SLEEPS();
+    if (!check_is_sensor_in_sleep_mode())
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
+
     uint8_t original = *scale;
     *scale = RD_SENSOR_CFG_DEFAULT;
-    RETURN_SUCCESS_ON_VALID (original);
+
+    if (check_is_param_valid (original))
+    {
+        return RD_SUCCESS;
+    }
+
     return RD_ERROR_NOT_SUPPORTED;
 }
 
@@ -280,7 +313,10 @@ rd_status_t ri_scd41_dsp_set (uint8_t * dsp, uint8_t * parameter)
 {
     if (NULL == dsp || NULL == parameter) { return RD_ERROR_NULL; }
 
-    VERIFY_SENSOR_SLEEPS();
+    if (!check_is_sensor_in_sleep_mode())
+    {
+        return RD_ERROR_INVALID_STATE;
+    }
 
     // Validate configuration
     if ( (RD_SENSOR_CFG_DEFAULT  != *parameter
@@ -412,6 +448,73 @@ rd_status_t ri_scd41_mode_get (uint8_t * mode)
     return RD_SUCCESS;
 }
 
+static rd_status_t ri_scd41_read_measurements_in_autorefresh_mode (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    bool data_ready = false;
+    err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
+
+    if (RD_SUCCESS == err_code)
+    {
+        if (data_ready)
+        {
+            err_code |= ri_scd41_read_measurements();
+
+            if (RD_SUCCESS == err_code)
+            {
+                m_tsample = rd_sensor_timestamp_get();
+            }
+        }
+    }
+
+    return err_code;
+}
+
+static rd_status_t ri_scd41_read_measurements_in_single_shot_mode (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot_rht_only());
+    bool data_ready = false;
+
+    while ( (RD_SUCCESS == err_code) && (!data_ready))
+    {
+        ri_delay_ms (100U);
+        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        err_code |= ri_scd41_read_measurements();
+    }
+
+    if (RD_SUCCESS == err_code)
+    {
+        m_tsample = rd_sensor_timestamp_get();
+    }
+
+    return err_code;
+}
+
+static void ri_scd41_data_update (rd_sensor_data_t * const p_data)
+{
+    rd_sensor_data_t d_environmental = {0};
+    rd_sensor_data_fields_t env_fields = {.bitfield = 0};
+    float env_values[3] = { 0 };
+    env_values[0] = (float) m_co2;
+    env_values[1] = (float) m_ambient_temperature / 1000.0f;
+    env_values[2] = (float) m_ambient_humidity / 1000.0f;
+    env_fields.datas.co2_ppm = 1;
+    env_fields.datas.temperature_c = 1;
+    env_fields.datas.humidity_rh = 1;
+    d_environmental.data = env_values;
+    d_environmental.valid  = env_fields;
+    d_environmental.fields = env_fields;
+    d_environmental.timestamp_ms = m_tsample;
+    rd_sensor_data_populate (p_data,
+                             &d_environmental,
+                             p_data->fields);
+}
+
 rd_status_t ri_scd41_data_get (rd_sensor_data_t * const p_data)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -424,62 +527,16 @@ rd_status_t ri_scd41_data_get (rd_sensor_data_t * const p_data)
     {
         if (m_autorefresh)
         {
-            bool data_ready = false;
-            err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
-
-            if (RD_SUCCESS == err_code)
-            {
-                if (data_ready)
-                {
-                    err_code |= ri_scd41_read_measurements();
-
-                    if (RD_SUCCESS == err_code)
-                    {
-                        m_tsample = rd_sensor_timestamp_get();
-                    }
-                }
-            }
+            err_code |= ri_scd41_read_measurements_in_autorefresh_mode();
         }
         else
         {
-            err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot_rht_only());
-            bool data_ready = false;
-
-            while ( (RD_SUCCESS == err_code) && (!data_ready))
-            {
-                ri_delay_ms (100U);
-                err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
-            }
-
-            if (RD_SUCCESS == err_code)
-            {
-                err_code |= ri_scd41_read_measurements();
-            }
-
-            if (RD_SUCCESS == err_code)
-            {
-                m_tsample = rd_sensor_timestamp_get();
-            }
+            err_code |= ri_scd41_read_measurements_in_single_shot_mode();
         }
 
         if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_tsample))
         {
-            rd_sensor_data_t d_environmental;
-            rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-            float env_values[3];
-            env_values[0] = (float) m_co2;
-            env_values[1] = (float) m_ambient_temperature / 1000.0f;
-            env_values[2] = (float) m_ambient_humidity / 1000.0f;
-            env_fields.datas.co2_ppm = 1;
-            env_fields.datas.temperature_c = 1;
-            env_fields.datas.humidity_rh = 1;
-            d_environmental.data = env_values;
-            d_environmental.valid  = env_fields;
-            d_environmental.fields = env_fields;
-            d_environmental.timestamp_ms = m_tsample;
-            rd_sensor_data_populate (p_data,
-                                     &d_environmental,
-                                     p_data->fields);
+            ri_scd41_data_update (p_data);
         }
     }
 
