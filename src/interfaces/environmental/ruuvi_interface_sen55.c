@@ -32,7 +32,31 @@
 #include "sen5x_i2c.h"
 #include "sensirion_i2c_hal.h"
 
+#define SEN5X_BUF_SIZE_PRODUCT_NAME  (32U)
+#define SEN5X_BUF_SIZE_SERIAL_NUMBER (32U)
+#define SEN5X_BUF_SIZE_FIRMWARE_INFO (100U)
+#define SEN5X_BUF_SIZE_MEASUREMENTS  (120U)
+
+#define SEN5X_DELAY_AFTER_DEVICE_RESET_MS  (50U)
+
 #define SEN55_PROBE_RETRIES_MAX (5U)
+
+#define SEN5X_NUM_MEASUREMENTS            (8U)
+
+#define SEN5X_MEASUREMENT_IDX_HUMIDITY    (0U)
+#define SEN5X_MEASUREMENT_IDX_PM1_0       (1U)
+#define SEN5X_MEASUREMENT_IDX_PM2_5       (2U)
+#define SEN5X_MEASUREMENT_IDX_PM4_0       (3U)
+#define SEN5X_MEASUREMENT_IDX_PM10_0      (4U)
+#define SEN5X_MEASUREMENT_IDX_TEMPERATURE (5U)
+#define SEN5X_MEASUREMENT_IDX_VOC_INDEX   (6U)
+#define SEN5X_MEASUREMENT_IDX_NOX_INDEX   (7U)
+
+#define SEN5X_SCALE_FACTOR_HUMIDITY       (100.0f)
+#define SEN5X_SCALE_FACTOR_PM             (10.0f)
+#define SEN5X_SCALE_FACTOR_TEMPERATURE    (200.0f)
+#define SEN5X_SCALE_FACTOR_VOC_INDEX      (10.0f)
+#define SEN5X_SCALE_FACTOR_NOX_INDEX      (10.0f)
 
 /** @brief Check for "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 static inline bool check_is_param_valid (const uint8_t param)
@@ -108,10 +132,9 @@ static rd_status_t SEN5X_TO_RUUVI_ERROR (const sen55_status_e status)
 
 static rd_status_t ri_sen55_get_product_name (void)
 {
-    unsigned char product_name[32];
-    uint8_t product_name_size = 32;
+    unsigned char product_name[SEN5X_BUF_SIZE_PRODUCT_NAME];
     rd_status_t err_code = SEN5X_TO_RUUVI_ERROR (sen5x_get_product_name (product_name,
-                           product_name_size));
+                           sizeof (product_name)));
 
     if (RD_SUCCESS == err_code)
     {
@@ -123,14 +146,15 @@ static rd_status_t ri_sen55_get_product_name (void)
     {
         ri_log (RI_LOG_LEVEL_ERROR, "sen5x: sen5x_get_product_name: error\n");
     }
+
+    return err_code;
 }
 
 static rd_status_t ri_sen55_get_serial_number (void)
 {
-    unsigned char serial_number[32];
-    uint8_t serial_number_size = 32;
+    unsigned char serial_number[SEN5X_BUF_SIZE_SERIAL_NUMBER];
     rd_status_t err_code = SEN5X_TO_RUUVI_ERROR (sen5x_get_serial_number (serial_number,
-                           serial_number_size));
+                           sizeof (serial_number)));
 
     if (RD_SUCCESS == err_code)
     {
@@ -142,6 +166,8 @@ static rd_status_t ri_sen55_get_serial_number (void)
     {
         ri_log (RI_LOG_LEVEL_ERROR, "sen5x: sen5x_get_serial_number: error\n");
     }
+
+    return err_code;
 }
 
 static rd_status_t ri_sen55_get_version (void)
@@ -163,18 +189,20 @@ static rd_status_t ri_sen55_get_version (void)
 
     if (RD_SUCCESS == err_code)
     {
-        char log_buf[100];
-        snprintf (log_buf, sizeof (log_buf),
-                  "sen5x: fw: %d.%d, hw: %d.%d, protocol: %d.%d\n",
-                  firmware_major, firmware_minor,
-                  hardware_major, hardware_minor,
-                  protocol_major, protocol_minor);
+        char log_buf[SEN5X_BUF_SIZE_FIRMWARE_INFO];
+        (void) snprintf (log_buf, sizeof (log_buf),
+                         "sen5x: fw: %d.%d, hw: %d.%d, protocol: %d.%d\n",
+                         firmware_major, firmware_minor,
+                         hardware_major, hardware_minor,
+                         protocol_major, protocol_minor);
         ri_log (RI_LOG_LEVEL_INFO, log_buf);
     }
     else
     {
         ri_log (RI_LOG_LEVEL_ERROR, "sen5x: sen5x_get_version: error\n");
     }
+
+    return err_code;
 }
 
 static rd_status_t ri_sen55_reset (void)
@@ -184,32 +212,30 @@ static rd_status_t ri_sen55_reset (void)
     for (int32_t retries = 0; retries < SEN55_PROBE_RETRIES_MAX; ++retries)
     {
         err_code = SEN5X_TO_RUUVI_ERROR (sen5x_device_reset());
-        ri_delay_ms (50);
+        ri_delay_ms (SEN5X_DELAY_AFTER_DEVICE_RESET_MS);
 
         if (RD_SUCCESS == err_code)
         {
             ri_log (RI_LOG_LEVEL_INFO, "sen5x: device_reset: OK\n");
             break;
         }
-        else
-        {
-            ri_log (RI_LOG_LEVEL_ERROR, "sen5x: device_reset: error\n");
-        }
+
+        ri_log (RI_LOG_LEVEL_ERROR, "sen5x: device_reset: error\n");
     }
 
     if (RD_SUCCESS == err_code)
     {
-        err_code = ri_sen55_get_product_name();
+        err_code |= ri_sen55_get_product_name();
     }
 
     if (RD_SUCCESS == err_code)
     {
-        err_code = ri_sen55_get_serial_number();
+        err_code |= ri_sen55_get_serial_number();
     }
 
     if (RD_SUCCESS == err_code)
     {
-        err_code = ri_sen55_get_version();
+        err_code |= ri_sen55_get_version();
     }
 
     return err_code;
@@ -217,6 +243,7 @@ static rd_status_t ri_sen55_reset (void)
 
 rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
+    (void) handle;
     rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == sensor)
@@ -283,6 +310,9 @@ rd_status_t ri_sen55_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 rd_status_t ri_sen55_uninit (rd_sensor_t * sensor,
                              rd_bus_t bus, uint8_t handle)
 {
+    (void) bus;
+    (void) handle;
+
     if (NULL == sensor) { return RD_ERROR_NULL; }
 
     rd_status_t err_code = RD_SUCCESS;
@@ -442,24 +472,24 @@ static rd_status_t ri_sen55_read_measurements (void)
         m_ambient_temperature = ambient_temperature;
         m_voc_index = voc_index;
         m_nox_index = nox_index;
-        char log_buf[120];
-        snprintf (log_buf, sizeof (log_buf),
-                  "sen5x: PM1.0=%d, PM2.5=%d, PM4.0=%d, PM10.0=%d, H=%d, T=%d, VOC=%d, NOx=%d:\n",
-                  mass_concentration_pm1p0,
-                  mass_concentration_pm2p5,
-                  mass_concentration_pm4p0,
-                  mass_concentration_pm10p0,
-                  ambient_humidity,
-                  ambient_temperature,
-                  voc_index,
-                  nox_index);
+        char log_buf[SEN5X_BUF_SIZE_MEASUREMENTS];
+        (void) snprintf (log_buf, sizeof (log_buf),
+                         "sen5x: PM1.0=%d, PM2.5=%d, PM4.0=%d, PM10.0=%d, H=%d, T=%d, VOC=%d, NOx=%d\n",
+                         mass_concentration_pm1p0,
+                         mass_concentration_pm2p5,
+                         mass_concentration_pm4p0,
+                         mass_concentration_pm10p0,
+                         ambient_humidity,
+                         ambient_temperature,
+                         voc_index,
+                         nox_index);
         ri_log (RI_LOG_LEVEL_INFO, log_buf);
     }
 
     return err_code;
 }
 
-// Start single on command, mark autorefresh with continuous
+// Start single on command, mark auto refresh with continuous
 rd_status_t ri_sen55_mode_set (uint8_t * mode)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -468,7 +498,7 @@ rd_status_t ri_sen55_mode_set (uint8_t * mode)
     {
         err_code |= RD_ERROR_NULL;
     }
-    // Enter sleep by default and by explicit sleep commmand
+    // Enter sleep by default and by explicit sleep command
     else if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
         m_autorefresh = false;
@@ -592,15 +622,17 @@ static void ri_sen55_data_update (rd_sensor_data_t * const p_data)
 {
     rd_sensor_data_t d_environmental = {0};
     rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-    float env_values[8] = {0};
-    env_values[0] = (float) m_ambient_humidity / 100.0f;
-    env_values[1] = (float) m_mass_concentration_pm1p0 / 10.0f;
-    env_values[2] = (float) m_mass_concentration_pm2p5 / 10.0f;
-    env_values[3] = (float) m_mass_concentration_pm4p0 / 10.0f;
-    env_values[4] = (float) m_mass_concentration_pm10p0 / 10.0f;
-    env_values[5] = (float) m_ambient_temperature / 200.0f;
-    env_values[6] = (float) m_voc_index / 10.0f;
-    env_values[7] = (float) m_nox_index / 10.0f;
+    float env_values[SEN5X_NUM_MEASUREMENTS] =
+    {
+        [SEN5X_MEASUREMENT_IDX_HUMIDITY] = (float) m_ambient_humidity / SEN5X_SCALE_FACTOR_HUMIDITY,
+        [SEN5X_MEASUREMENT_IDX_PM1_0] = (float) m_mass_concentration_pm1p0 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_PM2_5] = (float) m_mass_concentration_pm2p5 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_PM4_0] = (float) m_mass_concentration_pm4p0 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_PM10_0] = (float) m_mass_concentration_pm10p0 / SEN5X_SCALE_FACTOR_PM,
+        [SEN5X_MEASUREMENT_IDX_TEMPERATURE] = (float) m_ambient_temperature / SEN5X_SCALE_FACTOR_TEMPERATURE,
+        [SEN5X_MEASUREMENT_IDX_VOC_INDEX] = (float) m_voc_index / SEN5X_SCALE_FACTOR_VOC_INDEX,
+        [SEN5X_MEASUREMENT_IDX_NOX_INDEX] = (float) m_nox_index / SEN5X_SCALE_FACTOR_NOX_INDEX,
+    };
     env_fields.datas.humidity_rh = 1;
     env_fields.datas.pm_1_ugm3 = 1;
     env_fields.datas.pm_2_ugm3 = 1;

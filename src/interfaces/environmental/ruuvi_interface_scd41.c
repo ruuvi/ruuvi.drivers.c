@@ -32,6 +32,22 @@
 #include "scd4x_i2c.h"
 #include "sensirion_i2c_hal.h"
 
+#define SCD41_DELAY_AFTER_POWER_UP_MS                   (1000U)
+#define SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS (500U)
+#define SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS      (100U)
+
+#define SCD41_LOG_BUF_SIZE_SERIAL       (80U)
+#define SCD41_LOG_BUF_SIZE_MEASUREMENTS (100U)
+
+#define SCD4X_NUM_MEASUREMENTS  (3U)
+
+#define SCD4X_MEASUREMENT_IDX_CO2          (0U)
+#define SCD4X_MEASUREMENT_IDX_TEMPERATURE  (1U)
+#define SCD4X_MEASUREMENT_IDX_HUMIDITY     (2U)
+
+#define SCD41_SCALE_FACTOR_TEMPERATURE  (1000.0f)
+#define SCD41_SCALE_FACTOR_HUMIDITY     (1000.0f)
+
 /** @brief Check for "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 static inline bool check_is_param_valid (const uint8_t param)
 {
@@ -102,54 +118,73 @@ static rd_status_t SCD4X_TO_RUUVI_ERROR (const scd41_status_e status)
 static rd_status_t ri_scd41_check_sensor (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    ri_delay_ms (1000U);
-    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_wake_up());
+    ri_delay_ms (SCD41_DELAY_AFTER_POWER_UP_MS);
 
-    if (RD_SUCCESS != err_code)
+    if (RD_SUCCESS == err_code)
     {
-        ri_log (RI_LOG_LEVEL_ERROR, "sen5x: scd4x_wake_up: error\n");
-        return err_code;
+        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_wake_up());
+
+        if (RD_SUCCESS != err_code)
+        {
+            ri_log (RI_LOG_LEVEL_ERROR, "sen5x: scd4x_wake_up: error\n");
+        }
     }
 
-    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
-
-    if (RD_SUCCESS != err_code)
+    if (RD_SUCCESS == err_code)
     {
-        ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_stop_periodic_measurement: error\n");
-        return err_code;
+        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
+
+        if (RD_SUCCESS != err_code)
+        {
+            ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_stop_periodic_measurement: error\n");
+        }
+        else
+        {
+            ri_delay_ms (SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS);
+        }
     }
 
-    ri_delay_ms (500U);
-    ri_log (RI_LOG_LEVEL_DEBUG, "scd4x: scd4x_reinit\n");
-    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_reinit());
-
-    if (RD_SUCCESS != err_code)
+    if (RD_SUCCESS == err_code)
     {
-        ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_reinit: error\n");
-        return err_code;
+        ri_log (RI_LOG_LEVEL_DEBUG, "scd4x: scd4x_reinit\n");
+        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_reinit());
+
+        if (RD_SUCCESS != err_code)
+        {
+            ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_reinit: error\n");
+        }
     }
 
-    uint16_t serial_0;
-    uint16_t serial_1;
-    uint16_t serial_2;
-    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_get_serial_number (&serial_0, &serial_1,
-                                     &serial_2));
+    uint16_t serial_0 = 0;
+    uint16_t serial_1 = 0;
+    uint16_t serial_2 = 0;
 
-    if (RD_SUCCESS != err_code)
+    if (RD_SUCCESS == err_code)
     {
-        ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_get_serial_number: error\n");
-        return err_code;
+        err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_serial_number (&serial_0,
+                                          &serial_1,
+                                          &serial_2));
+
+        if (RD_SUCCESS != err_code)
+        {
+            ri_log (RI_LOG_LEVEL_ERROR, "scd4x: scd4x_get_serial_number: error\n");
+        }
     }
 
-    char log_buf[80];
-    snprintf (log_buf, sizeof (log_buf),
-              "scd4x: Serial: 0x%04x%04x%04x\n", serial_0, serial_1, serial_2);
-    ri_log (RI_LOG_LEVEL_INFO, log_buf);
-    return RD_SUCCESS;
+    if (RD_SUCCESS == err_code)
+    {
+        char log_buf[SCD41_LOG_BUF_SIZE_SERIAL];
+        (void) snprintf (log_buf, sizeof (log_buf),
+                         "scd4x: Serial: 0x%04x%04x%04x\n", serial_0, serial_1, serial_2);
+        ri_log (RI_LOG_LEVEL_INFO, log_buf);
+    }
+
+    return err_code;
 }
 
 rd_status_t ri_scd41_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 {
+    (void) handle;
     rd_status_t err_code = RD_SUCCESS;
 
     if (NULL == sensor)
@@ -210,11 +245,14 @@ rd_status_t ri_scd41_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
 rd_status_t ri_scd41_uninit (rd_sensor_t * sensor,
                              rd_bus_t bus, uint8_t handle)
 {
+    (void) bus;
+    (void) handle;
+
     if (NULL == sensor) { return RD_ERROR_NULL; }
 
     rd_status_t err_code = RD_SUCCESS;
     err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
-    ri_delay_ms (500U);
+    ri_delay_ms (SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS);
     rd_sensor_uninitialize (sensor);
     m_tsample = RD_UINT64_INVALID;
     m_co2 = RD_INT32_INVALID;
@@ -353,19 +391,19 @@ static rd_status_t ri_scd41_read_measurements (void)
         m_co2 = co2;
         m_ambient_temperature = temperature;
         m_ambient_humidity = humidity;
-        char log_buf[100];
-        snprintf (log_buf, sizeof (log_buf),
-                  "scd4x: CO2=%d, H=%d, T=%d\n",
-                  co2,
-                  humidity,
-                  temperature);
+        char log_buf[SCD41_LOG_BUF_SIZE_MEASUREMENTS];
+        (void) snprintf (log_buf, sizeof (log_buf),
+                         "scd4x: CO2=%d, H=%d, T=%d\n",
+                         (int) co2,
+                         (int) humidity,
+                         (int) temperature);
         ri_log (RI_LOG_LEVEL_INFO, log_buf);
     }
 
     return err_code;
 }
 
-// Start single on command, mark autorefresh with continuous
+// Start single on command, mark auto refresh with continuous
 rd_status_t ri_scd41_mode_set (uint8_t * mode)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -374,13 +412,13 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
     {
         err_code |= RD_ERROR_NULL;
     }
-    // Enter sleep by default and by explicit sleep commmand
+    // Enter sleep by default and by explicit sleep command
     else if ( (RD_SENSOR_CFG_SLEEP == *mode) || (RD_SENSOR_CFG_DEFAULT == *mode))
     {
         m_autorefresh = false;
         *mode = RD_SENSOR_CFG_SLEEP;
         err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
-        ri_delay_ms (500U);
+        ri_delay_ms (SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS);
     }
     else if (RD_SENSOR_CFG_SINGLE == *mode)
     {
@@ -406,7 +444,7 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
 
             while ( (RD_SUCCESS == err_code) && (!data_ready))
             {
-                ri_delay_ms (100U);
+                ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
                 err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
             }
         }
@@ -478,7 +516,7 @@ static rd_status_t ri_scd41_read_measurements_in_single_shot_mode (void)
 
     while ( (RD_SUCCESS == err_code) && (!data_ready))
     {
-        ri_delay_ms (100U);
+        ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
         err_code |= SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
     }
 
@@ -499,10 +537,12 @@ static void ri_scd41_data_update (rd_sensor_data_t * const p_data)
 {
     rd_sensor_data_t d_environmental = {0};
     rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-    float env_values[3] = { 0 };
-    env_values[0] = (float) m_co2;
-    env_values[1] = (float) m_ambient_temperature / 1000.0f;
-    env_values[2] = (float) m_ambient_humidity / 1000.0f;
+    float env_values[SCD4X_NUM_MEASUREMENTS] =
+    {
+        [SCD4X_MEASUREMENT_IDX_CO2] = (float) m_co2,
+        [SCD4X_MEASUREMENT_IDX_TEMPERATURE] = (float) m_ambient_temperature / SCD41_SCALE_FACTOR_TEMPERATURE,
+        [SCD4X_MEASUREMENT_IDX_HUMIDITY] = (float) m_ambient_humidity / SCD41_SCALE_FACTOR_HUMIDITY,
+    };
     env_fields.datas.co2_ppm = 1;
     env_fields.datas.temperature_c = 1;
     env_fields.datas.humidity_rh = 1;
