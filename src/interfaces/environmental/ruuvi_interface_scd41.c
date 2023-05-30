@@ -49,6 +49,7 @@
 #define SCD41_SCALE_FACTOR_HUMIDITY     (1000.0f)
 
 typedef float scd4x_float_t;
+typedef int scd5x_printf_int_t;
 
 /** @brief Check for "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT */
 static inline bool check_is_param_valid (const uint8_t param)
@@ -405,9 +406,9 @@ static rd_status_t ri_scd41_read_measurements (void)
         char log_buf[SCD41_LOG_BUF_SIZE_MEASUREMENTS];
         (void) snprintf (log_buf, sizeof (log_buf),
                          "scd4x: CO2=%d, H=%d, T=%d\n",
-                         (int) co2,
-                         (int) humidity,
-                         (int) temperature);
+                         (scd5x_printf_int_t) co2,
+                         (scd5x_printf_int_t) humidity,
+                         (scd5x_printf_int_t) temperature);
         ri_log (RI_LOG_LEVEL_INFO, log_buf);
     }
 
@@ -465,8 +466,6 @@ static rd_status_t ri_scd41_mode_set_single (uint8_t * const mode)
 // Start single on command, mark auto refresh with continuous
 rd_status_t ri_scd41_mode_set (uint8_t * mode)
 {
-    rd_status_t err_code = RD_SUCCESS;
-
     if (NULL == mode)
     {
         return RD_ERROR_NULL;
