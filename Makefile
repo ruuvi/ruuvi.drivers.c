@@ -212,14 +212,18 @@ include ${PROJ_DIR}/gcc_sources.make
 CFLAGS  = -c -Wall -pedantic -Wno-variadic-macros -Wno-long-long -Wno-shadow -std=c11
 CFLAGS += -DRUUVI_RUN_TESTS
 CFLAGS += -DBME280_FLOAT_ENABLE
-OFLAGS=-g3
-LDFLAGS=
+OFLAGS = -g3
+LDFLAGS = -g
 DFLAGS=
 
-INCLUDES=${COMMON_INCLUDES}
-INCLUDES+=nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
+#TEST_CFLAGS += -DTEST -DCEEDLING -DBME280_FLOAT_ENABLE -g
 
-INC_PARAMS=$(foreach d, $(INCLUDES), -I$d)
+INCLUDES = ${COMMON_INCLUDES}
+INCLUDES += nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
+INCLUDES += ./CMock/vendor/unity/src
+INCLUDES += ./build/test/mocks
+INC_PARAMS = $(foreach d, $(INCLUDES), -I$d)
+INCLUDE_PATH = ${INC_PARAMS}
 
 SOURCES_COMMON=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
 SOURCES_SENSIRION_SHT=${RUUVI_LIB_SOURCES_SENSIRION_SHT}
@@ -246,9 +250,36 @@ TAG := $(shell git describe --tags --exact-match)
 COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(if $(TAG),$(TAG),$(COMMIT))
 
-.PHONY: clean sync doxygen astyle sonar all
+BUILD_DIR = ./build
 
-all: clean sync astyle doxygen sonar $(SOURCES)
+TEST_BUILD_DIR = ${BUILD_DIR}/test
+TEST_BUILD_DIR_SHTCX = ${BUILD_DIR}/test_shtcx
+TEST_BUILD_DIR_SEN5X_SCD4X = ${BUILD_DIR}/test_sen5x_scd4x
+
+TEST_OUT_DIR = ${TEST_BUILD_DIR}/out
+TEST_OUT_DIR_SHTCX = ${TEST_BUILD_DIR_SHTCX}/out
+TEST_OUT_DIR_SEN5X_SCD4X = ${TEST_BUILD_DIR_SEN5X_SCD4X}/out
+
+# Setup environment variables for ${CMOCK_DIR}/scripts/create_makefile.rb:
+export CMOCK_DIR ?= ./CMock
+UNITY_DIR = ${CMOCK_DIR}/vendor/unity
+DISABLE_CMOCK_TEST_SUMMARY_PER_PROJECT=1
+
+TEST_MAKEFILE = ${TEST_BUILD_DIR}/MakefileTestSupport
+TEST_MAKEFILE_SHTCX = ${TEST_BUILD_DIR_SHTCX}/MakefileTestSupport
+TEST_MAKEFILE_SEN5X_SCD4X = ${TEST_BUILD_DIR_SEN5X_SCD4X}/MakefileTestSupport
+
+TEST_TARGETS =
+
+-include ${TEST_MAKEFILE}
+
+-include ${TEST_MAKEFILE_SHTCX}
+
+-include ${TEST_MAKEFILE_SEN5X_SCD4X}
+
+.PHONY: clean sync doxygen astyle sonar test test_all all
+
+all: clean sync astyle doxygen sonar $(SOURCES) test
 
 doxygen:
 	export PROJECT_VERSION=$(VERSION) 
@@ -271,13 +302,23 @@ astyle:
 	astyle --project=".astylerc" --recursive \
 			  "src/*.h" \
 			  "src/*.c" \
-			  "test/*.c"
+			  "test/*.c" \
+			  "test_sen5x_scd4x/*.c" \
+			  "test_shtcx/*.c"
 
 clean:
 	rm -f $(ANALYSIS_ALL)
 	rm -rf $(DOXYGEN_DIR)/html
 	rm -rf $(DOXYGEN_DIR)/latex
 	rm -f *.gcov
+	rm -rf $(BUILD_DIR)
+	rm -rf build_ceedling
+	rm -rf build_sen5x_scd4x_ceedling
+	rm -rf build_shtcx_ceedling
+	make setup_test
+	make setup_test_shtcx
+	make setup_test_sen5x_scd4x
+	make generate_cmock_mocks_and_runners
 
 sync:
 	@echo Synchronizing GIT...
@@ -285,3 +326,46 @@ sync:
 	git submodule update --init --recursive
 	git submodule sync --recursive
 	git submodule update --init --recursive
+
+test_all:
+	rm -rf build_ceedling
+	rm -rf build_sen5x_scd4x_ceedling
+	rm -rf build_shtcx_ceedling
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling test:all
+	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml ceedling test:all
+	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml ceedling test:all
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling gcov:all utils:gcov
+	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml ceedling gcov:all utils:gcov
+	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml ceedling gcov:all utils:gcov
+	gcov  -b -c build/gcov/out/*.gcno
+
+test:
+	@UNITY_DIR=${UNITY_DIR} BUILD_DIR=${BUILD_DIR} TEST_BUILD_DIR= ruby ${CMOCK_DIR}/scripts/test_summary.rb
+
+
+setup_test:
+	mkdir -p ${BUILD_DIR}
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml \
+		BUILD_DIR=${BUILD_DIR} \
+		TEST_BUILD_DIR=${TEST_BUILD_DIR} \
+		TEST_OUT_DIR=${TEST_OUT_DIR} \
+		TEST_MAKEFILE=${TEST_MAKEFILE} \
+		ruby ${CMOCK_DIR}/scripts/create_makefile.rb
+
+setup_test_shtcx:
+	mkdir -p ${BUILD_DIR}
+	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml \
+		BUILD_DIR=${BUILD_DIR} \
+		TEST_BUILD_DIR=${TEST_BUILD_DIR_SHTCX} \
+		TEST_OUT_DIR=${TEST_OUT_DIR_SHTCX} \
+		TEST_MAKEFILE=${TEST_MAKEFILE_SHTCX} \
+		ruby ${CMOCK_DIR}/scripts/create_makefile.rb
+
+setup_test_sen5x_scd4x:
+	mkdir -p ${BUILD_DIR}
+	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml \
+		BUILD_DIR=${BUILD_DIR} \
+		TEST_BUILD_DIR=${TEST_BUILD_DIR_SEN5X_SCD4X} \
+		TEST_OUT_DIR=${TEST_OUT_DIR_SEN5X_SCD4X} \
+		TEST_MAKEFILE=${TEST_MAKEFILE_SEN5X_SCD4X} \
+		ruby ${CMOCK_DIR}/scripts/create_makefile.rb

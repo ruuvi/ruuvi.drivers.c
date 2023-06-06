@@ -30,11 +30,13 @@
 
 // Sensirion driver.
 #include "scd4x_i2c.h"
-#include "sensirion_i2c_hal.h"
+#include "ruuvi_interface_i2c_sen5x_scd4x.h"
 
 #define SCD41_DELAY_AFTER_POWER_UP_MS                   (1000U)
+#define SCD41_DELAY_AFTER_WAKE_UP_MS                    (20U)
 #define SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS (500U)
 #define SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS      (100U)
+#define SCD41_DELAY_MEASUREMENT_READY_MS                (5000U)
 
 #define SCD41_LOG_BUF_SIZE_SERIAL       (80U)
 #define SCD41_LOG_BUF_SIZE_MEASUREMENTS (100U)
@@ -421,9 +423,22 @@ static rd_status_t ri_scd41_mode_set_sleep (uint8_t * const mode)
 {
     m_autorefresh = false;
     *mode = RD_SENSOR_CFG_SLEEP;
-    const rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
+    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_stop_periodic_measurement());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
     ri_delay_ms (SCD41_DELAY_AFTER_STOP_PERIODIC_MEASUREMENTS_MS);
-    return err_code;
+    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_power_down());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    return RD_SUCCESS;
 }
 
 static rd_status_t ri_scd41_mode_set_single (uint8_t * const mode)
@@ -441,28 +456,108 @@ static rd_status_t ri_scd41_mode_set_single (uint8_t * const mode)
     // Enter sleep after measurement
     m_autorefresh = false;
     *mode = RD_SENSOR_CFG_SLEEP;
-    m_tsample = rd_sensor_timestamp_get();
-    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot());
+    /*
+     * Note that the first reading obtained using measure_single_shot (chapter 3.10.1)
+     * after waking up the sensor should be discarded.
+     */
+    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_wake_up());
 
     if (RD_SUCCESS != err_code)
     {
         return err_code;
     }
 
+    ri_delay_ms (SCD41_DELAY_AFTER_WAKE_UP_MS);
+    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    ri_delay_ms (SCD41_DELAY_MEASUREMENT_READY_MS);
     bool data_ready = false;
 
-    while ( (RD_SUCCESS == err_code) && (!data_ready))
+    for (int i = 0; i < 5; ++i)
     {
-        ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
         err_code = SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
+
+        if (RD_SUCCESS != err_code)
+        {
+            return err_code;
+        }
+
+        if (data_ready)
+        {
+            break;
+        }
+
+        ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
     }
+
+    if (!data_ready)
+    {
+        return RD_ERROR_INTERNAL;
+    }
+
+    uint16_t co2 = 0;
+    int32_t temperature = 0;
+    int32_t humidity = 0;
+    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_read_measurement (&co2, &temperature, &humidity));
 
     if (RD_SUCCESS != err_code)
     {
         return err_code;
     }
 
-    return ri_scd41_read_measurements();
+    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    ri_delay_ms (SCD41_DELAY_MEASUREMENT_READY_MS);
+    data_ready = false;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        err_code = SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
+
+        if (RD_SUCCESS != err_code)
+        {
+            return err_code;
+        }
+
+        if (data_ready)
+        {
+            break;
+        }
+
+        ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
+    }
+
+    if (!data_ready)
+    {
+        return RD_ERROR_INTERNAL;
+    }
+
+    m_tsample = rd_sensor_timestamp_get();
+    err_code = ri_scd41_read_measurements();
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    err_code = SCD4X_TO_RUUVI_ERROR (scd4x_power_down());
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    return RD_SUCCESS;
 }
 
 // Start single on command, mark auto refresh with continuous
@@ -487,6 +582,14 @@ rd_status_t ri_scd41_mode_set (uint8_t * mode)
     if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
         m_autorefresh = true;
+        rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_wake_up());
+
+        if (RD_SUCCESS != err_code)
+        {
+            return err_code;
+        }
+
+        ri_delay_ms (SCD41_DELAY_AFTER_WAKE_UP_MS);
         return SCD4X_TO_RUUVI_ERROR (scd4x_start_periodic_measurement());
     }
 
@@ -536,39 +639,6 @@ static rd_status_t read_mea_in_autorefresh_mode (void)
     return RD_SUCCESS;
 }
 
-static rd_status_t read_mea_in_single_shot_mode (void)
-{
-    rd_status_t err_code = SCD4X_TO_RUUVI_ERROR (scd4x_measure_single_shot_rht_only());
-
-    if (RD_SUCCESS != err_code)
-    {
-        return err_code;
-    }
-
-    bool data_ready = false;
-
-    while (!data_ready)
-    {
-        ri_delay_ms (SCD41_DELAY_BETWEEN_CHECKING_READY_FLAG_MS);
-        err_code = SCD4X_TO_RUUVI_ERROR (scd4x_get_data_ready_flag (&data_ready));
-
-        if (RD_SUCCESS != err_code)
-        {
-            return err_code;
-        }
-    }
-
-    err_code = ri_scd41_read_measurements();
-
-    if (RD_SUCCESS != err_code)
-    {
-        return err_code;
-    }
-
-    m_tsample = rd_sensor_timestamp_get();
-    return RD_SUCCESS;
-}
-
 static void ri_scd41_data_update (rd_sensor_data_t * const p_data)
 {
     rd_sensor_data_t d_environmental = {0};
@@ -601,15 +671,6 @@ rd_status_t ri_scd41_data_get (rd_sensor_data_t * const p_data)
     if (m_autorefresh)
     {
         const rd_status_t err_code = read_mea_in_autorefresh_mode();
-
-        if (RD_SUCCESS != err_code)
-        {
-            return err_code;
-        }
-    }
-    else
-    {
-        const rd_status_t err_code = read_mea_in_single_shot_mode();
 
         if (RD_SUCCESS != err_code)
         {

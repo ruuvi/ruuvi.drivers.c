@@ -240,6 +240,7 @@ COMMON_INCLUDES= \
   $(PROJ_DIR)/src \
   $(PROJ_DIR)/BME280_driver \
   $(PROJ_DIR)/BME280_driver/selftest \
+  $(PROJ_DIR)/ruuvi.dps310.c/src \
   $(PROJ_DIR)/src/interfaces/acceleration \
   $(PROJ_DIR)/src/interfaces/adc \
   $(PROJ_DIR)/src/interfaces/atomic \

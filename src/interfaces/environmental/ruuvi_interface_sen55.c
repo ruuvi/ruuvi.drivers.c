@@ -30,7 +30,7 @@
 
 // Sensirion driver.
 #include "sen5x_i2c.h"
-#include "sensirion_i2c_hal.h"
+#include "ruuvi_interface_i2c_sen5x_scd4x.h"
 
 #define SEN5X_BUF_SIZE_PRODUCT_NAME  (32U)
 #define SEN5X_BUF_SIZE_SERIAL_NUMBER (32U)
@@ -607,45 +607,6 @@ static rd_status_t read_mea_in_autorefresh_mode (void)
     return RD_SUCCESS;
 }
 
-static rd_status_t read_mea_in_single_shot_mode (void)
-{
-    rd_status_t err_code = SEN5X_TO_RUUVI_ERROR (sen5x_start_measurement());
-
-    if (RD_SUCCESS != err_code)
-    {
-        return err_code;
-    }
-
-    bool data_ready = false;
-
-    while (!data_ready)
-    {
-        err_code = SEN5X_TO_RUUVI_ERROR (sen5x_read_data_ready (&data_ready));
-
-        if (RD_SUCCESS != err_code)
-        {
-            return err_code;
-        }
-    }
-
-    err_code = ri_sen55_read_measurements();
-
-    if (RD_SUCCESS != err_code)
-    {
-        return err_code;
-    }
-
-    m_tsample = rd_sensor_timestamp_get();
-    err_code = SEN5X_TO_RUUVI_ERROR (sen5x_stop_measurement());
-
-    if (RD_SUCCESS != err_code)
-    {
-        return err_code;
-    }
-
-    return RD_SUCCESS;
-}
-
 static void ri_sen55_data_update (rd_sensor_data_t * const p_data)
 {
     rd_sensor_data_t d_environmental = {0};
@@ -688,15 +649,6 @@ rd_status_t ri_sen55_data_get (rd_sensor_data_t * const p_data)
     if (m_autorefresh)
     {
         const rd_status_t err_code = read_mea_in_autorefresh_mode();
-
-        if (RD_SUCCESS != err_code)
-        {
-            return err_code;
-        }
-    }
-    else
-    {
-        const rd_status_t err_code = read_mea_in_single_shot_mode();
 
         if (RD_SUCCESS != err_code)
         {
