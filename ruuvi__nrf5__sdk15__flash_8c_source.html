@@ -598,7 +598,43 @@ $(document).ready(function(){initNavTree('ruuvi__nrf5__sdk15__flash_8c_source.ht
 <div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;    <span class="keywordflow">return</span> m_fds_processing;</div>
 <div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;}</div>
 <div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160; </div>
-<div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;<a class="code" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a> <a class="code" href="group___flash.html#gad1f8bb3eb301c75b2e8e899c127711a4">ri_flash_protect</a> (<span class="keyword">const</span> <span class="keywordtype">size_t</span> page)</div>
+<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;{</div>
+<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;    <span class="comment">/* nRF52832_xxaa only supported */</span></div>
+<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;    <span class="keyword">const</span> uint8_t register_num = page / 32U;</div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;    <span class="keyword">const</span> uint8_t page_num = page % 32U;</div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    <a class="code" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a> err_code = <a class="code" href="group___error.html#gaa76220bc977ea62edf556efd7729eaf2">RD_SUCCESS</a>;</div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160; </div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    <span class="keywordflow">if</span> ( (register_num &gt; 3) || (page_num &gt; 31U))</div>
+<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;    {</div>
+<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;        err_code |= <a class="code" href="group___error.html#ga03d5122e7da115a54aa89f1ba7eca4e8">RD_ERROR_INVALID_PARAM</a>;</div>
+<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;    }</div>
+<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">switch</span> (register_num)</div>
+<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;        {</div>
+<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;            <span class="keywordflow">case</span> 0:</div>
+<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;                NRF_BPROT-&gt;CONFIG0 = 1 &lt;&lt; page_num;</div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160; </div>
+<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;            <span class="keywordflow">case</span> 1:</div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;                NRF_BPROT-&gt;CONFIG1 = 1 &lt;&lt; page_num;</div>
+<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160; </div>
+<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;            <span class="keywordflow">case</span> 2:</div>
+<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;                NRF_BPROT-&gt;CONFIG2 = 1 &lt;&lt; page_num;</div>
+<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160; </div>
+<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;            <span class="keywordflow">case</span> 3:</div>
+<div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;                NRF_BPROT-&gt;CONFIG3 = 1 &lt;&lt; page_num;</div>
+<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160; </div>
+<div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;            <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;        }</div>
+<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160; </div>
+<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;    <span class="keywordflow">return</span> err_code;</div>
+<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;}</div>
+<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160; </div>
+<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="afds_8h_html"><div class="ttname"><a href="fds_8h.html">fds.h</a></div></div>
 <div class="ttc" id="afds__internal__defs_8h_html"><div class="ttname"><a href="fds__internal__defs_8h.html">fds_internal_defs.h</a></div></div>
 <div class="ttc" id="agroup___error_html_ga03d5122e7da115a54aa89f1ba7eca4e8"><div class="ttname"><a href="group___error.html#ga03d5122e7da115a54aa89f1ba7eca4e8">RD_ERROR_INVALID_PARAM</a></div><div class="ttdeci">#define RD_ERROR_INVALID_PARAM</div><div class="ttdoc">Invalid Parameter.</div><div class="ttdef"><b>Definition:</b> <a href="ruuvi__driver__error_8h_source.html#l00033">ruuvi_driver_error.h:33</a></div></div>
@@ -625,6 +661,7 @@ $(document).ready(function(){initNavTree('ruuvi__nrf5__sdk15__flash_8c_source.ht
 <div class="ttc" id="agroup___flash_html_ga969043b8bd28967636871e50355c7b5d"><div class="ttname"><a href="group___flash.html#ga969043b8bd28967636871e50355c7b5d">ri_flash_init</a></div><div class="ttdeci">rd_status_t ri_flash_init(void)</div></div>
 <div class="ttc" id="agroup___flash_html_ga99b067afb570abea7cb8e196a60b83a1"><div class="ttname"><a href="group___flash.html#ga99b067afb570abea7cb8e196a60b83a1">ri_flash_record_delete</a></div><div class="ttdeci">rd_status_t ri_flash_record_delete(const uint32_t file_id, const uint32_t record_id)</div><div class="ttdoc">Mark a record for deletion.</div></div>
 <div class="ttc" id="agroup___flash_html_gaa342f23b15e298a41877d4ed64028253"><div class="ttname"><a href="group___flash.html#gaa342f23b15e298a41877d4ed64028253">ri_flash_free_size_get</a></div><div class="ttdeci">rd_status_t ri_flash_free_size_get(size_t *size)</div><div class="ttdoc">Get total size of free flash.</div></div>
+<div class="ttc" id="agroup___flash_html_gad1f8bb3eb301c75b2e8e899c127711a4"><div class="ttname"><a href="group___flash.html#gad1f8bb3eb301c75b2e8e899c127711a4">ri_flash_protect</a></div><div class="ttdeci">rd_status_t ri_flash_protect(const size_t page)</div></div>
 <div class="ttc" id="agroup___flash_html_gad323839c9db4d0119c12ef04682971f5"><div class="ttname"><a href="group___flash.html#gad323839c9db4d0119c12ef04682971f5">ri_flash_record_get</a></div><div class="ttdeci">rd_status_t ri_flash_record_get(const uint32_t page_id, const uint32_t record_id, const size_t data_size, void *const data)</div><div class="ttdoc">Get data from record in page.</div></div>
 <div class="ttc" id="agroup___log_html_ga5f91fa4b35da8bf43f9e804a82c37608"><div class="ttname"><a href="group___log.html#ga5f91fa4b35da8bf43f9e804a82c37608">ri_log</a></div><div class="ttdeci">void ri_log(const ri_log_severity_t severity, const char *const message)</div><div class="ttdoc">Queues messages into log.</div><div class="ttdef"><b>Definition:</b> <a href="ruuvi__interface__log_8c_source.html#l00347">ruuvi_interface_log.c:347</a></div></div>
 <div class="ttc" id="agroup___log_html_gga519e88d6a524dee3e505a1d1e9b2edc9a6eff5beca3a58822c808a0db474b0d5b"><div class="ttname"><a href="group___log.html#gga519e88d6a524dee3e505a1d1e9b2edc9a6eff5beca3a58822c808a0db474b0d5b">RI_LOG_LEVEL_ERROR</a></div><div class="ttdeci">@ RI_LOG_LEVEL_ERROR</div><div class="ttdef"><b>Definition:</b> <a href="ruuvi__interface__log_8h_source.html#l00042">ruuvi_interface_log.h:42</a></div></div>

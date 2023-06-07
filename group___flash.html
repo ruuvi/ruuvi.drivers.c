@@ -146,6 +146,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ga1ec84678abb2177257af40e5a803856e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___flash.html#ga1ec84678abb2177257af40e5a803856e">ri_flash_is_busy</a> ()</td></tr>
 <tr class="memdesc:ga1ec84678abb2177257af40e5a803856e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if flash is busy.  <a href="group___flash.html#ga1ec84678abb2177257af40e5a803856e">More...</a><br /></td></tr>
 <tr class="separator:ga1ec84678abb2177257af40e5a803856e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad1f8bb3eb301c75b2e8e899c127711a4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___flash.html#gad1f8bb3eb301c75b2e8e899c127711a4">ri_flash_protect</a> (const size_t page)</td></tr>
+<tr class="separator:gad1f8bb3eb301c75b2e8e899c127711a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Interface and implementations for storing data into flash in a persistent manner. </p>
@@ -313,6 +315,34 @@ False if flash is idle. </dd></dl>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="gad1f8bb3eb301c75b2e8e899c127711a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad1f8bb3eb301c75b2e8e899c127711a4">&#9670;&nbsp;</a></span>ri_flash_protect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a> ri_flash_protect </td>
+          <td>(</td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>page</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Protects a page in flash against overwriting. After protection has been enabled, only reset will clear the protection.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">page</td><td>Flash page to protect </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RD_SUCCESS on success </dd>
+<dd>
+RD_ERROR_INVALID_PARAM if target chip does not have given page. </dd></dl>
 
 </div>
 </div>

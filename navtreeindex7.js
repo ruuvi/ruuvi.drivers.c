@@ -1,5 +1,7 @@
 var NAVTREEINDEX7 =
 {
+"ruuvi__interface__bme280_8h.html#a61c426c4e032a3f7c119980b90895754":[3,0,0,2,5,5,9],
+"ruuvi__interface__bme280_8h.html#a7387cefe3b62089e175b33e6b0d44004":[3,0,0,2,5,5,0],
 "ruuvi__interface__bme280_8h.html#a921b88388093a08a029cbf8cf037c37a":[3,0,0,2,5,5,12],
 "ruuvi__interface__bme280_8h.html#a97d6b735a3fa4bbcc3278039960cfa47":[3,0,0,2,5,5,7],
 "ruuvi__interface__bme280_8h.html#ab2f652f10d762090b580d632e3166ef2":[3,0,0,2,5,5,13],
@@ -247,7 +249,5 @@ var NAVTREEINDEX7 =
 "ruuvi__interface__spi_8h.html#a95e7fbdb529634182d473fc97060ce4aadef63d1b1099a96680d383571604eec3":[3,0,0,2,13,0,1,3],
 "ruuvi__interface__spi_8h.html#aa49f209655c8bff6ec4d67dff20df4b1":[3,0,0,2,13,0,6],
 "ruuvi__interface__spi_8h.html#aaa7f3ef68a0241fcfc883ccd0933441c":[3,0,0,2,13,0,4],
-"ruuvi__interface__spi_8h.html#ac82e375dc1cc3df00f2ee064cebc8407":[3,0,0,2,13,0,3],
-"ruuvi__interface__spi_8h_source.html":[3,0,0,2,13,0],
-"ruuvi__interface__spi__bme280_8c.html":[3,0,0,2,13,1]
+"ruuvi__interface__spi_8h.html#ac82e375dc1cc3df00f2ee064cebc8407":[3,0,0,2,13,0,3]
 };

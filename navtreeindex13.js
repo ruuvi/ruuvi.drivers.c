@@ -1,5 +1,7 @@
 var NAVTREEINDEX13 =
 {
+"sdk__config_8h.html#ad55ef90c3868769fe92c450ef7659cb3":[3,0,0,3,21,337],
+"sdk__config_8h.html#ad5910372be0c42f5bc27a06d644523d0":[3,0,0,3,21,743],
 "sdk__config_8h.html#ad5a17462e307528885c0c8778063f179":[3,0,0,3,21,706],
 "sdk__config_8h.html#ad5aff3e1015b86c77ec665930d7f10c5":[3,0,0,3,21,1130],
 "sdk__config_8h.html#ad5e1a82d57ebb26b30a2b9b2cd772516":[3,0,0,3,21,351],
@@ -247,7 +249,5 @@ var NAVTREEINDEX13 =
 "structfds__op__t.html#aeeb125548e015842614d54333c71fb8a":[2,0,5,10],
 "structfds__page__t.html":[2,0,6],
 "structfds__page__t.html#a000e538c03976c1ab81b9938dd0a2bec":[2,0,6,0],
-"structfds__page__t.html#a0d51f0934c2ff70d64d7c5355790b7d1":[2,0,6,4],
-"structfds__page__t.html#a129770f6a39671bfe2764f31dfb62d10":[2,0,6,3],
-"structfds__page__t.html#a3386b73c5104518b81dcee863b4b4e45":[2,0,6,1]
+"structfds__page__t.html#a0d51f0934c2ff70d64d7c5355790b7d1":[2,0,6,4]
 };

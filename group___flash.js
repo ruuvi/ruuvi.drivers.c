@@ -8,6 +8,7 @@ var group___flash =
     [ "ri_flash_init", "group___flash.html#ga969043b8bd28967636871e50355c7b5d", null ],
     [ "ri_flash_is_busy", "group___flash.html#ga1ec84678abb2177257af40e5a803856e", null ],
     [ "ri_flash_page_size_get", "group___flash.html#ga308a556b390b64ed90c7e07915d354f6", null ],
+    [ "ri_flash_protect", "group___flash.html#gad1f8bb3eb301c75b2e8e899c127711a4", null ],
     [ "ri_flash_purge", "group___flash.html#ga6b799a642c06c9ff6189ec7f07c99e0d", null ],
     [ "ri_flash_record_delete", "group___flash.html#ga99b067afb570abea7cb8e196a60b83a1", null ],
     [ "ri_flash_record_get", "group___flash.html#gad323839c9db4d0119c12ef04682971f5", null ],
