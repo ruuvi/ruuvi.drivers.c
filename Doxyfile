@@ -954,6 +954,8 @@ RECURSIVE              = YES
 
 EXCLUDE                = BME280_driver \
                          embedded-sht \
+                         embedded-i2c-sen5x \
+                         embedded-i2c-scd4x \
                          STMems_Standard_C_drivers \
                          nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c/
 
