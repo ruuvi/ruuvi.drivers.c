@@ -287,3 +287,10 @@ sync:
 	git submodule update --init --recursive
 	git submodule sync --recursive
 	git submodule update --init --recursive
+
+test_all:
+	rm -rf build
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling test:all
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling gcov:all utils:gcov
+	gcov  -b -c build/gcov/out/*.gcno
+
