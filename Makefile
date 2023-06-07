@@ -328,6 +328,7 @@ sync:
 	git submodule update --init --recursive
 
 test_all:
+	rm -rf build
 	rm -rf build_ceedling
 	rm -rf build_sen5x_scd4x_ceedling
 	rm -rf build_shtcx_ceedling
@@ -337,7 +338,7 @@ test_all:
 	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling gcov:all utils:gcov
 	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml ceedling gcov:all utils:gcov
 	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml ceedling gcov:all utils:gcov
-	gcov  -b -c build/gcov/out/*.gcno
+	gcov  -b -c build_ceedling/gcov/out/*.gcno build_sen5x_scd4x_ceedling/gcov/out/*.gcno build_shtcx_ceedling/gcov/out/*.gcno
 
 test:
 	@UNITY_DIR=${UNITY_DIR} BUILD_DIR=${BUILD_DIR} TEST_BUILD_DIR= ruby ${CMOCK_DIR}/scripts/test_summary.rb
