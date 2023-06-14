@@ -44,8 +44,8 @@
 #define SCD4X_NUM_MEASUREMENTS  (3U)
 
 #define SCD4X_MEASUREMENT_IDX_CO2          (0U)
-#define SCD4X_MEASUREMENT_IDX_TEMPERATURE  (1U)
-#define SCD4X_MEASUREMENT_IDX_HUMIDITY     (2U)
+#define SCD4X_MEASUREMENT_IDX_HUMIDITY     (1U)
+#define SCD4X_MEASUREMENT_IDX_TEMPERATURE  (2U)
 
 #define SCD41_SCALE_FACTOR_TEMPERATURE  (1000.0f)
 #define SCD41_SCALE_FACTOR_HUMIDITY     (1000.0f)
@@ -646,12 +646,12 @@ static void ri_scd41_data_update (rd_sensor_data_t * const p_data)
     scd4x_float_t env_values[SCD4X_NUM_MEASUREMENTS] =
     {
         [SCD4X_MEASUREMENT_IDX_CO2] = (scd4x_float_t) m_co2,
-        [SCD4X_MEASUREMENT_IDX_TEMPERATURE] = (scd4x_float_t) m_ambient_temperature / SCD41_SCALE_FACTOR_TEMPERATURE,
         [SCD4X_MEASUREMENT_IDX_HUMIDITY] = (scd4x_float_t) m_ambient_humidity / SCD41_SCALE_FACTOR_HUMIDITY,
+        [SCD4X_MEASUREMENT_IDX_TEMPERATURE] = (scd4x_float_t) m_ambient_temperature / SCD41_SCALE_FACTOR_TEMPERATURE,
     };
     env_fields.datas.co2_ppm = 1;
-    env_fields.datas.temperature_c = 1;
     env_fields.datas.humidity_rh = 1;
+    env_fields.datas.temperature_c = 1;
     d_environmental.data = env_values;
     d_environmental.valid  = env_fields;
     d_environmental.fields = env_fields;
