@@ -9,7 +9,7 @@
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
   :use_auxiliary_dependencies: TRUE
-  :build_root: build_ceedling
+  :build_root: build_sen5x_scd4x_ceedling
 #  :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
@@ -30,17 +30,13 @@
 
 :paths:
   :test:
-    - +:test/**
-    - -:test/support
+    - +:test_sen5x_scd4x/**
+    - -:test_sen5x_scd4x/support
   :source:
-    - BME280_driver/*
-    - BME280_driver/selftest/*
-    - embedded-sht/**
-    - ruuvi.dps310.c/src/
     - src/*
-    - src/tasks/**
     - src/interfaces/**
-    - STMems_Standard_C_drivers/lis2dh12_STdC/driver/*
+    - embedded-i2c-sen5x
+    - embedded-i2c-scd4x
   :support:
     - test/support
 
@@ -49,7 +45,6 @@
   #  1) remove the trailing [] from the :common: section
   #  2) add entries to the :common: section (e.g. :test: has TEST defined)
   :common: &common_defines
-    - BME280_FLOAT_ENABLE
     - TEST
   :test:
     - *common_defines

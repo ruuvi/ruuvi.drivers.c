@@ -1,6 +1,3 @@
-# Source, copyright: https://github.com/viva64/pvs-studio-makefile-examples
-# commit 82a0f0a, /example-1
-# Modified for C on mac, added Doxygen
 	#                               Apache License
 	#                         Version 2.0, January 2004
 	#                      http://www.apache.org/licenses/
@@ -205,31 +202,46 @@
 
 CXX=gcc
 
-PVS_CFG=./PVS-Studio.cfg
-# csv, errorfile, fullhtml, html, tasklist, xml
-LOG_FORMAT=fullhtml
-PVS_LOG=./doxygen/html
 DOXYGEN_DIR=./doxygen
 
 SDK_ROOT := nRF5_SDK_15.3.0_59ac345
 PROJ_DIR := .
+
 include ${PROJ_DIR}/gcc_sources.make
 
 CFLAGS  = -c -Wall -pedantic -Wno-variadic-macros -Wno-long-long -Wno-shadow -std=c11
 CFLAGS += -DRUUVI_RUN_TESTS
 CFLAGS += -DBME280_FLOAT_ENABLE
-OFLAGS=-g3
-LDFLAGS=
+OFLAGS = -g3
+LDFLAGS = -g
 DFLAGS=
-INCLUDES=${COMMON_INCLUDES}
-INCLUDES+=nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
-INC_PARAMS=$(foreach d, $(INCLUDES), -I$d)
-SOURCES=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
-ANALYSIS=$(SOURCES:.c=.a)
-OBJECTS=$(SOURCES:.c=.o)
-IOBJECTS=$(SOURCES:.c=.o.PVS-Studio.i)
-POBJECTS=$(SOURCES:.c=.o.PVS-Studio.log)
-EXECUTABLE=ruuvifw
+
+#TEST_CFLAGS += -DTEST -DCEEDLING -DBME280_FLOAT_ENABLE -g
+
+INCLUDES = ${COMMON_INCLUDES}
+INCLUDES += nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers
+INCLUDES += ./CMock/vendor/unity/src
+INCLUDES += ./build/test/mocks
+INC_PARAMS = $(foreach d, $(INCLUDES), -I$d)
+INCLUDE_PATH = ${INC_PARAMS}
+
+SOURCES_COMMON=${RUUVI_PRJ_SOURCES} ${RUUVI_LIB_SOURCES}
+SOURCES_SENSIRION_SHT=${RUUVI_LIB_SOURCES_SENSIRION_SHT}
+SOURCES_SENSIRION_SEN5X_SCD4X=${RUUVI_LIB_SOURCES_SENSIRION_SEN5X_SCD4X}
+SOURCES_ALL=${SOURCES_COMMON}
+SOURCES_ALL+=${SOURCES_SENSIRION_SHT}
+SOURCES_ALL+=${SOURCES_SENSIRION_SEN5X_SCD4X}
+
+INC_PARAMS_SENSIRION_SHT = $(addprefix -I,$(INCLUDES_SENSIRION_SHT))
+INC_PARAMS_SENSIRION_SEN5X_SCD4X = $(addprefix -I,$(INCLUDES_SENSIRION_SEN5X_SCD4X))
+
+ANALYSIS_COMMON=$(SOURCES_COMMON:.c=.a)
+ANALYSIS_SENSIRION_SHT=$(RUUVI_LIB_SOURCES_SENSIRION_SHT:.c=.a)
+ANALYSIS_SENSIRION_SEN5X_SCD4X=$(RUUVI_LIB_SOURCES_SENSIRION_SEN5X_SCD4X:.c=.a)
+ANALYSIS_ALL=${ANALYSIS_COMMON}
+ANALYSIS_ALL+=${ANALYSIS_SENSIRION_SHT}
+ANALYSIS_ALL+=${ANALYSIS_SENSIRION_SEN5X_SCD4X}
+
 SONAR=driver_analysis
 
 # Tag on this commit
@@ -238,48 +250,75 @@ TAG := $(shell git describe --tags --exact-match)
 COMMIT := $(shell git rev-parse --short HEAD)
 VERSION := $(if $(TAG),$(TAG),$(COMMIT))
 
-.PHONY: clean sync doxygen pvs astyle sonar all
+BUILD_DIR = ./build
 
-all: clean sync astyle doxygen pvs sonar $(SOURCES) $(EXECUTABLE) 
+TEST_BUILD_DIR = ${BUILD_DIR}/test
+TEST_BUILD_DIR_SHTCX = ${BUILD_DIR}/test_shtcx
+TEST_BUILD_DIR_SEN5X_SCD4X = ${BUILD_DIR}/test_sen5x_scd4x
 
-.c.o:
-# Build
-	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(OFLAGS) -o $@
-# Preprocessing
-	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) -E -o $@.PVS-Studio.i
-# Analysis
-	pvs-studio --cfg $(PVS_CFG) --source-file $< --i-file $@.PVS-Studio.i --output-file $@.PVS-Studio.log
+TEST_OUT_DIR = ${TEST_BUILD_DIR}/out
+TEST_OUT_DIR_SHTCX = ${TEST_BUILD_DIR_SHTCX}/out
+TEST_OUT_DIR_SEN5X_SCD4X = ${TEST_BUILD_DIR_SEN5X_SCD4X}/out
+
+# Setup environment variables for ${CMOCK_DIR}/scripts/create_makefile.rb:
+export CMOCK_DIR ?= ./CMock
+UNITY_DIR = ${CMOCK_DIR}/vendor/unity
+DISABLE_CMOCK_TEST_SUMMARY_PER_PROJECT=1
+
+TEST_MAKEFILE = ${TEST_BUILD_DIR}/MakefileTestSupport
+TEST_MAKEFILE_SHTCX = ${TEST_BUILD_DIR_SHTCX}/MakefileTestSupport
+TEST_MAKEFILE_SEN5X_SCD4X = ${TEST_BUILD_DIR_SEN5X_SCD4X}/MakefileTestSupport
+
+TEST_TARGETS =
+
+-include ${TEST_MAKEFILE}
+
+-include ${TEST_MAKEFILE_SHTCX}
+
+-include ${TEST_MAKEFILE_SEN5X_SCD4X}
+
+.PHONY: clean sync doxygen astyle sonar test test_all all
+
+all: clean sync astyle doxygen sonar $(SOURCES) test
 
 doxygen:
 	export PROJECT_VERSION=$(VERSION) 
 	doxygen
 
-pvs: $(SOURCES) $(EXECUTABLE) 
+sonar: $(SOURCES_ALL) $(SONAR)
+$(SONAR): $(ANALYSIS_ALL)
 
-$(EXECUTABLE): $(OBJECTS)
-# Converting
-	plog-converter -a 'GA:1,2,3;OP:1,2,3;CS:1,2,3;MISRA:1,2,3' -t $(LOG_FORMAT) $(POBJECTS) -o $(PVS_LOG)
-	plog-converter -a 'GA:1;OP:1;CS:1;MISRA:1' -t errorfile $(POBJECTS) -o ./pvs.error
+$(ANALYSIS_SENSIRION_SHT): %.a: %.c
+	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(INC_PARAMS_SENSIRION_SHT) $(OFLAGS) -o $@
 
-sonar: $(SOURCES) $(SONAR) 
-$(SONAR): $(ANALYSIS)
+$(ANALYSIS_SENSIRION_SEN5X_SCD4X): %.a: %.c
+	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(INC_PARAMS_SENSIRION_SEN5X_SCD4X) $(OFLAGS) -o $@
 
-.c.a:
-# Build
+
+$(ANALYSIS_COMMON): %.a: %.c
 	$(CXX) $(CFLAGS) $< $(DFLAGS) $(INC_PARAMS) $(OFLAGS) -o $@
 
 astyle:
 	astyle --project=".astylerc" --recursive \
 			  "src/*.h" \
 			  "src/*.c" \
-			  "test/*.c"
+			  "test/*.c" \
+			  "test_sen5x_scd4x/*.c" \
+			  "test_shtcx/*.c"
 
 clean:
-	rm -f $(OBJECTS) $(IOBJECTS) $(POBJECTS) 
-	rm -rf $(PVS_LOG)/fullhtml
+	rm -f $(ANALYSIS_ALL)
 	rm -rf $(DOXYGEN_DIR)/html
 	rm -rf $(DOXYGEN_DIR)/latex
 	rm -f *.gcov
+	rm -rf $(BUILD_DIR)
+	rm -rf build_ceedling
+	rm -rf build_sen5x_scd4x_ceedling
+	rm -rf build_shtcx_ceedling
+	make setup_test
+	make setup_test_shtcx
+	make setup_test_sen5x_scd4x
+	make generate_cmock_mocks_and_runners
 
 sync:
 	@echo Synchronizing GIT...
@@ -290,7 +329,44 @@ sync:
 
 test_all:
 	rm -rf build
+	rm -rf build_ceedling
+	rm -rf build_sen5x_scd4x_ceedling
+	rm -rf build_shtcx_ceedling
 	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling test:all
+	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml ceedling test:all
+	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml ceedling test:all
 	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling gcov:all utils:gcov
-	gcov  -b -c build/gcov/out/*.gcno
+	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml ceedling gcov:all utils:gcov
+	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml ceedling gcov:all utils:gcov
+	gcov  -b -c build_ceedling/gcov/out/*.gcno build_sen5x_scd4x_ceedling/gcov/out/*.gcno build_shtcx_ceedling/gcov/out/*.gcno
 
+test:
+	@UNITY_DIR=${UNITY_DIR} BUILD_DIR=${BUILD_DIR} TEST_BUILD_DIR= ruby ${CMOCK_DIR}/scripts/test_summary.rb
+
+
+setup_test:
+	mkdir -p ${BUILD_DIR}
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml \
+		BUILD_DIR=${BUILD_DIR} \
+		TEST_BUILD_DIR=${TEST_BUILD_DIR} \
+		TEST_OUT_DIR=${TEST_OUT_DIR} \
+		TEST_MAKEFILE=${TEST_MAKEFILE} \
+		ruby ${CMOCK_DIR}/scripts/create_makefile.rb
+
+setup_test_shtcx:
+	mkdir -p ${BUILD_DIR}
+	CEEDLING_MAIN_PROJECT_FILE=./project_shtcx.yml \
+		BUILD_DIR=${BUILD_DIR} \
+		TEST_BUILD_DIR=${TEST_BUILD_DIR_SHTCX} \
+		TEST_OUT_DIR=${TEST_OUT_DIR_SHTCX} \
+		TEST_MAKEFILE=${TEST_MAKEFILE_SHTCX} \
+		ruby ${CMOCK_DIR}/scripts/create_makefile.rb
+
+setup_test_sen5x_scd4x:
+	mkdir -p ${BUILD_DIR}
+	CEEDLING_MAIN_PROJECT_FILE=./project_sen5x_scd4x.yml \
+		BUILD_DIR=${BUILD_DIR} \
+		TEST_BUILD_DIR=${TEST_BUILD_DIR_SEN5X_SCD4X} \
+		TEST_OUT_DIR=${TEST_OUT_DIR_SEN5X_SCD4X} \
+		TEST_MAKEFILE=${TEST_MAKEFILE_SEN5X_SCD4X} \
+		ruby ${CMOCK_DIR}/scripts/create_makefile.rb

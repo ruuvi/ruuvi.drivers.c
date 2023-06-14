@@ -261,6 +261,14 @@ data payload length is the maximum length */
 #   define RI_SHTCX_ENABLED ENABLE_DEFAULT
 #endif
 
+#ifndef RI_SEN5X_ENABLED
+#   define RI_SEN5X_ENABLED ENABLE_DEFAULT
+#endif
+
+#ifndef RI_SCD4X_ENABLED
+#   define RI_SCD4X_ENABLED ENABLE_DEFAULT
+#endif
+
 #ifndef RI_ADC_PHOTO_ENABLED
 #   define RI_ADC_PHOTO_ENABLED      ENABLE_DEFAULT
 #endif

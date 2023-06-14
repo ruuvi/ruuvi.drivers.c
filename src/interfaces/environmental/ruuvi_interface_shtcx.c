@@ -19,6 +19,7 @@
 #include "ruuvi_interface_shtcx.h"
 #include "ruuvi_interface_rtc.h"
 #include "ruuvi_interface_yield.h"
+#include "sensirion_i2c.h"
 
 #include <string.h>
 

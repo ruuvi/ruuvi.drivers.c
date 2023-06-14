@@ -191,7 +191,7 @@ rd_status_t ri_i2c_uninit (void)
  *
  **/
 rd_status_t ri_i2c_write_blocking (const uint8_t address,
-                                   uint8_t * const p_tx, const size_t tx_len, const bool stop)
+                                   const uint8_t * const p_tx, const size_t tx_len, const bool stop)
 {
     if (!m_i2c_is_init) { return RD_ERROR_INVALID_STATE; }
 
@@ -199,7 +199,7 @@ rd_status_t ri_i2c_write_blocking (const uint8_t address,
 
     if (m_tx_in_progress) { return RD_ERROR_BUSY; }
 
-    int32_t err_code = NRF_SUCCESS;
+    ret_code_t err_code = NRF_SUCCESS;
     m_tx_in_progress = true;
     err_code |= nrf_drv_twi_tx (&m_twi, address, p_tx, tx_len, !stop);
     volatile uint32_t timeout = 0;
