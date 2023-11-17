@@ -61,7 +61,8 @@
  */
 typedef struct ri_comm_message_t
 {
-    _Static_assert(RI_COMM_MESSAGE_MAX_LENGTH < UINT8_MAX, "Data length must fit in uint8_t");
+    _Static_assert (RI_COMM_MESSAGE_MAX_LENGTH < UINT8_MAX,
+                    "Data length must fit in uint8_t");
     uint8_t data[RI_COMM_MESSAGE_MAX_LENGTH]; //!< Data payload.
     uint8_t data_length;                      //!< Length of data
     uint8_t repeat_count;                     //!< Number of times to repeat the message,
