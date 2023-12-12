@@ -301,6 +301,12 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
                               | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE;
         // Build manufacturer specific data
         ble_advdata_manuf_data_t manuf_specific_data;
+        // Build UUID data
+        ble_uuid_t m_adv_uuids[] = 
+        {
+          {0x1A1B, BLE_UUID_TYPE_BLE}
+        };
+
         // Preserve const of data passed to us.
         uint8_t manufacturer_data[RI_COMM_MESSAGE_MAX_LENGTH];
         memcpy (manufacturer_data, p_message->data, p_message->data_length);
@@ -310,6 +316,8 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
         // Point to manufacturer data and flags set earlier
         advdata.flags                 = flags;
         advdata.p_manuf_specific_data = &manuf_specific_data;
+        advdata.uuids_more_available.p_uuids = m_adv_uuids;
+        advdata.uuids_more_available.uuid_cnt = 1;
 
         // If manufacturer data is not set, assign "UNKNOWN"
         if (0 == m_manufacturer_id)
