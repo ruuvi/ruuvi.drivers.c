@@ -254,11 +254,7 @@ uint16_t ri_adv_parse_manuid (uint8_t * const data,
  *
  * @param[in] enable_uuid true to enable Service UUID advertisement, false to disable.
  */
-void ri_adv_enable_uuid (const bool enable_uuid)
-{
-    m_include_service_uuid = enable_uuid;
-}
-
+void ri_adv_enable_uuid (const bool enable_uuid);
 /**
  * @brief Configure Bluetooth GATT Service UUID to advertise in primary advertisement packet.
  *
@@ -269,9 +265,6 @@ void ri_adv_enable_uuid (const bool enable_uuid)
  *
  * @param[in] enable_uuid true to enable Service UUID advertisement, false to disable.
  */
-void ri_adv_set_service_uuid (const uint16_t uuid)
-{
-    m_service_uuid = uuid;
-}
+void ri_adv_set_service_uuid (const uint16_t uuid);
 
 #endif
