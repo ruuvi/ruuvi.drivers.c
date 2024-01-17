@@ -809,7 +809,7 @@ void ri_adv_enable_uuid (const bool enable_uuid)
     m_include_service_uuid = enable_uuid;
 }
 
-void ri_adv_ser_service_uuid (const uint16_t uuid)
+void ri_adv_set_service_uuid (const uint16_t uuid)
 {
     m_service_uuid = uuid;
 }

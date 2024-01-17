@@ -246,7 +246,7 @@ uint16_t ri_adv_parse_manuid (uint8_t * const data,
  * packet.
  *
  * Bluetooth Service UUID lets scanner apps note that your firmware is providing a specific
- * service over BLE GATT. Be sure to configure @ref ri_adv_ser_service_uuid, otherwise
+ * service over BLE GATT. Be sure to configure @ref ri_adv_set_service_uuid, otherwise
  * your program violates Bluetooth license terms. You must have the license to use the
  * configured UUID.
  *
@@ -255,6 +255,7 @@ uint16_t ri_adv_parse_manuid (uint8_t * const data,
  * @param[in] enable_uuid true to enable Service UUID advertisement, false to disable.
  */
 void ri_adv_enable_uuid (const bool enable_uuid);
+
 /**
  * @brief Configure Bluetooth GATT Service UUID to advertise in primary advertisement packet.
  *
@@ -263,7 +264,7 @@ void ri_adv_enable_uuid (const bool enable_uuid);
  *
  * When enabled, the field takes 3 bytes of space in advertisement.
  *
- * @param[in] enable_uuid true to enable Service UUID advertisement, false to disable.
+ * @param[in] 16-bit UUID to advertise, e.g. 0xFC98 for "Ruuvi Innovations Sensor Data"
  */
 void ri_adv_set_service_uuid (const uint16_t uuid);
 
