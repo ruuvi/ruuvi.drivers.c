@@ -264,7 +264,7 @@ void ri_adv_enable_uuid (const bool enable_uuid);
  *
  * When enabled, the field takes 3 bytes of space in advertisement.
  *
- * @param[in] 16-bit UUID to advertise, e.g. 0xFC98 for "Ruuvi Innovations Sensor Data"
+ * @param[in] uuid 16-bit UUID to advertise, e.g. 0xFC98 for "Ruuvi Innovations Sensor Data"
  */
 void ri_adv_set_service_uuid (const uint16_t uuid);
 
