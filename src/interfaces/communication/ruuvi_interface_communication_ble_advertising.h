@@ -233,8 +233,34 @@ rd_status_t ri_adv_channels_enable (const ri_radio_channels_t channel);
  * @retval 0 if argument is NULL of manufacturer ID not found
  * @return BLE Manufacturer ID, e.g. 0x0499 for Ruuvi Innovation
  */
-
 uint16_t ri_adv_parse_manuid (uint8_t * const data,
                               const size_t data_length);
+
+/**
+ * @brief Set to true to enable advertising 16-bit service UUID in primary advertisement
+ * packet.
+ *
+ * Bluetooth Service UUID lets scanner apps note that your firmware is providing a specific
+ * service over BLE GATT. Be sure to configure @ref ri_adv_set_service_uuid, otherwise
+ * your program violates Bluetooth license terms. You must have the license to use the
+ * configured UUID.
+ *
+ * When enabled, the field takes 3 bytes of space in advertisement.
+ *
+ * @param[in] enable_uuid true to enable Service UUID advertisement, false to disable.
+ */
+void ri_adv_enable_uuid (const bool enable_uuid);
+
+/**
+ * @brief Configure Bluetooth GATT Service UUID to advertise in primary advertisement packet.
+ *
+ * Bluetooth Service UUID lets scanner apps note that your firmware is providing a specific
+ * service over BLE GATT. Be sure to enable @ref ri_adv_enable_uuid.
+ *
+ * When enabled, the field takes 3 bytes of space in advertisement.
+ *
+ * @param[in] uuid 16-bit UUID to advertise, e.g. 0xFC98 for "Ruuvi Innovations Sensor Data"
+ */
+void ri_adv_set_service_uuid (const uint16_t uuid);
 
 #endif

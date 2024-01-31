@@ -93,6 +93,10 @@ static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
 static bool m_advertisement_is_init = false;
 /** @brief Flag for advertising in process **/
 static bool m_advertising = false;
+/** @brief flag for including Ruuvi Sensor data service UUID in the advertisement **/
+static bool m_include_service_uuid = false;
+/** @brief 16-bit Bluetooth Service UUID to advertise, Ruuvi's UUID by default. */
+static uint16_t m_service_uuid = 0xFC98;
 
 /**< Universally unique service identifier of Nordic UART Service */
 #if RUUVI_NRF5_SDK15_GATT_ENABLED
@@ -300,7 +304,12 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
         uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED
                               | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE;
         // Build manufacturer specific data
-        ble_advdata_manuf_data_t manuf_specific_data;
+        ble_advdata_manuf_data_t manuf_specific_data = {0};
+        // Build UUID data
+        ble_uuid_t m_adv_uuids[] =
+        {
+            {m_service_uuid, BLE_UUID_TYPE_BLE}
+        };
         // Preserve const of data passed to us.
         uint8_t manufacturer_data[RI_COMM_MESSAGE_MAX_LENGTH];
         memcpy (manufacturer_data, p_message->data, p_message->data_length);
@@ -310,6 +319,12 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
         // Point to manufacturer data and flags set earlier
         advdata.flags                 = flags;
         advdata.p_manuf_specific_data = &manuf_specific_data;
+
+        if (m_include_service_uuid)
+        {
+            advdata.uuids_more_available.p_uuids = m_adv_uuids;
+            advdata.uuids_more_available.uuid_cnt = 1;
+        }
 
         // If manufacturer data is not set, assign "UNKNOWN"
         if (0 == m_manufacturer_id)
@@ -636,10 +651,19 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
     scan_params.active = 0; // Do not scan for scan responses
     ruuvi_nrf5_sdk15_radio_channels_set (scan_params.channel_mask, m_radio_channels);
 
+    if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
+    {
+        scan_params.extended = 1;
+    }
+    else
+    {
+        scan_params.extended = 0;
+    }
+
     // Other than 1 MBit / s require extended advertising.
     if (BLE_GAP_PHY_1MBPS == scan_phys)
     {
-        scan_params.extended = 0;
+        scan_params.extended = 1;
     }
     else if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
     {
@@ -787,6 +811,16 @@ uint16_t ri_adv_parse_manuid (uint8_t * const data,
     {
         return (manuf_id[1] << 8 | manuf_id[0]);
     }
+}
+
+void ri_adv_enable_uuid (const bool enable_uuid)
+{
+    m_include_service_uuid = enable_uuid;
+}
+
+void ri_adv_set_service_uuid (const uint16_t uuid)
+{
+    m_service_uuid = uuid;
 }
 
 #endif
