@@ -46,16 +46,6 @@
 #   define RI_ADV_EXTENDED_ENABLED ENABLE_DEFAULT
 #endif
 
-#ifndef RI_COMM_MESSAGE_MAX_LENGTH
-/** @brief Standard BLE Broadcast manufacturer specific
-data payload length is the maximum length */
-#   if RI_ADV_EXTENDED_ENABLED
-#       define RI_COMM_MESSAGE_MAX_LENGTH 230
-#   else
-#       define RI_COMM_MESSAGE_MAX_LENGTH 24
-#   endif
-#endif
-
 #ifndef RI_ATOMIC_ENABLED
 #   define RI_ATOMIC_ENABLED ENABLE_DEFAULT
 #endif

@@ -304,7 +304,7 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
         uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED
                               | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE;
         // Build manufacturer specific data
-        ble_advdata_manuf_data_t manuf_specific_data;
+        ble_advdata_manuf_data_t manuf_specific_data = {0};
         // Build UUID data
         ble_uuid_t m_adv_uuids[] =
         {
@@ -651,10 +651,19 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
     scan_params.active = 0; // Do not scan for scan responses
     ruuvi_nrf5_sdk15_radio_channels_set (scan_params.channel_mask, m_radio_channels);
 
+    if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
+    {
+        scan_params.extended = 1;
+    }
+    else
+    {
+        scan_params.extended = 0;
+    }
+
     // Other than 1 MBit / s require extended advertising.
     if (BLE_GAP_PHY_1MBPS == scan_phys)
     {
-        scan_params.extended = 0;
+        scan_params.extended = 1;
     }
     else if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
     {

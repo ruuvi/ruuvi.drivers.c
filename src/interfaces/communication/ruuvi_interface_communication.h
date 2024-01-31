@@ -23,13 +23,46 @@
 
 /** @brief Maximum length for device information strings. */
 #define RI_COMM_DIS_STRLEN 48
-/** @brief Set ri_comm_message_t->repeat_count to this value to e.g. advertise fixed data
-           until explicitly stopped. */
+
+/** @brief Set ri_comm_message_t->repeat_count to this value to e.g.
+ *         advertise fixed data until explicitly stopped.
+ */
 #define RI_COMM_MSG_REPEAT_FOREVER (0U)
 
-/** @brief Application message definition. */
+#ifndef RI_COMM_BLE_PAYLOAD_MAX_LENGTH
+/** @brief Max length of BLE broadcast payload.
+ *
+ * This is the maximum length of the payload in a BLE advertisement.
+ * The length depends on whether extended advertising is enabled or not.
+ */
+#   if RI_ADV_EXTENDED_ENABLED
+#       define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (238)
+#   else
+#       define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (31)
+#   endif
+#endif
+
+/** @brief The maximum length for the application message includes
+ *         the fixed 16 byte overhead and the variable length payload,
+ *         which depends on whether extended advertising is enabled or not.
+ */
+#define RI_COMM_MESSAGE_MAX_LENGTH (16 + RI_COMM_BLE_PAYLOAD_MAX_LENGTH)
+
+/**
+ * @brief Application message structure used for communication.
+ *
+ * This structure is used for both UART and BLE messages.
+ *
+ * @note The length of messages for BLE should not exceed
+ *       @ref RI_COMM_BLE_PAYLOAD_MAX_LENGTH.
+ *
+ * @details The structure includes a static assertion to ensure
+ *          the data length fits within a uint8_t type.
+ */
 typedef struct ri_comm_message_t
 {
+    _Static_assert (RI_COMM_MESSAGE_MAX_LENGTH < UINT8_MAX,
+                    "Data length must fit in uint8_t");
     uint8_t data[RI_COMM_MESSAGE_MAX_LENGTH]; //!< Data payload.
     uint8_t data_length;                      //!< Length of data
     uint8_t repeat_count;                     //!< Number of times to repeat the message,
@@ -96,7 +129,7 @@ typedef rd_status_t (*ri_comm_init_fp_t) (ri_comm_channel_t * const channel);
  *  @param[in] evt Type of event, @ref ri_comm_evt_t.
  *  @param[in] p_data Data associated with the event. May be NULL.
  *  @param[in] data_len Length of event data. Must be 0 if data is NULL.
- *                      Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH.
+ *             Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH.
  *  @return RD_SUCCESS if operation was successful.
  *  @return error driver from stack on other error
  */
