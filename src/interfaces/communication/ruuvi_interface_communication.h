@@ -129,8 +129,7 @@ typedef rd_status_t (*ri_comm_init_fp_t) (ri_comm_channel_t * const channel);
  *  @param[in] evt Type of event, @ref ri_comm_evt_t.
  *  @param[in] p_data Data associated with the event. May be NULL.
  *  @param[in] data_len Length of event data. Must be 0 if data is NULL.
- *             Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH for BLE or
- *             @ref RI_COMM_UART_MESSAGE_MAX_LENGTH for UART.
+ *             Must be at maximum @ref RI_COMM_MESSAGE_MAX_LENGTH.
  *  @return RD_SUCCESS if operation was successful.
  *  @return error driver from stack on other error
  */
