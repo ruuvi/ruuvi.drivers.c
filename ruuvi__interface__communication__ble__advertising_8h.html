@@ -165,6 +165,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a03638010143c5f2e885d9e026ea14d3a"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#a03638010143c5f2e885d9e026ea14d3a">ri_adv_parse_manuid</a> (uint8_t *const data, const size_t data_length)</td></tr>
 <tr class="memdesc:a03638010143c5f2e885d9e026ea14d3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse Manufacturer ID from given Bluetooth scan data.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#a03638010143c5f2e885d9e026ea14d3a">More...</a><br /></td></tr>
 <tr class="separator:a03638010143c5f2e885d9e026ea14d3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae555741810745a894d9d8ddafb1dd0dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#ae555741810745a894d9d8ddafb1dd0dd">ri_adv_enable_uuid</a> (const bool enable_uuid)</td></tr>
+<tr class="memdesc:ae555741810745a894d9d8ddafb1dd0dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set to true to enable advertising 16-bit service UUID in primary advertisement packet.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#ae555741810745a894d9d8ddafb1dd0dd">More...</a><br /></td></tr>
+<tr class="separator:ae555741810745a894d9d8ddafb1dd0dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad3d2950541ff894fc4fb0e69fee1f65"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#aad3d2950541ff894fc4fb0e69fee1f65">ri_adv_set_service_uuid</a> (const uint16_t uuid)</td></tr>
+<tr class="memdesc:aad3d2950541ff894fc4fb0e69fee1f65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure Bluetooth GATT Service UUID to advertise in primary advertisement packet.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#aad3d2950541ff894fc4fb0e69fee1f65">More...</a><br /></td></tr>
+<tr class="separator:aad3d2950541ff894fc4fb0e69fee1f65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Otso Jousimaa <a href="#" onclick="location.href='mai'+'lto:'+'ots'+'o@'+'ojo'+'us'+'ima'+'.n'+'et'; return false;">otso@<span style="display: none;">.nosp@m.</span>ojou<span style="display: none;">.nosp@m.</span>sima.<span style="display: none;">.nosp@m.</span>net</a> </dd></dl>
@@ -259,6 +265,34 @@ Functions</h2></td></tr>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">RD_SUCCESS</td><td>if no more advertisements are ongoing. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae555741810745a894d9d8ddafb1dd0dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae555741810745a894d9d8ddafb1dd0dd">&#9670;&nbsp;</a></span>ri_adv_enable_uuid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ri_adv_enable_uuid </td>
+          <td>(</td>
+          <td class="paramtype">const bool&#160;</td>
+          <td class="paramname"><em>enable_uuid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set to true to enable advertising 16-bit service UUID in primary advertisement packet. </p>
+<p>Bluetooth Service UUID lets scanner apps note that your firmware is providing a specific service over BLE GATT. Be sure to configure <a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#aad3d2950541ff894fc4fb0e69fee1f65">ri_adv_set_service_uuid</a>, otherwise your program violates Bluetooth license terms. You must have the license to use the configured UUID.</p>
+<p>When enabled, the field takes 3 bytes of space in advertisement.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">enable_uuid</td><td>true to enable Service UUID advertisement, false to disable. </td></tr>
   </table>
   </dd>
 </dl>
@@ -492,6 +526,34 @@ RD_ERROR_INVALID_PARAM if window is larger than interval or values are otherwise
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">RD_SUCCESS</td><td>if no more advertisements are ongoing. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aad3d2950541ff894fc4fb0e69fee1f65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad3d2950541ff894fc4fb0e69fee1f65">&#9670;&nbsp;</a></span>ri_adv_set_service_uuid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ri_adv_set_service_uuid </td>
+          <td>(</td>
+          <td class="paramtype">const uint16_t&#160;</td>
+          <td class="paramname"><em>uuid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Configure Bluetooth GATT Service UUID to advertise in primary advertisement packet. </p>
+<p>Bluetooth Service UUID lets scanner apps note that your firmware is providing a specific service over BLE GATT. Be sure to enable <a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#ae555741810745a894d9d8ddafb1dd0dd">ri_adv_enable_uuid</a>.</p>
+<p>When enabled, the field takes 3 bytes of space in advertisement.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">uuid</td><td>16-bit UUID to advertise, e.g. 0xFC98 for "Ruuvi Innovations Sensor Data" </td></tr>
   </table>
   </dd>
 </dl>

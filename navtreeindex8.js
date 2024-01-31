@@ -1,5 +1,7 @@
 var NAVTREEINDEX8 =
 {
+"ruuvi__interface__spi_8h.html#aaa7f3ef68a0241fcfc883ccd0933441c":[3,0,0,2,13,0,4],
+"ruuvi__interface__spi_8h.html#ac82e375dc1cc3df00f2ee064cebc8407":[3,0,0,2,13,0,3],
 "ruuvi__interface__spi_8h_source.html":[3,0,0,2,13,0],
 "ruuvi__interface__spi__bme280_8c.html":[3,0,0,2,13,1],
 "ruuvi__interface__spi__bme280_8c_source.html":[3,0,0,2,13,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX8 =
 "sdk__config_8h.html#a05a130800c6ebb97d9d3280ab66e0465":[3,0,0,3,21,425],
 "sdk__config_8h.html#a0636f82aed106fcf4dd68a860878aa76":[3,0,0,3,21,79],
 "sdk__config_8h.html#a065397ac4e8f9f53d9666090e4fec706":[3,0,0,3,21,330],
-"sdk__config_8h.html#a06993a609364aa2e0ac781941c50e654":[3,0,0,3,21,84],
-"sdk__config_8h.html#a06e764ce25b00c7b463ce8667c48c964":[3,0,0,3,21,295],
-"sdk__config_8h.html#a072ec6cefeb5527c431c2eb316667dd4":[3,0,0,3,21,526]
+"sdk__config_8h.html#a06993a609364aa2e0ac781941c50e654":[3,0,0,3,21,84]
 };

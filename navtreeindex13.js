@@ -1,5 +1,7 @@
 var NAVTREEINDEX13 =
 {
+"sdk__config_8h.html#ad4fac080ed600d73dcf13909988972cf":[3,0,0,3,21,661],
+"sdk__config_8h.html#ad5167048ad353c4f3646c4a7c089710d":[3,0,0,3,21,265],
 "sdk__config_8h.html#ad55ef90c3868769fe92c450ef7659cb3":[3,0,0,3,21,337],
 "sdk__config_8h.html#ad5910372be0c42f5bc27a06d644523d0":[3,0,0,3,21,743],
 "sdk__config_8h.html#ad5a17462e307528885c0c8778063f179":[3,0,0,3,21,706],
@@ -247,7 +249,5 @@ var NAVTREEINDEX13 =
 "structfds__op__t.html#acd5069a19aa72afd5329db2a0864f8f9":[2,0,5,9],
 "structfds__op__t.html#ad1201ff6c06da7e68bccae381e02e1b7":[2,0,5,7],
 "structfds__op__t.html#aeeb125548e015842614d54333c71fb8a":[2,0,5,10],
-"structfds__page__t.html":[2,0,6],
-"structfds__page__t.html#a000e538c03976c1ab81b9938dd0a2bec":[2,0,6,0],
-"structfds__page__t.html#a0d51f0934c2ff70d64d7c5355790b7d1":[2,0,6,4]
+"structfds__page__t.html":[2,0,6]
 };
