@@ -316,7 +316,7 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
 
         if (RD_BUS_I2C == bus)
         {
-            err_code |= tmp117_validate_id(handle);
+            err_code |= tmp117_validate_id (handle);
         }
         else
         {
