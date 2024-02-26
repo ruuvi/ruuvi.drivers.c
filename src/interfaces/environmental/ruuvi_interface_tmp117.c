@@ -54,11 +54,11 @@ static rd_status_t tmp117_soft_reset (void)
     return err_code;
 }
 
-static rd_status_t tmp117_validate_id (void)
+static rd_status_t tmp117_validate_id (const uint8_t handle)
 {
     uint16_t id;
     rd_status_t err_code = RD_SUCCESS;
-    err_code |= ri_i2c_tmp117_read (m_address, TMP117_REG_DEVICE_ID, &id);
+    err_code |= ri_i2c_tmp117_read (handle, TMP117_REG_DEVICE_ID, &id);
     id &= TMP117_MASK_ID;
 
     if (TMP117_VALUE_ID != id)
@@ -313,11 +313,10 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
         rd_sensor_initialize (environmental_sensor);
         environmental_sensor->name = m_sensor_name;
         err_code = RD_SUCCESS;
-        m_address = handle;
 
         if (RD_BUS_I2C == bus)
         {
-            err_code |= tmp117_validate_id();
+            err_code |= tmp117_validate_id(handle);
         }
         else
         {
@@ -326,6 +325,7 @@ ri_tmp117_init (rd_sensor_t * environmental_sensor, rd_bus_t bus, uint8_t handle
 
         if (RD_SUCCESS == err_code)
         {
+            m_address = handle;
             err_code |= tmp117_soft_reset();
             environmental_sensor->init              = ri_tmp117_init;
             environmental_sensor->uninit            = ri_tmp117_uninit;
