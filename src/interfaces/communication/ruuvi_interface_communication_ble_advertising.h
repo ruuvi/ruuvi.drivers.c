@@ -110,6 +110,18 @@ rd_status_t ri_adv_tx_interval_get (uint32_t * ms);
 rd_status_t ri_adv_manufacturer_id_set (const uint16_t id);
 
 /**
+ * @bried Set channels to use on radio. This has effect only on BLE advertising.
+ *
+ * The function call will not modify already queued advertisements, it will take effect
+ * on advertisements queued after this call has finished.
+ *
+ * @param[in] channels Channels to advertise on.
+ * @retval RD_SUCCESS
+ */
+rd_status_t ri_adv_channels_set (const ri_radio_channels_t channels);
+
+
+/**
  * @brief Set radio TX power.
  *
  * Takes effect on next call to send, messages already in send queue are not

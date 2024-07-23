@@ -51,6 +51,7 @@ rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings)
         err_code |= ri_adv_tx_power_set (& (adv_init_settings->adv_pwr_dbm));
         err_code |= ri_adv_type_set (NONCONNECTABLE_NONSCANNABLE);
         err_code |= ri_adv_manufacturer_id_set (adv_init_settings->manufacturer_id);
+        err_code |= ri_adv_channels_set (adv_init_settings->channels);
 
         if (RD_SUCCESS == err_code)
         {

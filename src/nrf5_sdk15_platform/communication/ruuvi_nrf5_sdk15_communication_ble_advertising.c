@@ -287,6 +287,12 @@ rd_status_t ri_adv_manufacturer_id_set (const uint16_t id)
     return RD_SUCCESS;
 }
 
+rd_status_t ri_adv_channels_set (const ri_radio_channels_t channels)
+{
+    m_radio_channels = channels;
+    return RD_SUCCESS;
+}
+
 static rd_status_t format_adv (const ri_comm_message_t * const p_message,
                                advertisement_t * const p_adv)
 {
