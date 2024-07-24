@@ -83,9 +83,17 @@ void setUp (void)
     ri_adv_type_set_ExpectAndReturn (NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     ri_adv_manufacturer_id_set_ExpectAndReturn (ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
+    const ri_radio_channels_t channels =
+    {
+        .channel_37 = 1,
+        .channel_38 = 1,
+        .channel_39 = 1
+    };
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
+    init.channels = channels;
+    ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     send_count = 0;
     read_count = 0;
@@ -138,9 +146,17 @@ void test_rt_adv_init_ok (void)
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
+    const ri_radio_channels_t channels =
+    {
+        .channel_37 = 1,
+        .channel_38 = 1,
+        .channel_39 = 1
+    };
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
+    init.channels = channels;
+    ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_SUCCESS == err_code);
     TEST_ASSERT (rt_adv_is_init());
@@ -164,9 +180,17 @@ void test_rt_adv_init_invalid_interval (void)
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
+    const ri_radio_channels_t channels =
+    {
+        .channel_37 = 1,
+        .channel_38 = 1,
+        .channel_39 = 1
+    };
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
+    init.channels = channels;
+    ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
     TEST_ASSERT (!rt_adv_is_init());
@@ -190,9 +214,17 @@ void test_rt_adv_init_invalid_power (void)
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
+    const ri_radio_channels_t channels =
+    {
+        .channel_37 = 1,
+        .channel_38 = 1,
+        .channel_39 = 1
+    };
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
+    init.channels = channels;
+    ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
     TEST_ASSERT (!rt_adv_is_init());
@@ -217,9 +249,17 @@ void test_rt_adv_init_invalid_type (void)
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
     rt_adv_init_t init;
+    const ri_radio_channels_t channels =
+    {
+        .channel_37 = 1,
+        .channel_38 = 1,
+        .channel_39 = 1
+    };
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
+    init.channels = channels;
+    ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
     TEST_ASSERT (!rt_adv_is_init());
