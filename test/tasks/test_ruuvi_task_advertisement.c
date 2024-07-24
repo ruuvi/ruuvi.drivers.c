@@ -82,7 +82,7 @@ void setUp (void)
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (&power, sizeof (power), RD_SUCCESS);
     ri_adv_type_set_ExpectAndReturn (NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     ri_adv_manufacturer_id_set_ExpectAndReturn (ADV_MANU_ID, RD_SUCCESS);
-    rt_adv_init_t init;
+    rt_adv_init_t init = {0};
     const ri_radio_channels_t channels =
     {
         .channel_37 = 1,
@@ -145,7 +145,7 @@ void test_rt_adv_init_ok (void)
         NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
-    rt_adv_init_t init;
+    rt_adv_init_t init = {0};
     const ri_radio_channels_t channels =
     {
         .channel_37 = 1,
@@ -179,7 +179,7 @@ void test_rt_adv_init_invalid_interval (void)
         NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
-    rt_adv_init_t init;
+    rt_adv_init_t init = {0};
     const ri_radio_channels_t channels =
     {
         .channel_37 = 1,
@@ -213,7 +213,7 @@ void test_rt_adv_init_invalid_power (void)
         NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
-    rt_adv_init_t init;
+    rt_adv_init_t init = {0};
     const ri_radio_channels_t channels =
     {
         .channel_37 = 1,
@@ -248,7 +248,7 @@ void test_rt_adv_init_invalid_type (void)
                                      RD_ERROR_INVALID_PARAM);
     ri_adv_manufacturer_id_set_ExpectAndReturn (
         ADV_MANU_ID, RD_SUCCESS);
-    rt_adv_init_t init;
+    rt_adv_init_t init = {0};
     const ri_radio_channels_t channels =
     {
         .channel_37 = 1,
@@ -268,7 +268,7 @@ void test_rt_adv_init_invalid_type (void)
 void test_rt_adv_init_twice (void)
 {
     rd_status_t err_code = RD_SUCCESS;
-    rt_adv_init_t init;
+    rt_adv_init_t init = {0};
     init.adv_interval_ms = ADV_INTERVAL_MS;
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
