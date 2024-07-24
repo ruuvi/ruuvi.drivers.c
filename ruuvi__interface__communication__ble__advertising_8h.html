@@ -141,6 +141,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a9053fcf126e5247c8542db1f414a7bbe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#a9053fcf126e5247c8542db1f414a7bbe">ri_adv_manufacturer_id_set</a> (const uint16_t id)</td></tr>
 <tr class="memdesc:a9053fcf126e5247c8542db1f414a7bbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set manufacturer ID of manufacturer specific advertisement.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#a9053fcf126e5247c8542db1f414a7bbe">More...</a><br /></td></tr>
 <tr class="separator:a9053fcf126e5247c8542db1f414a7bbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c77217c718702265eef78a0b564d89f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#a0c77217c718702265eef78a0b564d89f">ri_adv_channels_set</a> (const <a class="el" href="structri__radio__channels__t.html">ri_radio_channels_t</a> channels)</td></tr>
+<tr class="memdesc:a0c77217c718702265eef78a0b564d89f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set channels to use on radio. This has effect only on BLE advertising.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#a0c77217c718702265eef78a0b564d89f">More...</a><br /></td></tr>
+<tr class="separator:a0c77217c718702265eef78a0b564d89f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb60940b2398aedeec2a2d0ea8463677"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#adb60940b2398aedeec2a2d0ea8463677">ri_adv_tx_power_set</a> (int8_t *dbm)</td></tr>
 <tr class="memdesc:adb60940b2398aedeec2a2d0ea8463677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set radio TX power.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#adb60940b2398aedeec2a2d0ea8463677">More...</a><br /></td></tr>
 <tr class="separator:adb60940b2398aedeec2a2d0ea8463677"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -298,6 +301,39 @@ Functions</h2></td></tr>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">RD_SUCCESS</td><td>if no more advertisements are ongoing. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a0c77217c718702265eef78a0b564d89f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c77217c718702265eef78a0b564d89f">&#9670;&nbsp;</a></span>ri_adv_channels_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a> ri_adv_channels_set </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structri__radio__channels__t.html">ri_radio_channels_t</a>&#160;</td>
+          <td class="paramname"><em>channels</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set channels to use on radio. This has effect only on BLE advertising. </p>
+<p>The function call will not modify already queued advertisements, it will take effect on advertisements queued after this call has finished.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">channels</td><td>Channels to advertise on. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">RD_SUCCESS</td><td></td></tr>
   </table>
   </dd>
 </dl>

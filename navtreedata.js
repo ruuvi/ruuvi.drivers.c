@@ -61,13 +61,13 @@ var NAVTREEINDEX =
 "group__fds.html#gaf97cabe15afd74024e4250e931c720cd",
 "ruuvi__driver__enabled__modules_8h.html#a2402dcb401292bed0f9999e8101d1f97",
 "ruuvi__interface__bme280_8h.html#a54c7cc5bbd6509111e0274017386c690",
-"ruuvi__interface__spi_8h.html#a95e7fbdb529634182d473fc97060ce4aa0093dc48d0a1c2d6d0bfa0d33867043b",
-"sdk__config_8h.html#a058531bcf69c25d47d0224ab002c8166",
-"sdk__config_8h.html#a36783a38fc9f44647d0da677364ebd15",
-"sdk__config_8h.html#a6d8db715172b6376a5133ae740176c75",
-"sdk__config_8h.html#aa379c47da5594f44ac8cf8d7e08e202a",
-"sdk__config_8h.html#ad455d9d6bda768d837485eb34996e6fb",
-"structfds__op__t.html#ab52cba30be4b3991c47ccd2f776157ee"
+"ruuvi__interface__spi_8h.html#a95e7fbdb529634182d473fc97060ce4a",
+"sdk__config_8h.html#a05382a39e44d763082f781a358e29cfe",
+"sdk__config_8h.html#a362af5b0e05c4ece85caf6b3b3bfd82d",
+"sdk__config_8h.html#a6d7e2ff82e3c9e5d520b9b83cc8b314d",
+"sdk__config_8h.html#aa26aa196560727fb44f4e2599a407034",
+"sdk__config_8h.html#ad44a0996943c767b75cda42755171058",
+"structfds__op__t.html#ab03838f67084cadebcc72c96e0500cec"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
