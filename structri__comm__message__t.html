@@ -84,20 +84,26 @@ $(document).ready(function(){initNavTree('structri__comm__message__t.html',''); 
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">ri_comm_message_t Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Application message definition.  
+<p>Application message structure used for communication.  
  <a href="structri__comm__message__t.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a8599d501e4c502043368ad8d0595654a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structri__comm__message__t.html#a8599d501e4c502043368ad8d0595654a">_Static_assert</a> (<a class="el" href="ruuvi__interface__communication_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54">RI_COMM_MESSAGE_MAX_LENGTH</a>&lt; UINT8_MAX, &quot;Data length must fit in uint8_t&quot;)</td></tr>
+<tr class="separator:a8599d501e4c502043368ad8d0595654a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a6ce5a5ac5143efbde5117dab131b7199"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structri__comm__message__t.html#a6ce5a5ac5143efbde5117dab131b7199">data</a> [<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54">RI_COMM_MESSAGE_MAX_LENGTH</a>]</td></tr>
+<tr class="memitem:a6ce5a5ac5143efbde5117dab131b7199"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structri__comm__message__t.html#a6ce5a5ac5143efbde5117dab131b7199">data</a> [<a class="el" href="ruuvi__interface__communication_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54">RI_COMM_MESSAGE_MAX_LENGTH</a>]</td></tr>
 <tr class="memdesc:a6ce5a5ac5143efbde5117dab131b7199"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data payload.  <a href="structri__comm__message__t.html#a6ce5a5ac5143efbde5117dab131b7199">More...</a><br /></td></tr>
 <tr class="separator:a6ce5a5ac5143efbde5117dab131b7199"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad97c802f66f41e937c3f8b33337b8c6d"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structri__comm__message__t.html#ad97c802f66f41e937c3f8b33337b8c6d">data_length</a></td></tr>
@@ -108,10 +114,31 @@ Data Fields</h2></td></tr>
 <tr class="separator:a9014284606526accc9548d192383b452"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Application message definition. </p>
+<div class="textblock"><p>Application message structure used for communication. </p>
+<p>This structure is used for both UART and BLE messages.</p>
+<dl class="section note"><dt>Note</dt><dd>The length of messages for BLE should not exceed <a class="el" href="ruuvi__interface__communication_8h.html#a6f46ba19db6d3bb26664fd7f6bfd71bb">RI_COMM_BLE_PAYLOAD_MAX_LENGTH</a>.</dd></dl>
+<p>The structure includes a static assertion to ensure the data length fits within a uint8_t type. </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00031">31</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
-</div><h2 class="groupheader">Field Documentation</h2>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00062">62</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a8599d501e4c502043368ad8d0595654a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8599d501e4c502043368ad8d0595654a">&#9670;&nbsp;</a></span>_Static_assert()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">_Static_assert </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Field Documentation</h2>
 <a id="a6ce5a5ac5143efbde5117dab131b7199"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ce5a5ac5143efbde5117dab131b7199">&#9670;&nbsp;</a></span>data</h2>
 
@@ -119,14 +146,14 @@ Data Fields</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t data[<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54">RI_COMM_MESSAGE_MAX_LENGTH</a>]</td>
+          <td class="memname">uint8_t data[<a class="el" href="ruuvi__interface__communication_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54">RI_COMM_MESSAGE_MAX_LENGTH</a>]</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Data payload. </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00033">33</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00066">66</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
 
 </div>
 </div>
@@ -144,7 +171,7 @@ Data Fields</h2></td></tr>
 
 <p>Length of data. </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00034">34</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00067">67</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
 
 </div>
 </div>
@@ -162,7 +189,7 @@ Data Fields</h2></td></tr>
 
 <p>Number of times to repeat the message,. </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00035">35</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00068">68</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
 
 </div>
 </div>

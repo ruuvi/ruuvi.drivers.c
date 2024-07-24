@@ -1,18 +1,13 @@
 var searchData=
 [
-  ['watchdog_20timer_20functions_2663',['Watchdog timer functions',['../group___watchdog.html',1,'']]],
-  ['wdt_5fconfig_5fbehaviour_2664',['WDT_CONFIG_BEHAVIOUR',['../sdk__config_8h.html#a77bdedbe256d354007946e21de86e5c7',1,'sdk_config.h']]],
-  ['wdt_5fconfig_5fdebug_5fcolor_2665',['WDT_CONFIG_DEBUG_COLOR',['../sdk__config_8h.html#a81ff67aa9c8cbddfeed329d6055fc1b7',1,'sdk_config.h']]],
-  ['wdt_5fconfig_5finfo_5fcolor_2666',['WDT_CONFIG_INFO_COLOR',['../sdk__config_8h.html#a9a99a6058c49e12a7d1757ee881d5ee6',1,'sdk_config.h']]],
-  ['wdt_5fconfig_5firq_5fpriority_2667',['WDT_CONFIG_IRQ_PRIORITY',['../sdk__config_8h.html#a58b8712f5b8ecd34ff3aa7ccda4990c1',1,'sdk_config.h']]],
-  ['wdt_5fconfig_5flog_5fenabled_2668',['WDT_CONFIG_LOG_ENABLED',['../sdk__config_8h.html#a93d8df352fa0f4a21db688c892a75e97',1,'sdk_config.h']]],
-  ['wdt_5fconfig_5flog_5flevel_2669',['WDT_CONFIG_LOG_LEVEL',['../sdk__config_8h.html#a78e11f0f6b1d7e04ddbce06a98533ec7',1,'sdk_config.h']]],
-  ['wdt_5fconfig_5freload_5fvalue_2670',['WDT_CONFIG_RELOAD_VALUE',['../sdk__config_8h.html#a62ead1a00a9ac368df7de783aafd621b',1,'sdk_config.h']]],
-  ['wdt_5fenabled_2671',['WDT_ENABLED',['../sdk__config_8h.html#a2bc9cc8c73d2ea3a7420f007cadcb4a0',1,'sdk_config.h']]],
-  ['wdt_5fevt_5fhandler_5ft_2672',['wdt_evt_handler_t',['../ruuvi__interface__watchdog_8h.html#a273b6b483bfe3928a3650753af55f735',1,'ruuvi_interface_watchdog.h']]],
-  ['wdt_5firqhandler_2673',['WDT_IRQHandler',['../nrf__bootloader__wdt_8c.html#a5c4a24d843527cb8aed8e34240ee7737',1,'nrf_bootloader_wdt.c']]],
-  ['words_5freserved_2674',['words_reserved',['../structfds__stat__t.html#a0d51f0934c2ff70d64d7c5355790b7d1',1,'fds_stat_t::words_reserved()'],['../structfds__page__t.html#a0d51f0934c2ff70d64d7c5355790b7d1',1,'fds_page_t::words_reserved()']]],
-  ['words_5fused_2675',['words_used',['../structfds__stat__t.html#aafda3e741f8f83e46f14d76b785d9ef1',1,'fds_stat_t']]],
-  ['write_2676',['write',['../structfds__op__t.html#a3ace201a3663af3481cea7b85cef8bd1',1,'fds_op_t::write()'],['../structfds__evt__t.html#a226445302893d91477592261ef378a6a',1,'fds_evt_t::write()']]],
-  ['write_5foffset_2677',['write_offset',['../structfds__page__t.html#a35481d1ef6682bf57c24623891c04a7a',1,'fds_page_t::write_offset()'],['../structfds__swap__page__t.html#a35481d1ef6682bf57c24623891c04a7a',1,'fds_swap_page_t::write_offset()']]]
+  ['valid_2657',['valid',['../structrd__sensor__data__t.html#ac0c6af74cc94ad9af119a03e6443b865',1,'rd_sensor_data_t']]],
+  ['valid_5frecords_2658',['valid_records',['../structfds__stat__t.html#a69dec334e72694fa9781ca40dbae4398',1,'fds_stat_t']]],
+  ['validate_5fdefault_5finput_5fget_2659',['validate_default_input_get',['../group___sensor.html#gaea79e3dc102709106e498535a656c823',1,'validate_default_input_get(uint8_t *const input):&#160;ruuvi_driver_sensor.c'],['../group___sensor.html#gaea79e3dc102709106e498535a656c823',1,'validate_default_input_get(uint8_t *const input):&#160;ruuvi_driver_sensor.c']]],
+  ['validate_5fdefault_5finput_5fset_2660',['validate_default_input_set',['../group___sensor.html#ga65002645afd27f62c834d02b36305343',1,'validate_default_input_set(uint8_t *const input, const uint8_t mode):&#160;ruuvi_driver_sensor.c'],['../group___sensor.html#ga65002645afd27f62c834d02b36305343',1,'validate_default_input_set(uint8_t *const input, const uint8_t mode):&#160;ruuvi_driver_sensor.c']]],
+  ['vdd_2661',['vdd',['../structri__adc__get__data__t.html#ab8252f8dd4df8faeb96a7133804f002c',1,'ri_adc_get_data_t']]],
+  ['verify_5fsensor_5fsleeps_2662',['VERIFY_SENSOR_SLEEPS',['../ruuvi__interface__lis2dh12_8c.html#a97355e96c09fc9896da2a8dd1d95c9b4',1,'VERIFY_SENSOR_SLEEPS():&#160;ruuvi_interface_lis2dh12.c'],['../group___s_h_t_c_x.html#ga97355e96c09fc9896da2a8dd1d95c9b4',1,'VERIFY_SENSOR_SLEEPS():&#160;ruuvi_interface_shtcx.c']]],
+  ['voc_5fppm_2663',['voc_ppm',['../structrd__sensor__data__bitfield__t.html#af2dbd336b74b42a5c2cba4f54962996a',1,'rd_sensor_data_bitfield_t']]],
+  ['voltage_5fratio_2664',['voltage_ratio',['../structrd__sensor__data__bitfield__t.html#ad4a81f02d790c529f45bcd702622c4fc',1,'rd_sensor_data_bitfield_t']]],
+  ['voltage_5fv_2665',['voltage_v',['../structrd__sensor__data__bitfield__t.html#a65955763a053b1b3aa3c630e69d65f35',1,'rd_sensor_data_bitfield_t']]],
+  ['vref_2666',['vref',['../structri__adc__channel__config__t.html#a99352675050cadbef8e1316f836e0f2d',1,'ri_adc_channel_config_t']]]
 ];

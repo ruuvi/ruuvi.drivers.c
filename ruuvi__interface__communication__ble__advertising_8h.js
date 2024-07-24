@@ -2,7 +2,9 @@ var ruuvi__interface__communication__ble__advertising_8h =
 [
     [ "ri_adv_scan_t", "structri__adv__scan__t.html", "structri__adv__scan__t" ],
     [ "BLE_MAC_ADDRESS_LENGTH", "ruuvi__interface__communication__ble__advertising_8h.html#aeae6254c9688c12ff48a816ebcfab979", null ],
-    [ "BLE_SCAN_DATA_LENGTH", "ruuvi__interface__communication__ble__advertising_8h.html#a06e19ad5e029b3116bc6135f26594890", null ],
+    [ "RUUVI_COMM_BLE_ADV_MAX_LENGTH", "ruuvi__interface__communication__ble__advertising_8h.html#a6c1d68bf1da528be2257d6fbd0adcf26", null ],
+    [ "RUUVI_COMM_BLE_ADV_SCAN_BUFFER", "ruuvi__interface__communication__ble__advertising_8h.html#ae6fbaeb45a2c1d548d8b3d589f3f0783", null ],
+    [ "RUUVI_COMM_BLE_ADV_SCAN_LENGTH", "ruuvi__interface__communication__ble__advertising_8h.html#adedc64f5703ccd500065714ce69632b3", null ],
     [ "ri_adv_type_t", "ruuvi__interface__communication__ble__advertising_8h.html#a4fbdf36956c60ee49c29631c2d3df5df", [
       [ "NONCONNECTABLE_NONSCANNABLE", "ruuvi__interface__communication__ble__advertising_8h.html#a4fbdf36956c60ee49c29631c2d3df5dfaad6479d9fb04166a26e11755d4f5a67e", null ],
       [ "CONNECTABLE_NONSCANNABLE", "ruuvi__interface__communication__ble__advertising_8h.html#a4fbdf36956c60ee49c29631c2d3df5dfa927df6c5aec5d8f8e31edb85009ab414", null ],

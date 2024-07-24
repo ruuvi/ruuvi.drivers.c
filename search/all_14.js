@@ -1,13 +1,20 @@
 var searchData=
 [
-  ['valid_2653',['valid',['../structrd__sensor__data__t.html#ac0c6af74cc94ad9af119a03e6443b865',1,'rd_sensor_data_t']]],
-  ['valid_5frecords_2654',['valid_records',['../structfds__stat__t.html#a69dec334e72694fa9781ca40dbae4398',1,'fds_stat_t']]],
-  ['validate_5fdefault_5finput_5fget_2655',['validate_default_input_get',['../group___sensor.html#gaea79e3dc102709106e498535a656c823',1,'validate_default_input_get(uint8_t *const input):&#160;ruuvi_driver_sensor.c'],['../group___sensor.html#gaea79e3dc102709106e498535a656c823',1,'validate_default_input_get(uint8_t *const input):&#160;ruuvi_driver_sensor.c']]],
-  ['validate_5fdefault_5finput_5fset_2656',['validate_default_input_set',['../group___sensor.html#ga65002645afd27f62c834d02b36305343',1,'validate_default_input_set(uint8_t *const input, const uint8_t mode):&#160;ruuvi_driver_sensor.c'],['../group___sensor.html#ga65002645afd27f62c834d02b36305343',1,'validate_default_input_set(uint8_t *const input, const uint8_t mode):&#160;ruuvi_driver_sensor.c']]],
-  ['vdd_2657',['vdd',['../structri__adc__get__data__t.html#ab8252f8dd4df8faeb96a7133804f002c',1,'ri_adc_get_data_t']]],
-  ['verify_5fsensor_5fsleeps_2658',['VERIFY_SENSOR_SLEEPS',['../ruuvi__interface__lis2dh12_8c.html#a97355e96c09fc9896da2a8dd1d95c9b4',1,'VERIFY_SENSOR_SLEEPS():&#160;ruuvi_interface_lis2dh12.c'],['../group___s_h_t_c_x.html#ga97355e96c09fc9896da2a8dd1d95c9b4',1,'VERIFY_SENSOR_SLEEPS():&#160;ruuvi_interface_shtcx.c']]],
-  ['voc_5fppm_2659',['voc_ppm',['../structrd__sensor__data__bitfield__t.html#af2dbd336b74b42a5c2cba4f54962996a',1,'rd_sensor_data_bitfield_t']]],
-  ['voltage_5fratio_2660',['voltage_ratio',['../structrd__sensor__data__bitfield__t.html#ad4a81f02d790c529f45bcd702622c4fc',1,'rd_sensor_data_bitfield_t']]],
-  ['voltage_5fv_2661',['voltage_v',['../structrd__sensor__data__bitfield__t.html#a65955763a053b1b3aa3c630e69d65f35',1,'rd_sensor_data_bitfield_t']]],
-  ['vref_2662',['vref',['../structri__adc__channel__config__t.html#a99352675050cadbef8e1316f836e0f2d',1,'ri_adc_channel_config_t']]]
+  ['uart_20functions_2640',['UART functions',['../group___u_a_r_t.html',1,'']]],
+  ['uart_5fconfig_5fdebug_5fcolor_2641',['UART_CONFIG_DEBUG_COLOR',['../sdk__config_8h.html#aa490a87dd9691430fa0dd7582f1ced6d',1,'sdk_config.h']]],
+  ['uart_5fconfig_5finfo_5fcolor_2642',['UART_CONFIG_INFO_COLOR',['../sdk__config_8h.html#af085e5ec7132a9bf849f416587cd6255',1,'sdk_config.h']]],
+  ['uart_5fconfig_5flog_5fenabled_2643',['UART_CONFIG_LOG_ENABLED',['../sdk__config_8h.html#ad414a688ea5049256a0daa1f218d03ee',1,'sdk_config.h']]],
+  ['uart_5fconfig_5flog_5flevel_2644',['UART_CONFIG_LOG_LEVEL',['../sdk__config_8h.html#a193659ced8c6748e51c110a9fb75048c',1,'sdk_config.h']]],
+  ['uninit_2645',['uninit',['../structrd__sensor__t.html#a547b8fa075f87175a5add0d871a65398',1,'rd_sensor_t::uninit()'],['../structri__comm__channel__t.html#a73d3a27c17e609712ac7eb30eedd0f64',1,'ri_comm_channel_t::uninit()']]],
+  ['unused_5fvariable_2646',['UNUSED_VARIABLE',['../group___sensor.html#gadfda67db9dcdc881fe33428768647b0a',1,'ruuvi_driver_sensor.h']]],
+  ['usbd_5fconfig_5fdebug_5fcolor_2647',['USBD_CONFIG_DEBUG_COLOR',['../sdk__config_8h.html#aba18054f00ec1d3c1d41333bccbe67a3',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5fdmascheduler_5fiso_5fboost_2648',['USBD_CONFIG_DMASCHEDULER_ISO_BOOST',['../sdk__config_8h.html#a626277f12651b79ac5cae8af871c4b6f',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5fdmascheduler_5fmode_2649',['USBD_CONFIG_DMASCHEDULER_MODE',['../sdk__config_8h.html#a8c7dcc08c140fdf0b8872d86a41ce3e6',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5finfo_5fcolor_2650',['USBD_CONFIG_INFO_COLOR',['../sdk__config_8h.html#a39457c4e37b6406f49d76894c61dd889',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5firq_5fpriority_2651',['USBD_CONFIG_IRQ_PRIORITY',['../sdk__config_8h.html#a6d27c1c2c0bb74169038c2c63c6881e3',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5fiso_5fin_5fzlp_2652',['USBD_CONFIG_ISO_IN_ZLP',['../sdk__config_8h.html#a152e853890f0f4bd904e78a005c06960',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5flog_5fenabled_2653',['USBD_CONFIG_LOG_ENABLED',['../sdk__config_8h.html#a649045e11bcd01bc058e097a2a82ba7e',1,'sdk_config.h']]],
+  ['usbd_5fconfig_5flog_5flevel_2654',['USBD_CONFIG_LOG_LEVEL',['../sdk__config_8h.html#abc5a1925baa17aa795cf53d5e34d4673',1,'sdk_config.h']]],
+  ['usbd_5fenabled_2655',['USBD_ENABLED',['../sdk__config_8h.html#a97ef137ff8693c35078a87f135a41c60',1,'sdk_config.h']]],
+  ['use_5fcomp_2656',['USE_COMP',['../sdk__config_8h.html#aae23cc832a1b1ebf0e122584a253cb29',1,'sdk_config.h']]]
 ];

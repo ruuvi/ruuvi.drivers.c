@@ -20,7 +20,6 @@ var ruuvi__driver__enabled__modules_8h =
     [ "RI_BME280_I2C_ENABLED", "ruuvi__driver__enabled__modules_8h.html#afbbecb05a6343f99b161a324c225e594", null ],
     [ "RI_BME280_SPI_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a2960466363a1b30d6ba549f8d75e2cb2", null ],
     [ "RI_COMM_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a765244b315909a38656f3a02a474c8b5", null ],
-    [ "RI_COMM_MESSAGE_MAX_LENGTH", "ruuvi__driver__enabled__modules_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54", null ],
     [ "RI_DPS310_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a214d47181fba09e64199eef8bacb4e7e", null ],
     [ "RI_DPS310_I2C_ENABLED", "ruuvi__driver__enabled__modules_8h.html#af6758977ce810156596095a9f1aec641", null ],
     [ "RI_DPS310_SPI_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a9f40d84b3be7227706b9907b07958417", null ],

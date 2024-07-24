@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bosch_5fdelay_5fms_2867',['bosch_delay_ms',['../ruuvi__interface__bme280_8c.html#afce0ea57827728e26eb155f356c9babb',1,'bosch_delay_ms(uint32_t time_ms):&#160;ruuvi_interface_bme280.c'],['../ruuvi__interface__bme280_8h.html#afce0ea57827728e26eb155f356c9babb',1,'bosch_delay_ms(uint32_t time_ms):&#160;ruuvi_interface_bme280.c']]]
+  ['_5fstatic_5fassert_2871',['_Static_assert',['../structri__comm__message__t.html#a8599d501e4c502043368ad8d0595654a',1,'ri_comm_message_t']]]
 ];
