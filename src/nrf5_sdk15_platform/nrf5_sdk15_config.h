@@ -84,15 +84,10 @@
 #ifndef RUUVI_NRF5_SDK15_SCAN_QUEUE_LENGTH
 #   define RUUVI_NRF5_SDK15_SCAN_QUEUE_LENGTH 3   //!< Number of scans that can be queued.
 #endif
-#   if RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED
-#       define RUUVI_NRF5_SDK15_ADV_LENGTH    238 //!< Extended connectable data length
-#       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Cannot have extended data + scanrsp
-#       define NRF_BLE_SCAN_BUFFER            255 //!< Maximum scannable extended advertisement.
-#   else
-#       define RUUVI_NRF5_SDK15_ADV_LENGTH    31  //!< Standard message length
-#       define RUUVI_NRF5_SDK15_SCAN_LENGTH   31  //!< Standard message length
-#       define NRF_BLE_SCAN_BUFFER            31  //!< Standard advertisement legth
-#   endif
+
+#   define RUUVI_NRF5_SDK15_ADV_LENGTH    RUUVI_COMM_BLE_ADV_MAX_LENGTH
+#   define RUUVI_NRF5_SDK15_SCAN_LENGTH   RUUVI_COMM_BLE_ADV_SCAN_LENGTH
+#   define NRF_BLE_SCAN_BUFFER            RUUVI_COMM_BLE_ADV_SCAN_BUFFER
 #endif
 
 #if RUUVI_NRF5_SDK15_GATT_ENABLED
