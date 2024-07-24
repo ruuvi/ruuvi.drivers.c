@@ -7,7 +7,7 @@
  * @date 2020-03-26
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  *
- * Commmon definitions and functions for all BLE advertising.
+ * Common definitions and functions for all BLE advertising.
  *
  */
 #include "ruuvi_driver_enabled_modules.h"
@@ -21,19 +21,14 @@
 #   define RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED RI_ADV_EXTENDED_ENABLED
 #endif
 
+#define RUUVI_COMM_BLE_ADV_MAX_LENGTH  (RI_COMM_BLE_PAYLOAD_MAX_LENGTH)
+#define RUUVI_COMM_BLE_ADV_SCAN_LENGTH (RUUVI_COMM_BLE_ADV_MAX_LENGTH)
+#define RUUVI_COMM_BLE_ADV_SCAN_BUFFER (RUUVI_COMM_BLE_ADV_MAX_LENGTH)
+
 /* @brief number of bytes in a MAC address */
 #define BLE_MAC_ADDRESS_LENGTH 6
 
-/** @brief Number of bytes in a BLE scan data.
- *
- */
-#if RI_ADV_EXTENDED_ENABLED
-#    define BLE_SCAN_DATA_LENGTH   238
-#else
-#    define BLE_SCAN_DATA_LENGTH   31
-#endif
-
-/** @brief Alloved advertisement types */
+/** @brief Allowed advertisement types */
 typedef enum
 {
     NONCONNECTABLE_NONSCANNABLE, //!< Nonconnectable, nonscannable
@@ -46,7 +41,7 @@ typedef struct
 {
     uint8_t addr[BLE_MAC_ADDRESS_LENGTH];  //<! MAC address, MSB first
     int8_t rssi;      //!< RSSI of advertisement
-    uint8_t data[BLE_SCAN_DATA_LENGTH]; //!< Full payload of the advertisement
+    uint8_t data[RUUVI_COMM_BLE_ADV_SCAN_LENGTH]; //!< Full payload of the advertisement
     size_t data_len;  //!< Length of received data
 } ri_adv_scan_t;      //!< Advertisement report from scanner
 
