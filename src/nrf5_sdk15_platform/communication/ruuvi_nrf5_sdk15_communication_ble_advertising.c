@@ -25,17 +25,28 @@
 #include "ble_advdata.h"
 #include "ble_types.h"
 #include "sdk_errors.h"
+#include "nrf_log.h"
 
 #include <stdint.h>
 
 #ifndef RUUVI_NRF5_SDK15_ADV_LOG_LEVEL
-#define LOG_LEVEL RI_LOG_LEVEL_DEBUG
+#define LOG_LEVEL RI_LOG_LEVEL_INFO
 #else
 #define LOG_LEVEL RUUVI_NRF5_SDK15_ADV_LOG_LEVEL
 #endif
 static inline void LOG (const char * const msg)
 {
     ri_log (LOG_LEVEL, msg);
+}
+
+static inline void LOGD (const char * const msg)
+{
+    ri_log (RI_LOG_LEVEL_DEBUG, msg);
+}
+
+static inline void LOGI (const char * const msg)
+{
+    ri_log (RI_LOG_LEVEL_INFO, msg);
 }
 
 static inline void LOGW (const char * const msg)
@@ -86,6 +97,7 @@ static char m_name[NONEXTENDED_ADV_MAX_LEN];
 static bool m_advertise_nus;
 static ri_adv_type_t m_type;                 //!< Type, configured by user.
 static ri_radio_channels_t m_radio_channels; //!< Enabled channels to send
+static bool m_is_ext_adv_enabled;            //!< Extended advertisement enabled.
 
 /** @brief Advertising handle used to identify an advertising set. */
 static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
@@ -204,20 +216,20 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
     switch (p_scan_evt->scan_evt_id)
     {
         case NRF_BLE_SCAN_EVT_SCAN_TIMEOUT:
-            LOG ("Scan timeout\r\n");
+            LOGI ("Scan timeout\r\n");
             m_channel->on_evt (RI_COMM_TIMEOUT,
                                NULL, 0);
             break;
 
         // Data which matches the configured filter - todo
         case NRF_BLE_SCAN_EVT_FILTER_MATCH:
-            LOG ("Matching data\r\n");
+            LOGD ("Matching data\r\n");
             // p_scan_evt->params.filter_match.p_adv_report; // Data should be here
             break;
 
         // All the data, pass to application
         case NRF_BLE_SCAN_EVT_NOT_FOUND:
-            LOG ("Unknown data\r\n");
+            LOGD ("Unknown data\r\n");
 
             if ( (NULL != m_channel)  && (NULL != m_channel->on_evt))
             {
@@ -242,7 +254,7 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
             break;
 
         default:
-            LOG ("Unknown event\r\n");
+            LOGW ("Unknown event\r\n");
     }
 }
 
@@ -646,6 +658,12 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
     return err_code;
 }
 
+rd_status_t ri_adv_set_ext_adv_enabled (const bool is_ext_adv_enabled)
+{
+    m_is_ext_adv_enabled = is_ext_adv_enabled;
+    return RD_SUCCESS;
+}
+
 rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
                                const uint32_t window_size_ms)
 {
@@ -656,25 +674,9 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
     uint8_t scan_phys = ruuvi_nrf5_sdk15_radio_phy_get();
     scan_params.active = 0; // Do not scan for scan responses
     ruuvi_nrf5_sdk15_radio_channels_set (scan_params.channel_mask, m_radio_channels);
-
-    if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
+    scan_params.extended = m_is_ext_adv_enabled;
+#if defined(RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED) && RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED
     {
-        scan_params.extended = 1;
-    }
-    else
-    {
-        scan_params.extended = 0;
-    }
-
-    // Other than 1 MBit / s require extended advertising.
-    if (BLE_GAP_PHY_1MBPS == scan_phys)
-    {
-        scan_params.extended = 1;
-    }
-    else if (RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED)
-    {
-        scan_params.extended = 1;
-
         // 2MBit/s not allowed on primary channel,
         // extended advertisement on secondary channel is automatically
         // scanned with all supported PHYs.
@@ -683,10 +685,9 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
             scan_phys = BLE_GAP_PHY_1MBPS;
         }
     }
-    else
-    {
-        err_code |= RD_ERROR_INVALID_STATE;
-    }
+#endif
+    NRF_LOG_INFO ("ri_adv_scan_start: NRF modulation: 0x%02x, ext_adv=%d",
+                  scan_phys, scan_params.extended);
 
     if (RD_SUCCESS == err_code)
     {

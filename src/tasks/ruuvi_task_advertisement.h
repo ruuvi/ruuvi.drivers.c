@@ -60,6 +60,7 @@ typedef struct
     ri_radio_channels_t channels; //!< Radio channels, typically 37, 38, and/or 39.
     uint16_t adv_interval_ms;     //!< ms / advertisement, not counting random delay
     int8_t   adv_pwr_dbm;         //!< Power to antenna, dBm.
+    bool     is_ext_adv_enabled;  //!< True to enable extended advertisement.
     uint16_t manufacturer_id;     //!< BLE SIG id of board manufacturer
 } rt_adv_init_t;
 

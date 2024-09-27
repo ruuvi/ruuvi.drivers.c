@@ -47,6 +47,7 @@ rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings)
     else
     {
         err_code |= ri_adv_init (&m_channel);
+        err_code |= ri_adv_set_ext_adv_enabled (adv_init_settings->is_ext_adv_enabled);
         err_code |= ri_adv_tx_interval_set (adv_init_settings->adv_interval_ms);
         err_code |= ri_adv_tx_power_set (& (adv_init_settings->adv_pwr_dbm));
         err_code |= ri_adv_type_set (NONCONNECTABLE_NONSCANNABLE);

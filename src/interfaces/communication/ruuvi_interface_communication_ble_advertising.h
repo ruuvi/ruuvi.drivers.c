@@ -63,6 +63,14 @@ typedef struct
  */
 rd_status_t ri_adv_init (ri_comm_channel_t * const channel);
 
+/**
+ * @brief Set extended advertisement enabled or disabled.
+ *
+ * @param[in] is_ext_adv_enabled True to enable extended advertisement, false to disable.
+ * @retval RD_SUCCESS on success.
+ */
+rd_status_t ri_adv_set_ext_adv_enabled (const bool is_ext_adv_enabled);
+
 /*
  * @brief Uninitializes advertising module and scanning module.
  *
