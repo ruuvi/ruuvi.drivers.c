@@ -54,8 +54,10 @@ $(SONAR): $(ANALYSIS)
 
 astyle:
 	astyle --project=".astylerc" --recursive \
+			  --exclude="src/nrf5_sdk15_platform/ruuvi.nrf_sdk15_3_overrides.c" \
 			  "src/*.h" \
-			  "src/*.c" \
+			  "src/*.c"
+	astyle --project=".astylerc" --recursive \
 			  "test/*.c"
 
 clean:
