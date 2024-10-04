@@ -97,7 +97,9 @@ static char m_name[NONEXTENDED_ADV_MAX_LEN];
 static bool m_advertise_nus;
 static ri_adv_type_t m_type;                 //!< Type, configured by user.
 static ri_radio_channels_t m_radio_channels; //!< Enabled channels to send
-static bool m_is_ext_adv_enabled;            //!< Extended advertisement enabled.
+static bool m_is_rx_le_1m_phy_enabled;       //!< Is 1 MBit/s PHY enabled.
+static bool m_is_rx_le_2m_phy_enabled;       //!< Is 2 MBit/s PHY enabled.
+static bool m_is_rx_le_coded_phy_enabled;    //!< Is 125 kBit/s PHY enabled.
 
 /** @brief Advertising handle used to identify an advertising set. */
 static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
@@ -658,9 +660,13 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
     return err_code;
 }
 
-rd_status_t ri_adv_set_ext_adv_enabled (const bool is_ext_adv_enabled)
+rd_status_t ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
+        const bool is_le_2m_phy_enabled,
+        const bool is_le_coded_phy_enabled)
 {
-    m_is_ext_adv_enabled = is_ext_adv_enabled;
+    m_is_rx_le_1m_phy_enabled = is_le_1m_phy_enabled;
+    m_is_rx_le_2m_phy_enabled = is_le_2m_phy_enabled;
+    m_is_rx_le_coded_phy_enabled = is_le_coded_phy_enabled;
     return RD_SUCCESS;
 }
 
@@ -674,7 +680,8 @@ rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
     uint8_t scan_phys = ruuvi_nrf5_sdk15_radio_phy_get();
     scan_params.active = 0; // Do not scan for scan responses
     ruuvi_nrf5_sdk15_radio_channels_set (scan_params.channel_mask, m_radio_channels);
-    scan_params.extended = m_is_ext_adv_enabled;
+    scan_params.extended =
+        m_is_rx_le_2m_phy_enabled || m_is_rx_le_coded_phy_enabled;
 #if defined(RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED) && RUUVI_NRF5_SDK15_ADV_EXTENDED_ENABLED
     {
         // 2MBit/s not allowed on primary channel,
