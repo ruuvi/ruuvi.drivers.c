@@ -17,6 +17,7 @@ var ruuvi__interface__communication__ble__advertising_8h =
     [ "ri_adv_init", "ruuvi__interface__communication__ble__advertising_8h.html#a9503639d800dfd77d98fd2d68246bdd8", null ],
     [ "ri_adv_manufacturer_id_set", "ruuvi__interface__communication__ble__advertising_8h.html#a9053fcf126e5247c8542db1f414a7bbe", null ],
     [ "ri_adv_parse_manuid", "ruuvi__interface__communication__ble__advertising_8h.html#a03638010143c5f2e885d9e026ea14d3a", null ],
+    [ "ri_adv_rx_ble_phy_enabled_set", "ruuvi__interface__communication__ble__advertising_8h.html#aebbd2339c2236ffcedf6536b1d35d824", null ],
     [ "ri_adv_scan_response_setup", "ruuvi__interface__communication__ble__advertising_8h.html#a97803f04f00d968446a25338c78e5308", null ],
     [ "ri_adv_scan_start", "ruuvi__interface__communication__ble__advertising_8h.html#a1f88bcd2ef238f1e2556fb91a36b5303", null ],
     [ "ri_adv_scan_stop", "ruuvi__interface__communication__ble__advertising_8h.html#aeac644966a1bd24a0ee17c2583187e25", null ],
