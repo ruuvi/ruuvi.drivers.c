@@ -712,14 +712,13 @@ rd_status_t ri_adv_uninit (ri_comm_channel_t * const channel)
     return err_code;
 }
 
-rd_status_t ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
-        const bool is_le_2m_phy_enabled,
-        const bool is_le_coded_phy_enabled)
+void ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
+                                    const bool is_le_2m_phy_enabled,
+                                    const bool is_le_coded_phy_enabled)
 {
     m_is_rx_le_1m_phy_enabled = is_le_1m_phy_enabled;
     m_is_rx_le_2m_phy_enabled = is_le_2m_phy_enabled;
     m_is_rx_le_coded_phy_enabled = is_le_coded_phy_enabled;
-    return RD_SUCCESS;
 }
 
 rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,

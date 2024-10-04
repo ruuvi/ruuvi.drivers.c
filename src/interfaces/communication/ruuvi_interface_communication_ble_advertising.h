@@ -86,11 +86,10 @@ rd_status_t ri_adv_init (ri_comm_channel_t * const channel);
  * @param[in] is_le_1m_phy_enabled True if 1 MBit/s PHY is enabled.
  * @param[in] is_le_2m_phy_enabled True if 2 MBit/s PHY is enabled.
  * @param[in] is_le_coded_phy_enabled True if 125 kBit/s PHY is enabled.
- * @retval RD_SUCCESS on success.
  */
-rd_status_t ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
-        const bool is_le_2m_phy_enabled,
-        const bool is_le_coded_phy_enabled);
+void ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
+                                    const bool is_le_2m_phy_enabled,
+                                    const bool is_le_coded_phy_enabled);
 
 /*
  * @brief Uninitializes advertising module and scanning module.
