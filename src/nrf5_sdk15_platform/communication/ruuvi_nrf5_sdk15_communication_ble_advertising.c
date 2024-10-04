@@ -264,7 +264,8 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
                         && (BLE_GAP_PHY_NOT_SET == p_scan_evt->params.p_not_found->secondary_phy))
                 {
                     NRF_LOG_INFO (
-                        "on_advertisement: 1M PHY disabled, discard adv from addr=%s: len=%d, primary_phy=%d, secondary_phy=%d, chan=%d",
+                        "on_advertisement: 1M PHY disabled, discard adv from "
+                        "addr=%s: len=%d, primary_phy=%d, secondary_phy=%d, chan=%d",
                         ble_adv_mac_addr_to_str (p_scan_evt->params.p_not_found->peer_addr.addr).buf,
                         p_scan_evt->params.p_not_found->data.len,
                         p_scan_evt->params.p_not_found->primary_phy,
@@ -275,7 +276,8 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
 
                 const bool is_coded_phy = (RI_RADIO_BLE_125KBPS == modulation) ? true : false;
                 NRF_LOG_INFO (
-                    "on_advertisement: recv adv from addr=%s: len=%d, is_coded_phy=%d, primary_phy=%d, secondary_phy=%d, chan=%d",
+                    "on_advertisement: recv adv from addr=%s: len=%d, "
+                    "is_coded_phy=%d, primary_phy=%d, secondary_phy=%d, chan=%d",
                     ble_adv_mac_addr_to_str (p_scan_evt->params.p_not_found->peer_addr.addr).buf,
                     p_scan_evt->params.p_not_found->data.len,
                     is_coded_phy,
