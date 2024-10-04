@@ -49,9 +49,9 @@ typedef enum
  */
 typedef struct
 {
-    unsigned int channel_37 : 1; //!< BLE channel 37, 2402 MHz.
-    unsigned int channel_38 : 1; //!< BLE channel 38, 2426 MHz.
-    unsigned int channel_39 : 1; //!< BLE channel 39, 2480 MHz.
+    uint8_t channel_37 : 1; //!< BLE channel 37, 2402 MHz.
+    uint8_t channel_38 : 1; //!< BLE channel 38, 2426 MHz.
+    uint8_t channel_39 : 1; //!< BLE channel 39, 2480 MHz.
 } ri_radio_channels_t;
 
 /**

@@ -74,10 +74,16 @@ static ri_comm_channel_t m_mock_channel;
 void setUp (void)
 {
     rd_status_t err_code = RD_SUCCESS;
+    const bool is_rx_le_1m_phy_enabled = false;
+    const bool is_rx_le_2m_phy_enabled = false;
+    const bool is_rx_le_coded_phy_enabled = false;
     mock_init (&m_mock_channel);
     ri_adv_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (&m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
+    ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
+                                          is_rx_le_2m_phy_enabled,
+                                          is_rx_le_coded_phy_enabled);
     ri_adv_tx_interval_set_ExpectAndReturn (ADV_INTERVAL_MS, RD_SUCCESS);
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (&power, sizeof (power), RD_SUCCESS);
     ri_adv_type_set_ExpectAndReturn (NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
@@ -93,6 +99,9 @@ void setUp (void)
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     init.channels = channels;
+    init.is_rx_le_1m_phy_enabled = is_rx_le_1m_phy_enabled;
+    init.is_rx_le_2m_phy_enabled = is_rx_le_2m_phy_enabled;
+    init.is_rx_le_coded_phy_enabled = is_rx_le_coded_phy_enabled;
     ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     send_count = 0;
@@ -129,6 +138,9 @@ void tearDown (void)
  */
 void test_rt_adv_init_ok (void)
 {
+    const bool is_rx_le_1m_phy_enabled = true;
+    const bool is_rx_le_2m_phy_enabled = false;
+    const bool is_rx_le_coded_phy_enabled = false;
     tearDown();
     mock_init (&m_mock_channel);
     rd_status_t err_code = RD_SUCCESS;
@@ -136,9 +148,12 @@ void test_rt_adv_init_ok (void)
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
         &m_mock_channel, 1);
-    int8_t power = ADV_PWR_DBM;
+    ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
+                                          is_rx_le_2m_phy_enabled,
+                                          is_rx_le_coded_phy_enabled);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
+    int8_t power = ADV_PWR_DBM;
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (
         &power, sizeof (power), RD_SUCCESS);
     ri_adv_type_set_ExpectAndReturn (
@@ -156,6 +171,9 @@ void test_rt_adv_init_ok (void)
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     init.channels = channels;
+    init.is_rx_le_1m_phy_enabled = is_rx_le_1m_phy_enabled;
+    init.is_rx_le_2m_phy_enabled = is_rx_le_2m_phy_enabled;
+    init.is_rx_le_coded_phy_enabled = is_rx_le_coded_phy_enabled;
     ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_SUCCESS == err_code);
@@ -164,12 +182,18 @@ void test_rt_adv_init_ok (void)
 
 void test_rt_adv_init_invalid_interval (void)
 {
+    const bool is_rx_le_1m_phy_enabled = false;
+    const bool is_rx_le_2m_phy_enabled = true;
+    const bool is_rx_le_coded_phy_enabled = false;
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
         RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (
         &m_mock_channel, 1);
+    ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
+                                          is_rx_le_2m_phy_enabled,
+                                          is_rx_le_coded_phy_enabled);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_ERROR_INVALID_PARAM);
     int8_t power = ADV_PWR_DBM;
@@ -190,6 +214,9 @@ void test_rt_adv_init_invalid_interval (void)
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     init.channels = channels;
+    init.is_rx_le_1m_phy_enabled = is_rx_le_1m_phy_enabled;
+    init.is_rx_le_2m_phy_enabled = is_rx_le_2m_phy_enabled;
+    init.is_rx_le_coded_phy_enabled = is_rx_le_coded_phy_enabled;
     ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
@@ -198,6 +225,9 @@ void test_rt_adv_init_invalid_interval (void)
 
 void test_rt_adv_init_invalid_power (void)
 {
+    const bool is_rx_le_1m_phy_enabled = false;
+    const bool is_rx_le_2m_phy_enabled = false;
+    const bool is_rx_le_coded_phy_enabled = true;
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
@@ -205,6 +235,9 @@ void test_rt_adv_init_invalid_power (void)
     ri_adv_init_ReturnArrayThruPtr_channel (
         &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
+    ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
+                                          is_rx_le_2m_phy_enabled,
+                                          is_rx_le_coded_phy_enabled);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (
@@ -224,6 +257,9 @@ void test_rt_adv_init_invalid_power (void)
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     init.channels = channels;
+    init.is_rx_le_1m_phy_enabled = is_rx_le_1m_phy_enabled;
+    init.is_rx_le_2m_phy_enabled = is_rx_le_2m_phy_enabled;
+    init.is_rx_le_coded_phy_enabled = is_rx_le_coded_phy_enabled;
     ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);
@@ -232,6 +268,9 @@ void test_rt_adv_init_invalid_power (void)
 
 void test_rt_adv_init_invalid_type (void)
 {
+    const bool is_rx_le_1m_phy_enabled = true;
+    const bool is_rx_le_2m_phy_enabled = false;
+    const bool is_rx_le_coded_phy_enabled = false;
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
@@ -239,6 +278,9 @@ void test_rt_adv_init_invalid_type (void)
     ri_adv_init_ReturnArrayThruPtr_channel (
         &m_mock_channel, 1);
     int8_t power = ADV_PWR_DBM;
+    ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
+                                          is_rx_le_2m_phy_enabled,
+                                          is_rx_le_coded_phy_enabled);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (
@@ -259,6 +301,9 @@ void test_rt_adv_init_invalid_type (void)
     init.adv_pwr_dbm = ADV_PWR_DBM;
     init.manufacturer_id = ADV_MANU_ID;
     init.channels = channels;
+    init.is_rx_le_1m_phy_enabled = is_rx_le_1m_phy_enabled;
+    init.is_rx_le_2m_phy_enabled = is_rx_le_2m_phy_enabled;
+    init.is_rx_le_coded_phy_enabled = is_rx_le_coded_phy_enabled;
     ri_adv_channels_set_ExpectAndReturn (channels, RD_SUCCESS);
     err_code = rt_adv_init (&init);
     TEST_ASSERT (RD_ERROR_INVALID_PARAM == err_code);

@@ -57,10 +57,13 @@
 /** @brief Initial configuration for advertisement. PHY will be transferred to GATT.  */
 typedef struct
 {
-    ri_radio_channels_t channels; //!< Radio channels, typically 37, 38, and/or 39.
-    uint16_t adv_interval_ms;     //!< ms / advertisement, not counting random delay
-    int8_t   adv_pwr_dbm;         //!< Power to antenna, dBm.
-    uint16_t manufacturer_id;     //!< BLE SIG id of board manufacturer
+    ri_radio_channels_t channels;    //!< Radio channels, typically 37, 38, and/or 39.
+    uint16_t adv_interval_ms;        //!< ms / advertisement, not counting random delay
+    int8_t   adv_pwr_dbm;            //!< Power to antenna, dBm.
+    bool is_rx_le_1m_phy_enabled;    //!< True if 1 MBit/s PHY is enabled in receiver.
+    bool is_rx_le_2m_phy_enabled;    //!< True if 2 MBit/s PHY is enabled in receiver.
+    bool is_rx_le_coded_phy_enabled; //!< True if 125 kBit/s PHY is enabled in receiver.
+    uint16_t manufacturer_id;        //!< BLE SIG id of board manufacturer
 } rt_adv_init_t;
 
 /**

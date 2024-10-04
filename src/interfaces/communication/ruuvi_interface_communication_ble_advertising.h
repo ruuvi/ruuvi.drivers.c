@@ -43,6 +43,23 @@ typedef struct
     int8_t rssi;      //!< RSSI of advertisement
     uint8_t data[RUUVI_COMM_BLE_ADV_SCAN_LENGTH]; //!< Full payload of the advertisement
     size_t data_len;  //!< Length of received data
+    bool is_coded_phy; //!< True if Coded PHY was used
+    uint8_t primary_phy; /**< Indicates the PHY on which the primary advertising
+                              packet was received. See BLE_GAP_PHYS. */
+    uint8_t secondary_phy; /**< Indicates the PHY on which the secondary
+                                advertising packet was received.
+                                See BLE_GAP_PHYS. This field is set to
+                                BLE_GAP_PHY_NOT_SET if no packets were
+                                received on a secondary advertising channel. */
+    uint8_t ch_index; /**< Channel Index on which the last advertising packet is
+                           received (0-39). */
+    int8_t tx_power; /**< TX Power reported by the advertiser in the last packet
+                          header received.
+                          This field is set to BLE_GAP_POWER_LEVEL_INVALID
+                          if the last received packet did not contain
+                          the Tx Power field.
+                          @note TX Power is only included in extended
+                          advertising packets. */
 } ri_adv_scan_t;      //!< Advertisement report from scanner
 
 /**
@@ -62,6 +79,17 @@ typedef struct
  * @note Modulation used on the advertisement depends on how radio was initialized.
  */
 rd_status_t ri_adv_init (ri_comm_channel_t * const channel);
+
+/**
+ * @brief Set BLE PHYs enabled or disabled for scanning.
+ *
+ * @param[in] is_le_1m_phy_enabled True if 1 MBit/s PHY is enabled.
+ * @param[in] is_le_2m_phy_enabled True if 2 MBit/s PHY is enabled.
+ * @param[in] is_le_coded_phy_enabled True if 125 kBit/s PHY is enabled.
+ */
+void ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
+                                    const bool is_le_2m_phy_enabled,
+                                    const bool is_le_coded_phy_enabled);
 
 /*
  * @brief Uninitializes advertising module and scanning module.
