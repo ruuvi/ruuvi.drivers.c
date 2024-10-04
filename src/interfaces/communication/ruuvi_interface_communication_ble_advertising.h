@@ -43,6 +43,23 @@ typedef struct
     int8_t rssi;      //!< RSSI of advertisement
     uint8_t data[RUUVI_COMM_BLE_ADV_SCAN_LENGTH]; //!< Full payload of the advertisement
     size_t data_len;  //!< Length of received data
+    bool is_coded_phy; //!< True if Coded PHY was used
+    uint8_t primary_phy; /**< Indicates the PHY on which the primary advertising
+                              packet was received. See @ref BLE_GAP_PHYS. */
+    uint8_t secondary_phy; /**< Indicates the PHY on which the secondary
+                                advertising packet was received.
+                                See @ref BLE_GAP_PHYS. This field is set to
+                                @ref BLE_GAP_PHY_NOT_SET if no packets were
+                                received on a secondary advertising channel. */
+    uint8_t ch_index; /**< Channel Index on which the last advertising packet is
+                           received (0-39). */
+    int8_t tx_power; /**< TX Power reported by the advertiser in the last packet
+                          header received.
+                          This field is set to @ref BLE_GAP_POWER_LEVEL_INVALID
+                          if the last received packet did not contain
+                          the Tx Power field.
+                          @note TX Power is only included in extended
+                          advertising packets. */
 } ri_adv_scan_t;      //!< Advertisement report from scanner
 
 /**

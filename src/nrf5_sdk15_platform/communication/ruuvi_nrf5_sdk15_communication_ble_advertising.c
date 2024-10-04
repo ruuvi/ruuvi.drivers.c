@@ -244,6 +244,11 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
                 scan.addr[4] = p_scan_evt->params.p_not_found->peer_addr.addr[1];
                 scan.addr[5] = p_scan_evt->params.p_not_found->peer_addr.addr[0];
                 scan.rssi    = p_scan_evt->params.p_not_found->rssi;
+                scan.is_coded_phy = (RI_RADIO_BLE_125KBPS == modulation) ? true : false;
+                scan.primary_phy = p_scan_evt->params.p_not_found->primary_phy;
+                scan.secondary_phy = p_scan_evt->params.p_not_found->secondary_phy;
+                scan.ch_index = p_scan_evt->params.p_not_found->ch_index;
+                scan.tx_power = p_scan_evt->params.p_not_found->tx_power;
                 memcpy (scan.data, p_scan_evt->params.p_not_found->data.p_data,
                         p_scan_evt->params.p_not_found->data.len);
                 scan.data_len = p_scan_evt->params.p_not_found->data.len;
