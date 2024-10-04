@@ -209,6 +209,27 @@ static void ble_advertising_on_ble_evt_isr (ble_evt_t const * p_ble_evt, void * 
     }
 }
 
+typedef struct ble_adv_mac_addr_str_t
+{
+#if RI_LOG_ENABLED
+    char buf[BLE_MAC_ADDRESS_LENGTH * 2 + (BLE_MAC_ADDRESS_LENGTH - 1) + 1];
+#else
+    char buf[1];
+#endif
+} ble_adv_mac_addr_str_t;
+
+static ble_adv_mac_addr_str_t ble_adv_mac_addr_to_str (const uint8_t * const p_mac)
+{
+    ble_adv_mac_addr_str_t mac_addr_str = {0};
+#if RI_LOG_ENABLED
+    snprintf (mac_addr_str.buf, sizeof (mac_addr_str.buf),
+              "%02x:%02x:%02x:%02x:%02x:%02x",
+              p_mac[5], p_mac[4], p_mac[3], p_mac[2], p_mac[1], p_mac[0]);
+#endif
+    return mac_addr_str;
+}
+
+
 NRF_SDH_BLE_OBSERVER (m_ble_observer, APP_BLE_OBSERVER_PRIO,
                       ble_advertising_on_ble_evt_isr, NULL);
 
@@ -235,6 +256,32 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
 
             if ( (NULL != m_channel)  && (NULL != m_channel->on_evt))
             {
+                ri_radio_modulation_t modulation = RI_RADIO_BLE_1MBPS;
+                ri_radio_get_modulation (&modulation);
+
+                if ( (RI_RADIO_BLE_1MBPS == modulation) && (!m_is_rx_le_1m_phy_enabled)
+                        && (BLE_GAP_PHY_1MBPS == p_scan_evt->params.p_not_found->primary_phy)
+                        && (BLE_GAP_PHY_NOT_SET == p_scan_evt->params.p_not_found->secondary_phy))
+                {
+                    NRF_LOG_INFO (
+                        "on_advertisement: 1M PHY disabled, discard adv from addr=%s: len=%d, primary_phy=%d, secondary_phy=%d, chan=%d",
+                        ble_adv_mac_addr_to_str (p_scan_evt->params.p_not_found->peer_addr.addr).buf,
+                        p_scan_evt->params.p_not_found->data.len,
+                        p_scan_evt->params.p_not_found->primary_phy,
+                        p_scan_evt->params.p_not_found->secondary_phy,
+                        p_scan_evt->params.p_not_found->ch_index);
+                    break;
+                }
+
+                const bool is_coded_phy = (RI_RADIO_BLE_125KBPS == modulation) ? true : false;
+                NRF_LOG_INFO (
+                    "on_advertisement: recv adv from addr=%s: len=%d, is_coded_phy=%d, primary_phy=%d, secondary_phy=%d, chan=%d",
+                    ble_adv_mac_addr_to_str (p_scan_evt->params.p_not_found->peer_addr.addr).buf,
+                    p_scan_evt->params.p_not_found->data.len,
+                    is_coded_phy,
+                    p_scan_evt->params.p_not_found->primary_phy,
+                    p_scan_evt->params.p_not_found->secondary_phy,
+                    p_scan_evt->params.p_not_found->ch_index);
                 // Send advertisement report
                 ri_adv_scan_t scan;
                 scan.addr[0] = p_scan_evt->params.p_not_found->peer_addr.addr[5];
@@ -244,7 +291,7 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
                 scan.addr[4] = p_scan_evt->params.p_not_found->peer_addr.addr[1];
                 scan.addr[5] = p_scan_evt->params.p_not_found->peer_addr.addr[0];
                 scan.rssi    = p_scan_evt->params.p_not_found->rssi;
-                scan.is_coded_phy = (RI_RADIO_BLE_125KBPS == modulation) ? true : false;
+                scan.is_coded_phy = is_coded_phy;
                 scan.primary_phy = p_scan_evt->params.p_not_found->primary_phy;
                 scan.secondary_phy = p_scan_evt->params.p_not_found->secondary_phy;
                 scan.ch_index = p_scan_evt->params.p_not_found->ch_index;
