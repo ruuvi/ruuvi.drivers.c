@@ -29,29 +29,46 @@
  */
 #define RI_COMM_MSG_REPEAT_FOREVER (0U)
 
-#ifndef RI_COMM_BLE_PAYLOAD_MAX_LENGTH
-/** @brief Max length of BLE broadcast payload.
- *
- * This is the maximum length of the payload in a BLE advertisement.
- * The length depends on whether extended advertising is enabled or not.
- */
-#   if RI_ADV_EXTENDED_ENABLED
-#       define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (238)
-#   else
-#       define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (31)
+#if defined(RI_ADV_EXTENDED_ENABLED) && RI_ADV_EXTENDED_ENABLED
+#   if !defined(RI_COMM_BLE_PAYLOAD_MAX_LENGTH)
+#       error "RI_COMM_BLE_PAYLOAD_MAX_LENGTH must be defined when RI_ADV_EXTENDED_ENABLED=1"
 #   endif
+#else
+#if defined(RI_RE_CA_UART_ENABLED) && RI_RE_CA_UART_ENABLED
+/** @brief Standard BLE advertisement full payload length
+ * is the maximum length */
+#     define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (31U)
+#else
+/** @brief Standard BLE advertisement manufacturer specific data
+ * payload length is the maximum length */
+#     define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (24U)
+#endif
 #endif
 
+#if defined(RI_RE_CA_UART_ENABLED) && RI_RE_CA_UART_ENABLED
 /** @brief The maximum length for the application message includes
- *         the fixed 16 byte overhead and the variable length payload,
- *         which depends on whether extended advertising is enabled or not.
+ *         the fixed 20 byte overhead for ADV_RPRT2 when sending encoded message
+ *         over UART and the variable length payload, which depends on whether
+ *         extended advertising is enabled or not.
+ * @ note See `ruuvi.endpoints.c` library, function `re_ca_uart_encode` for details.
  */
-#define RI_COMM_MESSAGE_MAX_LENGTH (16 + RI_COMM_BLE_PAYLOAD_MAX_LENGTH)
+#define RI_COMM_MESSAGE_MAX_LENGTH (20 + RI_COMM_BLE_PAYLOAD_MAX_LENGTH)
+#else
+/** @brief The maximum length for the application message for sending
+ *         over BLE, which depends on whether
+ *         extended advertising is enabled or not.
+ */
+#define RI_COMM_MESSAGE_MAX_LENGTH (RI_COMM_BLE_PAYLOAD_MAX_LENGTH)
+#endif
 
 /**
  * @brief Application message structure used for communication.
  *
  * This structure is used for both UART and BLE messages.
+ *
+ * @note When data is sent over UART, the data is sent in the encoded format,
+ * which includes a 20 byte overhead for the ADV_RPRT2 message.
+ * See `ruuvi.endpoints.c` library, function `re_ca_uart_encode` for details.
  *
  * @note The length of messages for BLE should not exceed
  *       @ref RI_COMM_BLE_PAYLOAD_MAX_LENGTH.
@@ -61,7 +78,7 @@
  */
 typedef struct ri_comm_message_t
 {
-    _Static_assert (RI_COMM_MESSAGE_MAX_LENGTH < UINT8_MAX,
+    _Static_assert (RI_COMM_MESSAGE_MAX_LENGTH <= UINT8_MAX,
                     "Data length must fit in uint8_t");
     uint8_t data[RI_COMM_MESSAGE_MAX_LENGTH]; //!< Data payload.
     uint8_t data_length;                      //!< Length of data
