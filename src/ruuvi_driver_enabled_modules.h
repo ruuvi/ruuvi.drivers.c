@@ -42,10 +42,6 @@
 #include "fruity_config.h"
 #endif
 
-#ifndef RI_ADV_EXTENDED_ENABLED
-#   define RI_ADV_EXTENDED_ENABLED ENABLE_DEFAULT
-#endif
-
 #ifndef RI_ATOMIC_ENABLED
 #   define RI_ATOMIC_ENABLED ENABLE_DEFAULT
 #endif

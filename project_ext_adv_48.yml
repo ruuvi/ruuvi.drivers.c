@@ -60,8 +60,8 @@
   :test_ruuvi_task_advertisement:
     - *common_defines
     - CEEDLING
-#    - RI_ADV_EXTENDED_ENABLED=0
-#    - RI_COMM_BLE_PAYLOAD_MAX_LENGTH=31
+    - RI_ADV_EXTENDED_ENABLED=1
+    - RI_COMM_BLE_PAYLOAD_MAX_LENGTH=48
 
 :cmock:
   :mock_prefix: mock_
