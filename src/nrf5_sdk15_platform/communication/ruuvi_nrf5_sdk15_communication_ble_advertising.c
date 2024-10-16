@@ -100,6 +100,7 @@ static ri_radio_channels_t m_radio_channels; //!< Enabled channels to send
 static bool m_is_rx_le_1m_phy_enabled;       //!< Is 1 MBit/s PHY enabled.
 static bool m_is_rx_le_2m_phy_enabled;       //!< Is 2 MBit/s PHY enabled.
 static bool m_is_rx_le_coded_phy_enabled;    //!< Is 125 kBit/s PHY enabled.
+static uint8_t m_max_adv_length = 0;         //!< Maximum length of advertisement.
 
 /** @brief Advertising handle used to identify an advertising set. */
 static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
@@ -274,6 +275,19 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
                     break;
                 }
 
+                // Send advertisement report
+                ri_adv_scan_t scan;
+                const uint8_t max_len = m_max_adv_length ? m_max_adv_length : sizeof (scan.data);
+
+                if (p_scan_evt->params.p_not_found->data.len > max_len)
+                {
+                    NRF_LOG_WARNING ("on_advertisement: discard adv from addr=%s: len=%d is too long (>%d)",
+                                     ble_adv_mac_addr_to_str (p_scan_evt->params.p_not_found->peer_addr.addr).buf,
+                                     p_scan_evt->params.p_not_found->data.len,
+                                     max_len);
+                    break;
+                }
+
                 const bool is_coded_phy = (RI_RADIO_BLE_125KBPS == modulation) ? true : false;
                 NRF_LOG_INFO (
                     "on_advertisement: recv adv from addr=%s: len=%d, "
@@ -284,8 +298,6 @@ static void on_advertisement (scan_evt_t const * p_scan_evt)
                     p_scan_evt->params.p_not_found->primary_phy,
                     p_scan_evt->params.p_not_found->secondary_phy,
                     p_scan_evt->params.p_not_found->ch_index);
-                // Send advertisement report
-                ri_adv_scan_t scan;
                 scan.addr[0] = p_scan_evt->params.p_not_found->peer_addr.addr[5];
                 scan.addr[1] = p_scan_evt->params.p_not_found->peer_addr.addr[4];
                 scan.addr[2] = p_scan_evt->params.p_not_found->peer_addr.addr[3];
@@ -721,6 +733,11 @@ void ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
     m_is_rx_le_1m_phy_enabled = is_le_1m_phy_enabled;
     m_is_rx_le_2m_phy_enabled = is_le_2m_phy_enabled;
     m_is_rx_le_coded_phy_enabled = is_le_coded_phy_enabled;
+}
+
+void ri_adv_rx_set_max_advertisement_data_length (const uint8_t max_adv_length)
+{
+    m_max_adv_length = max_adv_length;
 }
 
 rd_status_t ri_adv_scan_start (const uint32_t window_interval_ms,
