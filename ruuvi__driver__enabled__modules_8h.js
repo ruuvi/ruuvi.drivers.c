@@ -13,7 +13,6 @@ var ruuvi__driver__enabled__modules_8h =
     [ "RI_ADC_PHOTO_DIVIDER", "ruuvi__driver__enabled__modules_8h.html#ade86cecead8bbf32f01d91daaca135cc", null ],
     [ "RI_ADC_PHOTO_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a1a0b62d55a9671baadd0b53b9d2a657d", null ],
     [ "RI_ADV_ENABLED", "ruuvi__driver__enabled__modules_8h.html#af5a9b029ad402b7fb01efc7670d126f5", null ],
-    [ "RI_ADV_EXTENDED_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a0c0f134a6b398043ba58a58f491fc33d", null ],
     [ "RI_AES_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a8b942a40d8408895dc2ef1bf55d741c2", null ],
     [ "RI_ATOMIC_ENABLED", "ruuvi__driver__enabled__modules_8h.html#a6bd483b699e1ff36b6c3b374e6876ccd", null ],
     [ "RI_BME280_ENABLED", "ruuvi__driver__enabled__modules_8h.html#ade28ed24c83aeb15c586dc4fb1335290", null ],

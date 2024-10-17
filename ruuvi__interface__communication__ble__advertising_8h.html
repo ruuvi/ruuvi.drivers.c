@@ -134,6 +134,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aebbd2339c2236ffcedf6536b1d35d824"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#aebbd2339c2236ffcedf6536b1d35d824">ri_adv_rx_ble_phy_enabled_set</a> (const bool is_le_1m_phy_enabled, const bool is_le_2m_phy_enabled, const bool is_le_coded_phy_enabled)</td></tr>
 <tr class="memdesc:aebbd2339c2236ffcedf6536b1d35d824"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set BLE PHYs enabled or disabled for scanning.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#aebbd2339c2236ffcedf6536b1d35d824">More...</a><br /></td></tr>
 <tr class="separator:aebbd2339c2236ffcedf6536b1d35d824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a826533ac511aa63065441608af738c24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#a826533ac511aa63065441608af738c24">ri_adv_rx_set_max_advertisement_data_length</a> (const uint8_t max_adv_length)</td></tr>
+<tr class="memdesc:a826533ac511aa63065441608af738c24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set maximum advertisement data length. This is used to limit the size of extended advertisement data.  <a href="ruuvi__interface__communication__ble__advertising_8h.html#a826533ac511aa63065441608af738c24">More...</a><br /></td></tr>
+<tr class="separator:a826533ac511aa63065441608af738c24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad151b93560ab505cc6f9387ea0c729ee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#ad151b93560ab505cc6f9387ea0c729ee">ri_adv_uninit</a> (<a class="el" href="structri__comm__channel__t.html">ri_comm_channel_t</a> *const channel)</td></tr>
 <tr class="separator:ad151b93560ab505cc6f9387ea0c729ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad840b509c98da4df1bbd60839377d4e0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication__ble__advertising_8h.html#ad840b509c98da4df1bbd60839377d4e0">ri_adv_tx_interval_set</a> (const uint32_t ms)</td></tr>
@@ -522,6 +525,32 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">is_le_1m_phy_enabled</td><td>True if 1 MBit/s PHY is enabled. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">is_le_2m_phy_enabled</td><td>True if 2 MBit/s PHY is enabled. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">is_le_coded_phy_enabled</td><td>True if 125 kBit/s PHY is enabled. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a826533ac511aa63065441608af738c24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a826533ac511aa63065441608af738c24">&#9670;&nbsp;</a></span>ri_adv_rx_set_max_advertisement_data_length()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ri_adv_rx_set_max_advertisement_data_length </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>max_adv_length</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set maximum advertisement data length. This is used to limit the size of extended advertisement data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_adv_length</td><td>Maximum length of advertisement data. If zero, the maximum length is not checked and it is limited by macro RUUVI_COMM_BLE_ADV_SCAN_LENGTH. </td></tr>
   </table>
   </dd>
 </dl>
