@@ -120,7 +120,12 @@ rd_status_t ri_tmp117_dsp_get (uint8_t * dsp, uint8_t * parameter);
 rd_status_t ri_tmp117_mode_set (uint8_t * mode);
 /** @brief @ref rd_sensor_setup_fp */
 rd_status_t ri_tmp117_mode_get (uint8_t * mode);
-/** @brief @ref rd_sensor_data_fp */
+/** @brief @ref rd_sensor_data_fp
+    NOTE: This driver will return NAN as a valid value, blocking automatic passthrough
+    to the next sensor if sensor has passed self-test at initialization and fails later.
+    This is to avoid cases where external TMP117 probe has failed being masked by the next sensor
+    in line reporting onboard PCB value.
+*/
 rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const
                                 data);
 /** @} */
