@@ -7,7 +7,7 @@
 
 :project:
   :use_exceptions: FALSE
-  :use_test_preprocessor: all
+  :use_test_preprocessor: TRUE
   :use_auxiliary_dependencies: TRUE
   :build_root: build
 #  :release_build: TRUE
@@ -60,8 +60,8 @@
   :test_ruuvi_task_advertisement:
     - *common_defines
     - CEEDLING
-#    - RI_ADV_EXTENDED_ENABLED=0
-#    - RI_COMM_BLE_PAYLOAD_MAX_LENGTH=31
+    - RI_ADV_EXTENDED_ENABLED=1
+    - RI_COMM_BLE_PAYLOAD_MAX_LENGTH=48
 
 :cmock:
   :mock_prefix: mock_
@@ -107,7 +107,20 @@
   :release: []
 
 :plugins:
+  :load_paths:
+    - "#{Ceedling.load_path}"
   :enabled:
+    - stdout_pretty_tests_report
     - module_generator
     - gcov 
+
+:flags:
+  :test:
+    :compile:
+      :*:
+        - -std=c11
+  :gcov:
+    :compile:
+      :*:
+        - -std=c11
 ...

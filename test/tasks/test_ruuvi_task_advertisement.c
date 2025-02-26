@@ -77,6 +77,7 @@ void setUp (void)
     const bool is_rx_le_1m_phy_enabled = false;
     const bool is_rx_le_2m_phy_enabled = false;
     const bool is_rx_le_coded_phy_enabled = false;
+    const uint8_t max_adv_length = 0;
     mock_init (&m_mock_channel);
     ri_adv_init_ExpectAnyArgsAndReturn (RD_SUCCESS);
     ri_adv_init_ReturnArrayThruPtr_channel (&m_mock_channel, 1);
@@ -84,6 +85,7 @@ void setUp (void)
     ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
                                           is_rx_le_2m_phy_enabled,
                                           is_rx_le_coded_phy_enabled);
+    ri_adv_rx_set_max_advertisement_data_length_Expect (max_adv_length);
     ri_adv_tx_interval_set_ExpectAndReturn (ADV_INTERVAL_MS, RD_SUCCESS);
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (&power, sizeof (power), RD_SUCCESS);
     ri_adv_type_set_ExpectAndReturn (NONCONNECTABLE_NONSCANNABLE, RD_SUCCESS);
@@ -141,6 +143,7 @@ void test_rt_adv_init_ok (void)
     const bool is_rx_le_1m_phy_enabled = true;
     const bool is_rx_le_2m_phy_enabled = false;
     const bool is_rx_le_coded_phy_enabled = false;
+    const uint8_t max_adv_length = 0;
     tearDown();
     mock_init (&m_mock_channel);
     rd_status_t err_code = RD_SUCCESS;
@@ -151,6 +154,7 @@ void test_rt_adv_init_ok (void)
     ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
                                           is_rx_le_2m_phy_enabled,
                                           is_rx_le_coded_phy_enabled);
+    ri_adv_rx_set_max_advertisement_data_length_Expect (max_adv_length);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
     int8_t power = ADV_PWR_DBM;
@@ -185,6 +189,7 @@ void test_rt_adv_init_invalid_interval (void)
     const bool is_rx_le_1m_phy_enabled = false;
     const bool is_rx_le_2m_phy_enabled = true;
     const bool is_rx_le_coded_phy_enabled = false;
+    const uint8_t max_adv_length = 0;
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
@@ -194,6 +199,7 @@ void test_rt_adv_init_invalid_interval (void)
     ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
                                           is_rx_le_2m_phy_enabled,
                                           is_rx_le_coded_phy_enabled);
+    ri_adv_rx_set_max_advertisement_data_length_Expect (max_adv_length);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_ERROR_INVALID_PARAM);
     int8_t power = ADV_PWR_DBM;
@@ -228,6 +234,7 @@ void test_rt_adv_init_invalid_power (void)
     const bool is_rx_le_1m_phy_enabled = false;
     const bool is_rx_le_2m_phy_enabled = false;
     const bool is_rx_le_coded_phy_enabled = true;
+    const uint8_t max_adv_length = 0;
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
@@ -238,6 +245,7 @@ void test_rt_adv_init_invalid_power (void)
     ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
                                           is_rx_le_2m_phy_enabled,
                                           is_rx_le_coded_phy_enabled);
+    ri_adv_rx_set_max_advertisement_data_length_Expect (max_adv_length);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (
@@ -271,6 +279,7 @@ void test_rt_adv_init_invalid_type (void)
     const bool is_rx_le_1m_phy_enabled = true;
     const bool is_rx_le_2m_phy_enabled = false;
     const bool is_rx_le_coded_phy_enabled = false;
+    const uint8_t max_adv_length = 0;
     tearDown();
     rd_status_t err_code = RD_SUCCESS;
     ri_adv_init_ExpectAnyArgsAndReturn (
@@ -281,6 +290,7 @@ void test_rt_adv_init_invalid_type (void)
     ri_adv_rx_ble_phy_enabled_set_Expect (is_rx_le_1m_phy_enabled,
                                           is_rx_le_2m_phy_enabled,
                                           is_rx_le_coded_phy_enabled);
+    ri_adv_rx_set_max_advertisement_data_length_Expect (max_adv_length);
     ri_adv_tx_interval_set_ExpectAndReturn (
         ADV_INTERVAL_MS, RD_SUCCESS);
     ri_adv_tx_power_set_ExpectWithArrayAndReturn (

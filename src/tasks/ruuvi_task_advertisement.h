@@ -64,6 +64,7 @@ typedef struct
     bool is_rx_le_2m_phy_enabled;    //!< True if 2 MBit/s PHY is enabled in receiver.
     bool is_rx_le_coded_phy_enabled; //!< True if 125 kBit/s PHY is enabled in receiver.
     uint16_t manufacturer_id;        //!< BLE SIG id of board manufacturer
+    uint8_t max_adv_length;          //!< Maximum length of advertisement data
 } rt_adv_init_t;
 
 /**

@@ -69,3 +69,5 @@ build
 
 # gcov files
 *.gcov
+
+\.idea/

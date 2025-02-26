@@ -91,6 +91,16 @@ void ri_adv_rx_ble_phy_enabled_set (const bool is_le_1m_phy_enabled,
                                     const bool is_le_2m_phy_enabled,
                                     const bool is_le_coded_phy_enabled);
 
+/**
+ * @brief Set maximum advertisement data length.
+ *        This is used to limit the size of extended advertisement data.
+ *
+ * @param[in] max_adv_length Maximum length of advertisement data. If zero,
+ * the maximum length is not checked and it is limited by macro
+ * RUUVI_COMM_BLE_ADV_SCAN_LENGTH.
+ */
+void ri_adv_rx_set_max_advertisement_data_length (const uint8_t max_adv_length);
+
 /*
  * @brief Uninitializes advertising module and scanning module.
  *

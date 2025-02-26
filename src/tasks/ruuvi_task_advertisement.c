@@ -51,6 +51,7 @@ rd_status_t rt_adv_init (rt_adv_init_t * const adv_init_settings)
             adv_init_settings->is_rx_le_1m_phy_enabled,
             adv_init_settings->is_rx_le_2m_phy_enabled,
             adv_init_settings->is_rx_le_coded_phy_enabled);
+        ri_adv_rx_set_max_advertisement_data_length (adv_init_settings->max_adv_length);
         err_code |= ri_adv_tx_interval_set (adv_init_settings->adv_interval_ms);
         err_code |= ri_adv_tx_power_set (& (adv_init_settings->adv_pwr_dbm));
         err_code |= ri_adv_type_set (NONCONNECTABLE_NONSCANNABLE);
