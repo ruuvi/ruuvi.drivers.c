@@ -67,6 +67,5 @@ nRF5_SDK_15.3.0_59ac345
 # build folder
 build
 
-# PVS Studio files
-*.PVS-Studio*
-pvs.error
+# gcov files
+*.gcov
