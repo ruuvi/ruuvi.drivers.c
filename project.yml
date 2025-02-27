@@ -42,6 +42,15 @@
     - STMems_Standard_C_drivers/lis2dh12_STdC/driver/*
   :support:
     - test/support
+  :include:
+    - BME280_driver/*
+    - BME280_driver/selftest/*
+    - embedded-sht/**
+    - ruuvi.dps310.c/*
+    - src/*
+    - src/tasks/**
+    - src/interfaces/**
+    - STMems_Standard_C_drivers/lis2dh12_STdC/driver/*
 
 :defines:
   # in order to add common defines:
