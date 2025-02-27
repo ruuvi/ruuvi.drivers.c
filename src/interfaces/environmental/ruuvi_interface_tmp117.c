@@ -276,7 +276,8 @@ static rd_status_t tmp117_read (float * const temperature)
     err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_TEMP_RESULT, &reg_val);
     int32_t dec_temperature;
 
-    if (reg_val > 0x7FFFU)
+    // 0x8000 is a specific value for "Not available" and should not be returned to app.
+    if (reg_val > 0x8000U)
     {
         dec_temperature = (int32_t) reg_val - 0xFFFF;
     }
@@ -285,12 +286,14 @@ static rd_status_t tmp117_read (float * const temperature)
         dec_temperature = reg_val;
     }
 
-    *temperature = (0.0078125F * dec_temperature);
-
     if ( (TMP117_VALUE_TEMP_NA == reg_val) || (RD_SUCCESS != err_code))
     {
         *temperature = NAN;
         err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *temperature = (0.0078125F * dec_temperature);
     }
 
     return err_code;
