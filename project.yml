@@ -1,6 +1,10 @@
 ---
 
 # Notes:
+
+# This file has been updated from v0.X sample to v1.0.1-compatible configuration. 
+# Some options might not be valid anymore. 
+
 # Sample project C code is not presently written to produce a release artifact.
 # As such, release build options are disabled.
 # This sample, therefore, only demonstrates running a collection of unit tests.
@@ -93,11 +97,17 @@
 # You will need to have gcov and gcovr both installed to make it work.
 # For more information on these options, see docs in plugins/gcov
 :gcov:
-    :html_report: TRUE
-    :html_report_type: detailed
-    :html_medium_threshold: 75
-    :html_high_threshold: 90
-    :xml_report: FALSE
+  :reports:
+    - SonarQube
+  :gcovr:                        # `gcovr` common and report-specific options
+    :report_root: "../../"       # Atypical layout -- project.yml is inside a subdirectoy below <build root>
+    :sort_percentage: TRUE
+    :sort_uncovered: FALSE
+    :html_medium_threshold: 60
+    :html_high_threshold: 85
+    :print_summary: TRUE
+    :threads: 4
+    :keep: FALSE
 
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
