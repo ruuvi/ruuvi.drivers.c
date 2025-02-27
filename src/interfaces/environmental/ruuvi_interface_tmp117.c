@@ -830,6 +830,7 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
     if (NULL == data)
     {
         err_code |= RD_ERROR_NULL;
+        return err_code;
     }
 
     if (m_continuous)
@@ -846,7 +847,7 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
                             m_temperature);
         data->timestamp_ms = m_timestamp;
     }
-    else if (RD_ERROR_INVALID_STATE & err_code)
+    else if ( (RD_ERROR_INVALID_STATE & err_code) != 0)
     {
         // Handle case where e.g. external sensor has become disconnected after initialization
         // By returning NOT_VALID as a valid value, signaling application that correct data is not available.
@@ -854,6 +855,14 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
                             env_fields,
                             RD_FLOAT_INVALID);
         data->timestamp_ms = m_timestamp;
+    }
+    else if (RD_SUCCESS == err_code)
+    {
+        err_code |= RD_ERROR_INTERNAL;
+    }
+    else
+    {
+        // No action needed, pass original error code upwards.
     }
 
     return err_code;

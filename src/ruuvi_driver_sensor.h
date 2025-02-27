@@ -54,10 +54,11 @@
  *
  * data get: Return latest sample from sensor.
  *           Important! Some sensors will explicitly return NA value on error, others will not return value at all.
- *           This is to allow fall-through to backup sensors in some cases or to block fallthrough if e.g. high-precision data is required.
- *           e.g. It does not matter if temperature comes from nRF52 or LIS2DH12 accelerometer, as both are inaccurate. However if
- *           user tries to get temperature from high-accuracy temperature sensor TMP117 user is signaled that desired data is not available
- *           through invalid value.
+ *           This is to allow fall-through to backup sensors in some cases or to block fallthrough if
+ *           high-precision data is required.
+ *           It does not matter if temperature comes from nRF52 or LIS2DH12 accelerometer, as both are inaccurate.
+ *           However if user tries to get temperature from high-accuracy temperature sensor TMP117 user is signaled
+ *           that desired data is not available through invalid value.
  */
 
 #include "ruuvi_driver_error.h"
