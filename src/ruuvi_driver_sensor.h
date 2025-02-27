@@ -49,10 +49,16 @@
  *
  * mode: Sleep, single, continuous.
  *  - Sleep mode should enter lowest-power state available
- *  - Single will return once new data is available with data_get call
- *  - Continuous: Sensor will sample at given rate. Returns immediately, data will be available after first sample
+ *  - Single will return once new data is available with data_get call. Sensor will enter low-power mode after sampling.
+ *  - Continuous: Sensor will sample at given rate. Returns immediately, data will be available after first sample.
  *
- * data get: return latest sample from sensor
+ * data get: Return latest sample from sensor.
+ *           Important! Some sensors will explicitly return NA value on error, others will not return value at all.
+ *           This is to allow fall-through to backup sensors in some cases or to block fallthrough if
+ *           high-precision data is required.
+ *           It does not matter if temperature comes from nRF52 or LIS2DH12 accelerometer, as both are inaccurate.
+ *           However if user tries to get temperature from high-accuracy temperature sensor TMP117 user is signaled
+ *           that desired data is not available through invalid value.
  */
 
 #include "ruuvi_driver_error.h"
@@ -285,6 +291,7 @@ typedef rd_status_t (*rd_sensor_dsp_fp) (uint8_t * dsp_function,
  *
  * @param [out] p_data Pointer to sensor data @ref rd_sensor_data_t .
  * @return RD_SUCCESS on success
+ * @return RD_ERROR_INVALID_STATE if data read fails AND driver is configured to return NA on error.
  * @return RD_ERROR_NULL if p_data is @c NULL.
  *
  */
@@ -504,6 +511,17 @@ bool rd_sensor_is_init (const rd_sensor_t * const sensor);
  *
  * -> Temperature, timestamp, acceleration from LIS2DH12
  * -> RD_FLOAT_INVALID on humidity and pressure.
+ *
+ * If same firmware is run on a board with TMP117, SHTC3, DPS310, LIS2DH12 and later on TMP117 fails, end result will be
+ * -> Temperature as RD_SENSOR_INVALID_VALUE, timestamp from TMP117
+ * -> Humidity from SHTC3
+ * -> Pressure from DPS310
+ * -> Acceleration from LIS2DH12
+ *
+ * If same firmware is run on a board with SHTC3, DPS310, LIS2DH12 and later on SHTC3 fails, end result will be
+ * -> Pressure, temperature from DPS310
+ * -> Acceleration from LIS2DH12
+ * -> RD_FLOAT_INVALID on humidity
  *
  * @param[out] target Data to be populated. Fields must be initially populated with
  *                    RD_FLOAT_INVALID.

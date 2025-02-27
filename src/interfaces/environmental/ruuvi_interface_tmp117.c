@@ -276,7 +276,8 @@ static rd_status_t tmp117_read (float * const temperature)
     err_code = ri_i2c_tmp117_read (m_address, TMP117_REG_TEMP_RESULT, &reg_val);
     int32_t dec_temperature;
 
-    if (reg_val > 0x7FFFU)
+    // 0x8000 is a specific value for "Not available" and should not be returned to app.
+    if (reg_val > 0x8000U)
     {
         dec_temperature = (int32_t) reg_val - 0xFFFF;
     }
@@ -285,11 +286,14 @@ static rd_status_t tmp117_read (float * const temperature)
         dec_temperature = reg_val;
     }
 
-    *temperature = (0.0078125F * dec_temperature);
-
     if ( (TMP117_VALUE_TEMP_NA == reg_val) || (RD_SUCCESS != err_code))
     {
         *temperature = NAN;
+        err_code |= RD_ERROR_INVALID_STATE;
+    }
+    else
+    {
+        *temperature = (0.0078125F * dec_temperature);
     }
 
     return err_code;
@@ -823,10 +827,13 @@ rd_status_t ri_tmp117_mode_get (uint8_t * mode)
 rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
 {
     rd_status_t err_code = RD_SUCCESS;
+    rd_sensor_data_fields_t env_fields = {.bitfield = 0};
+    env_fields.datas.temperature_c = 1;
 
     if (NULL == data)
     {
         err_code |= RD_ERROR_NULL;
+        return err_code;
     }
 
     if (m_continuous)
@@ -838,12 +845,27 @@ rd_status_t ri_tmp117_data_get (rd_sensor_data_t * const data)
     if ( (RD_SUCCESS == err_code) && (RD_UINT64_INVALID != m_timestamp)
             && !isnan (m_temperature))
     {
-        rd_sensor_data_fields_t env_fields = {.bitfield = 0};
-        env_fields.datas.temperature_c = 1;
         rd_sensor_data_set (data,
                             env_fields,
                             m_temperature);
         data->timestamp_ms = m_timestamp;
+    }
+    else if ( (RD_ERROR_INVALID_STATE & err_code) != 0)
+    {
+        // Handle case where e.g. external sensor has become disconnected after initialization
+        // By returning NOT_VALID as a valid value, signaling application that correct data is not available.
+        rd_sensor_data_set (data,
+                            env_fields,
+                            RD_FLOAT_INVALID);
+        data->timestamp_ms = m_timestamp;
+    }
+    else if (RD_SUCCESS == err_code)
+    {
+        err_code |= RD_ERROR_INTERNAL;
+    }
+    else
+    {
+        // No action needed, pass original error code upwards.
     }
 
     return err_code;

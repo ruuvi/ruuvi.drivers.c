@@ -75,9 +75,7 @@ sync:
 
 test_all:
 	rm -rf build
-	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling test:all
-	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling gcov:all utils:gcov
-	CEEDLING_MAIN_PROJECT_FILE=./project_ext_adv_48.yml ceedling test:all
-	CEEDLING_MAIN_PROJECT_FILE=./project_ext_adv_48.yml ceedling gcov:all utils:gcov
-	gcov  -b -c build/gcov/out/*.gcno
-
+	rm -f *.gcov
+	CEEDLING_MAIN_PROJECT_FILE=./project.yml ceedling test:all gcov:all
+	CEEDLING_MAIN_PROJECT_FILE=./project_ext_adv_48.yml ceedling test:all gcov:all
+	gcov  -b -c build/gcov/out/*/*.gcno
