@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['peripheral_20tasks_5196',['Peripheral tasks',['../group__peripheral__tasks.html',1,'']]],
-  ['power_5197',['Power',['../group__power.html',1,'']]]
+  ['mcu_0',['Environmental sensing with MCU',['../group___e_n_v_i_r_o_n_m_e_n_t_a_l___m_c_u.html',1,'']]]
 ];

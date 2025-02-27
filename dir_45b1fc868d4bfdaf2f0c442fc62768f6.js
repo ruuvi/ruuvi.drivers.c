@@ -11,7 +11,6 @@ var dir_45b1fc868d4bfdaf2f0c442fc62768f6 =
     [ "log", "dir_f3b771bbb392fd1bbef23283324148fd.html", "dir_f3b771bbb392fd1bbef23283324148fd" ],
     [ "power", "dir_e49e39df091b88981f7edbfb5646a08d.html", "dir_e49e39df091b88981f7edbfb5646a08d" ],
     [ "rtc", "dir_b9c24c5374b5511766794466a0c870bb.html", "dir_b9c24c5374b5511766794466a0c870bb" ],
-    [ "ruuvi.nrf_sdk15_3_overrides.c", "dir_67ef55b75961e3e10ea9f93bef3de25c.html", "dir_67ef55b75961e3e10ea9f93bef3de25c" ],
     [ "scheduler", "dir_62c70091f8ef5f7178b4d2e3933246bd.html", "dir_62c70091f8ef5f7178b4d2e3933246bd" ],
     [ "spi", "dir_4c35ce5f38d75f24047970dd97d9e7bf.html", "dir_4c35ce5f38d75f24047970dd97d9e7bf" ],
     [ "timer", "dir_be08d7e0c923e0e4c21cc4f93770e256.html", "dir_be08d7e0c923e0e4c21cc4f93770e256" ],

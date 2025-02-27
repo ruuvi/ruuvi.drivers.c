@@ -1,20 +1,16 @@
 var searchData=
 [
-  ['uart_20functions_2651',['UART functions',['../group___u_a_r_t.html',1,'']]],
-  ['uart_5fconfig_5fdebug_5fcolor_2652',['UART_CONFIG_DEBUG_COLOR',['../sdk__config_8h.html#aa490a87dd9691430fa0dd7582f1ced6d',1,'sdk_config.h']]],
-  ['uart_5fconfig_5finfo_5fcolor_2653',['UART_CONFIG_INFO_COLOR',['../sdk__config_8h.html#af085e5ec7132a9bf849f416587cd6255',1,'sdk_config.h']]],
-  ['uart_5fconfig_5flog_5fenabled_2654',['UART_CONFIG_LOG_ENABLED',['../sdk__config_8h.html#ad414a688ea5049256a0daa1f218d03ee',1,'sdk_config.h']]],
-  ['uart_5fconfig_5flog_5flevel_2655',['UART_CONFIG_LOG_LEVEL',['../sdk__config_8h.html#a193659ced8c6748e51c110a9fb75048c',1,'sdk_config.h']]],
-  ['uninit_2656',['uninit',['../structrd__sensor__t.html#a547b8fa075f87175a5add0d871a65398',1,'rd_sensor_t::uninit()'],['../structri__comm__channel__t.html#a73d3a27c17e609712ac7eb30eedd0f64',1,'ri_comm_channel_t::uninit()']]],
-  ['unused_5fvariable_2657',['UNUSED_VARIABLE',['../group___sensor.html#gadfda67db9dcdc881fe33428768647b0a',1,'ruuvi_driver_sensor.h']]],
-  ['usbd_5fconfig_5fdebug_5fcolor_2658',['USBD_CONFIG_DEBUG_COLOR',['../sdk__config_8h.html#aba18054f00ec1d3c1d41333bccbe67a3',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5fdmascheduler_5fiso_5fboost_2659',['USBD_CONFIG_DMASCHEDULER_ISO_BOOST',['../sdk__config_8h.html#a626277f12651b79ac5cae8af871c4b6f',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5fdmascheduler_5fmode_2660',['USBD_CONFIG_DMASCHEDULER_MODE',['../sdk__config_8h.html#a8c7dcc08c140fdf0b8872d86a41ce3e6',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5finfo_5fcolor_2661',['USBD_CONFIG_INFO_COLOR',['../sdk__config_8h.html#a39457c4e37b6406f49d76894c61dd889',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5firq_5fpriority_2662',['USBD_CONFIG_IRQ_PRIORITY',['../sdk__config_8h.html#a6d27c1c2c0bb74169038c2c63c6881e3',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5fiso_5fin_5fzlp_2663',['USBD_CONFIG_ISO_IN_ZLP',['../sdk__config_8h.html#a152e853890f0f4bd904e78a005c06960',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5flog_5fenabled_2664',['USBD_CONFIG_LOG_ENABLED',['../sdk__config_8h.html#a649045e11bcd01bc058e097a2a82ba7e',1,'sdk_config.h']]],
-  ['usbd_5fconfig_5flog_5flevel_2665',['USBD_CONFIG_LOG_LEVEL',['../sdk__config_8h.html#abc5a1925baa17aa795cf53d5e34d4673',1,'sdk_config.h']]],
-  ['usbd_5fenabled_2666',['USBD_ENABLED',['../sdk__config_8h.html#a97ef137ff8693c35078a87f135a41c60',1,'sdk_config.h']]],
-  ['use_5fcomp_2667',['USE_COMP',['../sdk__config_8h.html#aae23cc832a1b1ebf0e122584a253cb29',1,'sdk_config.h']]]
+  ['watchdog_20timer_20functions_0',['Watchdog timer functions',['../group___watchdog.html',1,'']]],
+  ['wdt_5fconfig_5fbehaviour_1',['WDT_CONFIG_BEHAVIOUR',['../sdk__config_8h.html#a77bdedbe256d354007946e21de86e5c7',1,'sdk_config.h']]],
+  ['wdt_5fconfig_5fdebug_5fcolor_2',['WDT_CONFIG_DEBUG_COLOR',['../sdk__config_8h.html#a81ff67aa9c8cbddfeed329d6055fc1b7',1,'sdk_config.h']]],
+  ['wdt_5fconfig_5finfo_5fcolor_3',['WDT_CONFIG_INFO_COLOR',['../sdk__config_8h.html#a9a99a6058c49e12a7d1757ee881d5ee6',1,'sdk_config.h']]],
+  ['wdt_5fconfig_5firq_5fpriority_4',['WDT_CONFIG_IRQ_PRIORITY',['../sdk__config_8h.html#a58b8712f5b8ecd34ff3aa7ccda4990c1',1,'sdk_config.h']]],
+  ['wdt_5fconfig_5flog_5fenabled_5',['WDT_CONFIG_LOG_ENABLED',['../sdk__config_8h.html#a93d8df352fa0f4a21db688c892a75e97',1,'sdk_config.h']]],
+  ['wdt_5fconfig_5flog_5flevel_6',['WDT_CONFIG_LOG_LEVEL',['../sdk__config_8h.html#a78e11f0f6b1d7e04ddbce06a98533ec7',1,'sdk_config.h']]],
+  ['wdt_5fconfig_5freload_5fvalue_7',['WDT_CONFIG_RELOAD_VALUE',['../sdk__config_8h.html#a62ead1a00a9ac368df7de783aafd621b',1,'sdk_config.h']]],
+  ['wdt_5fenabled_8',['WDT_ENABLED',['../sdk__config_8h.html#a2bc9cc8c73d2ea3a7420f007cadcb4a0',1,'sdk_config.h']]],
+  ['wdt_5fevt_5fhandler_5ft_9',['wdt_evt_handler_t',['../ruuvi__interface__watchdog_8h.html#a273b6b483bfe3928a3650753af55f735',1,'ruuvi_interface_watchdog.h']]],
+  ['with_20mcu_10',['Environmental sensing with MCU',['../group___e_n_v_i_r_o_n_m_e_n_t_a_l___m_c_u.html',1,'']]],
+  ['with_20outside_20world_11',['Interacting with outside world',['../group__actuator__tasks.html',1,'']]],
+  ['world_12',['Interacting with outside world',['../group__actuator__tasks.html',1,'']]]
 ];

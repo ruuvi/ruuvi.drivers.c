@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['nfc_5ft2t_5fcallback_5ft_3485',['nfc_t2t_callback_t',['../group__nfc__t2t__lib.html#ga2271ee7352959d29775f19195785b381',1,'nfc_t2t_lib.h']]],
-  ['nfc_5ft4t_5fcallback_5ft_3486',['nfc_t4t_callback_t',['../group__nfc__t4t__lib.html#ga578cdaa6d2712f1a5368139686e65105',1,'nfc_t4t_lib.h']]]
+  ['wdt_5fevt_5fhandler_5ft_0',['wdt_evt_handler_t',['../ruuvi__interface__watchdog_8h.html#a273b6b483bfe3928a3650753af55f735',1,'ruuvi_interface_watchdog.h']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['tmp117_20interface_5205',['TMP117 Interface',['../group___t_m_p117.html',1,'']]]
+  ['peripheral_20tasks_0',['Peripheral tasks',['../group__peripheral__tasks.html',1,'']]],
+  ['power_1',['power',['../group___power.html',1,'CPU power'],['../group__power.html',1,'Power']]]
 ];

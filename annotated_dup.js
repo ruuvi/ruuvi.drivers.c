@@ -1,17 +1,5 @@
 var annotated_dup =
 [
-    [ "fds_evt_t", "structfds__evt__t.html", "structfds__evt__t" ],
-    [ "fds_find_token_t", "structfds__find__token__t.html", "structfds__find__token__t" ],
-    [ "fds_flash_record_t", "structfds__flash__record__t.html", "structfds__flash__record__t" ],
-    [ "fds_gc_data_t", "structfds__gc__data__t.html", "structfds__gc__data__t" ],
-    [ "fds_header_t", "structfds__header__t.html", "structfds__header__t" ],
-    [ "fds_op_t", "structfds__op__t.html", "structfds__op__t" ],
-    [ "fds_page_t", "structfds__page__t.html", "structfds__page__t" ],
-    [ "fds_record_desc_t", "structfds__record__desc__t.html", "structfds__record__desc__t" ],
-    [ "fds_record_t", "structfds__record__t.html", "structfds__record__t" ],
-    [ "fds_reserve_token_t", "structfds__reserve__token__t.html", "structfds__reserve__token__t" ],
-    [ "fds_stat_t", "structfds__stat__t.html", "structfds__stat__t" ],
-    [ "fds_swap_page_t", "structfds__swap__page__t.html", "structfds__swap__page__t" ],
     [ "rd_sensor_configuration_t", "structrd__sensor__configuration__t.html", "structrd__sensor__configuration__t" ],
     [ "rd_sensor_data_bitfield_t", "structrd__sensor__data__bitfield__t.html", "structrd__sensor__data__bitfield__t" ],
     [ "rd_sensor_data_fields_t", "unionrd__sensor__data__fields__t.html", "unionrd__sensor__data__fields__t" ],

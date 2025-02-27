@@ -7,7 +7,6 @@ var group___g_p_i_o =
     [ "ruuvi_interface_gpio_pwm.h", "ruuvi__interface__gpio__pwm_8h.html", null ],
     [ "ruuvi_nrf5_sdk15_gpio.c", "ruuvi__nrf5__sdk15__gpio_8c.html", null ],
     [ "ruuvi_nrf5_sdk15_gpio.h", "ruuvi__nrf5__sdk15__gpio_8h.html", null ],
-    [ "ruuvi_interface_gpio_pwm.h", "ruuvi__interface__gpio__pwm_8h.html", null ],
     [ "rd_test_gpio_cfg_t", "structrd__test__gpio__cfg__t.html", [
       [ "input", "structrd__test__gpio__cfg__t.html#a6b508f6a3ef173b11d07412a976d2135", null ],
       [ "output", "structrd__test__gpio__cfg__t.html#ab7cbe81475652cc918ab6ce9921b7272", null ]

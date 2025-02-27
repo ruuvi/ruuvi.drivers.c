@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['name_3394',['name',['../structrd__sensor__t.html#a8f8f80d37794cde9472343e4487ba3eb',1,'rd_sensor_t']]],
-  ['num_5fbuttons_3395',['num_buttons',['../structrt__button__init__t.html#a1781adaa5da304236b64179fb60cb299',1,'rt_button_init_t']]],
-  ['nvm_5ffile_3396',['nvm_file',['../structrt__sensor__ctx__t.html#a8b144b6491615e8812c474750f8af06f',1,'rt_sensor_ctx_t']]],
-  ['nvm_5frecord_3397',['nvm_record',['../structrt__sensor__ctx__t.html#a9a964941b691d11d2d56951551f02916',1,'rt_sensor_ctx_t']]]
+  ['on_5fevt_0',['on_evt',['../structri__comm__channel__t.html#a3a086564282657513e1eadd19c4b27e7',1,'ri_comm_channel_t']]],
+  ['output_1',['output',['../structrd__test__gpio__cfg__t.html#ab7cbe81475652cc918ab6ce9921b7272',1,'rd_test_gpio_cfg_t']]],
+  ['oversample_2',['oversample',['../structri__adc__config__t.html#a5a4a254b9c01ca59de880a6bab0c1f37',1,'ri_adc_config_t']]]
 ];

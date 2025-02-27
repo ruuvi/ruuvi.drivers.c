@@ -25,15 +25,13 @@
 var NAVTREE =
 [
   [ "ruuvi.drivers.c", "index.html", [
-    [ "ruuvi.nrf_sdk15_3_overrides.c", "index.html", null ],
-    [ "Modules", "modules.html", "modules" ],
+    [ "Topics", "topics.html", "topics" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
       [ "Data Fields", "functions.html", [
-        [ "All", "functions.html", "functions_dup" ],
-        [ "Functions", "functions_func.html", null ],
-        [ "Variables", "functions_vars.html", "functions_vars" ]
+        [ "All", "functions.html", null ],
+        [ "Variables", "functions_vars.html", null ]
       ] ]
     ] ],
     [ "Files", "files.html", [
@@ -44,7 +42,7 @@ var NAVTREE =
         [ "Variables", "globals_vars.html", null ],
         [ "Typedefs", "globals_type.html", null ],
         [ "Enumerations", "globals_enum.html", null ],
-        [ "Enumerator", "globals_eval.html", "globals_eval" ],
+        [ "Enumerator", "globals_eval.html", null ],
         [ "Macros", "globals_defs.html", "globals_defs" ]
       ] ]
     ] ]
@@ -54,20 +52,16 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"globals_w.html",
-"group___g_p_i_o.html#ga6fa5602a162361547513dfdd276265bc",
-"group___radio.html#ga8f02e69009ad1cf43f50ad30603faff3",
-"group___t_m_p117.html#ga020d8c333c8485ee7718d8059849c80d",
-"group__fds.html#gaf97cabe15afd74024e4250e931c720cd",
-"ruuvi__driver__enabled__modules_8h.html#a2960466363a1b30d6ba549f8d75e2cb2",
-"ruuvi__interface__bme280_8h.html#a61c426c4e032a3f7c119980b90895754",
-"ruuvi__interface__spi_8h.html#a75e4eb5df11555e58bfeaa722d6e2706ade4a68612d78db3768b7a9e48465fd9a",
-"sdk__config_8h.html#a053739cb82afb8279bf99f5c63f350eb",
-"sdk__config_8h.html#a36155b0fb82b3a028d2d8f664fec697f",
-"sdk__config_8h.html#a6d4f80f86b21c3450e7ddc428df80e5c",
-"sdk__config_8h.html#aa1e86491ca690e2ef0d9f5ac923c3e67",
-"sdk__config_8h.html#ad41d32c4f672ce5026a956fc2a7ba0de",
-"structfds__op__t.html#aa4c1d1075a7707cd52055e7a08bd26da"
+"group___g_p_i_o.html#gabdf745851f58cc96572f3bda4c850f0a",
+"group___t_m_p117.html#gafd6a52e29900f3fe2d43b4e537a869e2",
+"ruuvi__interface__adc__photo_8c.html",
+"ruuvi__interface__gpio__test_8c.html",
+"ruuvi__task__nfc_8c.html#a59d8476c5bf4e82725bf828bd20a691b",
+"sdk__config_8h.html#a2b19ab07fa31eeefd85f66e226f65ecc",
+"sdk__config_8h.html#a5df0ad4d4d79d69011817825d4185ba9",
+"sdk__config_8h.html#a93f92d99b911644ead9a55bb61b24e0c",
+"sdk__config_8h.html#aca661146c5981f6324d46b9e8d57f74a",
+"sdk__config_8h.html#afc77444eaac4cab9cedd3931a80a2ea3"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

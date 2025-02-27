@@ -1,8 +1,4 @@
 var searchData=
 [
-  ['temperature_5fc_3466',['temperature_c',['../structrd__sensor__data__bitfield__t.html#a5d101417892999ffa6fb5a1850cc5076',1,'rd_sensor_data_bitfield_t']]],
-  ['timestamp_5fms_3467',['timestamp_ms',['../structrd__sensor__data__t.html#aa8167fff02183d6e41ecfce83a976715',1,'rd_sensor_data_t']]],
-  ['tsample_3468',['tsample',['../structri__lis2dh12__dev.html#a078a9e9ff9786012e8471311b291d71d',1,'ri_lis2dh12_dev']]],
-  ['tx_3469',['tx',['../structri__uart__init__t.html#ae433f100c6422c9798aedff863f06a7b',1,'ri_uart_init_t::tx()'],['../structruuvi__interface__uart__init__config__t.html#a0b60e0568b5f8b88f3142ee4d0489946',1,'ruuvi_interface_uart_init_config_t::tx()']]],
-  ['tx_5fpower_3470',['tx_power',['../structri__adv__scan__t.html#a72a96ade6a01c9bd107a0977b6a3059c',1,'ri_adv_scan_t']]]
+  ['uninit_0',['uninit',['../structri__comm__channel__t.html#a73d3a27c17e609712ac7eb30eedd0f64',1,'ri_comm_channel_t::uninit'],['../structrd__sensor__t.html#a547b8fa075f87175a5add0d871a65398',1,'rd_sensor_t::uninit']]]
 ];
