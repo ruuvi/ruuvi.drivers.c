@@ -59,18 +59,19 @@ static inline void LOGE (const char * const msg)
     ri_log (RI_LOG_LEVEL_ERROR, msg);
 }
 
-#define DEFAULT_ADV_INTERVAL_MS (1010U)
-#define MIN_ADV_INTERVAL_MS     (100U)
-#define MAX_ADV_INTERVAL_MS     (10000U)
-#define NONEXTENDED_ADV_MAX_LEN (24U)
+#define DEFAULT_ADV_INTERVAL_MS      (1010U)
+#define MIN_ADV_INTERVAL_MS          (100U)
+#define MAX_ADV_INTERVAL_MS          (10000U)
+#define NONEXTENDED_ADV_MAX_LEN      (31U)
+#define NONEXTENDED_PAYLOAD_MAX_LEN  (24U)
 
 #define APP_BLE_OBSERVER_PRIO   3U //!< Used in concat macro which fails on braces.
 NRF_BLE_SCAN_DEF (m_scan);
 
 typedef struct
 {
-    uint8_t adv_data[RUUVI_NRF5_SDK15_ADV_LENGTH];  //!< Buffer for advertisement
-    uint8_t scan_data[RUUVI_NRF5_SDK15_SCAN_LENGTH]; //!< Buffer for scan response.
+    uint8_t adv_data[NONEXTENDED_ADV_MAX_LEN];  //!< Buffer for advertisement
+    uint8_t scan_data[NONEXTENDED_ADV_MAX_LEN]; //!< Buffer for scan response.
     ble_gap_adv_data_t   data;   //!< Encoded data, both advertisement and scan response.
     ble_gap_adv_params_t params; //!< Parameters of advertisement, such as channels, PHY.
     int8_t tx_pwr;               //!< Transmission power for this advertisement.
@@ -92,7 +93,7 @@ static int8_t m_tx_power;                    //!< Power configured to radio.
 static bool m_scannable;                     //!< Should scan responses be included.
 static ble_gap_conn_sec_mode_t m_security;   //!< BLE security mode.
 /** @brief Human-readable device name, e.g. "Ruuvi ABCD". */
-static char m_name[NONEXTENDED_ADV_MAX_LEN];
+static char m_name[NONEXTENDED_PAYLOAD_MAX_LEN];
 /** @brief Advertise UUID of Nordic UART Service in scan response. */
 static bool m_advertise_nus;
 static ri_adv_type_t m_type;                 //!< Type, configured by user.
@@ -397,7 +398,7 @@ static rd_status_t format_adv (const ri_comm_message_t * const p_message,
             {m_service_uuid, BLE_UUID_TYPE_BLE}
         };
         // Preserve const of data passed to us.
-        uint8_t manufacturer_data[RI_COMM_MESSAGE_MAX_LENGTH];
+        uint8_t manufacturer_data[NONEXTENDED_PAYLOAD_MAX_LEN];
         memcpy (manufacturer_data, p_message->data, p_message->data_length);
         manuf_specific_data.data.p_data = manufacturer_data;
         manuf_specific_data.data.size   = p_message->data_length;
@@ -507,7 +508,7 @@ static rd_status_t set_phy_type (const ri_comm_message_t * const p_message,
     {
         err_code |= ri_radio_get_modulation (&modulation);
 
-        if (p_message->data_length > NONEXTENDED_ADV_MAX_LEN)
+        if (p_message->data_length > NONEXTENDED_PAYLOAD_MAX_LEN)
         {
             sec_phy_required = true;
             extended_required = true;

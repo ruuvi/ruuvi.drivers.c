@@ -40,7 +40,7 @@
 #     define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (31U)
 #else
 /** @brief Standard BLE advertisement manufacturer specific data
- * payload length is the maximum length */
+ * payload length is the maximum length - does not include header data, 4 bytes*/
 #     define RI_COMM_BLE_PAYLOAD_MAX_LENGTH (24U)
 #endif
 #endif
