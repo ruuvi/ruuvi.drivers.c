@@ -1,6 +1,14 @@
 # Changelog
 
-## 3.9.3 (In progress)
+## 3.11.0
+ - Fix Bluetooth long-range scanning related issues
+ - Fix Bluetooth extended adcertising related issues
+ - TMP117 driver now returns NAN as valid value on bus error
+
+## 3.10.0 
+ - Skipped due to clerical error
+
+## 3.9.3
  - Fix flash resource leak on unexpected size.
  - Fix fatal error on attempted BLE bonding.
 
