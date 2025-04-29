@@ -127,7 +127,7 @@ Macros</h2></td></tr>
 <tr class="memdesc:a241e1b911c1b11687404f3b9fe3d2ded"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set ri_comm_message_t-&gt;repeat_count to this value to e.g. advertise fixed data until explicitly stopped.  <br /></td></tr>
 <tr class="separator:a241e1b911c1b11687404f3b9fe3d2ded"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f46ba19db6d3bb26664fd7f6bfd71bb" id="r_a6f46ba19db6d3bb26664fd7f6bfd71bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication_8h.html#a6f46ba19db6d3bb26664fd7f6bfd71bb">RI_COMM_BLE_PAYLOAD_MAX_LENGTH</a>&#160;&#160;&#160;(24U)</td></tr>
-<tr class="memdesc:a6f46ba19db6d3bb26664fd7f6bfd71bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard BLE advertisement manufacturer specific data payload length is the maximum length.  <br /></td></tr>
+<tr class="memdesc:a6f46ba19db6d3bb26664fd7f6bfd71bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard BLE advertisement manufacturer specific data payload length is the maximum length - does not include header data, 4 bytes.  <br /></td></tr>
 <tr class="separator:a6f46ba19db6d3bb26664fd7f6bfd71bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a323b7cbfdc0472ffd967562a1ef2dd54" id="r_a323b7cbfdc0472ffd967562a1ef2dd54"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ruuvi__interface__communication_8h.html#a323b7cbfdc0472ffd967562a1ef2dd54">RI_COMM_MESSAGE_MAX_LENGTH</a>&#160;&#160;&#160;(<a class="el" href="ruuvi__interface__communication_8h.html#a6f46ba19db6d3bb26664fd7f6bfd71bb">RI_COMM_BLE_PAYLOAD_MAX_LENGTH</a>)</td></tr>
 <tr class="memdesc:a323b7cbfdc0472ffd967562a1ef2dd54"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum length for the application message for sending over BLE, which depends on whether extended advertising is enabled or not.  <br /></td></tr>
@@ -197,7 +197,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Standard BLE advertisement manufacturer specific data payload length is the maximum length. </p>
+<p>Standard BLE advertisement manufacturer specific data payload length is the maximum length - does not include header data, 4 bytes. </p>
 
 <p class="definition">Definition at line <a class="el" href="ruuvi__interface__communication_8h_source.html#l00044">44</a> of file <a class="el" href="ruuvi__interface__communication_8h_source.html">ruuvi_interface_communication.h</a>.</p>
 
