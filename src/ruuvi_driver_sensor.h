@@ -130,7 +130,8 @@ typedef enum
     RD_BUS_I2C  = 2U, //!< I2C bus
     RD_BUS_UART = 3U, //!< UART bus
     RD_BUS_PDM  = 4U, //!< PDM bus
-    RD_BUS_FAIL = 5U  //!< Test behaviour on invalid bus with this value.
+    RD_BUS_GPIO = 5U, //!< Bit-banged GPIO bus
+    RD_BUS_FAIL = 6U  //!< Test behaviour on invalid bus with this value.
 } rd_bus_t;
 
 /**
