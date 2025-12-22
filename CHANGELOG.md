@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.12.0
+ - Update STMems_Standard_C_drivers to latest upstream
+ - Remove redundant sths34pf80-pid submodule (now included in STMems)
+ - Update LIS2DH12 SPI interface for new ST driver API (const-correct write function)
+ - Update GitHub Actions workflows (SonarCloud, astyle)
+ - Improve README readability and structure
+
 ## 3.11.0
  - Fix Bluetooth long-range scanning related issues
  - Fix Bluetooth extended adcertising related issues
