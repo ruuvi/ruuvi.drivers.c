@@ -27,11 +27,7 @@ jobs:
       run: |
           wget -q https://sourceforge.net/projects/astyle/files/astyle/astyle%203.6/astyle-3.6.13.tar.bz2/download -O astyle.tar.bz2
           tar -xjf astyle.tar.bz2
-          cd astyle-3.6.13
-          mkdir build && cd build
-          cmake ../
-          make
-          sudo make install
+          cd astyle-3.6.13 && mkdir -p build && cd build && cmake .. && make && sudo make install
           astyle --version
 
     # Run Artistic Style
