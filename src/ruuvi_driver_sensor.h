@@ -161,7 +161,10 @@ typedef struct
     unsigned int voc_ppm : 1;          //!< Volatile organic compounds, parts per million.
     unsigned int voltage_v : 1;        //!< Voltage, volts.
     unsigned int voltage_ratio : 1;    //!< Voltage, ratio to maximum
-    unsigned int reserved: 10;         //!< Reserved bits, force remainder of bitfield to 0.
+    unsigned int presence : 1;         //!< Presence detected, boolean.
+    unsigned int motion : 1;           //!< Motion detected, boolean.
+    unsigned int ir_object : 1;        //!< IR object signal, dimensionless.
+    unsigned int reserved: 7;          //!< Reserved bits, force remainder of bitfield to 0.
 } rd_sensor_data_bitfield_t;
 
 /**
@@ -190,6 +193,12 @@ typedef struct
 #define RD_SENSOR_PRES_FIELD ((rd_sensor_data_fields_t){.datas.pressure_pa=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_TEMP_FIELD ((rd_sensor_data_fields_t){.datas.temperature_c=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_PRES_FLAG_FIELD ((rd_sensor_data_fields_t){.datas.presence=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_MOT_FLAG_FIELD ((rd_sensor_data_fields_t){.datas.motion=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
+#define RD_SENSOR_IR_OBJ_FIELD ((rd_sensor_data_fields_t){.datas.ir_object=1})
 
 
 
