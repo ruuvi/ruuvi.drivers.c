@@ -24,8 +24,8 @@ jobs:
         submodules: recursive
         fetch-depth: 0  # Shallow clones should be disabled for better analysis
 
-    - name: Install build-wrapper
-      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5
+    - name: Install sonar-scanner and build-wrapper
+      uses: SonarSource/sonarcloud-github-c-cpp@v3
 
     - name: Download Nordic SDK
       run: |
@@ -52,15 +52,14 @@ jobs:
       run: make test_all
 
     - name: SonarCloud Scan
-      uses: SonarSource/sonarqube-scan-action@v5
+      run: |
+        sonar-scanner \
+          -Dsonar.organization=ruuvi \
+          -Dsonar.projectKey=ruuvi_ruuvi.drivers.c \
+          -Dsonar.sources=./src \
+          -Dsonar.cfamily.build-wrapper-output=bw-output \
+          -Dsonar.cfamily.gcov.reportsPath=. \
+          -Dsonar.host.url=https://sonarcloud.io
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.organization=ruuvi
-          -Dsonar.projectKey=ruuvi_ruuvi.drivers.c
-          -Dsonar.sources=./src
-          -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-          -Dsonar.cfamily.gcov.reportsPath=.
-          -Dsonar.host.url=https://sonarcloud.io
