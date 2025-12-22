@@ -419,7 +419,7 @@ void test_ri_sths34pf80_data_get_continuous (void)
     uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     ri_sths34pf80_mode_set (&mode);
-    // Get data - should read fresh sample
+    // Get data - should check DRDY and read fresh sample if ready
     rd_sensor_data_t data = {0};
     float values[4] = {0};
     data.data = values;
@@ -427,6 +427,10 @@ void test_ri_sths34pf80_data_get_continuous (void)
     data.fields.datas.presence = 1;
     data.fields.datas.motion = 1;
     data.fields.datas.ir_object = 1;
+    // Expect DRDY check - return data ready
+    static sths34pf80_drdy_status_t drdy_status = {.drdy = 1};
+    sths34pf80_drdy_status_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_drdy_status_get_ReturnThruPtr_val (&drdy_status);
     sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);

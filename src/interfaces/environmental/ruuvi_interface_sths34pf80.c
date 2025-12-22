@@ -551,10 +551,18 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
         return RD_ERROR_NULL;
     }
 
-    // If in continuous mode, read fresh data
+    // If in continuous mode, check DRDY and read only if new data is available
     if (m_ctx.autorefresh)
     {
-        err_code |= read_sample();
+        sths34pf80_drdy_status_t drdy_status = {0};
+        int32_t st_err = sths34pf80_drdy_status_get (&m_ctx.ctx, &drdy_status);
+        err_code |= st_to_ruuvi_error (st_err);
+
+        if ( (RD_SUCCESS == err_code) && (drdy_status.drdy))
+        {
+            err_code |= read_sample();
+        }
+        // If no new data, we return the cached values with their original timestamp
     }
 
     // Populate data structure
