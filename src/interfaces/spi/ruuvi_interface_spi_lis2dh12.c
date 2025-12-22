@@ -31,7 +31,7 @@ int32_t ri_spi_lis2dh12_write (void * dev_ptr, uint8_t reg_addr,
     ss = RD_HANDLE_TO_GPIO (dev_id);
     err_code |= ri_gpio_write (ss, RI_GPIO_LOW);
     err_code |= ri_spi_xfer_blocking (&reg_addr, 1, NULL, 0);
-    err_code |= ri_spi_xfer_blocking ( (uint8_t *) reg_data, len, NULL, 0);
+    err_code |= ri_spi_xfer_blocking (reg_data, len, NULL, 0);
     err_code |= ri_gpio_write (ss, RI_GPIO_HIGH);
     return err_code;
 }
