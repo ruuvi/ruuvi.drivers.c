@@ -137,7 +137,7 @@ static void selftest_ok (void)
 {
     static int16_t data_raw_acceleration_zero[3] = {0, 0, 0};
     static int16_t data_raw_acceleration_pos[3] = {0x07FF, 0x07FF, 0x07FF};
-    static int16_t data_raw_acceleration_neg[3] = {(int16_t)0xE0FF, (int16_t)0xE0FF, (int16_t)0xE0FF};
+    static int16_t data_raw_acceleration_neg[3] = { (int16_t) 0xE0FF, (int16_t) 0xE0FF, (int16_t) 0xE0FF};
     lis2dh12_data_rate_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ODR_400Hz, RD_SUCCESS);
     lis2dh12_full_scale_set_ExpectAndReturn (&dev.ctx, LIS2DH12_2g, RD_SUCCESS);
     lis2dh12_operating_mode_set_ExpectAndReturn (&dev.ctx, LIS2DH12_NM_10bit, RD_SUCCESS);
@@ -190,7 +190,7 @@ static void selftest_ok (void)
 static void selftest_zero_pos (void)
 {
     static int16_t data_raw_acceleration_zero[3] = {0, 0, 0};
-    static int16_t data_raw_acceleration_neg[3] = {(int16_t)0xE0FF, (int16_t)0xE0FF, (int16_t)0xE0FF};
+    static int16_t data_raw_acceleration_neg[3] = { (int16_t) 0xE0FF, (int16_t) 0xE0FF, (int16_t) 0xE0FF};
     lis2dh12_data_rate_set_ExpectAndReturn (&dev.ctx, LIS2DH12_ODR_400Hz, RD_SUCCESS);
     lis2dh12_full_scale_set_ExpectAndReturn (&dev.ctx, LIS2DH12_2g, RD_SUCCESS);
     lis2dh12_operating_mode_set_ExpectAndReturn (&dev.ctx, LIS2DH12_NM_10bit, RD_SUCCESS);

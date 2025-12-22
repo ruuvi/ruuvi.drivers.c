@@ -114,7 +114,6 @@ rd_status_t ri_shtcx_init (rd_sensor_t * sensor, rd_bus_t bus, uint8_t handle)
                     err_code = SHTCX_TO_RUUVI_ERROR (shtc1_probe());
                     retries++;
                 } while ( (RD_ERROR_INVALID_DATA == err_code)
-
                           && (retries < SHTCX_PROBE_RETRIES_MAX));
 
                 break;
