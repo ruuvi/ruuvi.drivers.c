@@ -49,7 +49,16 @@
  */
 
 #define STHS34PF80_I2C_ADDR_DEFAULT (0x5AU) //!< Default I2C address (7-bit)
-#define STHS34PF80_WHO_AM_I         (0xD3U) //!< Expected WHO_AM_I value
+// Note: WHO_AM_I value (0xD3) is defined as STHS34PF80_ID in sths34pf80_reg.h
+
+/**
+ * @brief STHS34PF80-specific sample rate values for sub-1Hz operation.
+ *
+ * Use these with ri_sths34pf80_samplerate_set() for low-power sub-1Hz sampling.
+ * Standard integer values 1, 2, 4, 8, 15, 30 Hz are also supported.
+ */
+#define RI_STHS34PF80_SAMPLERATE_0HZ25  RD_SENSOR_CFG_CUSTOM_1 //!< 0.25 Hz (4 second period)
+#define RI_STHS34PF80_SAMPLERATE_0HZ50  RD_SENSOR_CFG_CUSTOM_2 //!< 0.50 Hz (2 second period)
 
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle);

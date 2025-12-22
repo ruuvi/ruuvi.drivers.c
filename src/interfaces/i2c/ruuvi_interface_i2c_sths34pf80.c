@@ -20,17 +20,24 @@
 #include "ruuvi_interface_i2c_sths34pf80.h"
 
 #define REG_ADDR_SIZE (1U)
+#define MAX_DATA_SIZE (7U)  //!< Maximum data bytes per I2C transaction
+#define MAX_TX_SIZE   (REG_ADDR_SIZE + MAX_DATA_SIZE) //!< Max transmit buffer size
 
 int32_t ri_i2c_sths34pf80_write (void * handle, uint8_t reg,
                                  const uint8_t * data, uint16_t len)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t dev_addr;
-    uint8_t tx_buf[len + REG_ADDR_SIZE];
+    uint8_t tx_buf[MAX_TX_SIZE];
 
     if (NULL == handle || NULL == data)
     {
         return (int32_t) RD_ERROR_NULL;
+    }
+
+    if (len > MAX_DATA_SIZE)
+    {
+        return (int32_t) RD_ERROR_DATA_SIZE;
     }
 
     dev_addr = * ( (uint8_t *) handle);

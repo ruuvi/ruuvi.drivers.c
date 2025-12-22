@@ -34,7 +34,8 @@
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
           uint8_t MACRO_MODE = 0; \
-          ri_sths34pf80_mode_get(&MACRO_MODE); \
+          rd_status_t MACRO_ERR = ri_sths34pf80_mode_get(&MACRO_MODE); \
+          if(RD_SUCCESS != MACRO_ERR) { return MACRO_ERR; } \
           if(RD_SENSOR_CFG_SLEEP != MACRO_MODE) { return RD_ERROR_INVALID_STATE; } \
           } while(0)
 
@@ -182,12 +183,14 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     // If read failed, return the communication error
     if (RD_SUCCESS != err_code)
     {
+        rd_sensor_uninitialize (p_sensor);
         return err_code;
     }
 
     // If read succeeded but ID doesn't match, sensor is wrong type
     if (STHS34PF80_ID != whoami)
     {
+        rd_sensor_uninitialize (p_sensor);
         return RD_ERROR_NOT_FOUND;
     }
 
@@ -201,41 +204,43 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     st_err = sths34pf80_block_data_update_set (&m_ctx.ctx, 1);
     err_code |= st_to_ruuvi_error (st_err);
 
-    if (RD_SUCCESS == err_code)
+    if (RD_SUCCESS != err_code)
     {
-        // Initialize context
-        m_ctx.odr = STHS34PF80_ODR_OFF;
-        m_ctx.mode = RD_SENSOR_CFG_SLEEP;
-        m_ctx.autorefresh = false;
-        m_ctx.tsample = RD_UINT64_INVALID;
-        m_ctx.tambient_raw = 0;
-        m_ctx.tobject_raw = 0;
-        m_ctx.presence_flag = 0;
-        m_ctx.motion_flag = 0;
-        // Setup sensor struct
-        p_sensor->init              = ri_sths34pf80_init;
-        p_sensor->uninit            = ri_sths34pf80_uninit;
-        p_sensor->samplerate_set    = ri_sths34pf80_samplerate_set;
-        p_sensor->samplerate_get    = ri_sths34pf80_samplerate_get;
-        p_sensor->resolution_set    = ri_sths34pf80_resolution_set;
-        p_sensor->resolution_get    = ri_sths34pf80_resolution_get;
-        p_sensor->scale_set         = ri_sths34pf80_scale_set;
-        p_sensor->scale_get         = ri_sths34pf80_scale_get;
-        p_sensor->dsp_set           = ri_sths34pf80_dsp_set;
-        p_sensor->dsp_get           = ri_sths34pf80_dsp_get;
-        p_sensor->mode_set          = ri_sths34pf80_mode_set;
-        p_sensor->mode_get          = ri_sths34pf80_mode_get;
-        p_sensor->data_get          = ri_sths34pf80_data_get;
-        p_sensor->configuration_set = rd_sensor_configuration_set;
-        p_sensor->configuration_get = rd_sensor_configuration_get;
-        // Define provided data fields
-        p_sensor->provides.datas.temperature_c = 1;
-        p_sensor->provides.datas.presence = 1;
-        p_sensor->provides.datas.motion = 1;
-        p_sensor->provides.datas.ir_object = 1;
-        m_is_init = true;
+        rd_sensor_uninitialize (p_sensor);
+        return err_code;
     }
 
+    // Initialize context
+    m_ctx.odr = STHS34PF80_ODR_OFF;
+    m_ctx.mode = RD_SENSOR_CFG_SLEEP;
+    m_ctx.autorefresh = false;
+    m_ctx.tsample = RD_UINT64_INVALID;
+    m_ctx.tambient_raw = 0;
+    m_ctx.tobject_raw = 0;
+    m_ctx.presence_flag = 0;
+    m_ctx.motion_flag = 0;
+    // Setup sensor struct
+    p_sensor->init              = ri_sths34pf80_init;
+    p_sensor->uninit            = ri_sths34pf80_uninit;
+    p_sensor->samplerate_set    = ri_sths34pf80_samplerate_set;
+    p_sensor->samplerate_get    = ri_sths34pf80_samplerate_get;
+    p_sensor->resolution_set    = ri_sths34pf80_resolution_set;
+    p_sensor->resolution_get    = ri_sths34pf80_resolution_get;
+    p_sensor->scale_set         = ri_sths34pf80_scale_set;
+    p_sensor->scale_get         = ri_sths34pf80_scale_get;
+    p_sensor->dsp_set           = ri_sths34pf80_dsp_set;
+    p_sensor->dsp_get           = ri_sths34pf80_dsp_get;
+    p_sensor->mode_set          = ri_sths34pf80_mode_set;
+    p_sensor->mode_get          = ri_sths34pf80_mode_get;
+    p_sensor->data_get          = ri_sths34pf80_data_get;
+    p_sensor->configuration_set = rd_sensor_configuration_set;
+    p_sensor->configuration_get = rd_sensor_configuration_get;
+    // Define provided data fields
+    p_sensor->provides.datas.temperature_c = 1;
+    p_sensor->provides.datas.presence = 1;
+    p_sensor->provides.datas.motion = 1;
+    p_sensor->provides.datas.ir_object = 1;
+    m_is_init = true;
     return err_code;
 }
 
@@ -262,7 +267,6 @@ rd_status_t ri_sths34pf80_uninit (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t 
 rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int32_t st_err = 0;
 
     if (NULL == samplerate)
     {
@@ -272,9 +276,25 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
     VERIFY_SENSOR_SLEEPS();
     sths34pf80_odr_t odr = STHS34PF80_ODR_AT_1Hz;
 
-    if (RD_SENSOR_CFG_DEFAULT == *samplerate ||
-            RD_SENSOR_CFG_MIN == *samplerate ||
-            1U == *samplerate)
+    if (RD_SENSOR_CFG_NO_CHANGE == *samplerate)
+    {
+        return ri_sths34pf80_samplerate_get (samplerate);
+    }
+    else if (RI_STHS34PF80_SAMPLERATE_0HZ25 == *samplerate ||
+             RD_SENSOR_CFG_MIN == *samplerate)
+    {
+        // 0.25 Hz - lowest power, 4 second period
+        odr = STHS34PF80_ODR_AT_0Hz25;
+        *samplerate = RI_STHS34PF80_SAMPLERATE_0HZ25;
+    }
+    else if (RI_STHS34PF80_SAMPLERATE_0HZ50 == *samplerate)
+    {
+        // 0.5 Hz - 2 second period
+        odr = STHS34PF80_ODR_AT_0Hz50;
+        *samplerate = RI_STHS34PF80_SAMPLERATE_0HZ50;
+    }
+    else if (RD_SENSOR_CFG_DEFAULT == *samplerate ||
+             1U == *samplerate)
     {
         odr = STHS34PF80_ODR_AT_1Hz;
         *samplerate = 1;
@@ -305,10 +325,6 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
         odr = STHS34PF80_ODR_AT_2Hz;
         *samplerate = 2;
     }
-    else if (RD_SENSOR_CFG_NO_CHANGE == *samplerate)
-    {
-        return ri_sths34pf80_samplerate_get (samplerate);
-    }
     else
     {
         odr = STHS34PF80_ODR_AT_1Hz;
@@ -330,9 +346,16 @@ rd_status_t ri_sths34pf80_samplerate_get (uint8_t * samplerate)
     switch (m_ctx.odr)
     {
         case STHS34PF80_ODR_OFF:
-        case STHS34PF80_ODR_AT_0Hz25:
-        case STHS34PF80_ODR_AT_0Hz50:
+            // When sensor is off, report 1 Hz as default rate
             *samplerate = 1;
+            break;
+
+        case STHS34PF80_ODR_AT_0Hz25:
+            *samplerate = RI_STHS34PF80_SAMPLERATE_0HZ25;
+            break;
+
+        case STHS34PF80_ODR_AT_0Hz50:
+            *samplerate = RI_STHS34PF80_SAMPLERATE_0HZ50;
             break;
 
         case STHS34PF80_ODR_AT_1Hz:

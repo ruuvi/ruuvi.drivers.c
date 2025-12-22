@@ -2,7 +2,7 @@
  * @file test_ruuvi_interface_sths34pf80.c
  * @copyright Ruuvi Innovations Ltd, license BSD-3-Clause.
  * @author Ruuvi Innovations Ltd
- * @date 2024-12-22
+ * @date 2025-12-22
  *
  * Unit tests for STHS34PF80 thermal infrared presence sensor driver.
  */
@@ -152,6 +152,7 @@ void test_ri_sths34pf80_init_whoami_fail (void)
 {
     rd_sensor_initialize_Expect (&m_sensor);
     expect_whoami_fail();
+    rd_sensor_uninitialize_Expect (&m_sensor);
     rd_status_t err_code = ri_sths34pf80_init (&m_sensor, m_bus, m_handle);
     TEST_ASSERT_EQUAL (RD_ERROR_INTERNAL, err_code);
 }
@@ -160,6 +161,7 @@ void test_ri_sths34pf80_init_whoami_wrong_id (void)
 {
     rd_sensor_initialize_Expect (&m_sensor);
     expect_whoami_wrong();
+    rd_sensor_uninitialize_Expect (&m_sensor);
     rd_status_t err_code = ri_sths34pf80_init (&m_sensor, m_bus, m_handle);
     TEST_ASSERT_EQUAL (RD_ERROR_NOT_FOUND, err_code);
 }

@@ -194,9 +194,9 @@ typedef struct
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_TEMP_FIELD ((rd_sensor_data_fields_t){.datas.temperature_c=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
-#define RD_SENSOR_PRES_FLAG_FIELD ((rd_sensor_data_fields_t){.datas.presence=1})
+#define RD_SENSOR_PRESENCE_FIELD ((rd_sensor_data_fields_t){.datas.presence=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
-#define RD_SENSOR_MOT_FLAG_FIELD ((rd_sensor_data_fields_t){.datas.motion=1})
+#define RD_SENSOR_MOTION_FIELD ((rd_sensor_data_fields_t){.datas.motion=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_IR_OBJ_FIELD ((rd_sensor_data_fields_t){.datas.ir_object=1})
 
