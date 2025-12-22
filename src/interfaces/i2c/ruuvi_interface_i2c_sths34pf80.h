@@ -27,7 +27,7 @@
  * @return 0 on success, non-zero on error.
  */
 int32_t ri_i2c_sths34pf80_write (void * handle, uint8_t reg,
-                                  const uint8_t * data, uint16_t len);
+                                 const uint8_t * data, uint16_t len);
 
 /**
  * @brief I2C read function for STHS34PF80 ST driver.
@@ -41,7 +41,7 @@ int32_t ri_i2c_sths34pf80_write (void * handle, uint8_t reg,
  * @return 0 on success, non-zero on error.
  */
 int32_t ri_i2c_sths34pf80_read (void * handle, uint8_t reg,
-                                 uint8_t * data, uint16_t len);
+                                uint8_t * data, uint16_t len);
 
 #endif // RUUVI_INTERFACE_I2C_STHS34PF80_H
 /** @} */

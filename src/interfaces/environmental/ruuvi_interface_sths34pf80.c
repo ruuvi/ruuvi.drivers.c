@@ -114,24 +114,19 @@ static rd_status_t read_sample (void)
     rd_status_t err_code = RD_SUCCESS;
     int32_t st_err = 0;
     sths34pf80_func_status_t func_status = {0};
-
     // Read FUNC_STATUS to get presence/motion flags
     st_err = sths34pf80_func_status_get (&m_ctx.ctx, &func_status);
     err_code |= st_to_ruuvi_error (st_err);
-
     // Read ambient and object temperatures
     st_err = sths34pf80_tambient_raw_get (&m_ctx.ctx, &m_ctx.tambient_raw);
     err_code |= st_to_ruuvi_error (st_err);
     st_err = sths34pf80_tobject_raw_get (&m_ctx.ctx, &m_ctx.tobject_raw);
     err_code |= st_to_ruuvi_error (st_err);
-
     // Store flags
     m_ctx.presence_flag = func_status.pres_flag;
     m_ctx.motion_flag = func_status.mot_flag;
-
     // Record timestamp
     m_ctx.tsample = rd_sensor_timestamp_get();
-
     return err_code;
 }
 
@@ -173,14 +168,12 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
 
     rd_sensor_initialize (p_sensor);
     p_sensor->name = m_sensor_name;
-
     // Setup I2C context
     m_ctx.handle = handle;
     m_ctx.ctx.handle = &m_ctx.handle;
     m_ctx.ctx.write_reg = ri_i2c_sths34pf80_write;
     m_ctx.ctx.read_reg = ri_i2c_sths34pf80_read;
     m_ctx.ctx.mdelay = NULL;  // Not used
-
     // Check WHO_AM_I
     uint8_t whoami = 0;
     st_err = sths34pf80_device_id_get (&m_ctx.ctx, &whoami);
@@ -202,7 +195,6 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     st_err = sths34pf80_boot_set (&m_ctx.ctx, 1);
     err_code |= st_to_ruuvi_error (st_err);
     ri_delay_ms (BOOT_DELAY_MS);
-
     // Configure default settings: ODR off (sleep mode), BDU enabled
     st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
     err_code |= st_to_ruuvi_error (st_err);
@@ -220,7 +212,6 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
         m_ctx.tobject_raw = 0;
         m_ctx.presence_flag = 0;
         m_ctx.motion_flag = 0;
-
         // Setup sensor struct
         p_sensor->init              = ri_sths34pf80_init;
         p_sensor->uninit            = ri_sths34pf80_uninit;
@@ -237,13 +228,11 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
         p_sensor->data_get          = ri_sths34pf80_data_get;
         p_sensor->configuration_set = rd_sensor_configuration_set;
         p_sensor->configuration_get = rd_sensor_configuration_get;
-
         // Define provided data fields
         p_sensor->provides.datas.temperature_c = 1;
         p_sensor->provides.datas.presence = 1;
         p_sensor->provides.datas.motion = 1;
         p_sensor->provides.datas.ir_object = 1;
-
         m_is_init = true;
     }
 
@@ -262,14 +251,11 @@ rd_status_t ri_sths34pf80_uninit (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t 
     // Power down sensor
     int32_t st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
     err_code |= st_to_ruuvi_error (st_err);
-
     // Clear sensor structure
     rd_sensor_uninitialize (p_sensor);
-
     // Clear context
     memset (&m_ctx, 0, sizeof (m_ctx));
     m_is_init = false;
-
     return err_code;
 }
 
@@ -284,12 +270,11 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
     }
 
     VERIFY_SENSOR_SLEEPS();
-
     sths34pf80_odr_t odr = STHS34PF80_ODR_AT_1Hz;
 
     if (RD_SENSOR_CFG_DEFAULT == *samplerate ||
-        RD_SENSOR_CFG_MIN == *samplerate ||
-        1U == *samplerate)
+            RD_SENSOR_CFG_MIN == *samplerate ||
+            1U == *samplerate)
     {
         odr = STHS34PF80_ODR_AT_1Hz;
         *samplerate = 1;
@@ -332,7 +317,6 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
 
     // Note: ODR is only applied when mode is set to continuous
     m_ctx.odr = odr;
-
     return err_code;
 }
 
@@ -444,15 +428,14 @@ rd_status_t ri_sths34pf80_dsp_set (uint8_t * dsp, uint8_t * parameter)
 
     // For now, only accept default
     if (RD_SENSOR_CFG_DEFAULT != *parameter &&
-        RD_SENSOR_CFG_MIN != *parameter &&
-        RD_SENSOR_CFG_MAX != *parameter)
+            RD_SENSOR_CFG_MIN != *parameter &&
+            RD_SENSOR_CFG_MAX != *parameter)
     {
         return RD_ERROR_NOT_SUPPORTED;
     }
 
     *dsp = RD_SENSOR_CFG_DEFAULT;
     *parameter = RD_SENSOR_CFG_DEFAULT;
-
     return RD_SUCCESS;
 }
 
@@ -499,17 +482,13 @@ rd_status_t ri_sths34pf80_mode_set (uint8_t * mode)
         // Set ODR temporarily for one-shot, then read
         st_err = sths34pf80_odr_set (&m_ctx.ctx, m_ctx.odr);
         err_code |= st_to_ruuvi_error (st_err);
-
         // Wait for sample
         ri_delay_ms (ONESHOT_DELAY_MS);
-
         // Read data
         err_code |= read_sample();
-
         // Return to sleep
         st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
         err_code |= st_to_ruuvi_error (st_err);
-
         m_ctx.mode = RD_SENSOR_CFG_SLEEP;
         *mode = RD_SENSOR_CFG_SLEEP;
     }
@@ -559,27 +538,22 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
     // Note: Only fields that are requested AND provided will be populated
     rd_sensor_data_t d_environmental = {0};
     rd_sensor_data_fields_t env_fields = {0};
-
     // Ambient temperature in Celsius
     float values[4] = {0};
     values[0] = tambient_to_celsius (m_ctx.tambient_raw);
     values[1] = (float) m_ctx.presence_flag;
     values[2] = (float) m_ctx.motion_flag;
     values[3] = (float) m_ctx.tobject_raw;  // Dimensionless IR signal
-
     env_fields.datas.temperature_c = 1;
     env_fields.datas.presence = 1;
     env_fields.datas.motion = 1;
     env_fields.datas.ir_object = 1;
-
     d_environmental.data = values;
     d_environmental.valid = env_fields;
     d_environmental.fields = env_fields;
     d_environmental.timestamp_ms = m_ctx.tsample;
-
     rd_sensor_data_populate (data, &d_environmental, data->fields);
     data->timestamp_ms = m_ctx.tsample;
-
     return err_code;
 }
 
