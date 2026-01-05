@@ -146,6 +146,16 @@ static float tambient_to_celsius (const int16_t raw)
     return (float) raw / 100.0f;
 }
 
+/**
+ * @brief Delay function wrapper for ST driver.
+ *
+ * @param[in] millisec Milliseconds to delay.
+ */
+static void sths34pf80_mdelay (uint32_t millisec)
+{
+    ri_delay_ms (millisec);
+}
+
 rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -174,7 +184,7 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     m_ctx.ctx.handle = &m_ctx.handle;
     m_ctx.ctx.write_reg = ri_i2c_sths34pf80_write;
     m_ctx.ctx.read_reg = ri_i2c_sths34pf80_read;
-    m_ctx.ctx.mdelay = NULL;  // Not used
+    m_ctx.ctx.mdelay = sths34pf80_mdelay;
     // Check WHO_AM_I
     uint8_t whoami = 0;
     st_err = sths34pf80_device_id_get (&m_ctx.ctx, &whoami);

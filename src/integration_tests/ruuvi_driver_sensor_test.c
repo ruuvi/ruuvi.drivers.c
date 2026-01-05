@@ -1066,6 +1066,9 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
         "voc_ppm",
         "voltage_v",
         "voltage_ratio",
+        "presence",
+        "motion",
+        "ir_object",
     };
 
     /* Count enabled sensors */
