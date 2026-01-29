@@ -1121,8 +1121,6 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                                   "\"%s\": \"NAN\"",
                                   (char *) &sensors_name[i][0]);
                     }
-
-                    data_counter++;
                 }
                 else
                 {
@@ -1130,6 +1128,8 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
                               "\"%s\": \"NAN\"",
                               (char *) &sensors_name[i][0]);
                 }
+
+                data_counter++;
 
                 if (data_counter == data_available)
                 {
