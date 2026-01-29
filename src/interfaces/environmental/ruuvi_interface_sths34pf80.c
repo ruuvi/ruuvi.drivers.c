@@ -572,6 +572,7 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
         {
             err_code |= read_sample();
         }
+
         // If no new data, we return the cached values with their original timestamp
     }
 
