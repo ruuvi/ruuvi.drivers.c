@@ -11,6 +11,7 @@
 #include "unity.h"
 
 #include "ruuvi_interface_sths34pf80.h"
+#include "ruuvi_driver_error.h"
 #include "mock_ruuvi_driver_error.h"
 #include "mock_ruuvi_driver_sensor.h"
 #include "mock_ruuvi_interface_i2c_sths34pf80.h"
@@ -397,6 +398,19 @@ void test_ri_sths34pf80_data_get_null (void)
     TEST_ASSERT_EQUAL (RD_ERROR_NULL, err_code);
 }
 
+/* Callback to capture rd_sensor_data_populate arguments */
+static rd_sensor_data_t m_captured_env_data;
+static void capture_populate_args (rd_sensor_data_t * const target,
+                                   const rd_sensor_data_t * const provided,
+                                   const rd_sensor_data_fields_t requested,
+                                   int cmock_num_calls)
+{
+    (void) target;
+    (void) requested;
+    (void) cmock_num_calls;
+    memcpy (&m_captured_env_data, provided, sizeof (rd_sensor_data_t));
+}
+
 void test_ri_sths34pf80_data_get_no_sample (void)
 {
     init_sensor_ok();
@@ -407,9 +421,14 @@ void test_ri_sths34pf80_data_get_no_sample (void)
     data.fields.datas.presence = 1;
     data.fields.datas.motion = 1;
     data.fields.datas.ir_object = 1;
+    memset (&m_captured_env_data, 0, sizeof (m_captured_env_data));
+    rd_sensor_data_populate_AddCallback (capture_populate_args);
     rd_sensor_data_populate_ExpectAnyArgs();
     rd_status_t err_code = ri_sths34pf80_data_get (&data);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    // Before any sample is taken, valid fields must be empty
+    TEST_ASSERT_EQUAL_HEX32 (0, m_captured_env_data.valid.bitfield);
+    TEST_ASSERT_EQUAL_UINT64 (RD_UINT64_INVALID, m_captured_env_data.timestamp_ms);
 }
 
 void test_ri_sths34pf80_data_get_continuous (void)

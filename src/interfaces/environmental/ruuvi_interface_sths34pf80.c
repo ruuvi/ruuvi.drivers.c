@@ -586,10 +586,16 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
     values[1] = (float) m_ctx.presence_flag;
     values[2] = (float) m_ctx.motion_flag;
     values[3] = (float) m_ctx.tobject_raw;  // Dimensionless IR signal
-    env_fields.datas.temperature_c = 1;
-    env_fields.datas.presence = 1;
-    env_fields.datas.motion = 1;
-    env_fields.datas.ir_object = 1;
+
+    // Only mark fields valid if a sample has actually been taken
+    if (RD_UINT64_INVALID != m_ctx.tsample)
+    {
+        env_fields.datas.temperature_c = 1;
+        env_fields.datas.presence = 1;
+        env_fields.datas.motion = 1;
+        env_fields.datas.ir_object = 1;
+    }
+
     d_environmental.data = values;
     d_environmental.valid = env_fields;
     d_environmental.fields = env_fields;
