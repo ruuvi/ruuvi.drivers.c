@@ -76,6 +76,13 @@ static void expect_default_config_ok (void)
     sths34pf80_block_data_update_set_ExpectAnyArgsAndReturn (0);
 }
 
+static void expect_avg_get_low_oversampling (void)
+{
+    static sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_8;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+}
+
 static void init_sensor_ok (void)
 {
     rd_sensor_initialize_Expect (&m_sensor);
@@ -206,6 +213,7 @@ void test_ri_sths34pf80_samplerate_set_1hz (void)
 {
     init_sensor_ok();
     uint8_t samplerate = 1U;
+    expect_avg_get_low_oversampling();
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_EQUAL (1U, samplerate);
@@ -215,6 +223,7 @@ void test_ri_sths34pf80_samplerate_set_default (void)
 {
     init_sensor_ok();
     uint8_t samplerate = RD_SENSOR_CFG_DEFAULT;
+    expect_avg_get_low_oversampling();
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_EQUAL (1U, samplerate);
@@ -226,6 +235,8 @@ void test_ri_sths34pf80_samplerate_set_max_low_oversampling (void)
     uint8_t samplerate = RD_SENSOR_CFG_MAX;
     // With low oversampling (AVG_TMOS_2, 8, or 32), max ODR is 30Hz
     sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_8;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
@@ -241,6 +252,8 @@ void test_ri_sths34pf80_samplerate_set_max_avg128 (void)
     sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_128;
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_EQUAL (8U, samplerate);
@@ -252,6 +265,8 @@ void test_ri_sths34pf80_samplerate_set_max_avg256 (void)
     uint8_t samplerate = RD_SENSOR_CFG_MAX;
     // With AVG_TMOS_256, max ODR is 4Hz
     sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_256;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
@@ -267,6 +282,8 @@ void test_ri_sths34pf80_samplerate_set_max_avg512 (void)
     sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_512;
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_EQUAL (2U, samplerate);
@@ -280,6 +297,8 @@ void test_ri_sths34pf80_samplerate_set_max_avg1024 (void)
     sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_1024;
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_EQUAL (1U, samplerate);
@@ -291,6 +310,8 @@ void test_ri_sths34pf80_samplerate_set_max_avg2048 (void)
     uint8_t samplerate = RD_SENSOR_CFG_MAX;
     // With AVG_TMOS_2048, max ODR is 0.5Hz (returned as RI_STHS34PF80_SAMPLERATE_0HZ50)
     sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_2048;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
@@ -321,6 +342,7 @@ void test_ri_sths34pf80_samplerate_set_3hz_rounds_up_to_4hz (void)
 {
     init_sensor_ok();
     uint8_t samplerate = 3U;
+    expect_avg_get_low_oversampling();
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_GREATER_OR_EQUAL (3U, samplerate);  // Must be >= requested
@@ -331,6 +353,7 @@ void test_ri_sths34pf80_samplerate_set_5hz_rounds_up_to_8hz (void)
 {
     init_sensor_ok();
     uint8_t samplerate = 5U;
+    expect_avg_get_low_oversampling();
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_GREATER_OR_EQUAL (5U, samplerate);  // Must be >= requested
@@ -341,6 +364,7 @@ void test_ri_sths34pf80_samplerate_set_10hz_rounds_up_to_15hz (void)
 {
     init_sensor_ok();
     uint8_t samplerate = 10U;
+    expect_avg_get_low_oversampling();
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_GREATER_OR_EQUAL (10U, samplerate);  // Must be >= requested
@@ -351,6 +375,7 @@ void test_ri_sths34pf80_samplerate_set_20hz_rounds_up_to_30hz (void)
 {
     init_sensor_ok();
     uint8_t samplerate = 20U;
+    expect_avg_get_low_oversampling();
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_GREATER_OR_EQUAL (20U, samplerate);  // Must be >= requested
@@ -469,6 +494,8 @@ void test_ri_sths34pf80_mode_set_continuous (void)
 {
     init_sensor_ok();
     uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    // Continuous mode with ODR_OFF triggers samplerate_set(DEFAULT), which caps based on avg
+    expect_avg_get_low_oversampling();
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     rd_status_t err_code = ri_sths34pf80_mode_set (&mode);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
@@ -479,13 +506,22 @@ void test_ri_sths34pf80_mode_set_single (void)
 {
     init_sensor_ok();
     uint8_t mode = RD_SENSOR_CFG_SINGLE;
-    // Set ODR, delay, read sample, then set ODR off
+    // Single mode calls samplerate_set(MAX) which reads oversampling twice (MAX calc + cap)
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_8;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    // Set ODR to max (30 Hz with low oversampling)
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
-    ri_delay_ms_ExpectAndReturn (50U, RD_SUCCESS);
+    // Delay = (1000/30) + 10 = 43 ms
+    ri_delay_ms_ExpectAndReturn (43U, RD_SUCCESS);
+    // Read sample
     sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);
     rd_sensor_timestamp_get_ExpectAndReturn (1000U);
+    // Set ODR off
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     rd_status_t err_code = ri_sths34pf80_mode_set (&mode);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
@@ -495,8 +531,9 @@ void test_ri_sths34pf80_mode_set_single (void)
 void test_ri_sths34pf80_mode_set_single_while_continuous (void)
 {
     init_sensor_ok();
-    // First set continuous
+    // First set continuous - needs avg mock for samplerate_set(DEFAULT)
     uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    expect_avg_get_low_oversampling();
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     ri_sths34pf80_mode_set (&mode);
     // Now try single - should fail
@@ -562,8 +599,9 @@ void test_ri_sths34pf80_data_get_no_sample (void)
 void test_ri_sths34pf80_data_get_continuous (void)
 {
     init_sensor_ok();
-    // Set continuous mode
+    // Set continuous mode - needs avg mock for samplerate_set(DEFAULT)
     uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    expect_avg_get_low_oversampling();
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     ri_sths34pf80_mode_set (&mode);
     // Get data - should check DRDY and read fresh sample if ready

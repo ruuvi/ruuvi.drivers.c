@@ -29,7 +29,6 @@
 /** @{ */
 
 #define BOOT_DELAY_MS       (10U)  //!< Delay after boot/reset in milliseconds.
-#define ONESHOT_DELAY_MS    (50U)  //!< Delay after one-shot measurement.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
@@ -427,6 +426,28 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
         err_code |= RD_ERROR_NOT_SUPPORTED;
     }
 
+    // Check if requested ODR exceeds max allowed by current oversampling setting
+    if (RD_SUCCESS == err_code)
+    {
+        sths34pf80_odr_t max_odr;
+        uint8_t max_rate;
+        rd_status_t max_err = get_max_odr_for_oversampling (&max_odr, &max_rate);
+
+        if (RD_SUCCESS == max_err)
+        {
+            if (odr > max_odr)
+            {
+                // Cannot achieve requested rate with current oversampling
+                *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
+                err_code |= RD_ERROR_NOT_SUPPORTED;
+            }
+        }
+        else
+        {
+            err_code |= max_err;
+        }
+    }
+
     // Note: ODR is only applied when mode is set to continuous
     if (RD_SUCCESS == err_code)
     {
@@ -601,14 +622,26 @@ rd_status_t ri_sths34pf80_mode_set (uint8_t * mode)
             return RD_ERROR_INVALID_STATE;
         }
 
-        // Trigger one-shot measurement
-        // Set ODR temporarily for one-shot, then read
-        st_err = sths34pf80_odr_set (&m_ctx.ctx, m_ctx.odr);
-        err_code |= st_to_ruuvi_error (st_err);
-        // Wait for sample
-        ri_delay_ms (ONESHOT_DELAY_MS);
-        // Read data
-        err_code |= read_sample();
+        // Trigger one-shot measurement using max sample rate for fastest response
+        uint8_t samplerate = RD_SENSOR_CFG_MAX;
+        err_code = ri_sths34pf80_samplerate_set (&samplerate);
+
+        if (RD_SUCCESS == err_code)
+        {
+            // Apply ODR to hardware
+            st_err = sths34pf80_odr_set (&m_ctx.ctx, m_ctx.odr);
+            err_code |= st_to_ruuvi_error (st_err);
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            // Wait for sample based on configured rate (add margin)
+            uint32_t delay_ms = (1000U / samplerate) + 10U;
+            ri_delay_ms (delay_ms);
+            // Read data
+            err_code |= read_sample();
+        }
+
         // Return to sleep
         st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
         err_code |= st_to_ruuvi_error (st_err);
@@ -617,11 +650,25 @@ rd_status_t ri_sths34pf80_mode_set (uint8_t * mode)
     }
     else if (RD_SENSOR_CFG_CONTINUOUS == *mode)
     {
-        st_err = sths34pf80_odr_set (&m_ctx.ctx, m_ctx.odr);
-        err_code |= st_to_ruuvi_error (st_err);
-        m_ctx.mode = RD_SENSOR_CFG_CONTINUOUS;
-        m_ctx.autorefresh = true;
-        *mode = RD_SENSOR_CFG_CONTINUOUS;
+        // Use default samplerate if ODR was never configured
+        if (STHS34PF80_ODR_OFF == m_ctx.odr)
+        {
+            uint8_t samplerate = RD_SENSOR_CFG_DEFAULT;
+            err_code = ri_sths34pf80_samplerate_set (&samplerate);
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            st_err = sths34pf80_odr_set (&m_ctx.ctx, m_ctx.odr);
+            err_code |= st_to_ruuvi_error (st_err);
+        }
+
+        if (RD_SUCCESS == err_code)
+        {
+            m_ctx.mode = RD_SENSOR_CFG_CONTINUOUS;
+            m_ctx.autorefresh = true;
+            *mode = RD_SENSOR_CFG_CONTINUOUS;
+        }
     }
     else
     {
