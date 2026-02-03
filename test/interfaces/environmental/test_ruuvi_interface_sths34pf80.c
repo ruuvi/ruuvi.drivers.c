@@ -317,6 +317,55 @@ void test_ri_sths34pf80_samplerate_get_default (void)
     TEST_ASSERT_EQUAL (1U, samplerate);  // Default is 1 Hz
 }
 
+void test_ri_sths34pf80_samplerate_set_3hz_rounds_up_to_4hz (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = 3U;
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_GREATER_OR_EQUAL (3U, samplerate);  // Must be >= requested
+    TEST_ASSERT_EQUAL (4U, samplerate);             // Should round to 4 Hz
+}
+
+void test_ri_sths34pf80_samplerate_set_5hz_rounds_up_to_8hz (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = 5U;
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_GREATER_OR_EQUAL (5U, samplerate);  // Must be >= requested
+    TEST_ASSERT_EQUAL (8U, samplerate);             // Should round to 8 Hz
+}
+
+void test_ri_sths34pf80_samplerate_set_10hz_rounds_up_to_15hz (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = 10U;
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_GREATER_OR_EQUAL (10U, samplerate);  // Must be >= requested
+    TEST_ASSERT_EQUAL (15U, samplerate);             // Should round to 15 Hz
+}
+
+void test_ri_sths34pf80_samplerate_set_20hz_rounds_up_to_30hz (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = 20U;
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_GREATER_OR_EQUAL (20U, samplerate);  // Must be >= requested
+    TEST_ASSERT_EQUAL (30U, samplerate);             // Should round to 30 Hz
+}
+
+void test_ri_sths34pf80_samplerate_set_31hz_not_supported (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = 31U;
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_ERROR_NOT_SUPPORTED, err_code);
+    TEST_ASSERT_EQUAL (RD_SENSOR_ERR_NOT_SUPPORTED, samplerate);
+}
+
 /* -------------------------------------------------------------------------- */
 /* Resolution/Scale tests (not supported, should return defaults)            */
 /* -------------------------------------------------------------------------- */

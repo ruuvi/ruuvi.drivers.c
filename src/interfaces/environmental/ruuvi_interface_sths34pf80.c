@@ -391,39 +391,48 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
         odr = max_odr;
         *samplerate = max_rate;
     }
-    else if (30U <= *samplerate)
-    {
-        odr = STHS34PF80_ODR_AT_30Hz;
-        *samplerate = 30;
-    }
-    else if (15U <= *samplerate)
-    {
-        odr = STHS34PF80_ODR_AT_15Hz;
-        *samplerate = 15;
-    }
-    else if (8U <= *samplerate)
-    {
-        odr = STHS34PF80_ODR_AT_8Hz;
-        *samplerate = 8;
-    }
-    else if (4U <= *samplerate)
-    {
-        odr = STHS34PF80_ODR_AT_4Hz;
-        *samplerate = 4;
-    }
-    else if (2U <= *samplerate)
-    {
-        odr = STHS34PF80_ODR_AT_2Hz;
-        *samplerate = 2;
-    }
-    else
+    else if (*samplerate <= 1U)
     {
         odr = STHS34PF80_ODR_AT_1Hz;
         *samplerate = 1;
     }
+    else if (*samplerate <= 2U)
+    {
+        odr = STHS34PF80_ODR_AT_2Hz;
+        *samplerate = 2;
+    }
+    else if (*samplerate <= 4U)
+    {
+        odr = STHS34PF80_ODR_AT_4Hz;
+        *samplerate = 4;
+    }
+    else if (*samplerate <= 8U)
+    {
+        odr = STHS34PF80_ODR_AT_8Hz;
+        *samplerate = 8;
+    }
+    else if (*samplerate <= 15U)
+    {
+        odr = STHS34PF80_ODR_AT_15Hz;
+        *samplerate = 15;
+    }
+    else if (*samplerate <= 30U)
+    {
+        odr = STHS34PF80_ODR_AT_30Hz;
+        *samplerate = 30;
+    }
+    else
+    {
+        *samplerate = RD_SENSOR_ERR_NOT_SUPPORTED;
+        err_code |= RD_ERROR_NOT_SUPPORTED;
+    }
 
     // Note: ODR is only applied when mode is set to continuous
-    m_ctx.odr = odr;
+    if (RD_SUCCESS == err_code)
+    {
+        m_ctx.odr = odr;
+    }
+
     return err_code;
 }
 
