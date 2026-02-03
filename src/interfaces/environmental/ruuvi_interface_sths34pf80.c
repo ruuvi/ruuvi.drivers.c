@@ -274,6 +274,73 @@ rd_status_t ri_sths34pf80_uninit (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t 
     return err_code;
 }
 
+/**
+ * @brief Get maximum ODR supported by current oversampling setting.
+ *
+ * The STHS34PF80 has ODR limits based on the avg_tmos (oversampling) setting:
+ * - AVG_TMOS_2, 8, 32: max 30Hz
+ * - AVG_TMOS_128: max 8Hz
+ * - AVG_TMOS_256: max 4Hz
+ * - AVG_TMOS_512: max 2Hz
+ * - AVG_TMOS_1024: max 1Hz
+ * - AVG_TMOS_2048: max 0.5Hz
+ *
+ * @param[out] p_max_odr Pointer to store maximum ODR enum value.
+ * @param[out] p_max_rate Pointer to store maximum samplerate in Hz (0 for sub-Hz).
+ * @return RD_SUCCESS on success, error code on failure.
+ */
+static rd_status_t get_max_odr_for_oversampling (sths34pf80_odr_t * const p_max_odr,
+        uint8_t * const p_max_rate)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    sths34pf80_avg_tobject_num_t avg_tmos;
+    int32_t st_err = sths34pf80_avg_tobject_num_get (&m_ctx.ctx, &avg_tmos);
+    err_code = st_to_ruuvi_error (st_err);
+
+    if (RD_SUCCESS != err_code)
+    {
+        return err_code;
+    }
+
+    switch (avg_tmos)
+    {
+        case STHS34PF80_AVG_TMOS_2:
+        case STHS34PF80_AVG_TMOS_8:
+        case STHS34PF80_AVG_TMOS_32:
+        default:
+            *p_max_odr = STHS34PF80_ODR_AT_30Hz;
+            *p_max_rate = 30U;
+            break;
+
+        case STHS34PF80_AVG_TMOS_128:
+            *p_max_odr = STHS34PF80_ODR_AT_8Hz;
+            *p_max_rate = 8U;
+            break;
+
+        case STHS34PF80_AVG_TMOS_256:
+            *p_max_odr = STHS34PF80_ODR_AT_4Hz;
+            *p_max_rate = 4U;
+            break;
+
+        case STHS34PF80_AVG_TMOS_512:
+            *p_max_odr = STHS34PF80_ODR_AT_2Hz;
+            *p_max_rate = 2U;
+            break;
+
+        case STHS34PF80_AVG_TMOS_1024:
+            *p_max_odr = STHS34PF80_ODR_AT_1Hz;
+            *p_max_rate = 1U;
+            break;
+
+        case STHS34PF80_AVG_TMOS_2048:
+            *p_max_odr = STHS34PF80_ODR_AT_0Hz50;
+            *p_max_rate = RI_STHS34PF80_SAMPLERATE_0HZ50;
+            break;
+    }
+
+    return RD_SUCCESS;
+}
+
 rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
 {
     rd_status_t err_code = RD_SUCCESS;
@@ -309,8 +376,22 @@ rd_status_t ri_sths34pf80_samplerate_set (uint8_t * samplerate)
         odr = STHS34PF80_ODR_AT_1Hz;
         *samplerate = 1;
     }
-    else if (RD_SENSOR_CFG_MAX == *samplerate ||
-             30U <= *samplerate)
+    else if (RD_SENSOR_CFG_MAX == *samplerate)
+    {
+        // Get maximum ODR based on current oversampling setting
+        sths34pf80_odr_t max_odr;
+        uint8_t max_rate;
+        err_code = get_max_odr_for_oversampling (&max_odr, &max_rate);
+
+        if (RD_SUCCESS != err_code)
+        {
+            return err_code;
+        }
+
+        odr = max_odr;
+        *samplerate = max_rate;
+    }
+    else if (30U <= *samplerate)
     {
         odr = STHS34PF80_ODR_AT_30Hz;
         *samplerate = 30;

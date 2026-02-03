@@ -220,13 +220,92 @@ void test_ri_sths34pf80_samplerate_set_default (void)
     TEST_ASSERT_EQUAL (1U, samplerate);
 }
 
-void test_ri_sths34pf80_samplerate_set_max (void)
+void test_ri_sths34pf80_samplerate_set_max_low_oversampling (void)
 {
     init_sensor_ok();
     uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // With low oversampling (AVG_TMOS_2, 8, or 32), max ODR is 30Hz
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_8;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
     rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
     TEST_ASSERT_EQUAL (30U, samplerate);
+}
+
+void test_ri_sths34pf80_samplerate_set_max_avg128 (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // With AVG_TMOS_128, max ODR is 8Hz
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_128;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_EQUAL (8U, samplerate);
+}
+
+void test_ri_sths34pf80_samplerate_set_max_avg256 (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // With AVG_TMOS_256, max ODR is 4Hz
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_256;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_EQUAL (4U, samplerate);
+}
+
+void test_ri_sths34pf80_samplerate_set_max_avg512 (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // With AVG_TMOS_512, max ODR is 2Hz
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_512;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_EQUAL (2U, samplerate);
+}
+
+void test_ri_sths34pf80_samplerate_set_max_avg1024 (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // With AVG_TMOS_1024, max ODR is 1Hz
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_1024;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_EQUAL (1U, samplerate);
+}
+
+void test_ri_sths34pf80_samplerate_set_max_avg2048 (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // With AVG_TMOS_2048, max ODR is 0.5Hz (returned as RI_STHS34PF80_SAMPLERATE_0HZ50)
+    sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_2048;
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    TEST_ASSERT_EQUAL (RI_STHS34PF80_SAMPLERATE_0HZ50, samplerate);
+}
+
+void test_ri_sths34pf80_samplerate_set_max_read_fail (void)
+{
+    init_sensor_ok();
+    uint8_t samplerate = RD_SENSOR_CFG_MAX;
+    // Simulate I2C read failure when getting oversampling
+    sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (RD_ERROR_TIMEOUT);
+    rd_status_t err_code = ri_sths34pf80_samplerate_set (&samplerate);
+    TEST_ASSERT_EQUAL (RD_ERROR_TIMEOUT, err_code);
 }
 
 void test_ri_sths34pf80_samplerate_get_default (void)
