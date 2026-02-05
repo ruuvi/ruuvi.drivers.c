@@ -92,12 +92,12 @@ static void lis2dh12_get_samples_selftest (axis3bit16_t * p_data_raw_acceleratio
     // Start delay
     ri_delay_ms (SELF_TEST_DELAY_MS);
     // Discard first sample
-    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration.u8bit);
+    lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration.i16bit);
 
     // Obtain 5 no self test samples
     for (uint8_t i = 0; i < SELF_TEST_SAMPLES_NUM; i++)
     {
-        lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration.u8bit);
+        lis2dh12_acceleration_raw_get (&dev.ctx, data_raw_acceleration.i16bit);
         axis_x += data_raw_acceleration.i16bit[0];
         axis_y += data_raw_acceleration.i16bit[1];
         axis_z += data_raw_acceleration.i16bit[2];
@@ -807,11 +807,11 @@ rd_status_t ri_lis2dh12_mode_get (uint8_t * mode)
  * parameter acceleration: Output. Temperature values in C.
  *
  */
-static rd_status_t rawToC (const uint8_t * const raw_temperature,
+static rd_status_t rawToC (const int16_t * const raw_temperature,
                            float * temperature)
 {
     rd_status_t err_code = RD_SUCCESS;
-    int16_t value = (raw_temperature[1] * 256) + raw_temperature[0];
+    int16_t value = *raw_temperature;
 
     switch (dev.resolution)
     {
@@ -961,18 +961,17 @@ rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const
 
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
-    axis3bit16_t raw_acceleration;
-    uint8_t raw_temperature[2];
-    memset (raw_acceleration.u8bit, 0x00, 3 * sizeof (int16_t));
-    lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.u8bit);
+    axis3bit16_t raw_acceleration = {0};
+    int16_t raw_temperature = 0;
+    lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.i16bit);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
-    lis_ret_code = lis2dh12_temperature_raw_get (& (dev.ctx), raw_temperature);
+    lis_ret_code = lis2dh12_temperature_raw_get (& (dev.ctx), &raw_temperature);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     // Compensate data with resolution, scale
-    float acceleration[3];
-    float temperature;
+    float acceleration[3] = {0};
+    float temperature = 0;
     err_code |= rawToMg (&raw_acceleration, acceleration);
-    err_code |= rawToC (raw_temperature, &temperature);
+    err_code |= rawToC (&raw_temperature, &temperature);
     uint8_t mode;
     err_code |= ri_lis2dh12_mode_get (&mode);
 
@@ -996,9 +995,9 @@ rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const
         acc_fields.datas.acceleration_z_g = 1;
         acc_fields.datas.temperature_c = 1;
         //Convert mG to G.
-        values[0] = acceleration[0] / 1000.0;
-        values[1] = acceleration[1] / 1000.0;
-        values[2] = acceleration[2] / 1000.0;
+        values[0] = acceleration[0] / 1000.0f;
+        values[1] = acceleration[1] / 1000.0f;
+        values[2] = acceleration[2] / 1000.0f;
         values[3] = temperature;
         d_acceleration.valid  = acc_fields;
         d_acceleration.fields = acc_fields;
@@ -1059,7 +1058,7 @@ rd_status_t ri_lis2dh12_fifo_read (size_t * num_elements,
 
     for (size_t ii = 0; ii < elements; ii++)
     {
-        lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.u8bit);
+        lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.i16bit);
         err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
         // Compensate data with resolution, scale
         err_code |= rawToMg (&raw_acceleration, acceleration);
@@ -1069,9 +1068,9 @@ rd_status_t ri_lis2dh12_fifo_read (size_t * num_elements,
         acc_fields.datas.acceleration_y_g = 1;
         acc_fields.datas.acceleration_z_g = 1;
         //Convert mG to G
-        acceleration[0] = acceleration[0] / 1000.0;
-        acceleration[1] = acceleration[1] / 1000.0;
-        acceleration[2] = acceleration[2] / 1000.0;
+        acceleration[0] = acceleration[0] / 1000.0f;
+        acceleration[1] = acceleration[1] / 1000.0f;
+        acceleration[2] = acceleration[2] / 1000.0f;
         d_acceleration.data = acceleration;
         d_acceleration.valid  = acc_fields;
         d_acceleration.fields = acc_fields;

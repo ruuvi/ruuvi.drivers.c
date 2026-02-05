@@ -16,7 +16,7 @@
 
 
 int32_t ri_spi_lis2dh12_write (void * dev_ptr, uint8_t reg_addr,
-                               uint8_t * reg_data, uint16_t len)
+                               const uint8_t * reg_data, uint16_t len)
 {
     rd_status_t err_code = RD_SUCCESS;
     uint8_t dev_id = * ( (uint8_t *) dev_ptr);

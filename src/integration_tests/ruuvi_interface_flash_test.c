@@ -306,7 +306,6 @@ static bool ri_flash_gc_size_busy_test (const rd_test_print_fp printfp)
 
             err_code |= ri_flash_free_size_get (&size);
         } while ( ( (F_BIG_RECORD_SIZE < size) && (RD_SUCCESS == err_code))
-
                   || (RD_ERROR_BUSY == err_code));
 
         // Test that garbage collection works

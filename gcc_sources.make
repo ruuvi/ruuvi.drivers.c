@@ -106,9 +106,11 @@ RUUVI_LIB_SOURCES= \
   $(PROJ_DIR)/src/interfaces/acceleration/ruuvi_interface_lis2dh12.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_bme280.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_shtcx.c \
+  $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_sths34pf80.c \
   $(PROJ_DIR)/src/interfaces/environmental/ruuvi_interface_tmp117.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_bme280.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_shtcx.c \
+  $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_sths34pf80.c \
   $(PROJ_DIR)/src/interfaces/i2c/ruuvi_interface_i2c_tmp117.c \
   $(PROJ_DIR)/src/interfaces/log/ruuvi_interface_log.c \
   $(PROJ_DIR)/src/interfaces/spi/ruuvi_interface_spi_bme280.c \
@@ -259,4 +261,5 @@ COMMON_INCLUDES= \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/gpio/ \
   $(PROJ_DIR)/src/nrf5_sdk15_platform/timer/ \
   $(PROJ_DIR)/src/tasks/ \
-  $(PROJ_DIR)/STMems_Standard_C_drivers/lis2dh12_STdC/driver
+  $(PROJ_DIR)/STMems_Standard_C_drivers/lis2dh12_STdC/driver \
+  $(PROJ_DIR)/STMems_Standard_C_drivers/sths34pf80_STdC/driver

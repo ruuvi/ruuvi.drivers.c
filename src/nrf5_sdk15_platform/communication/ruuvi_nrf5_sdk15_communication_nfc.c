@@ -36,7 +36,7 @@ static struct
                           * RI_COMM_DIS_STRLEN];
     volatile size_t  nfc_ndef_msg_len;
     uint8_t desc_buf[NFC_NDEF_PARSER_REQIRED_MEMO_SIZE_CALC (
-                                                                RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
+                         RUUVI_NRF5_SDK15_COMM_NFC_MAX_RECORDS)]; // Buffer to contain incoming data descriptors
     size_t msg_index;         // Store index of our record
     ri_comm_evt_handler_fp_t * on_nfc_evt;
 } nrf5_sdk15_nfc_state;
@@ -331,7 +331,7 @@ rd_status_t ri_nfc_receive (ri_comm_message_t * msg)
     {
         // PLATFORM_LOG_INFO("Parsing message %d", msg_index);
         nfc_ndef_record_desc_t * const p_rec_desc = ( (nfc_ndef_msg_desc_t *)
-                nrf5_sdk15_nfc_state.desc_buf)->pp_record[nrf5_sdk15_nfc_state.msg_index];
+            nrf5_sdk15_nfc_state.desc_buf)->pp_record[nrf5_sdk15_nfc_state.msg_index];
         nfc_ndef_bin_payload_desc_t * p_bin_pay_desc = p_rec_desc->p_payload_descriptor;
         // Data length check, skip header
         size_t payload_len = (p_bin_pay_desc->payload_length - BIN_PAY_DESC_HEADER_LEN);
