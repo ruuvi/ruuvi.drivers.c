@@ -962,15 +962,14 @@ rd_status_t ri_lis2dh12_data_get (rd_sensor_data_t * const
     rd_status_t err_code = RD_SUCCESS;
     int32_t lis_ret_code;
     axis3bit16_t raw_acceleration;
-    int16_t raw_temperature;
-    memset (raw_acceleration.i16bit, 0x00, 3 * sizeof (int16_t));
+    axis3bit16_t raw_acceleration = { 0 };
     lis_ret_code = lis2dh12_acceleration_raw_get (& (dev.ctx), raw_acceleration.i16bit);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     lis_ret_code = lis2dh12_temperature_raw_get (& (dev.ctx), &raw_temperature);
     err_code |= (LIS_SUCCESS == lis_ret_code) ? RD_SUCCESS : RD_ERROR_INTERNAL;
     // Compensate data with resolution, scale
-    float acceleration[3];
-    float temperature;
+    float acceleration[3] = { 0 };
+    float temperature = 0;
     err_code |= rawToMg (&raw_acceleration, acceleration);
     err_code |= rawToC (&raw_temperature, &temperature);
     uint8_t mode;
