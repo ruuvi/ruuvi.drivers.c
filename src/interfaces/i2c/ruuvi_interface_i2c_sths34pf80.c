@@ -40,7 +40,6 @@ int32_t ri_i2c_sths34pf80_write (void * handle, uint8_t reg,
     }
 
     uint8_t dev_addr = * ( (uint8_t *) handle);
-
     // Build buffer: [register address][data...]
     tx_buf[0] = reg;
     memcpy (&tx_buf[1], data, len);
@@ -60,7 +59,6 @@ int32_t ri_i2c_sths34pf80_read (void * handle, uint8_t reg,
     }
 
     uint8_t dev_addr = * ( (uint8_t *) handle);
-
     // Write register address (no stop), then read data
     err_code |= ri_i2c_write_blocking (dev_addr, &reg_addr, REG_ADDR_SIZE, false);
     err_code |= ri_i2c_read_blocking (dev_addr, data, len);
