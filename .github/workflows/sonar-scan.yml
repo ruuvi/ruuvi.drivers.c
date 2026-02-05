@@ -28,7 +28,7 @@ jobs:
         fetch-depth: 0  # Shallow clones should be disabled for better analysis
 
     - name: Install build-wrapper
-      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5
+      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
 
     - name: Download Nordic SDK
       run: |
@@ -55,7 +55,7 @@ jobs:
       run: make test_all
 
     - name: SonarCloud Scan
-      uses: SonarSource/sonarqube-scan-action@v5
+      uses: SonarSource/sonarqube-scan-action@v6
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
