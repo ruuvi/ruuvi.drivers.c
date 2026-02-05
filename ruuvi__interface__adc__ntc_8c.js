@@ -1,0 +1,26 @@
+var ruuvi__interface__adc__ntc_8c =
+[
+    [ "ADC_K_TO_C_CONST", "ruuvi__interface__adc__ntc_8c.html#a825a824715915ee534d7df56736f705f", null ],
+    [ "ADC_NTC_BALANCE", "ruuvi__interface__adc__ntc_8c.html#ad9c22dcb1e8722d3b8b72c3bf3397926", null ],
+    [ "ADC_NTC_DATA_COUNTER", "ruuvi__interface__adc__ntc_8c.html#a49d861889c37b9130a2f5ddba1c94db3", null ],
+    [ "ADC_NTC_DEFAULT_BETA", "ruuvi__interface__adc__ntc_8c.html#a9fe8584d98f838650e5cba35ecb360c8", null ],
+    [ "ADC_NTC_DEFAULT_BITFIELD", "ruuvi__interface__adc__ntc_8c.html#a8bf4a037a3cdee78fbb9428f6344a870", null ],
+    [ "ADC_NTC_DEFAULT_RES", "ruuvi__interface__adc__ntc_8c.html#a5b917ee105cebd0715c2e3f16ee8b4ce", null ],
+    [ "ADC_NTC_DEFAULT_TEMP", "ruuvi__interface__adc__ntc_8c.html#a26c9e7c22242553a7d5cf475efe91f06", null ],
+    [ "ADC_NTC_DEFAULT_TEMP_K", "ruuvi__interface__adc__ntc_8c.html#aebcad0b7929bc278091157aef1cc3537", null ],
+    [ "ADC_NTC_ENABLE_BYTE", "ruuvi__interface__adc__ntc_8c.html#ad7fbd2845117ee7522cc87dbbf7ab792", null ],
+    [ "ADC_NTC_USE_CHANNEL", "ruuvi__interface__adc__ntc_8c.html#a08203a80394c4426e68a3cf865c3143b", null ],
+    [ "ADC_NTC_USE_DIVIDER", "ruuvi__interface__adc__ntc_8c.html#a5b2eac3b74b7c65bee8650f9d654ca6b", null ],
+    [ "ADC_NTC_USE_VDD", "ruuvi__interface__adc__ntc_8c.html#adc3f6e980a32c41c25b52b9ccbd57881", null ],
+    [ "ri_adc_ntc_data_get", "ruuvi__interface__adc__ntc_8c.html#a26e481a950393afa74828819fd869c6d", null ],
+    [ "ri_adc_ntc_dsp_get", "ruuvi__interface__adc__ntc_8c.html#a4d14843a5228f0283865ea7ae0f88f26", null ],
+    [ "ri_adc_ntc_dsp_set", "ruuvi__interface__adc__ntc_8c.html#a00cca18d248e658eee8f62e3295cb288", null ],
+    [ "ri_adc_ntc_init", "ruuvi__interface__adc__ntc_8c.html#a6260fe88a98a0a6cbe6761f1e9df6bea", null ],
+    [ "ri_adc_ntc_mode_get", "ruuvi__interface__adc__ntc_8c.html#adf42ad6bfa828021c7a4ff9b2e46f399", null ],
+    [ "ri_adc_ntc_mode_set", "ruuvi__interface__adc__ntc_8c.html#a050388dfbd4ba17d46717dce98539e12", null ],
+    [ "ri_adc_ntc_resolution_set", "ruuvi__interface__adc__ntc_8c.html#a44057b10558132a82da57c791f835a3f", null ],
+    [ "ri_adc_ntc_samplerate_set", "ruuvi__interface__adc__ntc_8c.html#aca4c93daf68bbe4a561f290037cc5e03", null ],
+    [ "ri_adc_ntc_scale_set", "ruuvi__interface__adc__ntc_8c.html#aad67ad393f7ec14e6e88e160ed1b8f84", null ],
+    [ "ri_adc_ntc_uninit", "ruuvi__interface__adc__ntc_8c.html#a4695b78c863a5c3b49d3595fc12b9cf9", null ],
+    [ "m_temperture", "ruuvi__interface__adc__ntc_8c.html#a0952423c4083affc1a713646efde6d65", null ]
+];

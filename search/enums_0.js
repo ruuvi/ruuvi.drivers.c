@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['rd_5fbus_5ft_0',['rd_bus_t',['../group___sensor.html#gadab766cde8260b73a0822f6ee0346775',1,'ruuvi_driver_sensor.h']]],
+  ['ri_5fadc_5fchannel_5ft_1',['ri_adc_channel_t',['../ruuvi__interface__adc__mcu_8h.html#aad0b4578e692ab4c5dd69f6cbbb918ba',1,'ruuvi_interface_adc_mcu.h']]],
+  ['ri_5fadc_5fgain_5ft_2',['ri_adc_gain_t',['../ruuvi__interface__adc__mcu_8h.html#ab1daca349422b884206431abb3a6bee9',1,'ruuvi_interface_adc_mcu.h']]],
+  ['ri_5fadc_5fmode_5ft_3',['ri_adc_mode_t',['../ruuvi__interface__adc__mcu_8h.html#a461e0cd820bfcf167dd20ffd9a3fafe6',1,'ruuvi_interface_adc_mcu.h']]],
+  ['ri_5fadc_5foversample_5ft_4',['ri_adc_oversample_t',['../ruuvi__interface__adc__mcu_8h.html#aaeed6735079837532cd3df48b656c1ce',1,'ruuvi_interface_adc_mcu.h']]],
+  ['ri_5fadc_5fresolution_5ft_5',['ri_adc_resolution_t',['../ruuvi__interface__adc__mcu_8h.html#a6e7b9837be7ea55588851ac2861af92b',1,'ruuvi_interface_adc_mcu.h']]],
+  ['ri_5fadc_5fvref_5ft_6',['ri_adc_vref_t',['../ruuvi__interface__adc__mcu_8h.html#a51bc38408e4315722c665aeb094cbd4e',1,'ruuvi_interface_adc_mcu.h']]],
+  ['ri_5fadv_5ftype_5ft_7',['ri_adv_type_t',['../ruuvi__interface__communication__ble__advertising_8h.html#a4fbdf36956c60ee49c29631c2d3df5df',1,'ruuvi_interface_communication_ble_advertising.h']]],
+  ['ri_5fcomm_5fevt_5ft_8',['ri_comm_evt_t',['../ruuvi__interface__communication_8h.html#a91cc50db0740570e8cccf6e8ca878fa0',1,'ruuvi_interface_communication.h']]],
+  ['ri_5fgatt_5fparams_5ft_9',['ri_gatt_params_t',['../ruuvi__interface__communication_8h.html#a12627eb4361834a0632ad1a940bfac03',1,'ruuvi_interface_communication.h']]],
+  ['ri_5fgpio_5fbase_5ffreq_10',['ri_gpio_base_freq',['../group___g_p_i_o.html#ga136be35acb87bfacb9dc7537107e57ca',1,'ruuvi_nrf5_sdk15_gpio_pwm.c']]],
+  ['ri_5fgpio_5fmode_5ft_11',['ri_gpio_mode_t',['../ruuvi__interface__gpio_8h.html#abb7027eba702863aeb3eb8973c98883f',1,'ruuvi_interface_gpio.h']]],
+  ['ri_5fgpio_5fslope_5ft_12',['ri_gpio_slope_t',['../group___g_p_i_o.html#ga23201a066fc484e74979a63d16d2e682',1,'ruuvi_interface_gpio_interrupt.h']]],
+  ['ri_5fgpio_5fstate_5ft_13',['ri_gpio_state_t',['../ruuvi__interface__gpio_8h.html#aff30f30bf4329562a351a16cc4298522',1,'ruuvi_interface_gpio.h']]],
+  ['ri_5fi2c_5ffrequency_5ft_14',['ri_i2c_frequency_t',['../ruuvi__interface__i2c_8h.html#aba40c2c533d25aeb53c6571fd1e8f9d5',1,'ruuvi_interface_i2c.h']]],
+  ['ri_5flog_5fseverity_5ft_15',['ri_log_severity_t',['../group___log.html#ga519e88d6a524dee3e505a1d1e9b2edc9',1,'ruuvi_interface_log.h']]],
+  ['ri_5fradio_5factivity_5fevt_5ft_16',['ri_radio_activity_evt_t',['../group___radio.html#ga5cbca59feb1cd85ef53f42c747567ec6',1,'ruuvi_interface_communication_radio.h']]],
+  ['ri_5fradio_5fmodulation_5ft_17',['ri_radio_modulation_t',['../group___radio.html#gaefe7333d14b184403ba244161a094869',1,'ruuvi_interface_communication_radio.h']]],
+  ['ri_5fspi_5ffrequency_5ft_18',['ri_spi_frequency_t',['../ruuvi__interface__spi_8h.html#a95e7fbdb529634182d473fc97060ce4a',1,'ruuvi_interface_spi.h']]],
+  ['ri_5fspi_5fmode_5ft_19',['ri_spi_mode_t',['../ruuvi__interface__spi_8h.html#a75e4eb5df11555e58bfeaa722d6e2706',1,'ruuvi_interface_spi.h']]],
+  ['ri_5ftimer_5fmode_5ft_20',['ri_timer_mode_t',['../group__timer.html#ga8c0e4f4a3d265c2003df9878072f8781',1,'ruuvi_interface_timer.h']]],
+  ['ri_5fuart_5fbaudrate_5ft_21',['ri_uart_baudrate_t',['../ruuvi__interface__communication__uart_8h.html#a725c1c035f0a7e2dd19788b1316bad46',1,'ruuvi_interface_communication_uart.h']]],
+  ['rt_5fadc_5fmode_5ft_22',['rt_adc_mode_t',['../group__adc__tasks.html#ga5439776452b55b1c2fe7c86228513f6c',1,'ruuvi_task_adc.h']]],
+  ['ruuvi_5finterface_5fuart_5fbaud_5ft_23',['ruuvi_interface_uart_baud_t',['../ruuvi__interface__uart_8h.html#aa2c68a0c37b17ae056298711e9fd2a6c',1,'ruuvi_interface_uart.h']]]
+];

@@ -1,0 +1,26 @@
+var ruuvi__interface__lis2dh12_8c =
+[
+    [ "LOGD", "ruuvi__interface__lis2dh12_8c.html#a48bbf993b1b3c921f9576776376abd2b", null ],
+    [ "MOTION_THRESHOLD_MAX", "ruuvi__interface__lis2dh12_8c.html#aac1c4c7f762fdc4bd85fbf537b7d99d4", null ],
+    [ "NM_BIT_DIVEDER", "ruuvi__interface__lis2dh12_8c.html#a705715aa9f635e4b5bf61b291cdbf597", null ],
+    [ "NUM_AXIS", "ruuvi__interface__lis2dh12_8c.html#aca00080fdda943be54f1d91bbeded3f4", null ],
+    [ "PWRON_DELAY_MS", "ruuvi__interface__lis2dh12_8c.html#a0cd72a6b2ff3bea8cd3893bb5a978753", null ],
+    [ "VERIFY_SENSOR_SLEEPS", "ruuvi__interface__lis2dh12_8c.html#a97355e96c09fc9896da2a8dd1d95c9b4", null ],
+    [ "ri_lis2dh12_activity_interrupt_use", "group___l_i_s2_d_h12.html#gaf3ab46ba61a33bb268d253f418ccc6b1", null ],
+    [ "ri_lis2dh12_data_get", "group___l_i_s2_d_h12.html#gad06eef92774757fd4bfbbd20620e096a", null ],
+    [ "ri_lis2dh12_dsp_get", "group___l_i_s2_d_h12.html#ga3e39fc54e7514124f181f7e93bec1979", null ],
+    [ "ri_lis2dh12_dsp_set", "group___l_i_s2_d_h12.html#ga8191c85c8f42636f2b633553f7124fce", null ],
+    [ "ri_lis2dh12_fifo_interrupt_use", "group___l_i_s2_d_h12.html#gaa0a46e29989d554d5a4f49adb0c41a31", null ],
+    [ "ri_lis2dh12_fifo_read", "group___l_i_s2_d_h12.html#gadcd6e24ab98b8a8fd8ad6ee9ba0c2448", null ],
+    [ "ri_lis2dh12_fifo_use", "group___l_i_s2_d_h12.html#ga474a54f15447f49e09c7850445e31e12", null ],
+    [ "ri_lis2dh12_init", "group___l_i_s2_d_h12.html#gae0fb40c86e727b3fc761d85afbce71f2", null ],
+    [ "ri_lis2dh12_mode_get", "group___l_i_s2_d_h12.html#ga1851dfe4efd4a2a2d0253188338bbc60", null ],
+    [ "ri_lis2dh12_mode_set", "group___l_i_s2_d_h12.html#ga75684bfc92606628a880434555d33414", null ],
+    [ "ri_lis2dh12_resolution_get", "group___l_i_s2_d_h12.html#gae44dfad0723c121d832fd116e6640b71", null ],
+    [ "ri_lis2dh12_resolution_set", "group___l_i_s2_d_h12.html#ga11a8a0a02399e7d59c4b13c4adb578b4", null ],
+    [ "ri_lis2dh12_samplerate_get", "group___l_i_s2_d_h12.html#ga2fe4c7fcb4db755bd6c28e8c4c1787f8", null ],
+    [ "ri_lis2dh12_samplerate_set", "group___l_i_s2_d_h12.html#ga8b35cfd862ea09dd91e2d953655387cb", null ],
+    [ "ri_lis2dh12_scale_get", "group___l_i_s2_d_h12.html#gafe4d7f4adba00778fc310caf733ccf7a", null ],
+    [ "ri_lis2dh12_scale_set", "group___l_i_s2_d_h12.html#ga5642e66cdbd584229698d2d16f062c90", null ],
+    [ "ri_lis2dh12_uninit", "group___l_i_s2_d_h12.html#gaa56b3b05588281423f1cada7384e9037", null ]
+];
