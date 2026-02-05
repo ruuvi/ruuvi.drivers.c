@@ -38,7 +38,7 @@ return status;                                      \
 #define MAX_SENSORS (sizeof(rd_sensor_data_fields_t)* MAX_BITS_PER_BYTE)
 #define MAX_RETRIES    (50U) //!< Number of times to run test on statistics-dependent tests, such as sampling noise.
 #define MAX_FIFO_DEPTH (32U) //!< How many samples to fetch from FIFO at max
-#define MAX_SENSOR_PROVIDED_FIELDS (4U) //!< Largest number of different fields tested sensor can have.
+#define MAX_SENSOR_PROVIDED_FIELDS (7U) //!< Largest number of different fields tested sensor can have.
 
 #define LOG_PRINT_DELAY_MS (10U)
 
