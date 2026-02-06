@@ -86,6 +86,7 @@ typedef struct
     uint8_t presence_flag;        //!< Last presence flag from FUNC_STATUS.
     uint8_t motion_flag;          //!< Last motion flag from FUNC_STATUS.
     uint8_t tamb_shock_flag;      //!< Last ambient shock flag from FUNC_STATUS.
+    bool algo_valid;              //!< Algorithm outputs valid (false after temp shock until recalibrated).
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     int16_t tpresence_raw;        //!< Last presence algorithm value (debug).
     int16_t tmotion_raw;          //!< Last motion algorithm value (debug).
@@ -161,6 +162,21 @@ static rd_status_t read_sample (void)
     m_ctx.presence_flag = func_status.pres_flag;
     m_ctx.motion_flag = func_status.mot_flag;
     m_ctx.tamb_shock_flag = func_status.tamb_shock_flag;
+
+    // Reset algorithm state on temperature shock detection.
+    // This allows the sensor to recalibrate after rapid ambient temperature changes.
+    // Mark algorithm outputs as invalid until next sample without shock.
+    if (func_status.tamb_shock_flag)
+    {
+        st_err = sths34pf80_algo_reset (&m_ctx.ctx);
+        err_code |= st_to_ruuvi_error (st_err);
+        m_ctx.algo_valid = false;
+    }
+    else
+    {
+        m_ctx.algo_valid = true;
+    }
+
     // Record timestamp
     m_ctx.tsample = rd_sensor_timestamp_get();
     return err_code;
@@ -777,25 +793,44 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
     values[STHS34PF80_DEBUG_TPRESENCE] = (float) m_ctx.tpresence_raw / 1000.0f;
     values[STHS34PF80_DEBUG_TAMB_SHOCK] = (float) m_ctx.tamb_shock_flag;
 #endif
+    // Set fields that this sensor provides
+    rd_sensor_data_fields_t provided_fields = {0};
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    provided_fields.datas.acceleration_x_g = 1;  // Debug: tobject
+    provided_fields.datas.acceleration_y_g = 1;  // Debug: tmotion
+    provided_fields.datas.acceleration_z_g = 1;  // Debug: tpresence
+    provided_fields.datas.debug_tamb = 1;        // Debug: tamb_shock
+#endif
+    provided_fields.datas.temperature_c = 1;
+    provided_fields.datas.presence = 1;
+    provided_fields.datas.motion = 1;
+    provided_fields.datas.ir_object = 1;
 
     // Only mark fields valid if a sample has actually been taken
     if (RD_UINT64_INVALID != m_ctx.tsample)
     {
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
         env_fields.datas.acceleration_x_g = 1;  // Debug: tobject
-        env_fields.datas.acceleration_y_g = 1;  // Debug: tmotion
-        env_fields.datas.acceleration_z_g = 1;  // Debug: tpresence
         env_fields.datas.debug_tamb = 1;        // Debug: tamb_shock
 #endif
         env_fields.datas.temperature_c = 1;
-        env_fields.datas.presence = 1;
-        env_fields.datas.motion = 1;
         env_fields.datas.ir_object = 1;
+
+        // Algorithm-derived fields are only valid if no temperature shock occurred
+        if (m_ctx.algo_valid)
+        {
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+            env_fields.datas.acceleration_y_g = 1;  // Debug: tmotion
+            env_fields.datas.acceleration_z_g = 1;  // Debug: tpresence
+#endif
+            env_fields.datas.presence = 1;
+            env_fields.datas.motion = 1;
+        }
     }
 
     d_environmental.data = values;
     d_environmental.valid = env_fields;
-    d_environmental.fields = env_fields;
+    d_environmental.fields = provided_fields;
     d_environmental.timestamp_ms = m_ctx.tsample;
     rd_sensor_data_populate (data, &d_environmental, data->fields);
     data->timestamp_ms = m_ctx.tsample;
