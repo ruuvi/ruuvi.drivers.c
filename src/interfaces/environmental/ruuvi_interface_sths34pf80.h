@@ -4,6 +4,7 @@
 #if RI_STHS34PF80_ENABLED || DOXYGEN
 #include "ruuvi_driver_error.h"
 #include "ruuvi_driver_sensor.h"
+#include "sths34pf80_reg.h"
 
 /**
  * @addtogroup Environmental
@@ -60,6 +61,20 @@
 #define RI_STHS34PF80_SAMPLERATE_0HZ25  RD_SENSOR_CFG_CUSTOM_1 //!< 0.25 Hz (4 second period)
 #define RI_STHS34PF80_SAMPLERATE_0HZ50  RD_SENSOR_CFG_CUSTOM_2 //!< 0.50 Hz (2 second period)
 
+/**
+ * @brief Default algorithm configuration values from ST reference example.
+ * @{
+ */
+#define RI_STHS34PF80_AVG_TMOS_DEFAULT          STHS34PF80_AVG_TMOS_32  //!< TMOS averaging: 32 samples
+#define RI_STHS34PF80_AVG_TAMB_DEFAULT          STHS34PF80_AVG_T_8     //!< Tambient averaging: 8 samples
+#define RI_STHS34PF80_TAMB_SHOCK_THS_DEFAULT    (35U)   //!< Ambient shock threshold [LSB]
+#define RI_STHS34PF80_TAMB_SHOCK_HYS_DEFAULT    (5U)    //!< Ambient shock hysteresis [LSB]
+#define RI_STHS34PF80_PRESENCE_THS_DEFAULT      (200U)  //!< Presence threshold [LSB]
+#define RI_STHS34PF80_PRESENCE_HYS_DEFAULT      (20U)   //!< Presence hysteresis [LSB]
+#define RI_STHS34PF80_MOTION_THS_DEFAULT        (300U)  //!< Motion threshold [LSB]
+#define RI_STHS34PF80_MOTION_HYS_DEFAULT        (30U)   //!< Motion hysteresis [LSB]
+/** @} */
+
 /** @brief @ref rd_sensor_init_fp */
 rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t handle);
 /** @brief @ref rd_sensor_init_fp */
@@ -86,6 +101,19 @@ rd_status_t ri_sths34pf80_mode_set (uint8_t * mode);
 rd_status_t ri_sths34pf80_mode_get (uint8_t * mode);
 /** @brief @ref rd_sensor_data_fp */
 rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data);
+
+/**
+ * @brief Configure STHS34PF80 algorithm parameters with recommended defaults.
+ *
+ * Applies averaging, threshold, and hysteresis settings from ST reference example.
+ * This should be called after init and before starting continuous mode.
+ * Sensor must be in sleep mode.
+ *
+ * @return RD_SUCCESS on success.
+ * @return RD_ERROR_INVALID_STATE if sensor is not in sleep mode.
+ * @return RD_ERROR_INTERNAL on driver error.
+ */
+rd_status_t ri_sths34pf80_configure_defaults (void);
 
 /** @} */
 #endif // RI_STHS34PF80_ENABLED

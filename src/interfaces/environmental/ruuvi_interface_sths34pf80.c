@@ -28,6 +28,29 @@
  */
 /** @{ */
 
+#define SHTS_DEBUG_DATA_IN_ACCELERATION (1U) //!< Enable to log raw data in acceleration format for easier debugging.
+#define SHTS_DATA_FIELD_COUNT (4U + (4 * SHTS_DEBUG_DATA_IN_ACCELERATION)) //!< Temperature, presence, motion, IR object + debug fields
+
+// Data field array indices
+// NOTE: These indices are relative to the enabled fields in the bitfield.
+// The rd_sensor_data_populate function counts set bits to determine array placement.
+// When debug is enabled, acceleration fields (bits 0,1,2) shift all other indices by +3.
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+#define STHS34PF80_DEBUG_TOBJECT         (0)  //!< Debug: IR object raw (as accel_x)
+#define STHS34PF80_DEBUG_TMOTION         (1)  //!< Debug: Motion algo (as accel_y)
+#define STHS34PF80_DEBUG_TPRESENCE       (2)  //!< Debug: Presence algo/tamb_shock (as accel_z)
+#define STHS34PF80_TAMBIENT_C            (3)  //!< Ambient temperature in Celsius
+#define STHS34PF80_PRESENCE_FLAG         (4)  //!< Presence detection flag
+#define STHS34PF80_MOTION_FLAG           (5)  //!< Motion detection flag
+#define STHS34PF80_TOBJECT_RAW           (6)  //!< IR object signal (dimensionless)
+#define STHS34PF80_DEBUG_TAMB_SHOCK      (7)  //!< Debug: Ambient shock value
+#else
+#define STHS34PF80_TAMBIENT_C            (0)  //!< Ambient temperature in Celsius
+#define STHS34PF80_PRESENCE_FLAG         (1)  //!< Presence detection flag
+#define STHS34PF80_MOTION_FLAG           (2)  //!< Motion detection flag
+#define STHS34PF80_TOBJECT_RAW           (3)  //!< IR object signal (dimensionless)
+#endif
+
 #define BOOT_DELAY_MS       (10U)  //!< Delay after boot/reset in milliseconds.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
@@ -62,6 +85,12 @@ typedef struct
     int16_t tobject_raw;          //!< Last IR object signal raw value.
     uint8_t presence_flag;        //!< Last presence flag from FUNC_STATUS.
     uint8_t motion_flag;          //!< Last motion flag from FUNC_STATUS.
+    uint8_t tamb_shock_flag;      //!< Last ambient shock flag from FUNC_STATUS.
+    bool algo_valid;              //!< Algorithm outputs valid (false after temp shock until recalibrated).
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    int16_t tpresence_raw;        //!< Last presence algorithm value (debug).
+    int16_t tmotion_raw;          //!< Last motion algorithm value (debug).
+#endif
 } ri_sths34pf80_ctx_t;
 
 static ri_sths34pf80_ctx_t m_ctx = {0};  //!< Sensor context singleton.
@@ -122,9 +151,32 @@ static rd_status_t read_sample (void)
     err_code |= st_to_ruuvi_error (st_err);
     st_err = sths34pf80_tobject_raw_get (&m_ctx.ctx, &m_ctx.tobject_raw);
     err_code |= st_to_ruuvi_error (st_err);
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    // Read algorithm state values for debugging
+    st_err = sths34pf80_tpresence_raw_get (&m_ctx.ctx, &m_ctx.tpresence_raw);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_tmotion_raw_get (&m_ctx.ctx, &m_ctx.tmotion_raw);
+    err_code |= st_to_ruuvi_error (st_err);
+#endif
     // Store flags
     m_ctx.presence_flag = func_status.pres_flag;
     m_ctx.motion_flag = func_status.mot_flag;
+    m_ctx.tamb_shock_flag = func_status.tamb_shock_flag;
+
+    // Reset algorithm state on temperature shock detection.
+    // This allows the sensor to recalibrate after rapid ambient temperature changes.
+    // Mark algorithm outputs as invalid until next sample without shock.
+    if (func_status.tamb_shock_flag)
+    {
+        st_err = sths34pf80_algo_reset (&m_ctx.ctx);
+        err_code |= st_to_ruuvi_error (st_err);
+        m_ctx.algo_valid = false;
+    }
+    else
+    {
+        m_ctx.algo_valid = true;
+    }
+
     // Record timestamp
     m_ctx.tsample = rd_sensor_timestamp_get();
     return err_code;
@@ -207,11 +259,6 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     st_err = sths34pf80_boot_set (&m_ctx.ctx, 1);
     err_code |= st_to_ruuvi_error (st_err);
     ri_delay_ms (BOOT_DELAY_MS);
-    // Configure default settings: ODR off (sleep mode), BDU enabled
-    st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
-    err_code |= st_to_ruuvi_error (st_err);
-    st_err = sths34pf80_block_data_update_set (&m_ctx.ctx, 1);
-    err_code |= st_to_ruuvi_error (st_err);
 
     if (RD_SUCCESS != err_code)
     {
@@ -228,6 +275,20 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     m_ctx.tobject_raw = 0;
     m_ctx.presence_flag = 0;
     m_ctx.motion_flag = 0;
+    m_ctx.tamb_shock_flag = 0;
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    m_ctx.tpresence_raw = 0;
+    m_ctx.tmotion_raw = 0;
+#endif
+    // Apply default algorithm configuration (thresholds, hysteresis, averaging)
+    err_code |= ri_sths34pf80_configure_defaults();
+
+    if (RD_SUCCESS != err_code)
+    {
+        rd_sensor_uninitialize (p_sensor);
+        return err_code;
+    }
+
     // Setup sensor struct
     p_sensor->init              = ri_sths34pf80_init;
     p_sensor->uninit            = ri_sths34pf80_uninit;
@@ -245,6 +306,12 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     p_sensor->configuration_set = rd_sensor_configuration_set;
     p_sensor->configuration_get = rd_sensor_configuration_get;
     // Define provided data fields
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    p_sensor->provides.datas.acceleration_x_g = 1;  // Debug: tobject
+    p_sensor->provides.datas.acceleration_y_g = 1;  // Debug: tmotion
+    p_sensor->provides.datas.acceleration_z_g = 1;  // Debug: tpresence
+    p_sensor->provides.datas.debug_tamb = 1;        // Debug: tamb_shock
+#endif
     p_sensor->provides.datas.temperature_c = 1;
     p_sensor->provides.datas.presence = 1;
     p_sensor->provides.datas.motion = 1;
@@ -717,28 +784,102 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
     // Note: Only fields that are requested AND provided will be populated
     rd_sensor_data_t d_environmental = {0};
     rd_sensor_data_fields_t env_fields = {0};
-    // Ambient temperature in Celsius
-    float values[4] = {0};
-    values[0] = tambient_to_celsius (m_ctx.tambient_raw);
-    values[1] = (float) m_ctx.presence_flag;
-    values[2] = (float) m_ctx.motion_flag;
-    values[3] = (float) m_ctx.tobject_raw;  // Dimensionless IR signal
+    // Populate data array using indexed constants
+    float values[SHTS_DATA_FIELD_COUNT] = {0};
+    values[STHS34PF80_TAMBIENT_C] = tambient_to_celsius (m_ctx.tambient_raw);
+    values[STHS34PF80_PRESENCE_FLAG] = (float) m_ctx.presence_flag;
+    values[STHS34PF80_MOTION_FLAG] = (float) m_ctx.motion_flag;
+    values[STHS34PF80_TOBJECT_RAW] = (float) m_ctx.tobject_raw;
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    // Debug: Algorithm state values in acceleration format for easier plotting
+    values[STHS34PF80_DEBUG_TOBJECT] = (float) m_ctx.tobject_raw / 1000.0f;
+    values[STHS34PF80_DEBUG_TMOTION] = (float) m_ctx.tmotion_raw / 1000.0f;
+    values[STHS34PF80_DEBUG_TPRESENCE] = (float) m_ctx.tpresence_raw / 1000.0f;
+    values[STHS34PF80_DEBUG_TAMB_SHOCK] = (float) m_ctx.tamb_shock_flag;
+#endif
+    // Set fields that this sensor provides
+    rd_sensor_data_fields_t provided_fields = {0};
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    provided_fields.datas.acceleration_x_g = 1;  // Debug: tobject
+    provided_fields.datas.acceleration_y_g = 1;  // Debug: tmotion
+    provided_fields.datas.acceleration_z_g = 1;  // Debug: tpresence
+    provided_fields.datas.debug_tamb = 1;        // Debug: tamb_shock
+#endif
+    provided_fields.datas.temperature_c = 1;
+    provided_fields.datas.presence = 1;
+    provided_fields.datas.motion = 1;
+    provided_fields.datas.ir_object = 1;
 
     // Only mark fields valid if a sample has actually been taken
     if (RD_UINT64_INVALID != m_ctx.tsample)
     {
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+        env_fields.datas.acceleration_x_g = 1;  // Debug: tobject
+        env_fields.datas.debug_tamb = 1;        // Debug: tamb_shock
+#endif
         env_fields.datas.temperature_c = 1;
-        env_fields.datas.presence = 1;
-        env_fields.datas.motion = 1;
         env_fields.datas.ir_object = 1;
+
+        // Algorithm-derived fields are only valid if no temperature shock occurred
+        if (m_ctx.algo_valid)
+        {
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+            env_fields.datas.acceleration_y_g = 1;  // Debug: tmotion
+            env_fields.datas.acceleration_z_g = 1;  // Debug: tpresence
+#endif
+            env_fields.datas.presence = 1;
+            env_fields.datas.motion = 1;
+        }
     }
 
     d_environmental.data = values;
     d_environmental.valid = env_fields;
-    d_environmental.fields = env_fields;
+    d_environmental.fields = provided_fields;
     d_environmental.timestamp_ms = m_ctx.tsample;
     rd_sensor_data_populate (data, &d_environmental, data->fields);
     data->timestamp_ms = m_ctx.tsample;
+    return err_code;
+}
+
+rd_status_t ri_sths34pf80_configure_defaults (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int32_t st_err = 0;
+    VERIFY_SENSOR_SLEEPS();
+    // Configure ODR off (sleep mode) and BDU enabled
+    st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_block_data_update_set (&m_ctx.ctx, 1);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set averaging: AVG_TMOS = 32, AVG_TAMB = 8
+    st_err = sths34pf80_avg_tobject_num_set (&m_ctx.ctx, RI_STHS34PF80_AVG_TMOS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_avg_tambient_num_set (&m_ctx.ctx, RI_STHS34PF80_AVG_TAMB_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set tambient shock threshold and hysteresis
+    st_err = sths34pf80_tambient_shock_threshold_set (&m_ctx.ctx,
+             RI_STHS34PF80_TAMB_SHOCK_THS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_tambient_shock_hysteresis_set (&m_ctx.ctx,
+             RI_STHS34PF80_TAMB_SHOCK_HYS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set presence threshold and hysteresis
+    st_err = sths34pf80_presence_threshold_set (&m_ctx.ctx,
+             RI_STHS34PF80_PRESENCE_THS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_presence_hysteresis_set (&m_ctx.ctx,
+             RI_STHS34PF80_PRESENCE_HYS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set motion threshold and hysteresis
+    st_err = sths34pf80_motion_threshold_set (&m_ctx.ctx,
+             RI_STHS34PF80_MOTION_THS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_motion_hysteresis_set (&m_ctx.ctx,
+             RI_STHS34PF80_MOTION_HYS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Reset algorithm to apply new settings
+    st_err = sths34pf80_algo_reset (&m_ctx.ctx);
+    err_code |= st_to_ruuvi_error (st_err);
     return err_code;
 }
 
