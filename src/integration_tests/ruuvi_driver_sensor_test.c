@@ -1069,6 +1069,7 @@ void rd_sensor_data_print (const rd_sensor_data_t * const p_data,
         "presence",
         "motion",
         "ir_object",
+        "temperature_shock"
     };
 
     /* Count enabled sensors */

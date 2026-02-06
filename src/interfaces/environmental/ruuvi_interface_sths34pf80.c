@@ -259,11 +259,6 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     st_err = sths34pf80_boot_set (&m_ctx.ctx, 1);
     err_code |= st_to_ruuvi_error (st_err);
     ri_delay_ms (BOOT_DELAY_MS);
-    // Configure default settings: ODR off (sleep mode), BDU enabled
-    st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
-    err_code |= st_to_ruuvi_error (st_err);
-    st_err = sths34pf80_block_data_update_set (&m_ctx.ctx, 1);
-    err_code |= st_to_ruuvi_error (st_err);
 
     if (RD_SUCCESS != err_code)
     {
@@ -285,6 +280,15 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     m_ctx.tpresence_raw = 0;
     m_ctx.tmotion_raw = 0;
 #endif
+    // Apply default algorithm configuration (thresholds, hysteresis, averaging)
+    err_code |= ri_sths34pf80_configure_defaults();
+
+    if (RD_SUCCESS != err_code)
+    {
+        rd_sensor_uninitialize (p_sensor);
+        return err_code;
+    }
+
     // Setup sensor struct
     p_sensor->init              = ri_sths34pf80_init;
     p_sensor->uninit            = ri_sths34pf80_uninit;
@@ -834,6 +838,48 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data)
     d_environmental.timestamp_ms = m_ctx.tsample;
     rd_sensor_data_populate (data, &d_environmental, data->fields);
     data->timestamp_ms = m_ctx.tsample;
+    return err_code;
+}
+
+rd_status_t ri_sths34pf80_configure_defaults (void)
+{
+    rd_status_t err_code = RD_SUCCESS;
+    int32_t st_err = 0;
+    VERIFY_SENSOR_SLEEPS();
+    // Configure ODR off (sleep mode) and BDU enabled
+    st_err = sths34pf80_odr_set (&m_ctx.ctx, STHS34PF80_ODR_OFF);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_block_data_update_set (&m_ctx.ctx, 1);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set averaging: AVG_TMOS = 32, AVG_TAMB = 8
+    st_err = sths34pf80_avg_tobject_num_set (&m_ctx.ctx, RI_STHS34PF80_AVG_TMOS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_avg_tambient_num_set (&m_ctx.ctx, RI_STHS34PF80_AVG_TAMB_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set tambient shock threshold and hysteresis
+    st_err = sths34pf80_tambient_shock_threshold_set (&m_ctx.ctx,
+             RI_STHS34PF80_TAMB_SHOCK_THS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_tambient_shock_hysteresis_set (&m_ctx.ctx,
+             RI_STHS34PF80_TAMB_SHOCK_HYS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set presence threshold and hysteresis
+    st_err = sths34pf80_presence_threshold_set (&m_ctx.ctx,
+             RI_STHS34PF80_PRESENCE_THS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_presence_hysteresis_set (&m_ctx.ctx,
+             RI_STHS34PF80_PRESENCE_HYS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Set motion threshold and hysteresis
+    st_err = sths34pf80_motion_threshold_set (&m_ctx.ctx,
+             RI_STHS34PF80_MOTION_THS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    st_err = sths34pf80_motion_hysteresis_set (&m_ctx.ctx,
+             RI_STHS34PF80_MOTION_HYS_DEFAULT);
+    err_code |= st_to_ruuvi_error (st_err);
+    // Reset algorithm to apply new settings
+    st_err = sths34pf80_algo_reset (&m_ctx.ctx);
+    err_code |= st_to_ruuvi_error (st_err);
     return err_code;
 }
 
