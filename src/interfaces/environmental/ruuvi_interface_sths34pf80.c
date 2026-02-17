@@ -38,7 +38,7 @@
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
 #define STHS34PF80_DEBUG_TOBJECT         (0)  //!< Debug: IR object raw (as accel_x)
 #define STHS34PF80_DEBUG_TMOTION         (1)  //!< Debug: Motion algo (as accel_y)
-#define STHS34PF80_DEBUG_TPRESENCE       (2)  //!< Debug: Presence algo/tamb_shock (as accel_z)
+#define STHS34PF80_DEBUG_TPRESENCE       (2)  //!< Debug: Presence algo (as accel_z)
 #define STHS34PF80_TAMBIENT_C            (3)  //!< Ambient temperature in Celsius
 #define STHS34PF80_PRESENCE_FLAG         (4)  //!< Presence detection flag
 #define STHS34PF80_MOTION_FLAG           (5)  //!< Motion detection flag
