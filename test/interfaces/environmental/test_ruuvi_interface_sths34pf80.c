@@ -146,6 +146,7 @@ void test_ri_sths34pf80_init_ok (void)
     expected.datas.acceleration_x_g = 1;
     expected.datas.acceleration_y_g = 1;
     expected.datas.acceleration_z_g = 1;
+    expected.datas.debug_tamb = 1;
 #endif
     expected.datas.temperature_c = 1;
     expected.datas.presence = 1;
