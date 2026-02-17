@@ -599,7 +599,7 @@ void test_ri_sths34pf80_data_get_null (void)
 
 /* Callback to capture rd_sensor_data_populate arguments */
 static rd_sensor_data_t m_captured_env_data;
-static float m_captured_data_array[7];  // Space for all fields including debug
+static float m_captured_data_array[8];  // Space for all fields including debug
 static void capture_populate_args (rd_sensor_data_t * const target,
                                    const rd_sensor_data_t * const provided,
                                    const rd_sensor_data_fields_t requested,
