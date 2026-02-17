@@ -34,7 +34,7 @@
 // Data field array indices
 // NOTE: These indices are relative to the enabled fields in the bitfield.
 // The rd_sensor_data_populate function counts set bits to determine array placement.
-// When debug is enabled, acceleration fields (bits 0,1,2) shift all other indices by +3.
+// When debug is enabled, the first 3 positions are debug acceleration values, base fields start at index 3, and index 7 holds debug_tamb_shock.
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
 #define STHS34PF80_DEBUG_TOBJECT         (0)  //!< Debug: IR object raw (as accel_x)
 #define STHS34PF80_DEBUG_TMOTION         (1)  //!< Debug: Motion algo (as accel_y)
