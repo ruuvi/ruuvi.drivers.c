@@ -106,8 +106,10 @@ rd_status_t ri_sths34pf80_data_get (rd_sensor_data_t * const data);
  * @brief Configure STHS34PF80 algorithm parameters with recommended defaults.
  *
  * Applies averaging, threshold, and hysteresis settings from ST reference example.
- * This should be called after init and before starting continuous mode.
- * Sensor must be in sleep mode.
+ * This configuration is applied automatically during @ref ri_sths34pf80_init().
+ * Optionally, this function may be called again after init while the sensor is in
+ * sleep mode, for example to (re)apply or adjust the configuration before starting
+ * continuous mode.
  *
  * @return RD_SUCCESS on success.
  * @return RD_ERROR_INVALID_STATE if sensor is not in sleep mode.
