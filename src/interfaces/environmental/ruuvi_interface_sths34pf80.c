@@ -29,7 +29,7 @@
 /** @{ */
 
 #define SHTS_DEBUG_DATA_IN_ACCELERATION (1U) //!< Enable to log raw data in acceleration format for easier debugging.
-#define SHTS_DATA_FIELD_COUNT (4U + (4 * SHTS_DEBUG_DATA_IN_ACCELERATION)) //!< Temperature, presence, motion, IR object + debug fields
+#define SHTS_DATA_FIELD_COUNT (4U + (4 * SHTS_DEBUG_DATA_IN_ACCELERATION)) //!< 4 base fields + 4 debug fields (3 accel + 1 tamb_shock) when debug enabled
 
 // Data field array indices
 // NOTE: These indices are relative to the enabled fields in the bitfield.
