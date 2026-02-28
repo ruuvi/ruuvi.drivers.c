@@ -92,7 +92,6 @@ static void expect_sample_read (void)
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     sths34pf80_tpresence_raw_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tmotion_raw_get_ExpectAnyArgsAndReturn (0);
-
 #endif
     rd_sensor_timestamp_get_ExpectAndReturn (1000U);
 }
