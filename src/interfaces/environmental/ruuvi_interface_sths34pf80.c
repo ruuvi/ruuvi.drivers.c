@@ -253,6 +253,7 @@ rd_status_t ri_sths34pf80_init (rd_sensor_t * p_sensor, rd_bus_t bus, uint8_t ha
     m_ctx.presence_flag = 0;
     m_ctx.motion_flag = 0;
     m_ctx.tamb_shock_flag = 0;
+    m_ctx.algo_valid = false;
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     m_ctx.tpresence_raw = 0;
     m_ctx.tmotion_raw = 0;
