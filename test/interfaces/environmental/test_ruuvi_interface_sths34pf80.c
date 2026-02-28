@@ -75,6 +75,15 @@ static void expect_default_config_ok (void)
 {
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     sths34pf80_block_data_update_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tambient_num_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tambient_shock_threshold_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tambient_shock_hysteresis_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_presence_threshold_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_presence_hysteresis_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_motion_threshold_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_motion_hysteresis_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_algo_reset_ExpectAnyArgsAndReturn (0);
 }
 
 static void expect_avg_get_low_oversampling (void)
@@ -691,17 +700,13 @@ void test_ri_sths34pf80_data_indices_correct (void)
     // Mock debug reads if enabled
     const int16_t test_tpresence = 567;
     const int16_t test_tmotion = 890;
-    const int16_t test_tamb_shock = 111;
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     static int16_t tpresence_ret = test_tpresence;
     static int16_t tmotion_ret = test_tmotion;
-    static int16_t tamb_shock_ret = test_tamb_shock;
     sths34pf80_tpresence_raw_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tpresence_raw_get_ReturnThruPtr_val (&tpresence_ret);
     sths34pf80_tmotion_raw_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tmotion_raw_get_ReturnThruPtr_val (&tmotion_ret);
-    sths34pf80_tamb_shock_raw_get_ExpectAnyArgsAndReturn (0);
-    sths34pf80_tamb_shock_raw_get_ReturnThruPtr_val (&tamb_shock_ret);
 #endif
     rd_sensor_timestamp_get_ExpectAndReturn (3000U);
     // Capture the populated data

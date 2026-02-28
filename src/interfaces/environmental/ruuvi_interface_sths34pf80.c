@@ -28,29 +28,6 @@
  */
 /** @{ */
 
-#define SHTS_DEBUG_DATA_IN_ACCELERATION (1U) //!< Enable to log raw data in acceleration format for easier debugging.
-#define SHTS_DATA_FIELD_COUNT (4U + (4 * SHTS_DEBUG_DATA_IN_ACCELERATION)) //!< 4 base fields + 4 debug fields (3 accel + 1 tamb_shock) when debug enabled
-
-// Data field array indices
-// NOTE: These indices are relative to the enabled fields in the bitfield.
-// The rd_sensor_data_populate function counts set bits to determine array placement.
-// When debug is enabled, the first 3 positions are debug acceleration values, base fields start at index 3, and index 7 holds debug_tamb_shock.
-#if SHTS_DEBUG_DATA_IN_ACCELERATION
-#define STHS34PF80_DEBUG_TOBJECT         (0)  //!< Debug: IR object raw (as accel_x)
-#define STHS34PF80_DEBUG_TMOTION         (1)  //!< Debug: Motion algo (as accel_y)
-#define STHS34PF80_DEBUG_TPRESENCE       (2)  //!< Debug: Presence algo (as accel_z)
-#define STHS34PF80_TAMBIENT_C            (3)  //!< Ambient temperature in Celsius
-#define STHS34PF80_PRESENCE_FLAG         (4)  //!< Presence detection flag
-#define STHS34PF80_MOTION_FLAG           (5)  //!< Motion detection flag
-#define STHS34PF80_TOBJECT_RAW           (6)  //!< IR object signal (dimensionless)
-#define STHS34PF80_DEBUG_TAMB_SHOCK      (7)  //!< Debug: Ambient shock value
-#else
-#define STHS34PF80_TAMBIENT_C            (0)  //!< Ambient temperature in Celsius
-#define STHS34PF80_PRESENCE_FLAG         (1)  //!< Presence detection flag
-#define STHS34PF80_MOTION_FLAG           (2)  //!< Motion detection flag
-#define STHS34PF80_TOBJECT_RAW           (3)  //!< IR object signal (dimensionless)
-#endif
-
 #define BOOT_DELAY_MS       (10U)  //!< Delay after boot/reset in milliseconds.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
