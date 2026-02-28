@@ -20,26 +20,6 @@
 
 #include <string.h>
 
-// Import debug flag from source file
-#ifndef SHTS_DEBUG_DATA_IN_ACCELERATION
-#define SHTS_DEBUG_DATA_IN_ACCELERATION (1U)
-#endif
-
-// Import data field index constants from source
-#if SHTS_DEBUG_DATA_IN_ACCELERATION
-#define STHS34PF80_DEBUG_TOBJECT         (0)
-#define STHS34PF80_DEBUG_TMOTION         (1)
-#define STHS34PF80_DEBUG_TPRESENCE       (2)
-#define STHS34PF80_TAMBIENT_C            (3)
-#define STHS34PF80_PRESENCE_FLAG         (4)
-#define STHS34PF80_MOTION_FLAG           (5)
-#define STHS34PF80_TOBJECT_RAW           (6)
-#else
-#define STHS34PF80_TAMBIENT_C            (0)
-#define STHS34PF80_PRESENCE_FLAG         (1)
-#define STHS34PF80_MOTION_FLAG           (2)
-#define STHS34PF80_TOBJECT_RAW           (3)
-#endif
 
 static rd_sensor_t m_sensor;
 static const rd_bus_t m_bus = RD_BUS_I2C;
@@ -112,7 +92,7 @@ static void expect_sample_read (void)
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     sths34pf80_tpresence_raw_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_tmotion_raw_get_ExpectAnyArgsAndReturn (0);
-    sths34pf80_tamb_shock_raw_get_ExpectAnyArgsAndReturn (0);
+
 #endif
     rd_sensor_timestamp_get_ExpectAndReturn (1000U);
 }
@@ -688,7 +668,7 @@ void test_ri_sths34pf80_data_indices_correct (void)
     const uint8_t test_motion = 1;
     // Prepare data get with DRDY and sample read
     rd_sensor_data_t data = {0};
-    float values[7] = {0};  // 4 base + 3 debug fields
+    float values[8] = {0};  // 4 base + 4 debug fields
     data.data = values;
     data.fields.datas.temperature_c = 1;
     data.fields.datas.presence = 1;
