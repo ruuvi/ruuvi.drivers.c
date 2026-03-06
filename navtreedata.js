@@ -53,15 +53,16 @@ var NAVTREEINDEX =
 [
 "annotated.html",
 "group___g_p_i_o.html#gabdf745851f58cc96572f3bda4c850f0a",
-"group___t_m_p117.html#ga75d4f030928e8c2b0c89df36d78cc851",
-"ruuvi__interface__adc__ntc_8c.html#a5b2eac3b74b7c65bee8650f9d654ca6b",
-"ruuvi__interface__flash__test_8c.html",
-"ruuvi__task__gatt_8h.html#a5de7fca57eafc33bb73b5f24d3f21076",
-"sdk__config_8h.html#a2439011298a678121ba6d29fe2e7d050",
-"sdk__config_8h.html#a56420011adaefbf25b4cde707bd703d5",
-"sdk__config_8h.html#a8b724c0d18ec6da11997fdde1f83b26e",
-"sdk__config_8h.html#ac44b21922a2e2a910c55307bbb904cdc",
-"sdk__config_8h.html#af4b575ce240b91c365589fa3e325ae84"
+"group___t_m_p117.html#ga18c3ca0167e6b9e48ab4382b78a95082",
+"ruuvi__interface__adc__mcu_8h.html#ab38116a337280eb6dd001afb5bd92f1a",
+"ruuvi__interface__communication__uart_8h.html#a725c1c035f0a7e2dd19788b1316bad46ae27bb399b907e9a12d4f11429826d0e4",
+"ruuvi__task__gatt_8c.html#a5de7fca57eafc33bb73b5f24d3f21076",
+"sdk__config_8h.html#a21899cbb8008b3412933f63b956e8a5d",
+"sdk__config_8h.html#a53287f238d65bcffed04d27533a01859",
+"sdk__config_8h.html#a875f7222ce38e30d283a4bc659f87941",
+"sdk__config_8h.html#abfdc564e14509ad308cdd4dcf72128ae",
+"sdk__config_8h.html#af04952e1446154d7a538589494639e78",
+"structruuvi__interface__uart__init__config__t.html#aa3546bf4caade566e2e707f6fe41490a"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

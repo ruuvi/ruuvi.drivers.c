@@ -19,6 +19,7 @@ var ruuvi__driver__sensor_8h =
     [ "RD_SENSOR_CFG_NO_CHANGE", "group___sensor.html#gad0abf298a0f1a279ef40a83313797274", null ],
     [ "RD_SENSOR_CFG_SINGLE", "group___sensor.html#gaebd21c0bd2498ed9118b7add24890c89", null ],
     [ "RD_SENSOR_CFG_SLEEP", "group___sensor.html#ga16ac06727f5f9ff7edbd0e3d4e380ee5", null ],
+    [ "RD_SENSOR_DEBUG_TAMB_FIELD", "group___sensor.html#ga5124b00bd5d17e1f069cb79f4bd07def", null ],
     [ "RD_SENSOR_DSP_HIGH_PASS", "group___sensor.html#gacd5ac57569a824df0dd3befcf6e12288", null ],
     [ "RD_SENSOR_DSP_LAST", "group___sensor.html#ga00b1b1101ae61ca5c2c5b62d89c418f6", null ],
     [ "RD_SENSOR_DSP_LOW_PASS", "group___sensor.html#ga4ed8e497a1f8eea3473d535cd8a85544", null ],

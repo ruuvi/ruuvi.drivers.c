@@ -4,6 +4,7 @@ var structrd__sensor__data__bitfield__t =
     [ "acceleration_y_g", "structrd__sensor__data__bitfield__t.html#abfc2d55017a2de48b0a7a23984235a42", null ],
     [ "acceleration_z_g", "structrd__sensor__data__bitfield__t.html#abee8e93d14b4419817f0b631f9454661", null ],
     [ "co2_ppm", "structrd__sensor__data__bitfield__t.html#a982bafd8fe51d0fd03c02e8926d10f81", null ],
+    [ "debug_tamb", "structrd__sensor__data__bitfield__t.html#a38795652b0e58741fed04d73cad794c1", null ],
     [ "gyro_x_dps", "structrd__sensor__data__bitfield__t.html#a77c97306a2f55af9de1134f01882d73f", null ],
     [ "gyro_y_dps", "structrd__sensor__data__bitfield__t.html#a715a84644643a1ba4a02d65ec21b3d70", null ],
     [ "gyro_z_dps", "structrd__sensor__data__bitfield__t.html#a129eb4db14c6cbb6b67323725fa23268", null ],

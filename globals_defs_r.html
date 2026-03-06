@@ -139,6 +139,7 @@ $(document).ready(function(){initNavTree('globals_defs_r.html',''); initResizabl
 <li>RD_SENSOR_CFG_NO_CHANGE&#160;:&#160;<a class="el" href="group___sensor.html#gad0abf298a0f1a279ef40a83313797274">ruuvi_driver_sensor.h</a></li>
 <li>RD_SENSOR_CFG_SINGLE&#160;:&#160;<a class="el" href="group___sensor.html#gaebd21c0bd2498ed9118b7add24890c89">ruuvi_driver_sensor.h</a></li>
 <li>RD_SENSOR_CFG_SLEEP&#160;:&#160;<a class="el" href="group___sensor.html#ga16ac06727f5f9ff7edbd0e3d4e380ee5">ruuvi_driver_sensor.h</a></li>
+<li>RD_SENSOR_DEBUG_TAMB_FIELD&#160;:&#160;<a class="el" href="group___sensor.html#ga5124b00bd5d17e1f069cb79f4bd07def">ruuvi_driver_sensor.h</a></li>
 <li>RD_SENSOR_DSP_HIGH_PASS&#160;:&#160;<a class="el" href="group___sensor.html#gacd5ac57569a824df0dd3befcf6e12288">ruuvi_driver_sensor.h</a></li>
 <li>RD_SENSOR_DSP_LAST&#160;:&#160;<a class="el" href="group___sensor.html#ga00b1b1101ae61ca5c2c5b62d89c418f6">ruuvi_driver_sensor.h</a></li>
 <li>RD_SENSOR_DSP_LOW_PASS&#160;:&#160;<a class="el" href="group___sensor.html#ga4ed8e497a1f8eea3473d535cd8a85544">ruuvi_driver_sensor.h</a></li>
@@ -162,7 +163,7 @@ $(document).ready(function(){initNavTree('globals_defs_r.html',''); initResizabl
 <li>RD_UINT64_INVALID&#160;:&#160;<a class="el" href="group___error.html#gae0e5361071e84357dbc63011c816a6d8">ruuvi_driver_error.h</a></li>
 <li>RD_WARNING_DEPRECATED&#160;:&#160;<a class="el" href="group___error.html#ga1a2edb6b612afaeb6fcefd618c3fc787">ruuvi_driver_error.h</a></li>
 <li>REG_ADDR_SIZE&#160;:&#160;<a class="el" href="group___i2_c.html#ga9d927efd34b68fba3db03e1c0687d9bd">ruuvi_interface_i2c_sths34pf80.c</a></li>
-<li>RETURN_SUCCESS_ON_VALID&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#ga59ad04a27678ee7b16070e43227e970b">ruuvi_interface_sths34pf80.c</a>, <a class="el" href="group___s_h_t_c_x.html#ga59ad04a27678ee7b16070e43227e970b">ruuvi_interface_shtcx.c</a></li>
+<li>RETURN_SUCCESS_ON_VALID&#160;:&#160;<a class="el" href="group___s_h_t_c_x.html#ga59ad04a27678ee7b16070e43227e970b">ruuvi_interface_shtcx.c</a>, <a class="el" href="group___s_t_h_s34_p_f80.html#ga59ad04a27678ee7b16070e43227e970b">ruuvi_interface_sths34pf80.c</a></li>
 <li>RI_ADC_NTC_BALANCE&#160;:&#160;<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a17dc3a40f072c87a44ed3806280eab4e">ruuvi_driver_enabled_modules.h</a></li>
 <li>RI_ADC_NTC_CHANNEL&#160;:&#160;<a class="el" href="ruuvi__driver__enabled__modules_8h.html#aa868d13b14da0037754c90cc500d8c9b">ruuvi_driver_enabled_modules.h</a></li>
 <li>RI_ADC_NTC_DEFAULT_BETA&#160;:&#160;<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a758a5c6cf5c1ea70b696f91a70436fbd">ruuvi_driver_enabled_modules.h</a></li>
@@ -249,9 +250,17 @@ $(document).ready(function(){initNavTree('globals_defs_r.html',''); initResizabl
 <li>RI_SHTCX_ENABLED&#160;:&#160;<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a2b83343acccea92093f9043d587b57fa">ruuvi_driver_enabled_modules.h</a></li>
 <li>RI_SHTCX_WAKEUP_US&#160;:&#160;<a class="el" href="ruuvi__interface__shtcx_8h.html#a5482686c48a3a830317325e1648e8f3d">ruuvi_interface_shtcx.h</a></li>
 <li>RI_SPI_ENABLED&#160;:&#160;<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a2a9af2fb5ca438027fb57ef19e6245e4">ruuvi_driver_enabled_modules.h</a></li>
+<li>RI_STHS34PF80_AVG_TAMB_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#ga6709500ab3484dfe33f9b9f6870f104a">ruuvi_interface_sths34pf80.h</a></li>
+<li>RI_STHS34PF80_AVG_TMOS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#gade7367b8803b9e8eee5711c566040d4a">ruuvi_interface_sths34pf80.h</a></li>
 <li>RI_STHS34PF80_ENABLED&#160;:&#160;<a class="el" href="ruuvi__driver__enabled__modules_8h.html#a25125c08e96ba2d0c3db183dc718359b">ruuvi_driver_enabled_modules.h</a></li>
+<li>RI_STHS34PF80_MOTION_HYS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#ga22ec792ae743e81edccf6c88108234b6">ruuvi_interface_sths34pf80.h</a></li>
+<li>RI_STHS34PF80_MOTION_THS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#ga8cf75462ef11321a24112847440ca4ba">ruuvi_interface_sths34pf80.h</a></li>
+<li>RI_STHS34PF80_PRESENCE_HYS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#gac3e9105d748a38e4c6ea559759d0f865">ruuvi_interface_sths34pf80.h</a></li>
+<li>RI_STHS34PF80_PRESENCE_THS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#gafebbb4ffcd6480bdfeb865bea0d7003e">ruuvi_interface_sths34pf80.h</a></li>
 <li>RI_STHS34PF80_SAMPLERATE_0HZ25&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#ga2a9d49c5fbdeaa9967458c25ba2e8695">ruuvi_interface_sths34pf80.h</a></li>
 <li>RI_STHS34PF80_SAMPLERATE_0HZ50&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#ga40d17c5fdc6031a6afdeac0bef1e4f32">ruuvi_interface_sths34pf80.h</a></li>
+<li>RI_STHS34PF80_TAMB_SHOCK_HYS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#gae4fd3f23987875542a7c8b155c5f2df3">ruuvi_interface_sths34pf80.h</a></li>
+<li>RI_STHS34PF80_TAMB_SHOCK_THS_DEFAULT&#160;:&#160;<a class="el" href="group___s_t_h_s34_p_f80.html#gab7b0c15a7ec9277b06f15eaf8a0ac1b9">ruuvi_interface_sths34pf80.h</a></li>
 <li>RI_TEST_ADV_FAST&#160;:&#160;<a class="el" href="group___b_l_e.html#gaad1bf570c5afe9aa3c4b576359cf2f4a">ruuvi_interface_communication_ble_advertising_test.h</a></li>
 <li>RI_TEST_ADV_SCAN_CH_NUM&#160;:&#160;<a class="el" href="group___b_l_e.html#ga9aa04cc8468de5242597168ff3591f3e">ruuvi_interface_communication_ble_advertising_test.h</a></li>
 <li>RI_TEST_ADV_SCAN_INTERVAL&#160;:&#160;<a class="el" href="group___b_l_e.html#ga43e273e6faf49f6c71983c25a65f62d7">ruuvi_interface_communication_ble_advertising_test.h</a></li>
