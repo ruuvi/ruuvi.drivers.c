@@ -20,6 +20,7 @@
 
 #include <string.h>
 
+
 static rd_sensor_t m_sensor;
 static const rd_bus_t m_bus = RD_BUS_I2C;
 static const uint8_t m_handle = 0x5AU;  // Default I2C address
@@ -74,6 +75,15 @@ static void expect_default_config_ok (void)
 {
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     sths34pf80_block_data_update_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tobject_num_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_avg_tambient_num_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tambient_shock_threshold_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tambient_shock_hysteresis_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_presence_threshold_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_presence_hysteresis_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_motion_threshold_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_motion_hysteresis_set_ExpectAnyArgsAndReturn (0);
+    sths34pf80_algo_reset_ExpectAnyArgsAndReturn (0);
 }
 
 static void expect_avg_get_low_oversampling (void)
@@ -81,6 +91,18 @@ static void expect_avg_get_low_oversampling (void)
     static sths34pf80_avg_tobject_num_t avg = STHS34PF80_AVG_TMOS_8;
     sths34pf80_avg_tobject_num_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_avg_tobject_num_get_ReturnThruPtr_val (&avg);
+}
+
+static void expect_sample_read (void)
+{
+    sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    sths34pf80_tpresence_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tmotion_raw_get_ExpectAnyArgsAndReturn (0);
+#endif
+    rd_sensor_timestamp_get_ExpectAndReturn (1000U);
 }
 
 static void init_sensor_ok (void)
@@ -107,13 +129,17 @@ static void uninit_sensor_ok (void)
 
 void test_ri_sths34pf80_init_ok (void)
 {
-    const rd_sensor_data_fields_t expected =
-    {
-        .datas.temperature_c = 1,
-        .datas.presence = 1,
-        .datas.motion = 1,
-        .datas.ir_object = 1
-    };
+    rd_sensor_data_fields_t expected = {0};
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    expected.datas.acceleration_x_g = 1;
+    expected.datas.acceleration_y_g = 1;
+    expected.datas.acceleration_z_g = 1;
+    expected.datas.debug_tamb = 1;
+#endif
+    expected.datas.temperature_c = 1;
+    expected.datas.presence = 1;
+    expected.datas.motion = 1;
+    expected.datas.ir_object = 1;
     rd_sensor_initialize_Expect (&m_sensor);
     expect_whoami_ok();
     expect_boot_ok();
@@ -517,10 +543,7 @@ void test_ri_sths34pf80_mode_set_single (void)
     // Delay = (1000/30) + 10 = 43 ms
     ri_delay_ms_ExpectAndReturn (43U, RD_SUCCESS);
     // Read sample
-    sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
-    sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
-    sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);
-    rd_sensor_timestamp_get_ExpectAndReturn (1000U);
+    expect_sample_read();
     // Set ODR off
     sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
     rd_status_t err_code = ri_sths34pf80_mode_set (&mode);
@@ -565,6 +588,7 @@ void test_ri_sths34pf80_data_get_null (void)
 
 /* Callback to capture rd_sensor_data_populate arguments */
 static rd_sensor_data_t m_captured_env_data;
+static float m_captured_data_array[8];  // Space for all fields including debug
 static void capture_populate_args (rd_sensor_data_t * const target,
                                    const rd_sensor_data_t * const provided,
                                    const rd_sensor_data_fields_t requested,
@@ -573,7 +597,15 @@ static void capture_populate_args (rd_sensor_data_t * const target,
     (void) target;
     (void) requested;
     (void) cmock_num_calls;
+    // Copy the struct
     memcpy (&m_captured_env_data, provided, sizeof (rd_sensor_data_t));
+
+    // Copy the data array before it goes out of scope
+    if (provided->data != NULL)
+    {
+        memcpy (m_captured_data_array, provided->data, sizeof (m_captured_data_array));
+        m_captured_env_data.data = m_captured_data_array;
+    }
 }
 
 void test_ri_sths34pf80_data_get_no_sample (void)
@@ -616,13 +648,107 @@ void test_ri_sths34pf80_data_get_continuous (void)
     static sths34pf80_drdy_status_t drdy_status = {.drdy = 1};
     sths34pf80_drdy_status_get_ExpectAnyArgsAndReturn (0);
     sths34pf80_drdy_status_get_ReturnThruPtr_val (&drdy_status);
-    sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
-    sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
-    sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);
-    rd_sensor_timestamp_get_ExpectAndReturn (2000U);
+    expect_sample_read();
     rd_sensor_data_populate_ExpectAnyArgs();
     rd_status_t err_code = ri_sths34pf80_data_get (&data);
     TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+}
+
+/**
+ * @brief Test that data fields are placed in correct array indices
+ *
+ * This test validates that the data returned by data_get places values
+ * at the correct indices matching the STHS34PF80_* constants.
+ */
+void test_ri_sths34pf80_data_indices_correct (void)
+{
+    init_sensor_ok();
+    // Set some known raw values in the sensor context
+    // We'll trigger a sample read by setting mode to continuous and having DRDY set
+    uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    expect_avg_get_low_oversampling();
+    sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
+    ri_sths34pf80_mode_set (&mode);
+    // Set up test data
+    const int16_t test_tambient = 2500;  // 25.00°C
+    const int16_t test_tobject = 1234;
+    const uint8_t test_presence = 1;
+    const uint8_t test_motion = 1;
+    // Prepare data get with DRDY and sample read
+    rd_sensor_data_t data = {0};
+    float values[8] = {0};  // 4 base + 4 debug fields
+    data.data = values;
+    data.fields.datas.temperature_c = 1;
+    data.fields.datas.presence = 1;
+    data.fields.datas.motion = 1;
+    data.fields.datas.ir_object = 1;
+    // Mock the DRDY check and sample read
+    static sths34pf80_drdy_status_t drdy_status = {.drdy = 1};
+    sths34pf80_drdy_status_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_drdy_status_get_ReturnThruPtr_val (&drdy_status);
+    // Mock func_status with test flags
+    static sths34pf80_func_status_t func_status = {.pres_flag = test_presence, .mot_flag = test_motion};
+    sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_func_status_get_ReturnThruPtr_val (&func_status);
+    // Mock temperature and object reads
+    static int16_t tambient_ret = test_tambient;
+    static int16_t tobject_ret = test_tobject;
+    sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tambient_raw_get_ReturnThruPtr_val (&tambient_ret);
+    sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tobject_raw_get_ReturnThruPtr_val (&tobject_ret);
+    // Mock debug reads if enabled
+    const int16_t test_tpresence = 567;
+    const int16_t test_tmotion = 890;
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    static int16_t tpresence_ret = test_tpresence;
+    static int16_t tmotion_ret = test_tmotion;
+    sths34pf80_tpresence_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tpresence_raw_get_ReturnThruPtr_val (&tpresence_ret);
+    sths34pf80_tmotion_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tmotion_raw_get_ReturnThruPtr_val (&tmotion_ret);
+#endif
+    rd_sensor_timestamp_get_ExpectAndReturn (3000U);
+    // Capture the populated data
+    memset (&m_captured_env_data, 0, sizeof (m_captured_env_data));
+    rd_sensor_data_populate_AddCallback (capture_populate_args);
+    rd_sensor_data_populate_ExpectAnyArgs();
+    rd_status_t err_code = ri_sths34pf80_data_get (&data);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+    // Verify data is at correct indices using the STHS34PF80_* constants
+    // These indices must match the constants defined in the source file
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    TEST_ASSERT_EQUAL (0, STHS34PF80_DEBUG_TOBJECT);
+    TEST_ASSERT_EQUAL (1, STHS34PF80_DEBUG_TMOTION);
+    TEST_ASSERT_EQUAL (2, STHS34PF80_DEBUG_TPRESENCE);
+    TEST_ASSERT_EQUAL (3, STHS34PF80_TAMBIENT_C);
+    TEST_ASSERT_EQUAL (4, STHS34PF80_PRESENCE_FLAG);
+    TEST_ASSERT_EQUAL (5, STHS34PF80_MOTION_FLAG);
+    TEST_ASSERT_EQUAL (6, STHS34PF80_TOBJECT_RAW);
+#else
+    TEST_ASSERT_EQUAL (0, STHS34PF80_TAMBIENT_C);
+    TEST_ASSERT_EQUAL (1, STHS34PF80_PRESENCE_FLAG);
+    TEST_ASSERT_EQUAL (2, STHS34PF80_MOTION_FLAG);
+    TEST_ASSERT_EQUAL (3, STHS34PF80_TOBJECT_RAW);
+#endif
+    // Verify actual data values at those indices
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    // Debug fields appear as acceleration for plotting (scaled by 1/1000)
+    TEST_ASSERT_FLOAT_WITHIN (0.01f, (float) test_tobject / 1000.0f,
+                              m_captured_env_data.data[STHS34PF80_DEBUG_TOBJECT]);
+    TEST_ASSERT_FLOAT_WITHIN (0.01f, (float) test_tmotion / 1000.0f,
+                              m_captured_env_data.data[STHS34PF80_DEBUG_TMOTION]);
+    TEST_ASSERT_FLOAT_WITHIN (0.01f, (float) test_tpresence / 1000.0f,
+                              m_captured_env_data.data[STHS34PF80_DEBUG_TPRESENCE]);
+#endif
+    // Regular fields (shifted by +3 when debug is enabled)
+    TEST_ASSERT_FLOAT_WITHIN (0.01f, 25.0f, m_captured_env_data.data[STHS34PF80_TAMBIENT_C]);
+    TEST_ASSERT_EQUAL_FLOAT ( (float) test_presence,
+                              m_captured_env_data.data[STHS34PF80_PRESENCE_FLAG]);
+    TEST_ASSERT_EQUAL_FLOAT ( (float) test_motion,
+                              m_captured_env_data.data[STHS34PF80_MOTION_FLAG]);
+    TEST_ASSERT_EQUAL_FLOAT ( (float) test_tobject,
+                              m_captured_env_data.data[STHS34PF80_TOBJECT_RAW]);
 }
 
 #endif // TEST
