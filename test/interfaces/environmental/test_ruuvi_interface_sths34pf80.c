@@ -751,4 +751,128 @@ void test_ri_sths34pf80_data_indices_correct (void)
                               m_captured_env_data.data[STHS34PF80_TOBJECT_RAW]);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Presence latch detection tests                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * @brief Helper: mock one continuous-mode data_get cycle with specific flags and timestamp.
+ *
+ * Sets up DRDY, func_status with given flags, dummy temp reads, timestamp,
+ * and the populate callback. If expect_algo_reset is true, expects an algo_reset call.
+ */
+static void do_sample_cycle (uint8_t presence, uint8_t motion, uint8_t tamb_shock,
+                             uint64_t timestamp, bool expect_algo_reset)
+{
+    rd_sensor_data_t data = {0};
+    float values[8] = {0};
+    data.data = values;
+    data.fields.datas.temperature_c = 1;
+    data.fields.datas.presence = 1;
+    data.fields.datas.motion = 1;
+    data.fields.datas.ir_object = 1;
+    static sths34pf80_drdy_status_t drdy_status;
+    drdy_status.drdy = 1;
+    sths34pf80_drdy_status_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_drdy_status_get_ReturnThruPtr_val (&drdy_status);
+    static sths34pf80_func_status_t func_status;
+    func_status.pres_flag = presence;
+    func_status.mot_flag = motion;
+    func_status.tamb_shock_flag = tamb_shock;
+    sths34pf80_func_status_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_func_status_get_ReturnThruPtr_val (&func_status);
+    sths34pf80_tambient_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tobject_raw_get_ExpectAnyArgsAndReturn (0);
+#if SHTS_DEBUG_DATA_IN_ACCELERATION
+    sths34pf80_tpresence_raw_get_ExpectAnyArgsAndReturn (0);
+    sths34pf80_tmotion_raw_get_ExpectAnyArgsAndReturn (0);
+#endif
+    rd_sensor_timestamp_get_ExpectAndReturn (timestamp);
+
+    if (expect_algo_reset)
+    {
+        sths34pf80_algo_reset_ExpectAnyArgsAndReturn (0);
+    }
+
+    memset (&m_captured_env_data, 0, sizeof (m_captured_env_data));
+    rd_sensor_data_populate_AddCallback (capture_populate_args);
+    rd_sensor_data_populate_ExpectAnyArgs();
+    rd_status_t err_code = ri_sths34pf80_data_get (&data);
+    TEST_ASSERT_EQUAL (RD_SUCCESS, err_code);
+}
+
+/**
+ * @brief Helper: init sensor and set continuous mode.
+ */
+static void init_continuous (void)
+{
+    init_sensor_ok();
+    uint8_t mode = RD_SENSOR_CFG_CONTINUOUS;
+    expect_avg_get_low_oversampling();
+    sths34pf80_odr_set_ExpectAnyArgsAndReturn (0);
+    ri_sths34pf80_mode_set (&mode);
+}
+
+/**
+ * @brief Presence flag without motion for longer than PRESENCE_MAX_DURATION_MS
+ *        must trigger algo_reset (latch detection).
+ */
+void test_ri_sths34pf80_presence_latch_detected (void)
+{
+    init_continuous();
+    // First sample: presence starts, t=10000
+    do_sample_cycle (1, 0, 0, 10000U, false);
+    // Second sample: still present, no motion, t=10000 + 1200001 (>20 min)
+    do_sample_cycle (1, 0, 0, 10000U + 1200001U, true);
+    // After latch, presence/motion fields should be invalid
+    TEST_ASSERT_EQUAL (0, m_captured_env_data.valid.datas.presence);
+    TEST_ASSERT_EQUAL (0, m_captured_env_data.valid.datas.motion);
+    // Temperature and IR object should still be valid
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.temperature_c);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.ir_object);
+}
+
+/**
+ * @brief Motion events reset the presence duration timer, so presence
+ *        with periodic motion must not trigger latch detection.
+ */
+void test_ri_sths34pf80_presence_with_motion_no_latch (void)
+{
+    init_continuous();
+    // t=10000: presence + motion start
+    do_sample_cycle (1, 1, 0, 10000U, false);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.presence);
+    // t=610000: 10 min later, presence + motion again (resets timer)
+    do_sample_cycle (1, 1, 0, 610000U, false);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.presence);
+    // t=1210001: 10 min after last motion — only 10 min without motion, under 20 min limit
+    do_sample_cycle (1, 0, 0, 1210001U, false);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.presence);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.motion);
+}
+
+/**
+ * @brief Presence clearing and re-appearing must reset the duration timer,
+ *        so a brief absence prevents a false latch.
+ */
+void test_ri_sths34pf80_presence_cleared_resets_timer (void)
+{
+    init_continuous();
+    // t=10000: presence starts
+    do_sample_cycle (1, 0, 0, 10000U, false);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.presence);
+    // t=600000: presence drops, timer resets
+    do_sample_cycle (0, 0, 0, 600000U, false);
+    // t=600001: presence re-appears, timer starts fresh
+    do_sample_cycle (1, 0, 0, 600001U, false);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.presence);
+    // t=1800001: exactly at limit from re-appear (600001+1200000), not over
+    do_sample_cycle (1, 0, 0, 1800001U, false);
+    TEST_ASSERT_EQUAL (1, m_captured_env_data.valid.datas.presence);
+    // t=1800003: now over 20 min since re-appear → latch
+    do_sample_cycle (1, 0, 0, 1800003U, true);
+    TEST_ASSERT_EQUAL (0, m_captured_env_data.valid.datas.presence);
+    TEST_ASSERT_EQUAL (0, m_captured_env_data.valid.datas.motion);
+}
+
 #endif // TEST
