@@ -164,7 +164,8 @@ typedef struct
     unsigned int presence : 1;         //!< Presence detected, boolean.
     unsigned int motion : 1;           //!< Motion detected, boolean.
     unsigned int ir_object : 1;        //!< IR object signal, dimensionless.
-    unsigned int reserved: 7;          //!< Reserved bits, force remainder of bitfield to 0.
+    unsigned int debug_tamb : 1;       //!< Debug: ambient shock value. Will be deleted.
+    unsigned int reserved: 6;          //!< Reserved bits, force remainder of bitfield to 0.
 } rd_sensor_data_bitfield_t;
 
 /**
@@ -199,6 +200,8 @@ typedef struct
 #define RD_SENSOR_MOTION_FIELD ((rd_sensor_data_fields_t){.datas.motion=1})
 /** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD) */
 #define RD_SENSOR_IR_OBJ_FIELD ((rd_sensor_data_fields_t){.datas.ir_object=1})
+/** @brief Shorthand for calling rd_sensor_data_parse(p_data, FIELD). Will be deleted. */
+#define RD_SENSOR_DEBUG_TAMB_FIELD ((rd_sensor_data_fields_t){.datas.debug_tamb=1})
 
 
 
