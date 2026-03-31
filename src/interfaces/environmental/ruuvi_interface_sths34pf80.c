@@ -65,7 +65,7 @@ typedef struct
     uint8_t motion_flag;          //!< Last motion flag from FUNC_STATUS.
     uint8_t tamb_shock_flag;      //!< Last ambient shock flag from FUNC_STATUS.
     bool algo_valid;              //!< Algorithm outputs valid (false after temp shock until recalibrated).
-    uint64_t presence_started;    //!< Timestamp when presence was first detected, 0 if not currently present.
+    uint64_t presence_started;    //!< Timestamp when presence was first detected, RD_UINT64_INVALID if not currently present.
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     int16_t tpresence_raw;        //!< Last presence algorithm value (debug).
     int16_t tmotion_raw;          //!< Last motion algorithm value (debug).
