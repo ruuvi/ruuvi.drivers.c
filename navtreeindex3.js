@@ -1,5 +1,6 @@
 var NAVTREEINDEX3 =
 {
+"ruuvi__interface__adc__mcu_8h.html#ab1daca349422b884206431abb3a6bee9ac7e0108d7ebdebde0a6d1a29b05a331d":[2,0,0,2,1,0,6,0],
 "ruuvi__interface__adc__mcu_8h.html#ab38116a337280eb6dd001afb5bd92f1a":[2,0,0,2,1,0,18],
 "ruuvi__interface__adc__mcu_8h.html#abf863001b236c72a46548a0b22603b71":[2,0,0,2,1,0,11],
 "ruuvi__interface__adc__mcu_8h.html#ad5172556f83b7ec71f03d69f8f632bb9":[2,0,0,2,1,0,15],
@@ -248,6 +249,5 @@ var NAVTREEINDEX3 =
 "ruuvi__interface__communication__radio__test_8h.html":[0,2,0],
 "ruuvi__interface__communication__uart_8h.html":[2,0,0,2,3,6],
 "ruuvi__interface__communication__uart_8h.html#a725c1c035f0a7e2dd19788b1316bad46":[2,0,0,2,3,6,1],
-"ruuvi__interface__communication__uart_8h.html#a725c1c035f0a7e2dd19788b1316bad46a72d07cbec054f340bdfe34032ce4b14a":[2,0,0,2,3,6,1,2],
-"ruuvi__interface__communication__uart_8h.html#a725c1c035f0a7e2dd19788b1316bad46a8aab8dcbbde2831f2b1c65b9a91177b7":[2,0,0,2,3,6,1,1]
+"ruuvi__interface__communication__uart_8h.html#a725c1c035f0a7e2dd19788b1316bad46a72d07cbec054f340bdfe34032ce4b14a":[2,0,0,2,3,6,1,2]
 };

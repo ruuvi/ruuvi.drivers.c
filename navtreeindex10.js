@@ -1,5 +1,6 @@
 var NAVTREEINDEX10 =
 {
+"sdk__config_8h.html#af04098ce0377ef06a85ec9bf2c9dcff3":[2,0,0,3,20,341],
 "sdk__config_8h.html#af04952e1446154d7a538589494639e78":[2,0,0,3,20,707],
 "sdk__config_8h.html#af085e5ec7132a9bf849f416587cd6255":[2,0,0,3,20,1216],
 "sdk__config_8h.html#af08d8de72eb81ed2eea304ec552e4545":[2,0,0,3,20,895],
@@ -248,6 +249,5 @@ var NAVTREEINDEX10 =
 "structruuvi__interface__uart__init__config__t.html#a0b60e0568b5f8b88f3142ee4d0489946":[1,0,25,6],
 "structruuvi__interface__uart__init__config__t.html#a3be5f93ec733e6e4c039b89f4791d7cd":[1,0,25,1],
 "structruuvi__interface__uart__init__config__t.html#a3f32f989e34d67aa0736e2606a255e55":[1,0,25,3],
-"structruuvi__interface__uart__init__config__t.html#a6fdccd6218f813c8ccd4543342981645":[1,0,25,0],
-"structruuvi__interface__uart__init__config__t.html#a736cfb505059e7cfa5c8a3f3208d07cb":[1,0,25,4]
+"structruuvi__interface__uart__init__config__t.html#a6fdccd6218f813c8ccd4543342981645":[1,0,25,0]
 };

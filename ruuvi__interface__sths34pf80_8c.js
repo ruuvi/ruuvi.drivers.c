@@ -1,6 +1,7 @@
 var ruuvi__interface__sths34pf80_8c =
 [
     [ "BOOT_DELAY_MS", "group___s_t_h_s34_p_f80.html#ga110d810e6f746a0b3713fb20c7ba02f6", null ],
+    [ "PRESENCE_MAX_DURATION_MS", "group___s_t_h_s34_p_f80.html#ga5b3b1e3f8fa67cdac0a71af34c1327dd", null ],
     [ "RETURN_SUCCESS_ON_VALID", "group___s_t_h_s34_p_f80.html#ga59ad04a27678ee7b16070e43227e970b", null ],
     [ "VERIFY_SENSOR_SLEEPS", "group___s_t_h_s34_p_f80.html#ga97355e96c09fc9896da2a8dd1d95c9b4", null ],
     [ "ri_sths34pf80_configure_defaults", "group___s_t_h_s34_p_f80.html#ga57484577ff2de243792fa5e0bbf081e5", null ],

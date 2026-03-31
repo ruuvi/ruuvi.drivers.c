@@ -111,6 +111,9 @@ Macros</h2></td></tr>
 <tr class="memitem:ga110d810e6f746a0b3713fb20c7ba02f6" id="r_ga110d810e6f746a0b3713fb20c7ba02f6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___s_t_h_s34_p_f80.html#ga110d810e6f746a0b3713fb20c7ba02f6">BOOT_DELAY_MS</a>&#160;&#160;&#160;(10U)</td></tr>
 <tr class="memdesc:ga110d810e6f746a0b3713fb20c7ba02f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delay after boot/reset in milliseconds.  <br /></td></tr>
 <tr class="separator:ga110d810e6f746a0b3713fb20c7ba02f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5b3b1e3f8fa67cdac0a71af34c1327dd" id="r_ga5b3b1e3f8fa67cdac0a71af34c1327dd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___s_t_h_s34_p_f80.html#ga5b3b1e3f8fa67cdac0a71af34c1327dd">PRESENCE_MAX_DURATION_MS</a>&#160;&#160;&#160;(20U * 60U * 1000U)</td></tr>
+<tr class="memdesc:ga5b3b1e3f8fa67cdac0a71af34c1327dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">20 minutes. Presence without motion for longer is considered a fault.  <br /></td></tr>
+<tr class="separator:ga5b3b1e3f8fa67cdac0a71af34c1327dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga97355e96c09fc9896da2a8dd1d95c9b4" id="r_ga97355e96c09fc9896da2a8dd1d95c9b4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___s_t_h_s34_p_f80.html#ga97355e96c09fc9896da2a8dd1d95c9b4">VERIFY_SENSOR_SLEEPS</a>()</td></tr>
 <tr class="memdesc:ga97355e96c09fc9896da2a8dd1d95c9b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Macro for checking that sensor is in sleep mode before configuration.  <br /></td></tr>
 <tr class="separator:ga97355e96c09fc9896da2a8dd1d95c9b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,6 +244,24 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga5b3b1e3f8fa67cdac0a71af34c1327dd" name="ga5b3b1e3f8fa67cdac0a71af34c1327dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5b3b1e3f8fa67cdac0a71af34c1327dd">&#9670;&#160;</a></span>PRESENCE_MAX_DURATION_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRESENCE_MAX_DURATION_MS&#160;&#160;&#160;(20U * 60U * 1000U)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>20 minutes. Presence without motion for longer is considered a fault. </p>
+
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00032">32</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+
+</div>
+</div>
 <a id="ga59ad04a27678ee7b16070e43227e970b" name="ga59ad04a27678ee7b16070e43227e970b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga59ad04a27678ee7b16070e43227e970b">&#9670;&#160;</a></span>RETURN_SUCCESS_ON_VALID</h2>
 
@@ -271,7 +292,7 @@ Functions</h2></td></tr>
 </div><!-- fragment -->
 <p>Macro for checking "ignored" parameters NO_CHANGE, MIN, MAX, DEFAULT. </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00042">42</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00043">43</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -605,12 +626,12 @@ Functions</h2></td></tr>
 <div class="line">          } <span class="keywordflow">while</span>(0)</div>
 <div class="ttc" id="agroup___error_html_ga3e1919cc1fe75cb7f12af047f6f4ce55"><div class="ttname"><a href="group___error.html#ga3e1919cc1fe75cb7f12af047f6f4ce55">rd_status_t</a></div><div class="ttdeci">uint32_t rd_status_t</div><div class="ttdoc">bitfield for representing errors</div><div class="ttdef"><b>Definition</b> <a href="ruuvi__driver__error_8h_source.html#l00054">ruuvi_driver_error.h:54</a></div></div>
 <div class="ttc" id="agroup___error_html_gaeb4256263dc1a969bd682bb967e6335b"><div class="ttname"><a href="group___error.html#gaeb4256263dc1a969bd682bb967e6335b">RD_ERROR_INVALID_STATE</a></div><div class="ttdeci">#define RD_ERROR_INVALID_STATE</div><div class="ttdoc">Invalid state, operation disallowed in this state.</div><div class="ttdef"><b>Definition</b> <a href="ruuvi__driver__error_8h_source.html#l00034">ruuvi_driver_error.h:34</a></div></div>
-<div class="ttc" id="agroup___s_t_h_s34_p_f80_html_ga38ea14e763e70473d7a1c12380f20e8d"><div class="ttname"><a href="group___s_t_h_s34_p_f80.html#ga38ea14e763e70473d7a1c12380f20e8d">ri_sths34pf80_mode_get</a></div><div class="ttdeci">rd_status_t ri_sths34pf80_mode_get(uint8_t *mode)</div><div class="ttdoc">rd_sensor_setup_fp</div><div class="ttdef"><b>Definition</b> <a href="ruuvi__interface__sths34pf80_8c_source.html#l00726">ruuvi_interface_sths34pf80.c:726</a></div></div>
+<div class="ttc" id="agroup___s_t_h_s34_p_f80_html_ga38ea14e763e70473d7a1c12380f20e8d"><div class="ttname"><a href="group___s_t_h_s34_p_f80.html#ga38ea14e763e70473d7a1c12380f20e8d">ri_sths34pf80_mode_get</a></div><div class="ttdeci">rd_status_t ri_sths34pf80_mode_get(uint8_t *mode)</div><div class="ttdoc">rd_sensor_setup_fp</div><div class="ttdef"><b>Definition</b> <a href="ruuvi__interface__sths34pf80_8c_source.html#l00772">ruuvi_interface_sths34pf80.c:772</a></div></div>
 <div class="ttc" id="agroup___sensor_html_ga16ac06727f5f9ff7edbd0e3d4e380ee5"><div class="ttname"><a href="group___sensor.html#ga16ac06727f5f9ff7edbd0e3d4e380ee5">RD_SENSOR_CFG_SLEEP</a></div><div class="ttdeci">#define RD_SENSOR_CFG_SLEEP</div><div class="ttdoc">Sensor should go to sleep immediately.</div><div class="ttdef"><b>Definition</b> <a href="ruuvi__driver__sensor_8h_source.html#l00085">ruuvi_driver_sensor.h:85</a></div></div>
 </div><!-- fragment -->
 <p>Macro for checking that sensor is in sleep mode before configuration. </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00034">34</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00035">35</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -639,7 +660,7 @@ RD_ERROR_INVALID_STATE if sensor is not in sleep mode. </dd>
 <dd>
 RD_ERROR_INTERNAL on driver error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00822">822</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00868">868</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -661,7 +682,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga1fa828a042669cb08c3d30a0663735dd">rd_sensor_data_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00737">737</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00783">783</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -693,7 +714,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga1b2930b46ce7a153808c7d521fb585a5">rd_sensor_dsp_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00631">631</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00677">677</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -725,7 +746,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga1b2930b46ce7a153808c7d521fb585a5">rd_sensor_dsp_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00609">609</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00655">655</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -763,7 +784,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga097feafa8478edfe4365c18b6a4a8460">rd_sensor_init_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00187">187</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00233">233</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -785,7 +806,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00726">726</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00772">772</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -807,7 +828,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00643">643</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00689">689</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -829,7 +850,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00573">573</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00619">619</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -851,7 +872,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00559">559</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00605">605</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -873,7 +894,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00505">505</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00551">551</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -895,7 +916,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00388">388</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00434">434</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -917,7 +938,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00598">598</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00644">644</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -939,7 +960,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga7c26395a5b665b3a598147250111de36">rd_sensor_setup_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00584">584</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00630">630</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>
@@ -977,7 +998,7 @@ RD_ERROR_INTERNAL on driver error. </dd></dl>
 
 <p><a class="el" href="group___sensor.html#ga097feafa8478edfe4365c18b6a4a8460">rd_sensor_init_fp</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00301">301</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html#l00347">347</a> of file <a class="el" href="ruuvi__interface__sths34pf80_8c_source.html">ruuvi_interface_sths34pf80.c</a>.</p>
 
 </div>
 </div>

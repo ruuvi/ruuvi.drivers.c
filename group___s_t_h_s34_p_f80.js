@@ -2,6 +2,7 @@ var group___s_t_h_s34_p_f80 =
 [
     [ "ruuvi_interface_sths34pf80.h", "ruuvi__interface__sths34pf80_8h.html", null ],
     [ "BOOT_DELAY_MS", "group___s_t_h_s34_p_f80.html#ga110d810e6f746a0b3713fb20c7ba02f6", null ],
+    [ "PRESENCE_MAX_DURATION_MS", "group___s_t_h_s34_p_f80.html#ga5b3b1e3f8fa67cdac0a71af34c1327dd", null ],
     [ "RETURN_SUCCESS_ON_VALID", "group___s_t_h_s34_p_f80.html#ga59ad04a27678ee7b16070e43227e970b", null ],
     [ "RI_STHS34PF80_AVG_TAMB_DEFAULT", "group___s_t_h_s34_p_f80.html#ga6709500ab3484dfe33f9b9f6870f104a", null ],
     [ "RI_STHS34PF80_AVG_TMOS_DEFAULT", "group___s_t_h_s34_p_f80.html#gade7367b8803b9e8eee5711c566040d4a", null ],
