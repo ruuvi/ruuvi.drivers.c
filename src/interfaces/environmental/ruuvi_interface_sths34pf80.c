@@ -129,7 +129,7 @@ static bool is_algorithm_valid (void)
 
     if (m_ctx.presence_flag)
     {
-        if (0 == m_ctx.presence_started)
+        if (RD_UINT64_INVALID == m_ctx.presence_started)
         {
             m_ctx.presence_started = m_ctx.tsample; // Start timer when presence first detected
         }
@@ -145,7 +145,7 @@ static bool is_algorithm_valid (void)
     }
     else
     {
-        m_ctx.presence_started = 0; // Reset timer when presence not detected
+        m_ctx.presence_started = RD_UINT64_INVALID; // Reset timer when presence not detected
     }
 
     // Consider algorithm invalid if ambient shock detected,
