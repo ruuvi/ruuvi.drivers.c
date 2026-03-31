@@ -29,6 +29,7 @@
 /** @{ */
 
 #define BOOT_DELAY_MS       (10U)  //!< Delay after boot/reset in milliseconds.
+#define PRESENCE_MAX_DURATION_MS (20U * 60U * 1000U) //!< 20 minutes. Presence without motion for longer is considered a fault.
 
 /** @brief Macro for checking that sensor is in sleep mode before configuration */
 #define VERIFY_SENSOR_SLEEPS() do { \
@@ -64,6 +65,7 @@ typedef struct
     uint8_t motion_flag;          //!< Last motion flag from FUNC_STATUS.
     uint8_t tamb_shock_flag;      //!< Last ambient shock flag from FUNC_STATUS.
     bool algo_valid;              //!< Algorithm outputs valid (false after temp shock until recalibrated).
+    uint64_t presence_started;    //!< Timestamp when presence was first detected, RD_UINT64_INVALID if not currently present.
 #if SHTS_DEBUG_DATA_IN_ACCELERATION
     int16_t tpresence_raw;        //!< Last presence algorithm value (debug).
     int16_t tmotion_raw;          //!< Last motion algorithm value (debug).
@@ -108,6 +110,55 @@ static rd_status_t st_to_ruuvi_error (const int32_t st_err)
 }
 
 /**
+ * @brief self-diagnostic to estimate algorithm validity.
+ *
+ * Algorithm is generally considered valid, but ambient shock and
+ * latched presence are considered errors.
+ */
+static bool is_algorithm_valid (void)
+{
+    // Consider algorithm invalid if presence detected for an extended period, as this may indicate a fault or contamination.
+    // The STHS34PF80 does not have a built-in timer for this, so we track presence duration in software.
+    // Motion resets the presence duration timer, since real occupancy
+    // generates frequent motion events. A stuck presence flag without
+    // motion indicates a sensor fault.
+    if (m_ctx.motion_flag)
+    {
+        m_ctx.presence_started = m_ctx.tsample;
+    }
+
+    if (m_ctx.presence_flag)
+    {
+        if (RD_UINT64_INVALID == m_ctx.presence_started)
+        {
+            m_ctx.presence_started = m_ctx.tsample; // Start timer when presence first detected
+        }
+        else
+        {
+            uint64_t presence_duration = m_ctx.tsample - m_ctx.presence_started;
+
+            if (presence_duration > PRESENCE_MAX_DURATION_MS)
+            {
+                return false; // Presence without motion for too long, consider algorithm invalid
+            }
+        }
+    }
+    else
+    {
+        m_ctx.presence_started = RD_UINT64_INVALID; // Reset timer when presence not detected
+    }
+
+    // Consider algorithm invalid if ambient shock detected,
+    // as this may indicate a sudden temperature change that requires recalibration.
+    if (m_ctx.tamb_shock_flag)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief Read single sample from sensor.
  *
  * Reads ambient temp, object IR signal, and presence/motion flags.
@@ -139,23 +190,18 @@ static rd_status_t read_sample (void)
     m_ctx.presence_flag = func_status.pres_flag;
     m_ctx.motion_flag = func_status.mot_flag;
     m_ctx.tamb_shock_flag = func_status.tamb_shock_flag;
+    // Record timestamp
+    m_ctx.tsample = rd_sensor_timestamp_get();
+    // Reset algorithm state on error detection.
+    // This allows the sensor to recalibrate after error event.
+    m_ctx.algo_valid = is_algorithm_valid();
 
-    // Reset algorithm state on temperature shock detection.
-    // This allows the sensor to recalibrate after rapid ambient temperature changes.
-    // Mark algorithm outputs as invalid until next sample without shock.
-    if (func_status.tamb_shock_flag)
+    if (!m_ctx.algo_valid)
     {
         st_err = sths34pf80_algo_reset (&m_ctx.ctx);
         err_code |= st_to_ruuvi_error (st_err);
-        m_ctx.algo_valid = false;
-    }
-    else
-    {
-        m_ctx.algo_valid = true;
     }
 
-    // Record timestamp
-    m_ctx.tsample = rd_sensor_timestamp_get();
     return err_code;
 }
 
