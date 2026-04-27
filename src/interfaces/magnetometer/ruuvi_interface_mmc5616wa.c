@@ -180,7 +180,7 @@ rd_status_t ri_mmc5616wa_init (rd_sensor_t * p_sensor, rd_bus_t bus,
     if (RD_SUCCESS == err_code)
     {
         err_code |= mmc_status_to_rd (mmc5616wa_self_test (&dev.ctx,
-                                  &selftest_passed));
+                                      &selftest_passed));
 
         if (!selftest_passed)
         {

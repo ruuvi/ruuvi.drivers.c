@@ -65,11 +65,11 @@ void test_ri_i2c_mmc5616wa_read_ok (void)
     uint8_t rx[3] = {0};
     const uint8_t returned[] = {0xAAU, 0xBBU, 0xCCU};
     ri_i2c_write_blocking_ExpectWithArrayAndReturn (MOCK_DEV_ID,
-            & (uint8_t) {MOCK_REG_ADDR},
-            1U,
-            1U,
-            false,
-            RD_SUCCESS);
+    & (uint8_t) {MOCK_REG_ADDR},
+    1U,
+    1U,
+    false,
+    RD_SUCCESS);
     ri_i2c_read_blocking_ExpectAndReturn (MOCK_DEV_ID, rx, sizeof (rx), RD_SUCCESS);
     ri_i2c_read_blocking_IgnoreArg_p_rx();
     ri_i2c_read_blocking_ReturnArrayThruPtr_p_rx (returned, sizeof (returned));
@@ -83,11 +83,11 @@ void test_ri_i2c_mmc5616wa_read_write_error (void)
 {
     uint8_t rx[1] = {0};
     ri_i2c_write_blocking_ExpectWithArrayAndReturn (MOCK_DEV_ID,
-            & (uint8_t) {MOCK_REG_ADDR},
-            1U,
-            1U,
-            false,
-            RD_ERROR_TIMEOUT);
+    & (uint8_t) {MOCK_REG_ADDR},
+    1U,
+    1U,
+    false,
+    RD_ERROR_TIMEOUT);
     TEST_ASSERT_EQUAL_INT32 (MMC5616WA_E_IO,
                              ri_i2c_mmc5616wa_read (&m_handle, MOCK_REG_ADDR,
                                      rx, sizeof (rx)));
