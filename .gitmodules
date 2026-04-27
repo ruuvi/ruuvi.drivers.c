@@ -16,3 +16,6 @@
 [submodule "ruuvi.dps310.c"]
 	path = ruuvi.dps310.c
 	url = https://github.com/ruuvi/ruuvi.dps310.c
+[submodule "MMC5616WA"]
+	path = MMC5616WA
+	url = https://github.com/ruuvi/MMC5616WA.git
