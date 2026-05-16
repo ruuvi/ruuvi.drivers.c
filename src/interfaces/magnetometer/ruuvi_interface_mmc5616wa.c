@@ -241,14 +241,24 @@ rd_status_t ri_mmc5616wa_samplerate_set (uint8_t * samplerate)
             || (RI_MMC5616WA_DEFAULT_SAMPLERATE >= *samplerate))
     {
         dev.config.odr = RI_MMC5616WA_DEFAULT_SAMPLERATE;
+        dev.config.bandwidth = MMC5616WA_BW_6_6_MS;
+    }
+    else if (RD_SENSOR_CFG_CUSTOM_1 == *samplerate)
+    {
+        dev.config.odr = RI_MMC5616WA_255HZ_SAMPLERATE;
+        dev.config.bandwidth = MMC5616WA_BW_1_2_MS;
     }
     else if (RD_SENSOR_CFG_MAX == *samplerate)
     {
         dev.config.odr = RI_MMC5616WA_MAX_SAMPLERATE;
+        dev.config.bandwidth = MMC5616WA_BW_1_2_MS;
     }
     else if (RI_MMC5616WA_MAX_SAMPLERATE >= *samplerate)
     {
         dev.config.odr = *samplerate;
+        dev.config.bandwidth = (RI_MMC5616WA_MAX_SAMPLERATE / 2U < *samplerate)
+                               ? MMC5616WA_BW_1_2_MS
+                               : MMC5616WA_BW_6_6_MS;
     }
     else
     {
@@ -272,7 +282,9 @@ rd_status_t ri_mmc5616wa_samplerate_get (uint8_t * samplerate)
         return RD_ERROR_NULL;
     }
 
-    *samplerate = dev.config.odr;
+    *samplerate = (RI_MMC5616WA_255HZ_SAMPLERATE == dev.config.odr)
+                  ? RD_SENSOR_CFG_CUSTOM_1
+                  : dev.config.odr;
     return RD_SUCCESS;
 }
 
