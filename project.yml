@@ -38,6 +38,7 @@
   :source:
     - BME280_driver/*
     - BME280_driver/selftest/*
+    - MMC5616WA/*
     - embedded-sht/**
     - ruuvi.dps310.c/*
     - src/*
@@ -50,6 +51,7 @@
   :include:
     - BME280_driver/*
     - BME280_driver/selftest/*
+    - MMC5616WA/*
     - embedded-sht/**
     - ruuvi.dps310.c/*
     - src/*
